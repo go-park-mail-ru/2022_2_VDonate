@@ -9,3 +9,4 @@
 
 ### Менторы:
 - [Олег Реуцкий](https://github.com/astlok) - backend
+- [Сергей Тяпкин](https://github.com/SergTyapkin) - frontend
