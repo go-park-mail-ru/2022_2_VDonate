@@ -10,3 +10,6 @@
 ### Менторы:
 - [Олег Реуцкий](https://github.com/astlok) - backend
 - [Сергей Тяпкин](https://github.com/SergTyapkin) - frontend
+- [Ксения Самойлова](https://github.com/somebody-kseny) - frontend
+
+### [Репозиторий фронтенда](https://github.com/frontend-park-mail-ru/2022_2_VDonate)
