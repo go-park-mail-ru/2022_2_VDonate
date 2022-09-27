@@ -13,3 +13,4 @@
 - [Ксения Самойлова](https://github.com/somebody-kseny) - frontend
 
 ### [Репозиторий фронтенда](https://github.com/frontend-park-mail-ru/2022_2_VDonate)
+### Документация [Swagger](https://app.swaggerhub.com/apis-docs/zeronethunter/v-donate_api/1.0)
