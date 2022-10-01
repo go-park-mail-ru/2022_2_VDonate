@@ -1,0 +1,5 @@
+port = ":8080"
+dbName = "postgres"
+
+[storage]
+database_url = "host=localhost dbname=dev sslmode=disable"
