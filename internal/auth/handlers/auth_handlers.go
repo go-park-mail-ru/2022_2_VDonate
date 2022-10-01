@@ -19,6 +19,10 @@ func New(userRepo *user_repo.Repo, cookieRepo *cookie_repo.Repo) *AuthHTTPHandle
 }
 
 func (h *AuthHTTPHandler) Auth(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	if r.Method == http.MethodOptions {
+		return
+	}
 	session, err := r.Cookie("session_id")
 	if err == http.ErrNoCookie {
 		http.Error(w, `no session`, http.StatusUnauthorized)

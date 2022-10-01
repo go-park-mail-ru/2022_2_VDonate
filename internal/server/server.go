@@ -2,6 +2,7 @@ package server
 
 import (
 	auth_http "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/handlers"
+	auth_middleware "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/middleware"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/storages"
 	cookie_repo "github.com/go-park-mail-ru/2022_2_VDonate/internal/storages/cookie"
@@ -13,8 +14,14 @@ import (
 	"net/http"
 )
 
+var AllowOrigins = []string{
+	"localhost:8080",
+	"zenehu:8080",
+}
+
 type Server struct {
 	Router *mux.Router
+
 	Logger *logger.Logger
 	Config *config.Config
 
@@ -50,11 +57,22 @@ func (s *Server) makeHandlers() {
 }
 
 func (s *Server) makeRouter() {
-	s.Router.HandleFunc("/api/v1/login", s.AuthHTTPHandler.Login).Methods("POST")
-	s.Router.HandleFunc("/api/v1/auth", s.AuthHTTPHandler.Auth).Methods("GET")
-	s.Router.HandleFunc("/api/v1/users", s.AuthHTTPHandler.SignUp).Methods("POST")
-	s.Router.HandleFunc("/api/v1/logout", s.AuthHTTPHandler.Logout).Methods("DELETE")
-	s.Router.HandleFunc("/api/v1/users/{id}", s.UserHTTPHandler.GetUser).Methods("GET")
+	authPostRouter := s.Router.Methods("POST").Subrouter()
+	authPostRouter.HandleFunc("/api/v1/login", s.AuthHTTPHandler.Login)
+	authPostRouter.HandleFunc("/api/v1/users", s.AuthHTTPHandler.SignUp)
+
+	authGetRouter := s.Router.Methods("GET").Subrouter()
+	authGetRouter.HandleFunc("api/v1/auth", s.AuthHTTPHandler.Auth)
+
+	authDeleteRouter := s.Router.Methods("DELETE").Subrouter()
+	authDeleteRouter.HandleFunc("/api/v1/logout", s.AuthHTTPHandler.Logout).Methods("DELETE")
+	authDeleteRouter.Use(auth_middleware.New(s.UserRepo, s.CookieRepo).LoginRequired)
+
+	usersGetRouter := s.Router.Methods("GET").Subrouter()
+	usersGetRouter.HandleFunc("/api/v1/users/{id}", s.UserHTTPHandler.GetUser)
+	usersGetRouter.Use(auth_middleware.New(s.UserRepo, s.CookieRepo).LoginRequired)
+
+	s.Router.Use(auth_middleware.CORS(AllowOrigins))
 }
 
 func New(s *storage.Storage, l *logger.Logger, c *config.Config) *Server {
