@@ -4,6 +4,7 @@ import (
 	cookie_repo "github.com/go-park-mail-ru/2022_2_VDonate/internal/storages/cookie"
 	user_repo "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/repository"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 )
 
@@ -38,12 +39,15 @@ func CORS(allowOrigin []string) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			origin := r.Header.Get("Origin")
+			log.Printf("request from origin: " + origin)
 			for _, o := range allowOrigin {
 				if o == origin {
-					r.Header.Set("Access-Control-Allow-Origin", o)
-					r.Header.Set("Access-Control-Allow-Credentials", "true")
+					w.Header().Set("Access-Control-Allow-Origin", o)
+					w.Header().Set("Access-Control-Allow-Credentials", "true")
+					w.Header().Set("Access-Control-Allow-Headers", "content-type")
 
 					next.ServeHTTP(w, r)
+
 					return
 				}
 			}

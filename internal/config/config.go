@@ -6,21 +6,24 @@ import (
 )
 
 const (
-	port   = ":8080"
-	dbName = "postgres"
+	port      = ":8080"
+	dbName    = "postgres"
+	corsDebug = false
 )
 
 type Config struct {
-	Port    string `toml:"port"`
-	DbName  string `toml:"dbName"`
-	Storage *storage_config.Config
+	Port      string `toml:"port"`
+	DbName    string `toml:"dbName"`
+	CorsDebug bool   `toml:"cors_debug"`
+	Storage   *storage_config.Config
 }
 
 func New() *Config {
 	return &Config{
-		Port:    port,
-		DbName:  dbName,
-		Storage: storage_config.New(),
+		Port:      port,
+		DbName:    dbName,
+		CorsDebug: corsDebug,
+		Storage:   storage_config.New(),
 	}
 }
 
