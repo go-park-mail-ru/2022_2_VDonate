@@ -14,7 +14,8 @@ func New(s *storage.Storage) *Repo {
 }
 
 func (r *Repo) Create(u *model.User) error {
-	if err := r.Storage.DB.QueryRow("INSERT INTO users (username, first_name, last_name, avatar, email, password, is_author) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
+	if err := r.Storage.DB.QueryRow(
+		"INSERT INTO users (username, first_name, last_name, avatar, email, password, is_author, about) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id",
 		u.Username,
 		u.FirstName,
 		u.LastName,
@@ -22,6 +23,7 @@ func (r *Repo) Create(u *model.User) error {
 		u.Email,
 		u.Password,
 		u.IsAuthor,
+		u.About,
 	).Scan(&u.ID); err != nil {
 		return err
 	}
@@ -32,7 +34,7 @@ func (r *Repo) Create(u *model.User) error {
 func (r *Repo) FindByUsername(username string) (*model.User, error) {
 	u := &model.User{}
 	if err := r.Storage.DB.QueryRow(
-		"SELECT id, username, first_name, last_name, avatar, email, password, is_author FROM users WHERE username = $1",
+		"SELECT id, username, first_name, last_name, avatar, email, password, is_author, about FROM users WHERE username = $1",
 		username,
 	).Scan(
 		&u.ID,
@@ -43,6 +45,7 @@ func (r *Repo) FindByUsername(username string) (*model.User, error) {
 		&u.Email,
 		&u.Password,
 		&u.IsAuthor,
+		&u.About,
 	); err != nil {
 		return nil, err
 	}
@@ -53,7 +56,7 @@ func (r *Repo) FindByUsername(username string) (*model.User, error) {
 func (r *Repo) FindByID(id uint) (*model.User, error) {
 	u := &model.User{}
 	if err := r.Storage.DB.QueryRow(
-		"SELECT id, username, first_name, last_name, avatar, email, password, is_author FROM users WHERE id = $1",
+		"SELECT id, username, first_name, last_name, avatar, email, password, is_author, about FROM users WHERE id = $1",
 		id,
 	).Scan(
 		&u.ID,
@@ -64,6 +67,7 @@ func (r *Repo) FindByID(id uint) (*model.User, error) {
 		&u.Email,
 		&u.Password,
 		&u.IsAuthor,
+		&u.About,
 	); err != nil {
 		return nil, err
 	}
@@ -74,7 +78,7 @@ func (r *Repo) FindByID(id uint) (*model.User, error) {
 func (r *Repo) FindByEmail(email string) (*model.User, error) {
 	u := &model.User{}
 	if err := r.Storage.DB.QueryRow(
-		"SELECT id, username, first_name, last_name, avatar, email, password, is_author FROM users WHERE email = $1",
+		"SELECT id, username, first_name, last_name, avatar, email, password, is_author, about FROM users WHERE email = $1",
 		email,
 	).Scan(
 		&u.ID,
@@ -85,6 +89,7 @@ func (r *Repo) FindByEmail(email string) (*model.User, error) {
 		&u.Email,
 		&u.Password,
 		&u.IsAuthor,
+		&u.About,
 	); err != nil {
 		return nil, err
 	}

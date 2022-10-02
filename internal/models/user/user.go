@@ -10,4 +10,5 @@ type User struct {
 	Password  string `json:"password"`
 	Phone     uint   `json:"phone,omitempty"`
 	IsAuthor  bool   `json:"is_author"`
+	About     string `json:"about"`
 }

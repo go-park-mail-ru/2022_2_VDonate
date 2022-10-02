@@ -40,7 +40,7 @@ func (h *AuthHTTPHandler) Auth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if _, err := w.Write(info); err != nil {
-		http.Error(w, "responce error", http.StatusInternalServerError)
+		http.Error(w, "response error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -106,9 +106,11 @@ func (h *AuthHTTPHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		Password  string `json:"password"`
 		FirstName string `json:"first_name"`
 		LastName  string `json:"last_name"`
+		Avatar    string `json:"avatar"`
 		Email     string `json:"email"`
 		Phone     uint   `json:"phone"`
 		IsAuthor  bool   `json:"is_author"`
+		About     string `json:"about"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&newUser)
@@ -125,15 +127,33 @@ func (h *AuthHTTPHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "email is already exists", http.StatusConflict)
 		return
 	}
-	user := &model.User{
-		Username:  newUser.Username,
-		Password:  newUser.Password,
-		FirstName: newUser.FirstName,
-		LastName:  newUser.LastName,
-		Email:     newUser.Email,
-		Phone:     newUser.Phone,
-		IsAuthor:  newUser.IsAuthor,
+
+	var user *model.User
+	if newUser.IsAuthor {
+		user = &model.User{
+			Username:  newUser.Username,
+			Password:  newUser.Password,
+			FirstName: newUser.FirstName,
+			LastName:  newUser.LastName,
+			Avatar:    newUser.Avatar,
+			Email:     newUser.Email,
+			Phone:     newUser.Phone,
+			IsAuthor:  newUser.IsAuthor,
+			About:     newUser.About,
+		}
+	} else {
+		user = &model.User{
+			Username:  newUser.Username,
+			Password:  newUser.Password,
+			FirstName: newUser.FirstName,
+			LastName:  newUser.LastName,
+			Avatar:    newUser.Avatar,
+			Email:     newUser.Email,
+			Phone:     newUser.Phone,
+			IsAuthor:  newUser.IsAuthor,
+		}
 	}
+
 	if err = h.userRepo.Create(user); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

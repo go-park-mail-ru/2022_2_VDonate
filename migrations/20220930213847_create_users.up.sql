@@ -7,5 +7,6 @@ CREATE TABLE users (
                        email varchar not null unique,
                        password varchar not null,
                        phone text unique,
-                       is_author boolean not null
+                       is_author boolean not null,
+                       about text
 );
