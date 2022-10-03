@@ -2,21 +2,19 @@ package storage
 
 import (
 	"database/sql"
-	storage_config "github.com/go-park-mail-ru/2022_2_VDonate/internal/storages/config"
 	_ "github.com/lib/pq"
 )
 
 type Storage struct {
-	DB     *sql.DB
-	config *storage_config.Config
+	DB *sql.DB
 }
 
-func New(config *storage_config.Config) *Storage {
-	return &Storage{config: config}
+func New() *Storage {
+	return &Storage{}
 }
 
-func (s *Storage) Open(dbName string) error {
-	db, err := sql.Open(dbName, s.config.DatabaseURL)
+func (s *Storage) Open(dbName, dbURL string) error {
+	db, err := sql.Open(dbName, dbURL)
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,7 @@
-package user_repo
+package userRepository
 
 import (
-	model "github.com/go-park-mail-ru/2022_2_VDonate/internal/models/user"
+	model "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	storage "github.com/go-park-mail-ru/2022_2_VDonate/internal/storages"
 )
 
@@ -13,7 +13,7 @@ func New(s *storage.Storage) *Repo {
 	return &Repo{Storage: s}
 }
 
-func (r *Repo) Create(u *model.User) error {
+func (r *Repo) Create(u *model.UserDB) error {
 	if err := r.Storage.DB.QueryRow(
 		"INSERT INTO users (username, first_name, last_name, avatar, email, password, is_author, about) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id",
 		u.Username,
@@ -31,8 +31,8 @@ func (r *Repo) Create(u *model.User) error {
 	return nil
 }
 
-func (r *Repo) FindByUsername(username string) (*model.User, error) {
-	u := &model.User{}
+func (r *Repo) FindByUsername(username string) (*model.UserDB, error) {
+	u := &model.UserDB{}
 	if err := r.Storage.DB.QueryRow(
 		"SELECT id, username, first_name, last_name, avatar, email, password, is_author, about FROM users WHERE username = $1",
 		username,
@@ -53,8 +53,8 @@ func (r *Repo) FindByUsername(username string) (*model.User, error) {
 	return u, nil
 }
 
-func (r *Repo) FindByID(id uint) (*model.User, error) {
-	u := &model.User{}
+func (r *Repo) FindByID(id uint) (*model.UserDB, error) {
+	u := &model.UserDB{}
 	if err := r.Storage.DB.QueryRow(
 		"SELECT id, username, first_name, last_name, avatar, email, password, is_author, about FROM users WHERE id = $1",
 		id,
@@ -75,8 +75,8 @@ func (r *Repo) FindByID(id uint) (*model.User, error) {
 	return u, nil
 }
 
-func (r *Repo) FindByEmail(email string) (*model.User, error) {
-	u := &model.User{}
+func (r *Repo) FindByEmail(email string) (*model.UserDB, error) {
+	u := &model.UserDB{}
 	if err := r.Storage.DB.QueryRow(
 		"SELECT id, username, first_name, last_name, avatar, email, password, is_author, about FROM users WHERE email = $1",
 		email,

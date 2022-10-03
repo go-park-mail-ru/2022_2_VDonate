@@ -1,6 +1,0 @@
-port = ":8080"
-dbName = "postgres"
-cors_debug = false
-
-[storage]
-database_url = "host=localhost dbname=dev sslmode=disable"

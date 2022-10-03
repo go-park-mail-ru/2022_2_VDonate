@@ -1,14 +1,13 @@
-package server
+package system
 
 import (
-	auth_http "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/handlers"
-	auth_middleware "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/middleware"
+	authHandlers "github.com/go-park-mail-ru/2022_2_VDonate/internal/app/auth/handlers"
+	sessionRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/app/session/repository"
+	userHandlers "github.com/go-park-mail-ru/2022_2_VDonate/internal/app/users/handlers"
+	userRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/app/users/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/cors"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/middleware"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/storages"
-	cookie_repo "github.com/go-park-mail-ru/2022_2_VDonate/internal/storages/cookie"
-	user_http "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/handlers"
-	user_repo "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
 	"github.com/gorilla/mux"
 	"log"
@@ -21,36 +20,39 @@ type Server struct {
 	Logger *logger.Logger
 	Config *config.Config
 
-	Storage    *storage.Storage
-	UserRepo   *user_repo.Repo
-	CookieRepo *cookie_repo.Repo
+	Storage     *storage.Storage
+	UserRepo    *userRepository.Repo
+	SessionRepo *sessionRepository.Repo
 
-	AuthHTTPHandler *auth_http.AuthHTTPHandler
-	UserHTTPHandler *user_http.UserHTTPHandler
+	AuthHTTPHandler *authHandlers.HTTPHandler
+	UserHTTPHandler *userHandlers.HTTPHandler
 }
 
-func (s *Server) Start() error {
+func (s *Server) init() {
 	s.Logger.Logrus.Info("server started")
 	log.SetOutput(s.Logger.Logrus.Writer())
 	s.makeStorage()
 	s.makeHandlers()
 	s.makeRouter()
 	s.makeCORS()
+}
 
-	if err := http.ListenAndServe(s.Config.Port, s.Router); err != nil {
+func (s *Server) Start() error {
+	s.init()
+	if err := http.ListenAndServe(":"+s.Config.Server.Port, s.Router); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (s *Server) makeStorage() {
-	s.CookieRepo = cookie_repo.New()
-	s.UserRepo = user_repo.New(s.Storage)
+	s.SessionRepo = sessionRepository.New()
+	s.UserRepo = userRepository.New(s.Storage)
 }
 
 func (s *Server) makeHandlers() {
-	s.AuthHTTPHandler = auth_http.New(s.UserRepo, s.CookieRepo)
-	s.UserHTTPHandler = user_http.New(s.UserRepo, s.CookieRepo)
+	s.AuthHTTPHandler = authHandlers.NewHTTPHandler(s.UserRepo, s.SessionRepo)
+	s.UserHTTPHandler = userHandlers.NewHTTPHandler(s.UserRepo, s.SessionRepo)
 }
 
 func (s *Server) makeRouter() {
@@ -63,17 +65,18 @@ func (s *Server) makeRouter() {
 
 	authDeleteRouter := s.Router.Methods("DELETE", "OPTIONS").Subrouter()
 	authDeleteRouter.HandleFunc("/api/v1/logout", s.AuthHTTPHandler.Logout)
-	authDeleteRouter.Use(auth_middleware.New(s.UserRepo, s.CookieRepo).LoginRequired)
+	authDeleteRouter.Use(middleware.NewAuth(s.UserRepo, s.SessionRepo).LoginRequired)
 
 	usersGetRouter := s.Router.Methods("GET", "OPTIONS").Subrouter()
 	usersGetRouter.HandleFunc("/api/v1/users/{id}", s.UserHTTPHandler.GetUser)
+	usersGetRouter.Use(middleware.NewAuth(s.UserRepo, s.SessionRepo).LoginRequired)
 }
 
 func (s *Server) makeCORS() {
-	c := cors.New(s.Config.CorsDebug)
+	c := middleware.NewCORS(s.Config.Debug.CORS)
 
 	// due to strange logic of rs/cors
-	if s.Config.CorsDebug {
+	if s.Config.Debug.CORS {
 		c.Log = s.Logger.Logrus
 	}
 

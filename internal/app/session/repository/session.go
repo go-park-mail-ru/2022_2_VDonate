@@ -1,13 +1,15 @@
-package cookie_repo
+package sessionRepository
 
 import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"net/http"
+	"sync"
 	"time"
 )
 
 type Repo struct {
 	Storage map[string]uint
+	m       sync.Mutex
 }
 
 func New() *Repo {
@@ -16,7 +18,10 @@ func New() *Repo {
 
 func (r *Repo) Create(id uint) *http.Cookie {
 	CID := utils.RandStringRunes(32)
+
+	r.m.Lock()
 	r.Storage[CID] = id
+	r.m.Unlock()
 
 	return &http.Cookie{
 		Name:    "session_id",

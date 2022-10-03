@@ -1,0 +1,10 @@
+server:
+  host: 127.0.0.1
+  port: 8080
+
+db:
+  driver: postgres
+  url: host=localhost dbname=dev sslmode=disable
+
+debug:
+  cors: false

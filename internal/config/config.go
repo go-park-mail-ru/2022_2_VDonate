@@ -2,31 +2,72 @@ package config
 
 import (
 	"flag"
-	storage_config "github.com/go-park-mail-ru/2022_2_VDonate/internal/storages/config"
+	"gopkg.in/yaml.v3"
+	"os"
 )
 
 const (
-	port      = ":8080"
-	dbName    = "postgres"
-	corsDebug = false
+	host      = "127.0.0.1"
+	port      = "8080"
+	dbURL     = "host=localhost dbname=dev sslmode=disabled"
+	dbDriver  = "postgres"
+	corsDebug = true
 )
 
 type Config struct {
-	Port      string `toml:"port"`
-	DbName    string `toml:"dbName"`
-	CorsDebug bool   `toml:"cors_debug"`
-	Storage   *storage_config.Config
+	Server struct {
+		Host string `yaml:"host"`
+		Port string `yaml:"port"`
+	} `yaml:"server"`
+
+	DB struct {
+		Driver string `yaml:"driver"`
+		URL    string `yaml:"url"`
+	} `yaml:"db"`
+
+	Debug struct {
+		CORS bool `yaml:"cors"`
+	} `yaml:"debug"`
 }
 
 func New() *Config {
 	return &Config{
-		Port:      port,
-		DbName:    dbName,
-		CorsDebug: corsDebug,
-		Storage:   storage_config.New(),
+		Server: struct {
+			Host string `yaml:"host"`
+			Port string `yaml:"port"`
+		}(struct {
+			Host string
+			Port string
+		}{Host: host, Port: port}),
+
+		DB: struct {
+			Driver string `yaml:"driver"`
+			URL    string `yaml:"url"`
+		}(struct {
+			Driver string
+			URL    string
+		}{Driver: dbDriver, URL: dbURL}),
+
+		Debug: struct {
+			CORS bool `yaml:"cors"`
+		}{CORS: corsDebug},
 	}
 }
 
+func (c *Config) Open(path string) error {
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+
+	// Start YAML decoding from file
+	if err := yaml.NewDecoder(file).Decode(&c); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func PathFlag(path *string) {
-	flag.StringVar(path, "config-path", "./configs/config.toml", "path to config file")
+	flag.StringVar(path, "config-path", "./configs/config.yaml", "path to config file")
 }
