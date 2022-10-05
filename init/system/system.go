@@ -78,7 +78,7 @@ func (s *Server) makeRouter() {
 	usersGetRouter.Use(middleware.NewAuth(s.UserRepo, s.SessionRepo).LoginRequired)
 
 	postsGetRouter := s.Router.Methods("GET", "OPTIONS").Subrouter()
-	postsGetRouter.HandleFunc("api/v1/users/{id}/posts", s.PostsHTTPHandler.Posts)
+	postsGetRouter.HandleFunc("/api/v1/users/{id}/posts", s.PostsHTTPHandler.Posts)
 	postsGetRouter.Use(middleware.NewAuth(s.UserRepo, s.SessionRepo).LoginRequired)
 
 }

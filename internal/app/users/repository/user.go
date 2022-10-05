@@ -13,6 +13,8 @@ func New(s *storage.Storage) *Repo {
 	return &Repo{Storage: s}
 }
 
+// INSERT INTO posts (1, "SOME TEXT")
+
 func (r *Repo) Create(u *model.UserDB) error {
 	if err := r.Storage.DB.QueryRow(
 		"INSERT INTO users (username, first_name, last_name, avatar, email, password, is_author, about) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id",

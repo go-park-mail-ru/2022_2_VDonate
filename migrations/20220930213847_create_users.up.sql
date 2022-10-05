@@ -16,4 +16,4 @@ CREATE TABLE posts (
     user_id bigserial not null references users(id),
     title text not null
 
-)
+);

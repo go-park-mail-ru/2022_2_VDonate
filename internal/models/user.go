@@ -7,7 +7,7 @@ type UserDB struct {
 	LastName  string `json:"last_name,omitempty"`
 	Email     string `json:"email"`
 	Avatar    string `json:"avatar,omitempty"`
-	Password  string `json:"-"`
+	Password  string `json:"password"`
 	Phone     string `json:"phone,omitempty"`
 	IsAuthor  bool   `json:"is_author"`
 	About     string `json:"about,omitempty"`
