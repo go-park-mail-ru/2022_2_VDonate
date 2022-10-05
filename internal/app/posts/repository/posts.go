@@ -15,14 +15,19 @@ func New(s *storage.Storage) *Repo {
 
 func (r *Repo) GetPostsByID(id uint) ([]*models.PostDB, error) {
 	var p []*models.PostDB
-	if err := r.Storage.DB.QueryRow(
-		"SELECT post_id, user_id, title FROM posts WHERE user_id = $1",
+	rows, err := r.Storage.DB.Query(
+		"SELECT user_id, title FROM posts WHERE user_id = $1",
 		id,
-	).Scan(
-		&p,
-	); err != nil {
+	)
+	if err != nil {
 		return nil, err
 	}
-
+	for rows.Next() {
+		var post models.PostDB
+		if err := rows.Scan(&post.UserID, &post.Title); err != nil {
+			return nil, err
+		}
+		p = append(p, &post)
+	}
 	return p, nil
 }
