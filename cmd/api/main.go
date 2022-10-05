@@ -37,6 +37,6 @@ func main() {
 	/*----------------------------server--------------------------*/
 	s := system.New(store, l, cfg)
 	if err = s.Start(); err != nil {
-		s.Logger.Logrus.Fatalf("server error: %s", err)
+		s.Logger.Logrus.Fatalf("server errors: %s", err)
 	}
 }

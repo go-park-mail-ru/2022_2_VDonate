@@ -20,7 +20,7 @@ var (
 )
 
 func Wrap(w http.ResponseWriter, errHTTP, errLog error) {
-	log.Printf("error: %s", errLog)
+	log.Printf("errors: %s", errLog)
 	switch errHTTP {
 	case ErrNoSession:
 		http.Error(w, errHTTP.Error(), http.StatusUnauthorized)

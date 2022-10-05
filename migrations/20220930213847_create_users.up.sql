@@ -10,3 +10,10 @@ CREATE TABLE users (
                        is_author boolean not null,
                        about text
 );
+
+CREATE TABLE posts (
+    post_id bigserial not null primary key,
+    user_id bigserial not null references users(id),
+    title text not null
+
+)
