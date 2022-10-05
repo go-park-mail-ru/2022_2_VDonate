@@ -7,8 +7,8 @@ type UserDB struct {
 	LastName  string `json:"last_name,omitempty"`
 	Email     string `json:"email"`
 	Avatar    string `json:"avatar,omitempty"`
-	Password  string `json:"password"`
-	Phone     uint   `json:"phone,omitempty"`
+	Password  string `json:"-"`
+	Phone     string `json:"phone,omitempty"`
 	IsAuthor  bool   `json:"is_author"`
 	About     string `json:"about,omitempty"`
 }
@@ -20,8 +20,8 @@ type Author struct {
 	LastName  string `json:"last_name,omitempty"`
 	Email     string `json:"email"`
 	Avatar    string `json:"avatar,omitempty"`
-	Password  string `json:"password"`
-	Phone     uint   `json:"phone,omitempty"`
+	Password  string `json:"-"`
+	Phone     string `json:"phone,omitempty"`
 	IsAuthor  bool   `json:"is_author"`
 	About     string `json:"about,omitempty"`
 }
@@ -33,7 +33,7 @@ type NotAuthor struct {
 	LastName  string `json:"last_name,omitempty"`
 	Email     string `json:"email"`
 	Avatar    string `json:"avatar,omitempty"`
-	Password  string `json:"password"`
-	Phone     uint   `json:"phone,omitempty"`
+	Password  string `json:"-"`
+	Phone     string `json:"phone,omitempty"`
 	IsAuthor  bool   `json:"is_author"`
 }
