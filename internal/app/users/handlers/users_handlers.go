@@ -2,20 +2,21 @@ package userHandlers
 
 import (
 	"encoding/json"
+	"net/http"
+	"strconv"
+
 	sessionRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/app/session/repository"
 	usersErrors "github.com/go-park-mail-ru/2022_2_VDonate/internal/app/users/errors"
 	userRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/app/users/repository"
 	"github.com/gorilla/mux"
-	"net/http"
-	"strconv"
 )
 
 type HTTPHandler struct {
-	userRepo    *userRepository.Repo
-	sessionRepo *sessionRepository.Repo
+	userRepo    userRepository.RepoI
+	sessionRepo sessionRepository.RepoI
 }
 
-func NewHTTPHandler(userRepo *userRepository.Repo, sessionRepo *sessionRepository.Repo) *HTTPHandler {
+func NewHTTPHandler(userRepo userRepository.RepoI, sessionRepo sessionRepository.RepoI) *HTTPHandler {
 	return &HTTPHandler{userRepo: userRepo, sessionRepo: sessionRepo}
 }
 
