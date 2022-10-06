@@ -3,22 +3,21 @@ package authHandlers
 import (
 	"encoding/json"
 	"errors"
-	"net/http"
-	"time"
-
 	authErrors "github.com/go-park-mail-ru/2022_2_VDonate/internal/app/auth/errors"
 	sessionRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/app/session/repository"
 	userRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/app/users/repository"
 	model "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jinzhu/copier"
+	"net/http"
+	"time"
 )
 
 type HTTPHandler struct {
-	userRepo    userRepository.RepoI
-	sessionRepo sessionRepository.RepoI
+	userRepo    *userRepository.Repo
+	sessionRepo *sessionRepository.Repo
 }
 
-func NewHTTPHandler(userRepo userRepository.RepoI, sessionRepo sessionRepository.RepoI) *HTTPHandler {
+func NewHTTPHandler(userRepo *userRepository.Repo, sessionRepo *sessionRepository.Repo) *HTTPHandler {
 	return &HTTPHandler{userRepo: userRepo, sessionRepo: sessionRepo}
 }
 
@@ -29,7 +28,7 @@ func (h *HTTPHandler) Auth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, ok := h.sessionRepo.GetId(session.Value)
+	id, ok := h.sessionRepo.Storage[session.Value]
 	if !ok {
 		authErrors.Wrap(w, authErrors.ErrNoSession, errors.New("failed to get session"))
 		return
@@ -94,7 +93,7 @@ func (h *HTTPHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, ok := h.sessionRepo.GetId(session.Value); !ok {
+	if _, ok := h.sessionRepo.Storage[session.Value]; !ok {
 		authErrors.Wrap(w, authErrors.ErrNoSession, errors.New("failed to get session"))
 		return
 	}
