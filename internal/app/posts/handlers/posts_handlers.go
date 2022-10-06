@@ -3,18 +3,19 @@ package postsHandlers
 import (
 	"encoding/json"
 	"errors"
+	"net/http"
+	"strconv"
+
 	postsErrors "github.com/go-park-mail-ru/2022_2_VDonate/internal/app/posts/errors"
 	postsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/app/posts/repository"
 	"github.com/gorilla/mux"
-	"net/http"
-	"strconv"
 )
 
 type HTTPHandler struct {
-	postsRepo *postsRepository.Repo
+	postsRepo postsRepository.RepoI
 }
 
-func NewHTPPHandler(p *postsRepository.Repo) *HTTPHandler {
+func NewHTPPHandler(p postsRepository.RepoI) *HTTPHandler {
 	return &HTTPHandler{postsRepo: p}
 }
 

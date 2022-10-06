@@ -5,6 +5,10 @@ import (
 	storage "github.com/go-park-mail-ru/2022_2_VDonate/internal/storages"
 )
 
+type RepoI interface {
+	GetPostsByID(id uint) ([]models.PostDB, error)
+}
+
 type Repo struct {
 	Storage *storage.Storage
 }
