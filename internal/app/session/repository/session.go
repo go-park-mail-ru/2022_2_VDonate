@@ -1,18 +1,11 @@
 package sessionRepository
 
 import (
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"net/http"
 	"sync"
 	"time"
-
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 )
-
-type RepoI interface {
-	Create(id uint) *http.Cookie
-	Remove(CID string)
-	GetId(CID string) (uint, bool)
-}
 
 type Repo struct {
 	Storage map[string]uint
@@ -39,11 +32,4 @@ func (r *Repo) Create(id uint) *http.Cookie {
 
 func (r *Repo) Remove(CID string) {
 	delete(r.Storage, CID)
-}
-
-func (r *Repo) GetId(CID string) (uint, bool) {
-	r.m.Lock()
-	id, err := r.Storage[CID]
-	r.m.Unlock()
-	return id, err
 }

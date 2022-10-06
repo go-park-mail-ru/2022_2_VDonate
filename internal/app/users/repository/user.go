@@ -5,13 +5,6 @@ import (
 	storage "github.com/go-park-mail-ru/2022_2_VDonate/internal/storages"
 )
 
-type RepoI interface {
-	Create(u *model.UserDB) error
-	FindByUsername(username string) (*model.UserDB, error)
-	FindByID(id uint) (*model.UserDB, error)
-	FindByEmail(email string) (*model.UserDB, error)
-}
-
 type Repo struct {
 	Storage *storage.Storage
 }

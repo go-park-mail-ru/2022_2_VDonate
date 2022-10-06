@@ -1,8 +1,6 @@
 # 2022_2_VDonate
 Проект Patreon команды ВДонате
 
-[Деплой](https://vdonate.ml)
-
 ### Состав команды:
 - [Иван Гапоян](https://github.com/Loen15)
 - [Леонард Пак](https://github.com/MrLeonardPak)
