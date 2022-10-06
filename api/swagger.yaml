@@ -1,0 +1,346 @@
+openapi: 3.0.3
+info:
+  title: VDonate API
+  description: |-
+    ## API of donation web service by VDonate team
+    
+    ### Some useful links:
+    - ### [VDonate repository](https://github.com/go-park-mail-ru/2022_2_VDonate)
+    - ### [Trello](https://trello.com/b/BZHoJsHP/vdonate)
+  contact:
+    email: zeronethunter2001@gmail.com
+  version: "1.0"
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io/docs
+servers:
+  - url: https://vdonate.mail.ru/api/v1 # Example
+tags:
+  - name: auth
+    description: Authentication
+  - name: user
+    description: Working with user's data
+  - name: experimental
+    description: Experimental API's
+  # - name: posts
+  #   description: Working with posts
+paths:
+  /login:
+    post:
+      tags:
+        - auth
+      summary: User login request
+      operationId: loginUser
+      description: Authorization of `User`
+      requestBody:
+        description: POST request with JSON
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+        required: true
+      responses:
+        '200':
+          description: Successful auth
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: session-name=session-name; Path=/; HttpOnly
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        '401':
+          description: Wrong password
+        '500':
+          description: Internal server error
+  /auth:
+    get:
+      tags:
+        - auth
+      summary: User authentification request
+      security:
+        - CookieAuth: []
+      operationId: authUser
+      description: Check authentification of `User` by cookies
+      responses:
+        '200':
+          description: Session was successfully found, give username and password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        '400':
+          description: User is unauthorized
+        '500':
+          description: Internal server error
+  /users:
+    post:
+      tags:
+        - user
+      summary: Creates a User
+      operationId: signupUser
+      description: Request to server for `User` creation
+      requestBody:
+        description: POST request of all information about `User`
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSignUp'
+        required: true
+      responses:
+        '201':
+          description: User was successfully created
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: session-name=session-name; Path=/; HttpOnly
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        '400':
+          description: Passwords not the same, some fields are wrong
+        '409':
+          description: Username or email is already exists
+        '500':
+          description: Internal server error
+  /users/{id}:
+    get:
+      tags:
+        - user
+      summary: Returns a User by username.
+      security:
+        - BasicAuth: []
+      operationId: getUser
+      description: Returns the user by username. If the `User` is an author, it returns subscriptions available for subscribers, otherwise it returns regular user subscriptions.
+      parameters:
+        - in: path
+          name: id
+          description: id of the requested user
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User page was succesfully received
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPageInfo'
+        '404':
+          description: A user with the specified username was not found.
+        '500':
+          description: Internal server error
+
+  /posts:
+    get:
+      security:
+        - BasicAuth: []
+      tags:
+        - experimental
+      summary: Returns list of posts
+      operationId: getAllPosts
+      description: Getting all posts from DataBase
+      parameters:
+        - in: query
+          name: from
+          description: ID of page
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - in: query
+          name: count
+          description: Count of pages
+          required: true
+          schema:
+            type: integer
+            example: 20
+        - in: query
+          name: id
+          description: ID of author
+          schema:
+            type: integer
+            example: 10
+        - in: query
+          name: avatar
+          description: Avatar of author
+          schema:
+            type: object
+            properties:
+              path:
+                type: string
+                example: '/img/{{user.img_path}}'
+      responses:
+        '200':
+          description: Posts were succesfully received
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Posts'
+        '500':
+          description: Internal server error
+components:
+  schemas:
+    UserInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        username:
+          type: string
+          example: theUser
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: James
+        email:
+          type: string
+          example: john@email.com
+        password:
+          type: string
+          format: password
+          example: '12345'
+        phone:
+          type: string
+          example: '12345'
+      required:
+        - id
+        - username
+        - email
+        - password
+      xml:
+        name: user
+    UserSignUp:
+      type: object
+      properties:
+        username:
+          type: string
+          example: theUser
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: James
+        email:
+          type: string
+          example: john@email.com
+        password:
+          type: string
+          format: password
+          example: '12345'
+        phone:
+          type: string
+          example: '12345'
+      required:
+        - id
+        - username
+        - email
+        - password
+      xml:
+        name: user
+    UserLogin:
+      type: object
+      properties:
+        username:
+          type: string
+          example: theUser
+        password:
+          type: string
+          format: password
+          example: '12345'
+      required:
+        - username
+        - password
+      xml:
+        name: user
+    UserSubscriptionsList:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        name:
+          type: string
+          example: 'Some name of subscription'
+        level:
+          type: integer
+          format: uint8
+          example: 3
+      required:
+        - username
+        - name
+        - level
+    AuthorSubscriptionsList:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'Some name of subscription'
+        level:
+          type: integer
+          format: uint8
+          example: 3
+      required:
+        - name
+        - level
+    UserPageInfo:
+      type: object
+      properties:
+        username:
+          type: string
+          example: theUser
+        about:
+          type: string
+          example: my name is Jeff, i'm looking for masterpiece
+        is_author:
+          type: boolean
+          example: false
+        user_subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSubscriptionsList'
+        author_subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthorSubscriptionsList'
+      required:
+        - username
+        - is_author
+    PostPreview:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Look at this!!!
+        workOfArt:
+          type: object
+          example: <img src={{someImgFromBackend}}>
+        about:
+          type: string
+          example: this is my masterpiece
+      required:
+        - workOfArt
+    Posts:
+      type: object
+      properties:
+        posts:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostPreview'
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID  # cookie name
