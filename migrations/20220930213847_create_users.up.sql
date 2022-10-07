@@ -1,4 +1,4 @@
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
                        id bigserial not null primary key,
                        username varchar not null unique,
                        first_name varchar,
@@ -11,9 +11,15 @@ CREATE TABLE users (
                        about text
 );
 
-CREATE TABLE posts (
+CREATE TABLE IF NOT EXISTS posts (
     post_id bigserial not null primary key,
     user_id bigserial not null references users(id),
-    title text not null
+    title varchar(128) not null,
+    text text not null
+);
 
+CREATE TABLE IF NOT EXISTS sessions (
+    value varchar(32) primary key,
+    user_id bigserial not null unique references users(id),
+    expire_date date
 );

@@ -4,17 +4,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type Logger struct {
-	Logrus *logrus.Entry
+type Log struct {
+	Logrus *logrus.Logger
 }
 
-func NewLogrus(host, port string) (*Logger, error) {
-	logrusLogger := logrus.WithFields(logrus.Fields{
-		"host": host,
-		"port": port,
-	})
-	logrusLogger.Logger.SetFormatter(&logrus.TextFormatter{})
-	logrusLogger.Logger.SetLevel(logrus.DebugLevel)
+func NewLogrus() *Log {
+	logrusLogger := Log{Logrus: logrus.New()}
+	logrusLogger.Logrus.SetFormatter(&logrus.TextFormatter{})
+	logrusLogger.Logrus.SetLevel(logrus.DebugLevel)
 
-	return &Logger{logrusLogger}, nil
+	return &logrusLogger
 }

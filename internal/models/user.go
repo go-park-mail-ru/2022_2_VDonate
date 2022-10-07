@@ -1,16 +1,21 @@
 package models
 
 type UserDB struct {
-	ID        uint   `json:"id"`
-	Username  string `json:"username"`
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name,omitempty"`
-	Email     string `json:"email"`
-	Avatar    string `json:"avatar,omitempty"`
-	Password  string `json:"password"`
-	Phone     string `json:"phone,omitempty"`
-	IsAuthor  bool   `json:"is_author"`
-	About     string `json:"about,omitempty"`
+	ID        uint   `json:"id" db:"id"`
+	Username  string `json:"username" db:"username"`
+	FirstName string `json:"first_name,omitempty" db:"first_name"`
+	LastName  string `json:"last_name,omitempty" db:"last_name"`
+	Email     string `json:"email" db:"email"`
+	Avatar    string `json:"avatar,omitempty" db:"avatar"`
+	Password  string `json:"password" db:"password"`
+	Phone     string `json:"phone,omitempty" db:"phone"`
+	IsAuthor  bool   `json:"is_author" db:"is_author"`
+	About     string `json:"about,omitempty" db:"about"`
+}
+
+type AuthUser struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type Author struct {
@@ -20,7 +25,6 @@ type Author struct {
 	LastName  string `json:"last_name,omitempty"`
 	Email     string `json:"email"`
 	Avatar    string `json:"avatar,omitempty"`
-	Password  string `json:"-"`
 	Phone     string `json:"phone,omitempty"`
 	IsAuthor  bool   `json:"is_author"`
 	About     string `json:"about,omitempty"`
@@ -33,7 +37,33 @@ type NotAuthor struct {
 	LastName  string `json:"last_name,omitempty"`
 	Email     string `json:"email"`
 	Avatar    string `json:"avatar,omitempty"`
-	Password  string `json:"-"`
 	Phone     string `json:"phone,omitempty"`
 	IsAuthor  bool   `json:"is_author"`
+}
+
+func ToAuthor(u *UserDB) *Author {
+	return &Author{
+		ID:        u.ID,
+		Username:  u.Username,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+		Email:     u.Email,
+		Avatar:    u.Avatar,
+		Phone:     u.Phone,
+		IsAuthor:  true,
+		About:     u.About,
+	}
+}
+
+func ToNonAuthor(u *UserDB) *NotAuthor {
+	return &NotAuthor{
+		ID:        u.ID,
+		Username:  u.Username,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+		Email:     u.Email,
+		Avatar:    u.Avatar,
+		Phone:     u.Phone,
+		IsAuthor:  false,
+	}
 }
