@@ -14,14 +14,24 @@ var (
 	ErrInternal      = errors.New("server error")
 )
 
+type errJSON struct {
+	message string
+}
+
+func responceError(err error) errJSON {
+	return errJSON{
+		message: err.Error(),
+	}
+}
+
 func Wrap(c echo.Context, errCode, errLog error) error {
 	c.Logger().Error(errLog)
 	switch errCode {
 	case ErrBadRequest:
-		return c.JSON(http.StatusBadRequest, errCode.Error())
+		return c.JSON(http.StatusBadRequest, responceError(errCode))
 	case ErrJSONMarshal, ErrJSONUnmarshal, ErrResponse, ErrInternal:
-		return c.JSON(http.StatusInternalServerError, errCode.Error())
+		return c.JSON(http.StatusInternalServerError, responceError(errCode))
 	default:
-		return c.JSON(http.StatusInternalServerError, errCode.Error())
+		return c.JSON(http.StatusInternalServerError, responceError(errCode))
 	}
 }

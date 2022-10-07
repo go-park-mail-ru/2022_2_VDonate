@@ -6,6 +6,16 @@ import (
 	"net/http"
 )
 
+type errJSON struct {
+	message string
+}
+
+func responceError(err error) errJSON {
+	return errJSON{
+		message: err.Error(),
+	}
+}
+
 var (
 	ErrConvertID     = errors.New("unable to convert id")
 	ErrUserNotFound  = errors.New("user not found")
@@ -18,10 +28,10 @@ func Wrap(c echo.Context, errCode, errLog error) error {
 	c.Logger().Error(errLog)
 	switch errCode {
 	case ErrUserNotFound:
-		return c.JSON(http.StatusNotFound, errCode.Error())
+		return c.JSON(http.StatusNotFound, responceError(errCode))
 	case ErrConvertID, ErrJSONMarshal, ErrJSONUnmarshal, ErrResponse:
-		return c.JSON(http.StatusInternalServerError, errCode.Error())
+		return c.JSON(http.StatusInternalServerError, responceError(errCode))
 	default:
-		return c.JSON(http.StatusInternalServerError, errCode.Error())
+		return c.JSON(http.StatusInternalServerError, responceError(errCode))
 	}
 }

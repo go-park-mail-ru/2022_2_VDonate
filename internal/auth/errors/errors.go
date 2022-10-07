@@ -21,20 +21,30 @@ var (
 	ErrDeleteSession           = errors.New("failed to delete session")
 )
 
+type errJSON struct {
+	message string
+}
+
+func responceError(err error) errJSON {
+	return errJSON{
+		message: err.Error(),
+	}
+}
+
 func Wrap(c echo.Context, errHTTP, errLog error) error {
 	c.Logger().Error(errLog)
 	switch errHTTP {
 	case ErrNoSession:
-		return c.JSON(http.StatusUnauthorized, errHTTP.Error())
+		return c.JSON(http.StatusUnauthorized, responceError(errHTTP))
 	case ErrUserNotFound:
-		return c.JSON(http.StatusNotFound, errHTTP.Error())
+		return c.JSON(http.StatusNotFound, responceError(errHTTP))
 	case ErrInvalidLoginOrPassword, ErrBadRequest:
-		return c.JSON(http.StatusBadRequest, errHTTP.Error())
+		return c.JSON(http.StatusBadRequest, responceError(errHTTP))
 	case ErrUserOrEmailAlreadyExist:
-		return c.JSON(http.StatusConflict, errHTTP.Error())
+		return c.JSON(http.StatusConflict, responceError(errHTTP))
 	case ErrJSONMarshal, ErrResponse, ErrJSONUnmarshal, ErrCreateUser, ErrCopy, ErrBadSession:
-		return c.JSON(http.StatusInternalServerError, errHTTP.Error())
+		return c.JSON(http.StatusInternalServerError, responceError(errHTTP))
 	default:
-		return c.JSON(http.StatusInternalServerError, errHTTP.Error())
+		return c.JSON(http.StatusInternalServerError, responceError(errHTTP))
 	}
 }
