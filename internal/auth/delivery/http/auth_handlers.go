@@ -39,6 +39,7 @@ func (h *Handler) makeHTTPCookie(c *http.Cookie) *http.Cookie {
 		Value:    c.Value,
 		Expires:  c.Expires,
 		HttpOnly: true,
+		Secure:   true,
 	}
 }
 
@@ -48,6 +49,7 @@ func (h *Handler) httpCookieFromModel(c *model.Cookie) *http.Cookie {
 		Value:    c.Value,
 		Expires:  c.Expires,
 		HttpOnly: true,
+		Secure:   true,
 	}
 }
 
