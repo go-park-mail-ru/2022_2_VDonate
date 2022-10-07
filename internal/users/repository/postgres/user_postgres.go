@@ -90,6 +90,26 @@ func (r *Repository) FindByEmail(email string) (*model.UserDB, error) {
 	return &u, nil
 }
 
+func (r *Repository) Update(user *model.UserDB) (*model.UserDB, error) {
+	_, err := r.DB.NamedExec(
+		`
+		UPDATE users 
+		SET username=:username,
+		    first_name=:first_name,
+		    last_name=:last_name,
+		    avatar=:avatar,
+		    email=:email,
+		    password=:password,
+		    phone=:phone,
+		    is_author=:is_author,
+		    about=:about 
+		WHERE id = :id`, &user)
+	if err != nil {
+		return nil, err
+	}
+	return user, err
+}
+
 func (r *Repository) DeleteByID(id uint) error {
 	_, err := r.DB.Query("DELETE FROM users WHERE id=$1;", id)
 	if err != nil {

@@ -7,6 +7,7 @@ type API interface {
 	FindByUsername(username string) (*model.UserDB, error)
 	FindByID(id uint) (*model.UserDB, error)
 	FindByEmail(email string) (*model.UserDB, error)
+	Update(u *model.UserDB) (*model.UserDB, error)
 	DeleteByID(id uint) error
 	Close() error
 }

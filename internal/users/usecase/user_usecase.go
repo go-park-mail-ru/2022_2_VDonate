@@ -11,6 +11,7 @@ type UseCase interface {
 	GetByEmail(email string) (*models.UserDB, error)
 	GetByID(id uint) (*models.UserDB, error)
 	Create(user *models.UserDB) (*models.UserDB, error)
+	Update(user *models.UserDB) (*models.UserDB, error)
 	DeleteByID(id uint) error
 	DeleteByUsername(username string) error
 	DeleteByEmail(email string) error
@@ -44,6 +45,10 @@ func (a *API) GetByEmail(email string) (*models.UserDB, error) {
 
 func (a *API) Create(user *models.UserDB) (*models.UserDB, error) {
 	return a.userRepo.Create(user)
+}
+
+func (a *API) Update(user *models.UserDB) (*models.UserDB, error) {
+	return a.userRepo.Update(user)
 }
 
 func (a *API) DeleteByID(id uint) error {

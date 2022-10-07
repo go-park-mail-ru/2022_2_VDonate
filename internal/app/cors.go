@@ -1,4 +1,4 @@
-package middlewares
+package app
 
 import (
 	"github.com/labstack/echo/v4"
@@ -12,11 +12,9 @@ func NewCORS() echo.MiddlewareFunc {
 			http.MethodDelete,
 			http.MethodGet,
 			http.MethodPost,
+			http.MethodPut,
 		},
-		AllowOrigins: []string{
-			"http://localhost:63342",
-			"http://localhost:63343",
-		},
+		AllowOrigins:     []string{},
 		AllowCredentials: true,
 		AllowHeaders: []string{
 			"Content-Type",

@@ -3,9 +3,9 @@ package httpAuth
 import (
 	"errors"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/errors"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/middlewares"
 	model "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/session/repository"
+	httpUsers "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery/http"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/labstack/echo/v4"
@@ -69,7 +69,7 @@ func (h *Handler) Auth(c echo.Context) error {
 		return authErrors.Wrap(c, authErrors.ErrUserNotFound, err)
 	}
 
-	return middlewares.UserResponse(user, c)
+	return httpUsers.UserResponse(user, c)
 }
 
 func (h *Handler) Login(c echo.Context) error {
@@ -94,7 +94,7 @@ func (h *Handler) Login(c echo.Context) error {
 	}
 
 	c.SetCookie(h.httpCookieFromModel(s))
-	return middlewares.UserResponse(user, c)
+	return httpUsers.UserResponse(user, c)
 }
 
 func (h *Handler) Logout(c echo.Context) error {
@@ -136,5 +136,5 @@ func (h *Handler) SignUp(c echo.Context) error {
 	}
 
 	c.SetCookie(h.httpCookieFromModel(s))
-	return middlewares.UserResponse(user, c)
+	return httpUsers.UserResponse(user, c)
 }

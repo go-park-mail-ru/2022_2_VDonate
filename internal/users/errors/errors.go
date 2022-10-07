@@ -22,6 +22,8 @@ var (
 	ErrJSONMarshal   = errors.New("failed to marshal json")
 	ErrJSONUnmarshal = errors.New("failed to unmarshal json")
 	ErrResponse      = errors.New("failed to response")
+	ErrUpdate        = errors.New("failed to update")
+	ErrBadRequest    = errors.New("bad request")
 )
 
 func Wrap(c echo.Context, errCode, errLog error) error {
@@ -29,7 +31,9 @@ func Wrap(c echo.Context, errCode, errLog error) error {
 	switch errCode {
 	case ErrUserNotFound:
 		return c.JSON(http.StatusNotFound, responceError(errCode))
-	case ErrConvertID, ErrJSONMarshal, ErrJSONUnmarshal, ErrResponse:
+	case ErrBadRequest:
+		return c.JSON(http.StatusBadRequest, responceError(errCode))
+	case ErrConvertID, ErrJSONMarshal, ErrJSONUnmarshal, ErrResponse, ErrUpdate:
 		return c.JSON(http.StatusInternalServerError, responceError(errCode))
 	default:
 		return c.JSON(http.StatusInternalServerError, responceError(errCode))
