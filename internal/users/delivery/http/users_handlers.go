@@ -1,6 +1,7 @@
 package httpUsers
 
 import (
+	model "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/session/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/errors"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
@@ -28,5 +29,9 @@ func (h *Handler) GetUser(c echo.Context) error {
 		return usersErrors.Wrap(c, usersErrors.ErrUserNotFound, err)
 	}
 
-	return c.JSON(http.StatusOK, user)
+	if user.IsAuthor {
+		return c.JSON(http.StatusOK, model.ToAuthor(user))
+	}
+
+	return c.JSON(http.StatusOK, model.ToNonAuthor(user))
 }
