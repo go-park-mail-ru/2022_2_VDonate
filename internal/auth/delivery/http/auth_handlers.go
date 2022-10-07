@@ -3,6 +3,7 @@ package httpAuth
 import (
 	"errors"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/errors"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/middlewares"
 	model "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/session/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
@@ -68,7 +69,7 @@ func (h *Handler) Auth(c echo.Context) error {
 		return authErrors.Wrap(c, authErrors.ErrUserNotFound, err)
 	}
 
-	return c.JSON(http.StatusOK, user)
+	return middlewares.UserResponse(user, c)
 }
 
 func (h *Handler) Login(c echo.Context) error {
@@ -93,7 +94,7 @@ func (h *Handler) Login(c echo.Context) error {
 	}
 
 	c.SetCookie(h.httpCookieFromModel(s))
-	return c.JSON(http.StatusOK, user)
+	return middlewares.UserResponse(user, c)
 }
 
 func (h *Handler) Logout(c echo.Context) error {
@@ -135,9 +136,5 @@ func (h *Handler) SignUp(c echo.Context) error {
 	}
 
 	c.SetCookie(h.httpCookieFromModel(s))
-	if user.IsAuthor {
-		return c.JSON(http.StatusOK, model.ToAuthor(user))
-	}
-
-	return c.JSON(http.StatusOK, model.ToNonAuthor(user))
+	return middlewares.UserResponse(user, c)
 }
