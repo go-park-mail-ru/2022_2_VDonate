@@ -7,12 +7,12 @@ import (
 )
 
 type errJSON struct {
-	message string
+	Message string `json:"message"`
 }
 
 func responceError(err error) errJSON {
 	return errJSON{
-		message: err.Error(),
+		Message: err.Error(),
 	}
 }
 
