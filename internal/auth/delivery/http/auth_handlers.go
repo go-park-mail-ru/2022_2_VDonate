@@ -41,6 +41,7 @@ func (h *Handler) makeHTTPCookie(c *http.Cookie) *http.Cookie {
 		Expires:  c.Expires,
 		HttpOnly: true,
 		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
 	}
 }
 
@@ -51,6 +52,7 @@ func (h *Handler) httpCookieFromModel(c *model.Cookie) *http.Cookie {
 		Expires:  c.Expires,
 		HttpOnly: true,
 		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
 	}
 }
 
