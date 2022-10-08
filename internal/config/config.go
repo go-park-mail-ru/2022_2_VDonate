@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	host      = "127.0.0.1"
-	port      = "8080"
-	dbURL     = "host=localhost dbname=dev sslmode=disabled"
-	dbDriver  = "postgres"
-	corsDebug = true
+	host         = "127.0.0.1"
+	port         = "8080"
+	dbURL        = "host=localhost dbname=dev sslmode=disabled"
+	dbDriver     = "postgres"
+	requestDebug = true
 )
 
 type Config struct {
@@ -26,7 +26,7 @@ type Config struct {
 	} `yaml:"db"`
 
 	Debug struct {
-		CORS bool `yaml:"cors"`
+		Request bool `yaml:"request"`
 	} `yaml:"debug"`
 }
 
@@ -49,8 +49,8 @@ func New() *Config {
 		}{Driver: dbDriver, URL: dbURL}),
 
 		Debug: struct {
-			CORS bool `yaml:"cors"`
-		}{CORS: corsDebug},
+			Request bool `yaml:"request"`
+		}{Request: requestDebug},
 	}
 }
 
@@ -69,5 +69,5 @@ func (c *Config) Open(path string) error {
 }
 
 func PathFlag(path *string) {
-	flag.StringVar(path, "config-path", "./configs/config.yaml", "path to config file")
+	flag.StringVar(path, "config-path", "./configs/config_local.yaml", "path to config file")
 }

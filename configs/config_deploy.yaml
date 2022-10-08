@@ -1,0 +1,10 @@
+server:
+  host: 127.0.0.1
+  port: 65432
+
+db:
+  driver: postgres
+  url: host=localhost password=123456 dbname=dev sslmode=disable
+
+debug:
+  request: true

@@ -79,7 +79,10 @@ func (s *Server) makeLogger(l *io.PipeWriter) {
 }
 
 func (s *Server) makeRouter() {
-	v1 := s.Echo.Group("/api/v1", middleware.LoggerWithConfig(middleware.DefaultLoggerConfig))
+	v1 := s.Echo.Group("/api/v1")
+	if s.Config.Debug.Request {
+		v1.Use(middleware.LoggerWithConfig(middleware.DefaultLoggerConfig))
+	}
 
 	v1.POST("/login", s.authHandler.Login)
 	v1.GET("/auth", s.authHandler.Auth)

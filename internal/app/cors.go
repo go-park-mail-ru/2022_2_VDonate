@@ -14,7 +14,10 @@ func NewCORS() echo.MiddlewareFunc {
 			http.MethodPost,
 			http.MethodPut,
 		},
-		AllowOrigins:     []string{},
+		AllowOrigins: []string{
+			"https://vdonate.ml",
+			"http://localhost:8080",
+		},
 		AllowCredentials: true,
 		AllowHeaders: []string{
 			"Content-Type",
