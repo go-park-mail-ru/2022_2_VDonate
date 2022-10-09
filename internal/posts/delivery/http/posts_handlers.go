@@ -9,11 +9,11 @@ import (
 )
 
 type Handler struct {
-	postsAPI postsAPI.UseCase
+	postsUseCase posts.UseCase
 }
 
-func NewHandler(p postsAPI.UseCase) *Handler {
-	return &Handler{postsAPI: p}
+func NewHandler(p posts.UseCase) *Handler {
+	return &Handler{postsUseCase: p}
 }
 
 func (h *Handler) GetPosts(c echo.Context) error {
@@ -21,10 +21,25 @@ func (h *Handler) GetPosts(c echo.Context) error {
 	if err != nil {
 		return postsErrors.Wrap(c, postsErrors.ErrBadRequest, err)
 	}
-	posts, err := h.postsAPI.GetAllByUserID(uint(id))
+	allPosts, err := h.postsUseCase.GetPostsByUserID(id)
 	if err != nil {
 		return postsErrors.Wrap(c, postsErrors.ErrInternal, err)
 	}
 
-	return c.JSON(http.StatusOK, posts)
+	return c.JSON(http.StatusOK, allPosts)
+}
+
+func (h *Handler) CreatePosts(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return postsErrors.Wrap(c, postsErrors.ErrBadRequest, err)
+	}
+	post, err := h.postsUseCase.GetPostByID(id)
+	if err != nil {
+		return postsErrors.Wrap(c, postsErrors.ErrInternal, err)
+	}
+	if post, err = h.postsUseCase.Create(post); err != nil {
+		return postsErrors.Wrap(c, postsErrors.ErrCreate, err)
+	}
+	return c.JSON(http.StatusOK, post)
 }

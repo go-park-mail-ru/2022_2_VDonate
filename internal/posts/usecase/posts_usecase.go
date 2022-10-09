@@ -1,34 +1,42 @@
-package postsAPI
+package posts
 
 import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	postsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
 )
 
 type UseCase interface {
-	GetAllByUserID(id uint) ([]*models.PostDB, error)
-	GetByUserIDAndPostID(userID, postID uint) error
-	CreateInUserByID(post *models.PostDB, userID uint) error
-	DeleteInUserByID(userID, postID uint) error
+	GetPostsByUserID(id uint64) ([]*models.PostDB, error)
+	GetPostByID(postID uint64) (*models.PostDB, error)
+	Create(post *models.PostDB) (*models.PostDB, error)
+	DeleteInUserByID(userID, postID uint64) error
 }
 
-type API struct {
-	postsRepo postsRepository.API
+type Repository interface {
+	GetAllByUserID(userID uint64) ([]*models.PostDB, error)
+	GetPostByUserID(userID, postID uint64) (*models.PostDB, error)
+	GetPostByID(postID uint64) (*models.PostDB, error)
+	Create(post *models.PostDB) (*models.PostDB, error)
+	DeleteInUserByID(userID, postID uint64) error
+	Close() error
 }
 
-func New(repo postsRepository.API) UseCase {
-	return &API{postsRepo: repo}
+type api struct {
+	postsRepo Repository
 }
 
-func (a *API) GetAllByUserID(id uint) ([]*models.PostDB, error) {
+func New(repo Repository) UseCase {
+	return &api{postsRepo: repo}
+}
+
+func (a *api) GetPostsByUserID(id uint64) ([]*models.PostDB, error) {
 	return a.postsRepo.GetAllByUserID(id)
 }
-func (a *API) GetByUserIDAndPostID(userID, postID uint) error {
-	return a.GetByUserIDAndPostID(userID, postID)
+func (a *api) GetPostByID(postID uint64) (*models.PostDB, error) {
+	return a.postsRepo.GetPostByID(postID)
 }
-func (a *API) CreateInUserByID(post *models.PostDB, userID uint) error {
-	return a.CreateInUserByID(post, userID)
+func (a *api) Create(post *models.PostDB) (*models.PostDB, error) {
+	return a.postsRepo.Create(post)
 }
-func (a *API) DeleteInUserByID(userID, postID uint) error {
-	return a.DeleteInUserByID(userID, postID)
+func (a *api) DeleteInUserByID(userID, postID uint64) error {
+	return a.postsRepo.DeleteInUserByID(userID, postID)
 }

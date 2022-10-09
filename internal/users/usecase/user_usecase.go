@@ -1,67 +1,88 @@
-package userAPI
+package users
 
 import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/session/repository"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/repository"
+	"github.com/jinzhu/copier"
 )
 
 type UseCase interface {
-	GetByUsername(username string) (*models.UserDB, error)
-	GetByEmail(email string) (*models.UserDB, error)
-	GetByID(id uint) (*models.UserDB, error)
-	Create(user *models.UserDB) (*models.UserDB, error)
-	Update(user *models.UserDB) (*models.UserDB, error)
-	DeleteByID(id uint) error
+	GetByUsername(username string) (*models.User, error)
+	GetByEmail(email string) (*models.User, error)
+	GetByID(id uint64) (*models.User, error)
+	GetBySessionID(sessionID string) (*models.User, error)
+	Create(user *models.User) (*models.User, error)
+	Update(id uint64, user *models.User) (*models.User, error)
+	DeleteByID(id uint64) error
 	DeleteByUsername(username string) error
 	DeleteByEmail(email string) error
-	CheckIDAndPassword(id uint, password string) bool
+	CheckIDAndPassword(id uint64, password string) bool
 	IsExistUsernameAndEmail(username, email string) bool
 }
 
-type API struct {
-	userRepo    userRepository.API
-	sessionRepo sessionRepository.API
+type Repository interface {
+	Create(u *models.User) (*models.User, error)
+	FindByUsername(username string) (*models.User, error)
+	FindByID(id uint64) (*models.User, error)
+	FindByEmail(email string) (*models.User, error)
+	FindBySessionID(sessionID string) (*models.User, error)
+	Update(u *models.User) (*models.User, error)
+	DeleteByID(id uint64) error
+	Close() error
 }
 
-func New(userRepo userRepository.API, sessionRepo sessionRepository.API) UseCase {
-	return &API{
-		userRepo:    userRepo,
-		sessionRepo: sessionRepo,
+type api struct {
+	usersRepo Repository
+}
+
+func New(usersRepo Repository) UseCase {
+	return &api{
+		usersRepo: usersRepo,
 	}
 }
 
-func (a *API) GetByID(id uint) (*models.UserDB, error) {
-	return a.userRepo.FindByID(id)
+func (a *api) GetByID(id uint64) (*models.User, error) {
+	return a.usersRepo.FindByID(id)
 }
 
-func (a *API) GetByUsername(username string) (*models.UserDB, error) {
-	return a.userRepo.FindByUsername(username)
+func (a *api) GetByUsername(username string) (*models.User, error) {
+	return a.usersRepo.FindByUsername(username)
 }
 
-func (a *API) GetByEmail(email string) (*models.UserDB, error) {
-	return a.userRepo.FindByEmail(email)
+func (a *api) GetByEmail(email string) (*models.User, error) {
+	return a.usersRepo.FindByEmail(email)
 }
 
-func (a *API) Create(user *models.UserDB) (*models.UserDB, error) {
-	return a.userRepo.Create(user)
+func (a *api) GetBySessionID(sessionID string) (*models.User, error) {
+	return a.usersRepo.FindBySessionID(sessionID)
 }
 
-func (a *API) Update(user *models.UserDB) (*models.UserDB, error) {
-	return a.userRepo.Update(user)
+func (a *api) Create(user *models.User) (*models.User, error) {
+	return a.usersRepo.Create(user)
 }
 
-func (a *API) DeleteByID(id uint) error {
-	return a.userRepo.DeleteByID(id)
+func (a *api) Update(id uint64, user *models.User) (*models.User, error) {
+	updateUser, err := a.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = copier.CopyWithOption(&updateUser, &user, copier.Option{IgnoreEmpty: true}); err != nil {
+		return nil, err
+	}
+	return a.usersRepo.Update(updateUser)
 }
-func (a *API) DeleteByUsername(username string) error {
+
+func (a *api) DeleteByID(id uint64) error {
+	return a.usersRepo.DeleteByID(id)
+}
+func (a *api) DeleteByUsername(username string) error {
 	user, err := a.GetByUsername(username)
 	if err != nil {
 		return err
 	}
 	return a.DeleteByID(user.ID)
 }
-func (a *API) DeleteByEmail(email string) error {
+func (a *api) DeleteByEmail(email string) error {
 	user, err := a.GetByEmail(email)
 	if err != nil {
 		return err
@@ -69,7 +90,7 @@ func (a *API) DeleteByEmail(email string) error {
 	return a.DeleteByID(user.ID)
 }
 
-func (a *API) CheckIDAndPassword(id uint, password string) bool {
+func (a *api) CheckIDAndPassword(id uint64, password string) bool {
 	user, err := a.GetByID(id)
 	if err != nil {
 		return false
@@ -77,7 +98,7 @@ func (a *API) CheckIDAndPassword(id uint, password string) bool {
 	return user.Password == password
 }
 
-func (a *API) IsExistUsernameAndEmail(username, email string) bool {
+func (a *api) IsExistUsernameAndEmail(username, email string) bool {
 	_, err := a.GetByUsername(username)
 	if err == nil {
 		if _, err = a.GetByEmail(email); err == nil {

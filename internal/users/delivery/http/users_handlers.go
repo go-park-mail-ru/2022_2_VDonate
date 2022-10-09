@@ -1,22 +1,21 @@
 package httpUsers
 
 import (
+	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/session/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/errors"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
-	"github.com/jinzhu/copier"
 	"github.com/labstack/echo/v4"
 	"strconv"
 )
 
 type Handler struct {
-	userAPI     userAPI.UseCase
-	sessionRepo sessionRepository.API
+	userUseCase    users.UseCase
+	sessionUseCase auth.UseCase
 }
 
-func NewHandler(userAPI userAPI.UseCase, sessionRepo sessionRepository.API) *Handler {
-	return &Handler{userAPI: userAPI, sessionRepo: sessionRepo}
+func NewHandler(userUseCase users.UseCase, sessionUseCase auth.UseCase) *Handler {
+	return &Handler{userUseCase: userUseCase, sessionUseCase: sessionUseCase}
 }
 
 func (h *Handler) GetUser(c echo.Context) error {
@@ -24,7 +23,7 @@ func (h *Handler) GetUser(c echo.Context) error {
 	if err != nil {
 		return usersErrors.Wrap(c, usersErrors.ErrConvertID, err)
 	}
-	user, err := h.userAPI.GetByID(uint(id))
+	user, err := h.userUseCase.GetByID(id)
 	if err != nil {
 		return usersErrors.Wrap(c, usersErrors.ErrUserNotFound, err)
 	}
@@ -37,21 +36,13 @@ func (h *Handler) PutUser(c echo.Context) error {
 	if err != nil {
 		return usersErrors.Wrap(c, usersErrors.ErrConvertID, err)
 	}
-	var updateUser *models.UserDB
+	var updateUser *models.User
 	if err = c.Bind(&updateUser); err != nil {
 		return usersErrors.Wrap(c, usersErrors.ErrBadRequest, err)
 	}
-	user, err := h.userAPI.GetByID(uint(id))
-	if err != nil {
-		return usersErrors.Wrap(c, usersErrors.ErrUserNotFound, err)
-	}
 
-	if err = copier.CopyWithOption(&user, &updateUser, copier.Option{IgnoreEmpty: true}); err != nil {
+	if updateUser, err = h.userUseCase.Update(id, updateUser); err != nil {
 		return usersErrors.Wrap(c, usersErrors.ErrUpdate, err)
 	}
-
-	if updateUser, err = h.userAPI.Update(user); err != nil {
-		return usersErrors.Wrap(c, usersErrors.ErrUpdate, err)
-	}
-	return UserResponse(user, c)
+	return UserResponse(updateUser, c)
 }

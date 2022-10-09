@@ -1,17 +1,17 @@
 package app
 
 import (
-	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
-	authMiddlewares "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http/middlewares"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http/middlewares"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
-	httpPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery/http"
-	postsPostgres "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository/postgres"
-	postsAPI "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/usecase"
-	sessionRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/session/repository"
-	sessionPostgres "github.com/go-park-mail-ru/2022_2_VDonate/internal/session/repository/postgres"
-	httpUsers "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery/http"
-	userPostgres "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/repository/postgres"
-	userAPI "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery/http"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/usecase"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery/http"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/repository"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -23,9 +23,9 @@ type Server struct {
 
 	Config *config.Config
 
-	UserAPI     userAPI.UseCase
-	PostsAPI    postsAPI.UseCase
-	SessionRepo sessionRepository.API
+	UserService  users.UseCase
+	PostsService posts.UseCase
+	AuthService  auth.UseCase
 
 	authHandler  *httpAuth.Handler
 	userHandler  *httpUsers.Handler
@@ -36,8 +36,7 @@ type Server struct {
 
 func (s *Server) init() {
 	s.makeLogger(logger.NewLogrus().Logrus.Writer())
-	s.Echo.Logger.Info("server started")
-	s.makeStorages(s.Config.DB.URL)
+	s.makeUseCase(s.Config.DB.URL)
 	s.makeMiddlewares()
 	s.makeHandlers()
 	s.makeRouter()
@@ -49,33 +48,38 @@ func (s *Server) Start() error {
 	return s.Echo.Start(s.Config.Server.Host + ":" + s.Config.Server.Port)
 }
 
-func (s *Server) makeStorages(URL string) {
-	var err error
+func (s *Server) makeUseCase(URL string) {
+	//-----------------------sessions-----------------------//
+	sessionRepo, err := sessionsRepository.NewPostgres(URL)
+	if err != nil {
+		s.Echo.Logger.Error(err)
+	}
+	s.AuthService = auth.New(sessionRepo)
 
-	s.SessionRepo, err = sessionPostgres.New(URL)
+	//-------------------------user-------------------------//
+	userRepo, err := userRepository.NewPostgres(URL)
 	if err != nil {
 		s.Echo.Logger.Error(err)
 	}
-	userRepo, err := userPostgres.New(URL)
+	s.UserService = users.New(userRepo)
+
+	//-------------------------post-------------------------//
+	postsRepo, err := postsRepository.NewPostgres(URL)
 	if err != nil {
 		s.Echo.Logger.Error(err)
 	}
-	s.UserAPI = userAPI.New(userRepo, s.SessionRepo)
-	postsRepo, err := postsPostgres.New(URL)
-	if err != nil {
-		s.Echo.Logger.Error(err)
-	}
-	s.PostsAPI = postsAPI.New(postsRepo)
+	s.PostsService = posts.New(postsRepo)
 }
 
 func (s *Server) makeHandlers() {
-	s.authHandler = httpAuth.NewHandler(s.UserAPI, s.SessionRepo)
-	s.postsHandler = httpPosts.NewHandler(s.PostsAPI)
-	s.userHandler = httpUsers.NewHandler(s.UserAPI, s.SessionRepo)
+	s.authHandler = httpAuth.NewHandler(s.AuthService, s.UserService)
+	s.postsHandler = httpPosts.NewHandler(s.PostsService)
+	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService)
 }
 
 func (s *Server) makeLogger(l *io.PipeWriter) {
 	s.Echo.Logger.SetOutput(l)
+	s.Echo.Logger.Info("server started")
 }
 
 func (s *Server) makeRouter() {
@@ -89,10 +93,13 @@ func (s *Server) makeRouter() {
 	v1.DELETE("/logout", s.authHandler.Logout, s.authMiddleware.LoginRequired)
 	v1.POST("/users", s.authHandler.SignUp)
 
-	v1.GET("/users/:id", s.userHandler.GetUser, s.authMiddleware.LoginRequired)
-	v1.PUT("/update/users/:id", s.userHandler.PutUser, s.authMiddleware.LoginRequired)
+	user := v1.Group("/users/:id", s.authMiddleware.LoginRequired)
+	user.GET("", s.userHandler.GetUser)
+	user.PUT("", s.userHandler.PutUser)
 
-	v1.GET("/users/:id/posts", s.postsHandler.GetPosts, s.authMiddleware.LoginRequired)
+	post := v1.Group("/posts", s.authMiddleware.LoginRequired)
+	post.GET("/users/:id", s.postsHandler.GetPosts)
+	post.POST("/users/:id", s.postsHandler.CreatePosts, s.authMiddleware.SameSession)
 }
 
 func (s *Server) makeCORS() {
@@ -100,7 +107,7 @@ func (s *Server) makeCORS() {
 }
 
 func (s *Server) makeMiddlewares() {
-	s.authMiddleware = authMiddlewares.New(s.SessionRepo)
+	s.authMiddleware = authMiddlewares.New(s.AuthService)
 }
 
 func New(echo *echo.Echo, c *config.Config) *Server {

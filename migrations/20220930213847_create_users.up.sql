@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS posts (
     post_id bigserial not null primary key,
     user_id bigserial not null references users(id),
+    img text not null,
     title varchar(128) not null,
     text text not null
 );

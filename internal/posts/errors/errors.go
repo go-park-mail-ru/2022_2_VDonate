@@ -12,6 +12,7 @@ var (
 	ErrResponse      = errors.New("failed to response")
 	ErrBadRequest    = errors.New("bar request")
 	ErrInternal      = errors.New("server error")
+	ErrCreate        = errors.New("failed to create post")
 )
 
 type errJSON struct {
@@ -29,7 +30,7 @@ func Wrap(c echo.Context, errCode, errLog error) error {
 	switch errCode {
 	case ErrBadRequest:
 		return c.JSON(http.StatusBadRequest, responceError(errCode))
-	case ErrJSONMarshal, ErrJSONUnmarshal, ErrResponse, ErrInternal:
+	case ErrJSONMarshal, ErrJSONUnmarshal, ErrResponse, ErrInternal, ErrCreate:
 		return c.JSON(http.StatusInternalServerError, responceError(errCode))
 	default:
 		return c.JSON(http.StatusInternalServerError, responceError(errCode))

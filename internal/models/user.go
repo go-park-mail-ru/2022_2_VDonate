@@ -1,7 +1,7 @@
 package models
 
-type UserDB struct {
-	ID        uint   `json:"id" db:"id"`
+type User struct {
+	ID        uint64 `json:"id" db:"id"`
 	Username  string `json:"username" db:"username"`
 	FirstName string `json:"first_name,omitempty" db:"first_name"`
 	LastName  string `json:"last_name,omitempty" db:"last_name"`
@@ -19,7 +19,7 @@ type AuthUser struct {
 }
 
 type Author struct {
-	ID        uint   `json:"id"`
+	ID        uint64 `json:"id"`
 	Username  string `json:"username"`
 	FirstName string `json:"first_name,omitempty"`
 	LastName  string `json:"last_name,omitempty"`
@@ -31,7 +31,7 @@ type Author struct {
 }
 
 type NotAuthor struct {
-	ID        uint   `json:"id"`
+	ID        uint64 `json:"id"`
 	Username  string `json:"username"`
 	FirstName string `json:"first_name,omitempty"`
 	LastName  string `json:"last_name,omitempty"`
@@ -41,7 +41,7 @@ type NotAuthor struct {
 	IsAuthor  bool   `json:"is_author"`
 }
 
-func ToAuthor(u *UserDB) *Author {
+func ToAuthor(u *User) *Author {
 	return &Author{
 		ID:        u.ID,
 		Username:  u.Username,
@@ -55,7 +55,7 @@ func ToAuthor(u *UserDB) *Author {
 	}
 }
 
-func ToNonAuthor(u *UserDB) *NotAuthor {
+func ToNonAuthor(u *User) *NotAuthor {
 	return &NotAuthor{
 		ID:        u.ID,
 		Username:  u.Username,

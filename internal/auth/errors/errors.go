@@ -19,6 +19,8 @@ var (
 	ErrBadRequest              = errors.New("bad request")
 	ErrBadSession              = errors.New("bad session")
 	ErrDeleteSession           = errors.New("failed to delete session")
+	ErrInternal                = errors.New("server error")
+	ErrForbidden               = errors.New("you are not supposed to be here")
 )
 
 type errJSON struct {
@@ -38,11 +40,13 @@ func Wrap(c echo.Context, errHTTP, errLog error) error {
 		return c.JSON(http.StatusUnauthorized, responceError(errHTTP))
 	case ErrUserNotFound:
 		return c.JSON(http.StatusNotFound, responceError(errHTTP))
+	case ErrForbidden:
+		return c.JSON(http.StatusForbidden, responceError(errHTTP))
 	case ErrInvalidLoginOrPassword, ErrBadRequest:
 		return c.JSON(http.StatusBadRequest, responceError(errHTTP))
 	case ErrUserOrEmailAlreadyExist:
 		return c.JSON(http.StatusConflict, responceError(errHTTP))
-	case ErrJSONMarshal, ErrResponse, ErrJSONUnmarshal, ErrCreateUser, ErrCopy, ErrBadSession:
+	case ErrJSONMarshal, ErrResponse, ErrJSONUnmarshal, ErrCreateUser, ErrCopy, ErrBadSession, ErrInternal, ErrDeleteSession:
 		return c.JSON(http.StatusInternalServerError, responceError(errHTTP))
 	default:
 		return c.JSON(http.StatusInternalServerError, responceError(errHTTP))

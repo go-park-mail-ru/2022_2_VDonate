@@ -1,17 +1,16 @@
-package userPostgres
+package userRepository
 
 import (
 	model "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/repository"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
-type Repository struct {
+type Postgres struct {
 	DB *sqlx.DB
 }
 
-func New(URL string) (userRepository.API, error) {
+func NewPostgres(URL string) (*Postgres, error) {
 	db, err := sqlx.Open("postgres", URL)
 	if err != nil {
 		return nil, err
@@ -20,17 +19,17 @@ func New(URL string) (userRepository.API, error) {
 		return nil, err
 	}
 
-	return &Repository{DB: db}, nil
+	return &Postgres{DB: db}, nil
 }
 
-func (r *Repository) Close() error {
+func (r *Postgres) Close() error {
 	if err := r.DB.Close(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *Repository) Create(u *model.UserDB) (*model.UserDB, error) {
+func (r *Postgres) Create(u *model.User) (*model.User, error) {
 	err := r.DB.QueryRowx(
 		`
 		INSERT INTO users (username, first_name, last_name, avatar, email, password, is_author, about) 
@@ -51,8 +50,8 @@ func (r *Repository) Create(u *model.UserDB) (*model.UserDB, error) {
 	return u, nil
 }
 
-func (r *Repository) FindByUsername(username string) (*model.UserDB, error) {
-	var u model.UserDB
+func (r *Postgres) FindByUsername(username string) (*model.User, error) {
+	var u model.User
 	if err := r.DB.Get(
 		&u,
 		"SELECT id, username, first_name, last_name, avatar, email, password, is_author, about FROM users WHERE username = $1;",
@@ -64,8 +63,8 @@ func (r *Repository) FindByUsername(username string) (*model.UserDB, error) {
 	return &u, nil
 }
 
-func (r *Repository) FindByID(id uint) (*model.UserDB, error) {
-	var u model.UserDB
+func (r *Postgres) FindByID(id uint64) (*model.User, error) {
+	var u model.User
 	if err := r.DB.Get(
 		&u,
 		"SELECT id, username, first_name, last_name, avatar, email, password, is_author, about FROM users WHERE id = $1;",
@@ -77,8 +76,8 @@ func (r *Repository) FindByID(id uint) (*model.UserDB, error) {
 	return &u, nil
 }
 
-func (r *Repository) FindByEmail(email string) (*model.UserDB, error) {
-	var u model.UserDB
+func (r *Postgres) FindByEmail(email string) (*model.User, error) {
+	var u model.User
 	if err := r.DB.Get(
 		&u,
 		"SELECT id, username, first_name, last_name, avatar, email, password, is_author, about FROM users WHERE email = $1;",
@@ -90,7 +89,23 @@ func (r *Repository) FindByEmail(email string) (*model.UserDB, error) {
 	return &u, nil
 }
 
-func (r *Repository) Update(user *model.UserDB) (*model.UserDB, error) {
+func (r *Postgres) FindBySessionID(sessionID string) (*model.User, error) {
+	var u model.User
+	if err := r.DB.Get(
+		&u,
+		`
+		SELECT id, username, first_name, last_name, avatar, email, password, is_author, about 
+		FROM users JOIN sessions ON session.user_id = id
+    	HAVING value = $1;`,
+		sessionID,
+	); err != nil {
+		return nil, err
+	}
+
+	return &u, nil
+}
+
+func (r *Postgres) Update(user *model.User) (*model.User, error) {
 	_, err := r.DB.NamedExec(
 		`
 		UPDATE users 
@@ -110,7 +125,7 @@ func (r *Repository) Update(user *model.UserDB) (*model.UserDB, error) {
 	return user, err
 }
 
-func (r *Repository) DeleteByID(id uint) error {
+func (r *Postgres) DeleteByID(id uint64) error {
 	_, err := r.DB.Query("DELETE FROM users WHERE id=$1;", id)
 	if err != nil {
 		return err
