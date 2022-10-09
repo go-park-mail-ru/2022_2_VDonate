@@ -95,8 +95,8 @@ func (r *Postgres) FindBySessionID(sessionID string) (*model.User, error) {
 		&u,
 		`
 		SELECT id, username, first_name, last_name, avatar, email, password, is_author, about 
-		FROM users JOIN sessions ON session.user_id = id
-    	HAVING value = $1;`,
+		FROM users JOIN sessions ON sessions.user_id = id
+    	WHERE sessions.value = $1;`,
 		sessionID,
 	); err != nil {
 		return nil, err

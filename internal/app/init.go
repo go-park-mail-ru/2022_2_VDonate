@@ -49,25 +49,27 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) makeUseCase(URL string) {
-	//-----------------------sessions-----------------------//
+	//-------------------------repo-------------------------//
 	sessionRepo, err := sessionsRepository.NewPostgres(URL)
 	if err != nil {
 		s.Echo.Logger.Error(err)
 	}
-	s.AuthService = auth.New(sessionRepo)
-
-	//-------------------------user-------------------------//
 	userRepo, err := userRepository.NewPostgres(URL)
 	if err != nil {
 		s.Echo.Logger.Error(err)
 	}
-	s.UserService = users.New(userRepo)
-
-	//-------------------------post-------------------------//
 	postsRepo, err := postsRepository.NewPostgres(URL)
 	if err != nil {
 		s.Echo.Logger.Error(err)
 	}
+
+	//-----------------------sessions-----------------------//
+	s.AuthService = auth.New(sessionRepo, userRepo)
+
+	//-------------------------user-------------------------//
+	s.UserService = users.New(userRepo)
+
+	//-------------------------post-------------------------//
 	s.PostsService = posts.New(postsRepo)
 }
 

@@ -1,6 +1,7 @@
 package posts
 
 import (
+	"errors"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 )
 
@@ -29,7 +30,14 @@ func New(repo Repository) UseCase {
 }
 
 func (a *api) GetPostsByUserID(id uint64) ([]*models.PostDB, error) {
-	return a.postsRepo.GetAllByUserID(id)
+	r, err := a.postsRepo.GetAllByUserID(id)
+	if err != nil {
+		return nil, err
+	}
+	if len(r) == 0 {
+		return nil, errors.New("no posts")
+	}
+	return r, nil
 }
 func (a *api) GetPostByID(postID uint64) (*models.PostDB, error) {
 	return a.postsRepo.GetPostByID(postID)

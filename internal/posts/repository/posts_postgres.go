@@ -58,12 +58,12 @@ func (r *Postgres) Create(post *models.PostDB) (*models.PostDB, error) {
 	err := r.DB.QueryRowx(
 		`
 		INSERT INTO posts (user_id, img, title, text) 
-		VALUES ($1, $2, $3);`,
+		VALUES ($1, $2, $3, $4) RETURNING post_id;`,
 		post.UserID,
 		post.Img,
 		post.Title,
 		post.Text,
-	).Scan(&post)
+	).Scan(&post.ID)
 	if err != nil {
 		return nil, err
 	}

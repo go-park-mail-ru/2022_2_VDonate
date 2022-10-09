@@ -32,6 +32,9 @@ func (h *Handler) Auth(c echo.Context) error {
 	}
 
 	user, err := h.usersUseCase.GetBySessionID(cookie.Value)
+	if err != nil {
+		return authErrors.Wrap(c, authErrors.ErrNoSession, err)
+	}
 
 	return httpUsers.UserResponse(user, c)
 }

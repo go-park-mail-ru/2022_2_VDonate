@@ -1,6 +1,7 @@
 package httpPosts
 
 import (
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/errors"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/usecase"
 	"github.com/labstack/echo/v4"
@@ -34,10 +35,11 @@ func (h *Handler) CreatePosts(c echo.Context) error {
 	if err != nil {
 		return postsErrors.Wrap(c, postsErrors.ErrBadRequest, err)
 	}
-	post, err := h.postsUseCase.GetPostByID(id)
-	if err != nil {
+	var post *models.PostDB
+	if err := c.Bind(&post); err != nil {
 		return postsErrors.Wrap(c, postsErrors.ErrInternal, err)
 	}
+	post.UserID = id
 	if post, err = h.postsUseCase.Create(post); err != nil {
 		return postsErrors.Wrap(c, postsErrors.ErrCreate, err)
 	}

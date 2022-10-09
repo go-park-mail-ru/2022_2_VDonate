@@ -29,8 +29,8 @@ type api struct {
 	usersRepo userAPI.Repository
 }
 
-func New(authRepo Repository) UseCase {
-	return &api{authRepo: authRepo}
+func New(authRepo Repository, usersRepo userAPI.Repository) UseCase {
+	return &api{authRepo: authRepo, usersRepo: usersRepo}
 }
 
 func (a *api) Login(login, password string) (string, error) {
@@ -61,11 +61,11 @@ func (a *api) Auth(sessionID string) (bool, error) {
 }
 
 func (a *api) SignUp(user *models.User) (string, error) {
-	user, err := a.usersRepo.FindByUsername(user.Username)
+	_, err := a.usersRepo.FindByUsername(user.Username)
 	if err == nil {
 		return "", err
 	}
-	if user, err = a.usersRepo.FindByEmail(user.Email); err == nil {
+	if _, err = a.usersRepo.FindByEmail(user.Email); err == nil {
 		return "", err
 	}
 	if user, err = a.usersRepo.Create(user); err != nil {
