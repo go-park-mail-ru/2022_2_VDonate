@@ -70,8 +70,8 @@ func (r *Postgres) Create(post *models.PostDB) (*models.PostDB, error) {
 	return post, nil
 }
 
-func (r *Postgres) DeleteInUserByID(userID, postID uint64) error {
-	_, err := r.DB.Query("DELETE FROM posts WHERE user_id=? AND post_id=$1;", userID, postID)
+func (r *Postgres) DeleteByID(postID uint64) error {
+	_, err := r.DB.Query("DELETE FROM posts WHERE post_id=$1;", postID)
 	if err != nil {
 		return err
 	}

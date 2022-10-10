@@ -10,6 +10,7 @@ type UseCase interface {
 	GetByEmail(email string) (*models.User, error)
 	GetByID(id uint64) (*models.User, error)
 	GetBySessionID(sessionID string) (*models.User, error)
+	GetUserByPostID(postID uint64) (*models.User, error)
 	Create(user *models.User) (*models.User, error)
 	Update(id uint64, user *models.User) (*models.User, error)
 	DeleteByID(id uint64) error
@@ -25,6 +26,7 @@ type Repository interface {
 	GetByID(id uint64) (*models.User, error)
 	GetByEmail(email string) (*models.User, error)
 	GetBySessionID(sessionID string) (*models.User, error)
+	GetUserByPostID(postID uint64) (*models.User, error)
 	Update(u *models.User) (*models.User, error)
 	DeleteByID(id uint64) error
 	Close() error
@@ -54,6 +56,10 @@ func (u *usecase) GetByEmail(email string) (*models.User, error) {
 
 func (u *usecase) GetBySessionID(sessionID string) (*models.User, error) {
 	return u.usersRepo.GetBySessionID(sessionID)
+}
+
+func (u *usecase) GetUserByPostID(postID uint64) (*models.User, error) {
+	return u.usersRepo.GetUserByPostID(postID)
 }
 
 func (u *usecase) Create(user *models.User) (*models.User, error) {

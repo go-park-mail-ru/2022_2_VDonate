@@ -30,6 +30,18 @@ func (h *Handler) GetPosts(c echo.Context) error {
 	return c.JSON(http.StatusOK, allPosts)
 }
 
+func (h *Handler) DeletePost(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return postsErrors.Wrap(c, postsErrors.ErrBadRequest, err)
+	}
+	if err = h.postsUseCase.DeleteByID(id); err != nil {
+		return postsErrors.Wrap(c, postsErrors.ErrInternal, err)
+	}
+
+	return c.JSON(http.StatusOK, struct{}{})
+}
+
 func (h *Handler) CreatePosts(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

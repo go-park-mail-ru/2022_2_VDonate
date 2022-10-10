@@ -9,7 +9,7 @@ type UseCase interface {
 	GetPostsByUserID(id uint64) ([]*models.PostDB, error)
 	GetPostByID(postID uint64) (*models.PostDB, error)
 	Create(post *models.PostDB) (*models.PostDB, error)
-	DeleteInUserByID(userID, postID uint64) error
+	DeleteByID(postID uint64) error
 }
 
 type Repository interface {
@@ -17,7 +17,7 @@ type Repository interface {
 	GetPostByUserID(userID, postID uint64) (*models.PostDB, error)
 	GetPostByID(postID uint64) (*models.PostDB, error)
 	Create(post *models.PostDB) (*models.PostDB, error)
-	DeleteInUserByID(userID, postID uint64) error
+	DeleteByID(postID uint64) error
 	Close() error
 }
 
@@ -45,6 +45,6 @@ func (u *usecase) GetPostByID(postID uint64) (*models.PostDB, error) {
 func (u *usecase) Create(post *models.PostDB) (*models.PostDB, error) {
 	return u.postsRepo.Create(post)
 }
-func (u *usecase) DeleteInUserByID(userID, postID uint64) error {
-	return u.postsRepo.DeleteInUserByID(userID, postID)
+func (u *usecase) DeleteByID(postID uint64) error {
+	return u.postsRepo.DeleteByID(postID)
 }

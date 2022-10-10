@@ -102,7 +102,8 @@ func (s *Server) makeRouter() {
 
 	post := v1.Group("/posts")
 	post.GET("/users/:id", s.postsHandler.GetPosts)
-	post.POST("/users/:id", s.postsHandler.CreatePosts, s.authMiddleware.SameSession)
+	post.POST("/users/:id", s.postsHandler.CreatePosts, s.authMiddleware.SameSessionForUser)
+	post.DELETE("/users/:id", s.postsHandler.DeletePost, s.authMiddleware.SameSessionForPost)
 	post.Use(s.authMiddleware.LoginRequired)
 }
 
@@ -111,7 +112,7 @@ func (s *Server) makeCORS() {
 }
 
 func (s *Server) makeMiddlewares() {
-	s.authMiddleware = authMiddlewares.New(s.AuthService)
+	s.authMiddleware = authMiddlewares.New(s.AuthService, s.UserService)
 }
 
 func New(echo *echo.Echo, c *config.Config) *Server {
