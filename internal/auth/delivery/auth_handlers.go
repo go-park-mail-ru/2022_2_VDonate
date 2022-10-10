@@ -68,12 +68,12 @@ func (h *Handler) Login(c echo.Context) error {
 	var data models.AuthUser
 	err := c.Bind(&data)
 	if err != nil {
-		return authErrors.Wrap(c, authErrors.ErrBadRequest, err)
+		return authErrors.Wrap(c, authErrors.ErrBadRequestLogin, err)
 	}
 
 	sessionID, err := h.authUseCase.Login(data.Username, data.Password)
 	if err != nil {
-		return authErrors.Wrap(c, authErrors.ErrNoSession, err)
+		return authErrors.Wrap(c, authErrors.ErrBadRequestLogin, err)
 	}
 
 	c.SetCookie(models.MakeHTTPCookieFromValue(sessionID))
@@ -112,12 +112,12 @@ func (h *Handler) SignUp(c echo.Context) error {
 
 	err := c.Bind(&newUser)
 	if err != nil {
-		return authErrors.Wrap(c, authErrors.ErrBadRequest, err)
+		return authErrors.Wrap(c, authErrors.ErrBadRequestSignUp, err)
 	}
 
 	sessionID, err := h.authUseCase.SignUp(&newUser)
 	if err != nil {
-		return authErrors.Wrap(c, authErrors.ErrBadRequest, err)
+		return authErrors.Wrap(c, authErrors.ErrBadRequestSignUp, err)
 	}
 
 	c.SetCookie(models.MakeHTTPCookieFromValue(sessionID))

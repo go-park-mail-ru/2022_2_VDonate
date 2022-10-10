@@ -103,6 +103,7 @@ func (s *Server) makeRouter() {
 	post := v1.Group("/posts")
 	post.GET("/users/:id", s.postsHandler.GetPosts)
 	post.POST("/users/:id", s.postsHandler.CreatePosts, s.authMiddleware.SameSession)
+	post.PUT("/users/:id", s.postsHandler.PutPost, s.authMiddleware.SameSession)
 	post.Use(s.authMiddleware.LoginRequired)
 }
 

@@ -16,7 +16,8 @@ var (
 	ErrCopy                    = errors.New("failed to copy")
 	ErrResponse                = errors.New("failed to response")
 	ErrNoSession               = errors.New("no existing session")
-	ErrBadRequest              = errors.New("bad request")
+	ErrBadRequestSignUp        = errors.New("bad request")
+	ErrBadRequestLogin         = errors.New("bad request")
 	ErrBadSession              = errors.New("bad session")
 	ErrDeleteSession           = errors.New("failed to delete session")
 	ErrInternal                = errors.New("server error")
@@ -40,9 +41,11 @@ func Wrap(c echo.Context, errHTTP, errLog error) error {
 		return c.JSON(http.StatusUnauthorized, responceError(errHTTP))
 	case ErrUserNotFound:
 		return c.JSON(http.StatusNotFound, responceError(errHTTP))
+	case ErrBadRequestSignUp:
+		return c.JSON(http.StatusConflict, responceError(errHTTP))
 	case ErrForbidden:
 		return c.JSON(http.StatusForbidden, responceError(errHTTP))
-	case ErrInvalidLoginOrPassword, ErrBadRequest:
+	case ErrInvalidLoginOrPassword, ErrBadRequestLogin:
 		return c.JSON(http.StatusBadRequest, responceError(errHTTP))
 	case ErrUserOrEmailAlreadyExist:
 		return c.JSON(http.StatusConflict, responceError(errHTTP))

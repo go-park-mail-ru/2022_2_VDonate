@@ -3,12 +3,14 @@ package posts
 import (
 	"errors"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+	"github.com/jinzhu/copier"
 )
 
 type UseCase interface {
 	GetPostsByUserID(id uint64) ([]*models.PostDB, error)
 	GetPostByID(postID uint64) (*models.PostDB, error)
 	Create(post *models.PostDB) (*models.PostDB, error)
+	Update(id uint64, post *models.PostDB) (*models.PostDB, error)
 	DeleteInUserByID(userID, postID uint64) error
 }
 
@@ -17,6 +19,7 @@ type Repository interface {
 	GetPostByUserID(userID, postID uint64) (*models.PostDB, error)
 	GetPostByID(postID uint64) (*models.PostDB, error)
 	Create(post *models.PostDB) (*models.PostDB, error)
+	Update(post *models.PostDB) (*models.PostDB, error)
 	DeleteInUserByID(userID, postID uint64) error
 	Close() error
 }
@@ -44,6 +47,22 @@ func (u *usecase) GetPostByID(postID uint64) (*models.PostDB, error) {
 }
 func (u *usecase) Create(post *models.PostDB) (*models.PostDB, error) {
 	return u.postsRepo.Create(post)
+}
+func (a *usecase) Update(id uint64, post *models.PostDB) (*models.PostDB, error) {
+	updatePost, err := a.GetPostByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = copier.CopyWithOption(&updatePost, &post, copier.Option{IgnoreEmpty: true}); err != nil {
+		return nil, err
+	}
+
+	if updatePost, err = a.postsRepo.Update(updatePost); err != nil {
+		return nil, err
+	}
+
+	return updatePost, nil
 }
 func (u *usecase) DeleteInUserByID(userID, postID uint64) error {
 	return u.postsRepo.DeleteInUserByID(userID, postID)
