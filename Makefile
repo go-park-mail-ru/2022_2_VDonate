@@ -1,4 +1,6 @@
 PROJECT_PATH = ./cmd/api/main.go
+MOCKS_DESTINATION = internal/mocks
+INTERNAL_PATH = internal
 
 .PHONY: test
 test: ## Run all the tests
@@ -15,6 +17,12 @@ ci: lint test ## Run all the tests and code checks
 .PHONY: local_build
 local_build: ## Build locally
 	go build ${PROJECT_PATH}
+
+.PHONY: mocks
+mocks: internal/auth/usecase/auth_usecase.go internal/posts/usecase/posts_usecase.go internal/users/usecase/user_usecase.go ## Generate mocks
+	@echo "Generating mocks..."
+	@rm -rf $(MOCKS_DESTINATION)
+	for file in $^; do mockgen -source=$$file -destination=$(MOCKS_DESTINATION)/$$file; done
 
 .PHONY: clean
 clean: ## Remove temporary files
