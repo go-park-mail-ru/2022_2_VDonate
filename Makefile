@@ -2,11 +2,12 @@ PROJECT_PATH = ./cmd/api/main.go
 
 .PHONY: test
 test: ## Run all the tests
-	echo 'mode: atomic' > coverage.txt && go test -covermode=atomic -coverprofile=coverage.txt -v -race -timeout=30s ./...
+	echo 'mode: atomic' > coverage.out && go test -covermode=atomic -coverprofile=coverage.out -v -race -timeout=30s ./...
 
 .PHONY: cover
 cover: test ## Run all the tests and opens the coverage report
-	go tool cover -html=coverage.txt
+	go tool cover -func=coverage.out
+	got tool cover -html=coverage.out
 
 .PHONY: ci
 ci: lint test ## Run all the tests and code checks

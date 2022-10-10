@@ -24,19 +24,19 @@ type Repository interface {
 	Close() error
 }
 
-type api struct {
+type usecase struct {
 	authRepo  Repository
 	usersRepo userAPI.Repository
 }
 
 func New(authRepo Repository, usersRepo userAPI.Repository) UseCase {
-	return &api{authRepo: authRepo, usersRepo: usersRepo}
+	return &usecase{authRepo: authRepo, usersRepo: usersRepo}
 }
 
-func (a *api) Login(login, password string) (string, error) {
-	user, err := a.usersRepo.FindByUsername(login)
+func (u *usecase) Login(login, password string) (string, error) {
+	user, err := u.usersRepo.GetByUsername(login)
 	if err != nil {
-		user, err = a.usersRepo.FindByEmail(login)
+		user, err = u.usersRepo.GetByEmail(login)
 		if err != nil {
 			return "", err
 		}
@@ -44,7 +44,7 @@ func (a *api) Login(login, password string) (string, error) {
 	if password != user.Password {
 		return "", errors.New("passwords not the same")
 	}
-	s, err := a.authRepo.CreateSession(models.CreateCookie(user.ID))
+	s, err := u.authRepo.CreateSession(models.CreateCookie(user.ID))
 	if err != nil {
 		return "", err
 	}
@@ -52,41 +52,41 @@ func (a *api) Login(login, password string) (string, error) {
 	return s.Value, nil
 }
 
-func (a *api) Auth(sessionID string) (bool, error) {
-	_, err := a.authRepo.GetBySessionID(sessionID)
+func (u *usecase) Auth(sessionID string) (bool, error) {
+	_, err := u.authRepo.GetBySessionID(sessionID)
 	if err != nil {
 		return false, err
 	}
 	return true, nil
 }
 
-func (a *api) SignUp(user *models.User) (string, error) {
-	_, err := a.usersRepo.FindByUsername(user.Username)
+func (u *usecase) SignUp(user *models.User) (string, error) {
+	_, err := u.usersRepo.GetByUsername(user.Username)
 	if err == nil {
 		return "", err
 	}
-	if _, err = a.usersRepo.FindByEmail(user.Email); err == nil {
+	if _, err = u.usersRepo.GetByEmail(user.Email); err == nil {
 		return "", err
 	}
-	if user, err = a.usersRepo.Create(user); err != nil {
+	if user, err = u.usersRepo.Create(user); err != nil {
 		return "", err
 	}
-	s, err := a.authRepo.CreateSession(models.CreateCookie(user.ID))
+	s, err := u.authRepo.CreateSession(models.CreateCookie(user.ID))
 	if err != nil {
 		return "", err
 	}
 	return s.Value, nil
 }
 
-func (a *api) Logout(sessionID string) (bool, error) {
-	if err := a.authRepo.DeleteBySessionID(sessionID); err != nil {
+func (u *usecase) Logout(sessionID string) (bool, error) {
+	if err := u.authRepo.DeleteBySessionID(sessionID); err != nil {
 		return false, err
 	}
 	return true, nil
 }
 
-func (a *api) IsSameSession(sessionID string, userID uint64) bool {
-	user, err := a.usersRepo.FindBySessionID(sessionID)
+func (u *usecase) IsSameSession(sessionID string, userID uint64) bool {
+	user, err := u.usersRepo.GetBySessionID(sessionID)
 	if err != nil {
 		return false
 	}

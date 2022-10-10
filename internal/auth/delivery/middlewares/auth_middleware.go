@@ -1,9 +1,9 @@
 package authMiddlewares
 
 import (
+	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	authErrors "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/errors"
 	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/labstack/echo/v4"
 	"strconv"
 )
@@ -18,7 +18,7 @@ func New(authUseCase auth.UseCase) *Middlewares {
 
 func (m *Middlewares) LoginRequired(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
-		cookie, err := models.GetCookie(c)
+		cookie, err := httpAuth.GetCookie(c)
 		if err != nil {
 			return authErrors.Wrap(c, authErrors.ErrNoSession, err)
 		}
@@ -33,7 +33,7 @@ func (m *Middlewares) LoginRequired(next echo.HandlerFunc) echo.HandlerFunc {
 
 func (m *Middlewares) SameSession(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		cookie, err := models.GetCookie(c)
+		cookie, err := httpAuth.GetCookie(c)
 		if err != nil {
 			return authErrors.Wrap(c, authErrors.ErrNoSession, err)
 		}

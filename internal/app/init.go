@@ -1,15 +1,15 @@
 package app
 
 import (
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http/middlewares"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/middlewares"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery/http"
+	httpPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/usecase"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery/http"
+	httpUsers "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
@@ -95,13 +95,15 @@ func (s *Server) makeRouter() {
 	v1.DELETE("/logout", s.authHandler.Logout, s.authMiddleware.LoginRequired)
 	v1.POST("/users", s.authHandler.SignUp)
 
-	user := v1.Group("/users/:id", s.authMiddleware.LoginRequired)
+	user := v1.Group("/users/:id")
 	user.GET("", s.userHandler.GetUser)
 	user.PUT("", s.userHandler.PutUser)
+	user.Use(s.authMiddleware.LoginRequired)
 
-	post := v1.Group("/posts", s.authMiddleware.LoginRequired)
+	post := v1.Group("/posts")
 	post.GET("/users/:id", s.postsHandler.GetPosts)
 	post.POST("/users/:id", s.postsHandler.CreatePosts, s.authMiddleware.SameSession)
+	post.Use(s.authMiddleware.LoginRequired)
 }
 
 func (s *Server) makeCORS() {

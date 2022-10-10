@@ -50,7 +50,7 @@ func (r *Postgres) Create(u *model.User) (*model.User, error) {
 	return u, nil
 }
 
-func (r *Postgres) FindByUsername(username string) (*model.User, error) {
+func (r *Postgres) GetByUsername(username string) (*model.User, error) {
 	var u model.User
 	if err := r.DB.Get(
 		&u,
@@ -63,7 +63,7 @@ func (r *Postgres) FindByUsername(username string) (*model.User, error) {
 	return &u, nil
 }
 
-func (r *Postgres) FindByID(id uint64) (*model.User, error) {
+func (r *Postgres) GetByID(id uint64) (*model.User, error) {
 	var u model.User
 	if err := r.DB.Get(
 		&u,
@@ -76,7 +76,7 @@ func (r *Postgres) FindByID(id uint64) (*model.User, error) {
 	return &u, nil
 }
 
-func (r *Postgres) FindByEmail(email string) (*model.User, error) {
+func (r *Postgres) GetByEmail(email string) (*model.User, error) {
 	var u model.User
 	if err := r.DB.Get(
 		&u,
@@ -89,7 +89,7 @@ func (r *Postgres) FindByEmail(email string) (*model.User, error) {
 	return &u, nil
 }
 
-func (r *Postgres) FindBySessionID(sessionID string) (*model.User, error) {
+func (r *Postgres) GetBySessionID(sessionID string) (*model.User, error) {
 	var u model.User
 	if err := r.DB.Get(
 		&u,

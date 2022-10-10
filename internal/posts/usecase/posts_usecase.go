@@ -21,16 +21,16 @@ type Repository interface {
 	Close() error
 }
 
-type api struct {
+type usecase struct {
 	postsRepo Repository
 }
 
 func New(repo Repository) UseCase {
-	return &api{postsRepo: repo}
+	return &usecase{postsRepo: repo}
 }
 
-func (a *api) GetPostsByUserID(id uint64) ([]*models.PostDB, error) {
-	r, err := a.postsRepo.GetAllByUserID(id)
+func (u *usecase) GetPostsByUserID(id uint64) ([]*models.PostDB, error) {
+	r, err := u.postsRepo.GetAllByUserID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -39,12 +39,12 @@ func (a *api) GetPostsByUserID(id uint64) ([]*models.PostDB, error) {
 	}
 	return r, nil
 }
-func (a *api) GetPostByID(postID uint64) (*models.PostDB, error) {
-	return a.postsRepo.GetPostByID(postID)
+func (u *usecase) GetPostByID(postID uint64) (*models.PostDB, error) {
+	return u.postsRepo.GetPostByID(postID)
 }
-func (a *api) Create(post *models.PostDB) (*models.PostDB, error) {
-	return a.postsRepo.Create(post)
+func (u *usecase) Create(post *models.PostDB) (*models.PostDB, error) {
+	return u.postsRepo.Create(post)
 }
-func (a *api) DeleteInUserByID(userID, postID uint64) error {
-	return a.postsRepo.DeleteInUserByID(userID, postID)
+func (u *usecase) DeleteInUserByID(userID, postID uint64) error {
+	return u.postsRepo.DeleteInUserByID(userID, postID)
 }
