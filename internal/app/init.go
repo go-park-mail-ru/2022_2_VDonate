@@ -86,7 +86,7 @@ func (s *Server) makeEchoLogger() {
 func (s *Server) makeRouter() {
 	v1 := s.Echo.Group("/api/v1")
 	if s.Config.Debug.Request {
-		v1.Use(logger.LoggerMiddleware())
+		v1.Use(logger.Middleware())
 	}
 
 	v1.Use(middleware.Secure())

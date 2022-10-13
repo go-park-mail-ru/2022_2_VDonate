@@ -14,10 +14,15 @@ type Logger struct {
 	Logrus *logrus.Logger
 }
 
+// New settings of logger
 func New() *Logger {
 	newLogger := Logger{Logrus: logrus.New()}
-	newLogger.SetFormatter(&logrus.JSONFormatter{DisableTimestamp: true, DisableHTMLEscape: true, PrettyPrint: true})
-	newLogger.SetLevel(log.DEBUG)
+	newLogger.SetFormatter(&logrus.JSONFormatter{
+		TimestampFormat:   time.RFC3339,
+		DisableHTMLEscape: true,
+		PrettyPrint:       true,
+	})
+	newLogger.SetLevel(log.ERROR)
 	return &newLogger
 }
 
@@ -198,13 +203,14 @@ func (l *Logger) Panicj(j log.JSON) {
 	l.Logrus.Panicln(string(b))
 }
 
-func LoggerMiddleware() echo.MiddlewareFunc {
+func Middleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			req := c.Request()
 			res := c.Response()
 			start := time.Now()
-			if err := next(c); err != nil {
+			err := next(c)
+			if err != nil {
 				c.Error(err)
 			}
 			stop := time.Now()
@@ -213,8 +219,24 @@ func LoggerMiddleware() echo.MiddlewareFunc {
 
 			bytesIn := req.Header.Get(echo.HeaderContentLength)
 
+			if err != nil {
+				GlobalLogger.Logrus.WithFields(map[string]interface{}{
+					"remote_ip":     c.RealIP(),
+					"host":          req.Host,
+					"uri":           req.RequestURI,
+					"method":        req.Method,
+					"path":          p,
+					"error":         err.Error(),
+					"referer":       req.Referer(),
+					"user_agent":    req.UserAgent(),
+					"status":        res.Status,
+					"latency":       strconv.FormatInt(stop.Sub(start).Nanoseconds()/1000, 10),
+					"latency_human": stop.Sub(start).String(),
+					"bytes_in":      bytesIn,
+					"bytes_out":     strconv.FormatInt(res.Size, 10),
+				}).Error("BAD REQUEST")
+			}
 			GlobalLogger.Logrus.WithFields(map[string]interface{}{
-				"request_time":  time.Now().Format(time.RFC3339),
 				"remote_ip":     c.RealIP(),
 				"host":          req.Host,
 				"uri":           req.RequestURI,
@@ -227,7 +249,7 @@ func LoggerMiddleware() echo.MiddlewareFunc {
 				"latency_human": stop.Sub(start).String(),
 				"bytes_in":      bytesIn,
 				"bytes_out":     strconv.FormatInt(res.Size, 10),
-			}).Info("Request")
+			}).Info("REQUEST")
 
 			return nil
 		}
