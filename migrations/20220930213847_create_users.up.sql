@@ -24,3 +24,17 @@ CREATE TABLE IF NOT EXISTS sessions (
                                         user_id bigserial not null references users(id),
                                         expire_date date
 );
+
+CREATE TABLE IF NOT EXISTS author_subscriptions (
+    id bigserial not null primary key,
+    author_id bigserial not null references users(id),
+    tier integer not null DEFAULT 0 UNIQUE,
+    text text not null,
+    price bigserial not null
+);
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+                                             author_id bigserial not null references users(id),
+                                             subscriber_id bigserial not null references users(id),
+                                             subscription_id bigserial not null references author_subscriptions(id)
+);
