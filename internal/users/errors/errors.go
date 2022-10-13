@@ -6,16 +6,6 @@ import (
 	"net/http"
 )
 
-type errJSON struct {
-	Message string `json:"message"`
-}
-
-func responceError(err error) errJSON {
-	return errJSON{
-		Message: err.Error(),
-	}
-}
-
 var (
 	ErrConvertID     = errors.New("unable to convert id")
 	ErrUserNotFound  = errors.New("user not found")
@@ -26,16 +16,16 @@ var (
 	ErrBadRequest    = errors.New("bad request")
 )
 
-func Wrap(c echo.Context, errCode, errLog error) error {
+func Wrap(c echo.Context, errHTTP, errLog error) error {
 	c.Logger().Error(errLog)
-	switch errCode {
+	switch errHTTP {
 	case ErrUserNotFound:
-		return c.JSON(http.StatusNotFound, responceError(errCode))
+		return echo.NewHTTPError(http.StatusNotFound, errHTTP)
 	case ErrBadRequest:
-		return c.JSON(http.StatusBadRequest, responceError(errCode))
+		return echo.NewHTTPError(http.StatusBadRequest, errHTTP)
 	case ErrConvertID, ErrJSONMarshal, ErrJSONUnmarshal, ErrResponse, ErrUpdate:
-		return c.JSON(http.StatusInternalServerError, responceError(errCode))
+		return echo.NewHTTPError(http.StatusInternalServerError, errHTTP)
 	default:
-		return c.JSON(http.StatusInternalServerError, responceError(errCode))
+		return echo.NewHTTPError(http.StatusInternalServerError, errHTTP)
 	}
 }

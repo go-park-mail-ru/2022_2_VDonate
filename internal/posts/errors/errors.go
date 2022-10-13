@@ -13,26 +13,17 @@ var (
 	ErrBadRequest    = errors.New("bar request")
 	ErrInternal      = errors.New("server error")
 	ErrCreate        = errors.New("failed to create post")
+	ErrNoPosts       = errors.New("no posts with such user ID")
 )
 
-type errJSON struct {
-	Message string `json:"message"`
-}
-
-func responceError(err error) errJSON {
-	return errJSON{
-		Message: err.Error(),
-	}
-}
-
-func Wrap(c echo.Context, errCode, errLog error) error {
+func Wrap(c echo.Context, errHTTP, errLog error) error {
 	c.Logger().Error(errLog)
-	switch errCode {
-	case ErrBadRequest:
-		return c.JSON(http.StatusBadRequest, responceError(errCode))
+	switch errHTTP {
+	case ErrBadRequest, ErrNoPosts:
+		return echo.NewHTTPError(http.StatusBadRequest, errHTTP)
 	case ErrJSONMarshal, ErrJSONUnmarshal, ErrResponse, ErrInternal, ErrCreate:
-		return c.JSON(http.StatusInternalServerError, responceError(errCode))
+		return echo.NewHTTPError(http.StatusInternalServerError, errHTTP)
 	default:
-		return c.JSON(http.StatusInternalServerError, responceError(errCode))
+		return echo.NewHTTPError(http.StatusInternalServerError, errHTTP)
 	}
 }

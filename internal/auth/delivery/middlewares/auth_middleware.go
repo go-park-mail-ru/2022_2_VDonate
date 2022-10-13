@@ -1,7 +1,6 @@
 package authMiddlewares
 
 import (
-	"errors"
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	authErrors "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/errors"
 	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
@@ -27,47 +26,25 @@ func (m *Middlewares) LoginRequired(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		isAuth, err := m.authUseCase.Auth(cookie.Value)
 		if !isAuth {
-			return authErrors.Wrap(c, authErrors.ErrNoSession, err)
+			return authErrors.Wrap(c, authErrors.ErrAuth, err)
 		}
 
 		return next(c)
 	}
 }
 
-func (m *Middlewares) SameSessionForUser(next echo.HandlerFunc) echo.HandlerFunc {
+func (m *Middlewares) SameSession(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		cookie, err := httpAuth.GetCookie(c)
 		if err != nil {
 			return authErrors.Wrap(c, authErrors.ErrNoSession, err)
 		}
-		id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+		id, err := strconv.ParseUint(c.QueryParam("user_id"), 10, 64)
 		if err != nil {
-			return authErrors.Wrap(c, authErrors.ErrInternal, err)
+			return authErrors.Wrap(c, authErrors.ErrBadRequest, err)
 		}
 		if !m.authUseCase.IsSameSession(cookie.Value, id) {
-			return authErrors.Wrap(c, authErrors.ErrForbidden, errors.New("you are not supposed to be here"))
-		}
-
-		return next(c)
-	}
-}
-
-func (m *Middlewares) SameSessionForPost(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		cookie, err := httpAuth.GetCookie(c)
-		if err != nil {
-			return authErrors.Wrap(c, authErrors.ErrNoSession, err)
-		}
-		postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-		if err != nil {
-			return authErrors.Wrap(c, authErrors.ErrInternal, err)
-		}
-		user, err := m.usersUseCase.GetUserByPostID(postID)
-		if err != nil {
-			return authErrors.Wrap(c, authErrors.ErrForbidden, err)
-		}
-		if !m.authUseCase.IsSameSession(cookie.Value, user.ID) {
-			return authErrors.Wrap(c, authErrors.ErrForbidden, err)
+			return authErrors.Wrap(c, authErrors.ErrForbidden, authErrors.ErrForbidden)
 		}
 
 		return next(c)

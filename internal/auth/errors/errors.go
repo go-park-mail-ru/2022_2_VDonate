@@ -21,34 +21,25 @@ var (
 	ErrDeleteSession           = errors.New("failed to delete session")
 	ErrInternal                = errors.New("server error")
 	ErrForbidden               = errors.New("you are not supposed to be here")
+	ErrAuth                    = errors.New("failed to authenticate")
 )
-
-type errJSON struct {
-	Message string `json:"message"`
-}
-
-func responceError(err error) errJSON {
-	return errJSON{
-		Message: err.Error(),
-	}
-}
 
 func Wrap(c echo.Context, errHTTP, errLog error) error {
 	c.Logger().Error(errLog)
 	switch errHTTP {
-	case ErrNoSession:
-		return c.JSON(http.StatusUnauthorized, responceError(errHTTP))
+	case ErrNoSession, ErrAuth:
+		return echo.NewHTTPError(http.StatusUnauthorized, errHTTP)
 	case ErrUserNotFound:
-		return c.JSON(http.StatusNotFound, responceError(errHTTP))
+		return echo.NewHTTPError(http.StatusNotFound, errHTTP)
 	case ErrForbidden:
-		return c.JSON(http.StatusForbidden, responceError(errHTTP))
+		return echo.NewHTTPError(http.StatusForbidden, errHTTP)
 	case ErrInvalidLoginOrPassword, ErrBadRequest:
-		return c.JSON(http.StatusBadRequest, responceError(errHTTP))
+		return echo.NewHTTPError(http.StatusBadRequest, errHTTP)
 	case ErrUserOrEmailAlreadyExist:
-		return c.JSON(http.StatusConflict, responceError(errHTTP))
+		return echo.NewHTTPError(http.StatusConflict, errHTTP)
 	case ErrJSONMarshal, ErrResponse, ErrJSONUnmarshal, ErrCreateUser, ErrCopy, ErrBadSession, ErrInternal, ErrDeleteSession:
-		return c.JSON(http.StatusInternalServerError, responceError(errHTTP))
+		return echo.NewHTTPError(http.StatusInternalServerError, errHTTP)
 	default:
-		return c.JSON(http.StatusInternalServerError, responceError(errHTTP))
+		return echo.NewHTTPError(http.StatusInternalServerError, errHTTP)
 	}
 }

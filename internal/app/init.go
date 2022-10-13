@@ -15,7 +15,6 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"io"
 )
 
 type Server struct {
@@ -35,7 +34,7 @@ type Server struct {
 }
 
 func (s *Server) init() {
-	s.makeLogger(logger.NewLogrus().Logrus.Writer())
+	s.makeEchoLogger()
 	s.makeUseCase(s.Config.DB.URL)
 	s.makeMiddlewares()
 	s.makeHandlers()
@@ -79,16 +78,18 @@ func (s *Server) makeHandlers() {
 	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService)
 }
 
-func (s *Server) makeLogger(l *io.PipeWriter) {
-	s.Echo.Logger.SetOutput(l)
+func (s *Server) makeEchoLogger() {
+	s.Echo.Logger = logger.GlobalLogger
 	s.Echo.Logger.Info("server started")
 }
 
 func (s *Server) makeRouter() {
 	v1 := s.Echo.Group("/api/v1")
 	if s.Config.Debug.Request {
-		v1.Use(middleware.LoggerWithConfig(middleware.DefaultLoggerConfig))
+		v1.Use(logger.LoggerMiddleware())
 	}
+
+	v1.Use(middleware.Secure())
 
 	v1.POST("/login", s.authHandler.Login)
 	v1.GET("/auth", s.authHandler.Auth)
@@ -101,14 +102,16 @@ func (s *Server) makeRouter() {
 	user.Use(s.authMiddleware.LoginRequired)
 
 	post := v1.Group("/posts")
-	post.GET("/users/:id", s.postsHandler.GetPosts)
-	post.POST("/users/:id", s.postsHandler.CreatePosts, s.authMiddleware.SameSessionForUser)
-	post.DELETE("/users/:id", s.postsHandler.DeletePost, s.authMiddleware.SameSessionForPost)
+	post.GET("/", s.postsHandler.GetPosts)
+	post.POST("/", s.postsHandler.CreatePosts, s.authMiddleware.SameSession)
+	post.DELETE("/:post_id/", s.postsHandler.DeletePost, s.authMiddleware.SameSession)
+	post.PUT("/:post_id/", s.postsHandler.PutPost, s.authMiddleware.SameSession)
 	post.Use(s.authMiddleware.LoginRequired)
 }
 
 func (s *Server) makeCORS() {
 	s.Echo.Use(NewCORS())
+	middleware.Logger()
 }
 
 func (s *Server) makeMiddlewares() {

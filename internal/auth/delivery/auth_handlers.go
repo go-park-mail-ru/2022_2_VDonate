@@ -53,7 +53,7 @@ func (h *Handler) Auth(c echo.Context) error {
 
 	isAuth, err := h.authUseCase.Auth(cookie.Value)
 	if !isAuth {
-		return authErrors.Wrap(c, authErrors.ErrNoSession, err)
+		return authErrors.Wrap(c, authErrors.ErrAuth, err)
 	}
 
 	user, err := h.usersUseCase.GetBySessionID(cookie.Value)

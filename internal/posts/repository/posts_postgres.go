@@ -70,6 +70,21 @@ func (r *Postgres) Create(post *models.PostDB) (*models.PostDB, error) {
 	return post, nil
 }
 
+func (r *Postgres) Update(post *models.PostDB) (*models.PostDB, error) {
+	_, err := r.DB.NamedExec(
+		`
+                UPDATE posts
+                SET user_id=:user_id,
+                    title=:title,
+                    text=:text,
+                    img=:img
+                WHERE post_id = :post_id`, &post)
+	if err != nil {
+		return nil, err
+	}
+	return post, err
+}
+
 func (r *Postgres) DeleteByID(postID uint64) error {
 	_, err := r.DB.Query("DELETE FROM posts WHERE post_id=$1;", postID)
 	if err != nil {
