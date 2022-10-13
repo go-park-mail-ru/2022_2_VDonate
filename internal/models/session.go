@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
+	"github.com/google/uuid"
 	"net/http"
 	"time"
 )
@@ -19,7 +19,7 @@ type Cookie struct {
 func CreateCookie(id uint64) *Cookie {
 	return &Cookie{
 		UserID:  id,
-		Value:   utils.RandStringRunes(32),
+		Value:   uuid.New().String(),
 		Expires: time.Now().AddDate(0, 1, 0),
 	}
 }

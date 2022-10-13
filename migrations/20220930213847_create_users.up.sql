@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS posts (
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
-                                        value varchar(32) primary key,
+                                        value varchar(36) primary key,
                                         user_id bigserial not null references users(id),
                                         expire_date date
 );

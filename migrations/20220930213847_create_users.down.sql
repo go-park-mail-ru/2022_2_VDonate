@@ -1,1 +1,3 @@
-DROP TABLE users, sessions, posts;
+DROP TABLE users;
+DROP TABLE sessions;
+DROP TABLE posts;
