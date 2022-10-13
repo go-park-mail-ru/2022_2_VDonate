@@ -1,131 +1,144 @@
 package httpPosts
 
-// import (
-// 	"net/http"
-// 	"net/http/httptest"
-// 	"testing"
-// 	"github.com/labstack/echo/v4"
+import (
+	"bytes"
+	"errors"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"strconv"
+	"strings"
+	"testing"
 
-// 	"github.com/golang/mock/gomock"
-// 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-// 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/posts/usecase"
-// )
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/posts/usecase"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+	"github.com/golang/mock/gomock"
+	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
 
-// func TestGetPosts(t *testing.T) {
-// 	type mockBehavior func(s *mock_posts.MockUseCase, post models.PostDB)
+func TestHangler_GetPosts(t *testing.T) {
+	type mockBehavior func(s *mock_posts.MockUseCase, postId uint64)
 
-// 	tests := []struct {
-// 		name string
-// 		inputBody string
-// 		inputPost models.PostDB
-// 		mockBehavior mockBehavior
-// 		expectedStatusCode int
-// 		expectedRequestBody  string
-// 	}{
-// 		{
-// 			name: "OK",
-// 			inputBody: "",
-// 			inputPost: models.PostDB{
-// 				ID: 1,
-// 				UserID: 2,
-// 				Title: "Test",
-// 				Text: "Test text.",
-// 			},
-// 			mockBehavior: func(s *mock_posts.MockUseCase, post models.PostDB) {
-// 				s.EXPECT().Create(post).Return(1, nil)
-// 			},
-// 			expectedStatusCode: http.StatusOK,
-// 			expectedRequestBody: `{"id": 1}`,
-// 		},
-// 	}
+	tests := []struct {
+		name                string
+		method				string
+		userId              uint64
+		mockBehavior        mockBehavior
+		expectedStatusCode  int
+		expectedRequestBody string
+	}{
+		{
+			name:   "OK",
+			userId: 123,
+			mockBehavior: func(s *mock_posts.MockUseCase, postId uint64) {
+				s.EXPECT().GetPostsByUserID(postId).Return([]*models.PostDB{
+					{
+						Img:   "path/to/img",
+						Title: "Look at this!!!",
+						Text:  "Some text about my work",
+					},
+				}, nil)
+			},
+			expectedRequestBody: `[{"id":0,"user_id":0,"img":"path/to/img","title":"Look at this!!!","text":"Some text about my work"}]`,
+		},
+		{
+			name:   "NotOK-BadId",
+			userId: 123,
+			mockBehavior: func(s *mock_posts.MockUseCase, postId uint64) {
+				s.EXPECT().GetPostsByUserID(postId).Return([]*models.PostDB{}, errors.New("Bad request"))
+			},
+			expectedStatusCode:  http.StatusOK,
+			expectedRequestBody: `{"message":"server error"}`,
+		},
+	}
 
-// 	for _, test := range tests {
-// 		t.Run(test.name, func(t *testing.T) {
-// 			// Init dependencies
-// 			ctrl := gomock.NewController(t)
-// 		 	defer ctrl.Finish()
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
 
-// 			// mock_posts.NewMockUseCae()
-// 			usecase := mock_posts.NewMockUseCase(ctrl)
-// 			test.mockBehavior(usecase, test.inputPost)
+			post := mock_posts.NewMockUseCase(ctrl)
+			test.mockBehavior(post, test.userId)
 
-// 			// service := posts.UseCase{usecase}
-// 			// handler := NewHandler(usecase)
+			handler := NewHandler(post)
 
-// 			// Test server
-// 			// e := echo.New()
-// 			// req := httptest.NewRequest(http.MethodGet, models.UrlTestPosts, nil)
-// 			// rec := httptest.NewRecorder()
-// 			// e.GET("http://127.0.0.1/api/v1/posts/users/1", handler)
-// 		})
-// 	}
-// }
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, "https://127.0.0.1/api/v1/", nil)
+			rec := httptest.NewRecorder()
 
+			c := e.NewContext(req, rec)
+			c.SetPath("https://127.0.0.1/api/v1/:id")
+			c.SetParamNames("id")
+			c.SetParamValues(strconv.FormatInt(int64(test.userId), 10))
 
+			err := handler.GetPosts(c)
+			require.NoError(t, err)
 
-// // tests := []models.Test{
-// 	// 	models.Test{
-// 	// 		Name: "get-post-1",
-// 	// 		Request: []byte(`{"ID":1,"UserID":2, "Title":"Test", "Text":"Test text."}`),
-// 	// 		Response: &models.PostDB{
-// 	// 			ID: 1,
-// 	// 			UserID: 2,
-// 	// 			Title:  "Test",
-// 	// 			Text:   "Test text.",
-// 	// 		},
-// 	// 		ExpectedError: nil,
-// 	// 	},
-// 	// }
+			body, _ := ioutil.ReadAll(rec.Body)
 
+			assert.Equal(t, test.expectedRequestBody, strings.Trim(string(body), "\n"))
+		})
+	}
+}
 
-// // 	ctrl := gomock.NewController(t)
-// 		// 	defer ctrl.Finish()
+func TestHandler_CreatePost(t *testing.T) {
+	type mockBehavior func(s *mock_posts.MockUseCase, postId models.PostDB)
 
-// 		// 	var parsedReqest models.PostDB
-// 		// 	err := json.Unmarshal(test.Request, &parsedReqest)
-// 		// 	if err != nil {
-// 		// 		t.Error(err.Error())
-// 		// 	}
-			
-// 		// 	usecase := mocks.NewMockUseCase(ctrl)
-// 		// 	usecase.EXPECT().
-// 		// 		GetPostByID(gomock.Eq(parsedReqest.ID)).
-// 		// 		Return(&models.PostDB{
-// 		// 			ID: test.Response.ID,
-// 		// 			UserID: test.Response.UserID,
-// 		// 			Title: test.Response.Title,
-// 		// 			Text: test.Response.Text,
-// 		// 		}, nil)
-// 		// 	handler := Handler{postsUseCase: usecase}
+	tests := []struct {
+		name                string
+		inputBody 			string
+		inputPost 			models.PostDB
+		mockBehavior        mockBehavior
+		expectedStatusCode  int
+		expectedResponseBody string
+	}{
+		{
+			name: "OK",
+			inputBody: `{"title":"Title","text":"Text"}`,
+			inputPost: models.PostDB{
+				UserID: 100,
+				Title: "Title",
+				Text: "Text",
+			},
+			mockBehavior: func(s *mock_posts.MockUseCase, post models.PostDB) {
+				s.EXPECT().Create(&post).Return(&models.PostDB{
+					ID: 666,
+					UserID: 100,
+					Title: post.Title,
+					Text: post.Text,
+				}, nil)
+			},
+			expectedResponseBody: `{"id":666,"user_id":100,"img":"","title":"Title","text":"Text"}`,
+		},
+	}
 
-// 		// 	e := echo.New()
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
 
-// 		// 	req := httptest.NewRequest(http.MethodGet, models.UrlTestPosts, nil)
-// 		// 	rec := httptest.NewRecorder()
+			post := mock_posts.NewMockUseCase(ctrl)
+			test.mockBehavior(post, test.inputPost)
+			handler := NewHandler(post)
 
-// 		// 	c := e.NewContext(req, rec)
-// 		// 	c.SetPath("http://127.0.0.1/api/v1/posts/users/" + strconv.FormatUint(parsedReqest.ID, 10))
-// 		// 	c.SetParamNames("id", "UserId", "Title", "Text")
-// 		// 	c.SetParamValues(strconv.FormatUint(parsedReqest.UserID, 10), 
-// 		// 					strconv.FormatUint(parsedReqest.ID, 10), 
-// 		// 					parsedReqest.Title, 
-// 		// 					parsedReqest.Text)
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodPost, "https://127.0.0.1/api/v1/posts/", bytes.NewBufferString(test.inputBody))
+			rec := httptest.NewRecorder()
+			req.Header.Set("Content-Type", "application/json")
 
-// 		// 	err = handler.GetPosts(c)
-// 		// 	if err != nil {
-// 		// 		t.Errorf("Error is not nil: %s", err)
-// 		// 	}
+			c := e.NewContext(req, rec)
+			c.SetPath("https://127.0.0.1/api/v1/posts/users/:id")
+			c.SetParamNames("id")
+			c.SetParamValues(strconv.FormatInt(int64(test.inputPost.UserID), 10))
 
-// 		// 	body, err := ioutil.ReadAll(rec.Body)
-// 		// 	if err != nil {
-// 		// 		t.Errorf("Something went wrong: %s", err)
-// 		// 	}
+			err := handler.CreatePosts(c)
+			require.NoError(t, err)
 
-// 		// 	expectedVal, err := json.Marshal(test.Response)
-// 		// 	if err != nil {
-// 		// 		t.Errorf("Something went wrong: %s", err)
-// 		// 	}
+			body, _ := ioutil.ReadAll(rec.Body)
 
-// 		// 	if strings.Trim(string(body), "\n") != string(expectedVal) {
-// 		// 		t.Errorf("Expected: %s, got: %s", expectedVal, string(body))
-// 		// 	}
+			assert.Equal(t, test.expectedResponseBody, strings.Trim(string(body), "\n"))
+		})
+	}
+}
