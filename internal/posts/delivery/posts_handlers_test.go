@@ -23,10 +23,9 @@ func TestHangler_GetPosts(t *testing.T) {
 
 	tests := []struct {
 		name                string
-		method				string
-		userId              uint64
+		method              string
+		userId              int
 		mockBehavior        mockBehavior
-		expectedStatusCode  int
 		expectedRequestBody string
 	}{
 		{
@@ -44,13 +43,18 @@ func TestHangler_GetPosts(t *testing.T) {
 			expectedRequestBody: `[{"id":0,"user_id":0,"img":"path/to/img","title":"Look at this!!!","text":"Some text about my work"}]`,
 		},
 		{
-			name:   "NotOK-BadId",
+			name:   "ServerError",
 			userId: 123,
 			mockBehavior: func(s *mock_posts.MockUseCase, postId uint64) {
 				s.EXPECT().GetPostsByUserID(postId).Return([]*models.PostDB{}, errors.New("Bad request"))
 			},
-			expectedStatusCode:  http.StatusOK,
 			expectedRequestBody: `{"message":"server error"}`,
+		},
+		{
+			name:                "BadId",
+			userId:              -1,
+			mockBehavior:        func(s *mock_posts.MockUseCase, postId uint64) {},
+			expectedRequestBody: `{"message":"bar request"}`,
 		},
 	}
 
@@ -60,7 +64,7 @@ func TestHangler_GetPosts(t *testing.T) {
 			defer ctrl.Finish()
 
 			post := mock_posts.NewMockUseCase(ctrl)
-			test.mockBehavior(post, test.userId)
+			test.mockBehavior(post, uint64(test.userId))
 
 			handler := NewHandler(post)
 
@@ -87,30 +91,62 @@ func TestHandler_CreatePost(t *testing.T) {
 	type mockBehavior func(s *mock_posts.MockUseCase, postId models.PostDB)
 
 	tests := []struct {
-		name                string
-		inputBody 			string
-		inputPost 			models.PostDB
-		mockBehavior        mockBehavior
-		expectedStatusCode  int
+		name                 string
+		userId               int
+		inputBody            string
+		inputPost            models.PostDB
+		mockBehavior         mockBehavior
+		expectedStatusCode   int
 		expectedResponseBody string
 	}{
 		{
-			name: "OK",
+			name:      "OK",
+			userId:    100,
 			inputBody: `{"title":"Title","text":"Text"}`,
 			inputPost: models.PostDB{
 				UserID: 100,
-				Title: "Title",
-				Text: "Text",
+				Title:  "Title",
+				Text:   "Text",
 			},
 			mockBehavior: func(s *mock_posts.MockUseCase, post models.PostDB) {
 				s.EXPECT().Create(&post).Return(&models.PostDB{
-					ID: 666,
+					ID:     666,
 					UserID: 100,
-					Title: post.Title,
-					Text: post.Text,
+					Title:  post.Title,
+					Text:   post.Text,
 				}, nil)
 			},
 			expectedResponseBody: `{"id":666,"user_id":100,"img":"","title":"Title","text":"Text"}`,
+		},
+		{
+			name:                 "BadId",
+			userId:               -1,
+			inputBody:            `{"title":"Title","text":"Text"}`,
+			inputPost:            models.PostDB{},
+			mockBehavior:         func(s *mock_posts.MockUseCase, post models.PostDB) {},
+			expectedResponseBody: `{"message":"bar request"}`,
+		},
+		{
+			name:                 "ServerError",
+			userId:               100,
+			inputBody:            `jaodj-oasjd[as[dasd[`,
+			inputPost:            models.PostDB{},
+			mockBehavior:         func(s *mock_posts.MockUseCase, post models.PostDB) {},
+			expectedResponseBody: `{"message":"server error"}`,
+		},
+		{
+			name:      "OK",
+			userId:    100,
+			inputBody: `{"title":"Title","text":"Text"}`,
+			inputPost: models.PostDB{
+				UserID: 100,
+				Title:  "Title",
+				Text:   "Text",
+			},
+			mockBehavior: func(s *mock_posts.MockUseCase, post models.PostDB) {
+				s.EXPECT().Create(&post).Return(&models.PostDB{}, errors.New("cannot create post"))
+			},
+			expectedResponseBody: `{"message":"failed to create post"}`,
 		},
 	}
 
@@ -131,7 +167,7 @@ func TestHandler_CreatePost(t *testing.T) {
 			c := e.NewContext(req, rec)
 			c.SetPath("https://127.0.0.1/api/v1/posts/users/:id")
 			c.SetParamNames("id")
-			c.SetParamValues(strconv.FormatInt(int64(test.inputPost.UserID), 10))
+			c.SetParamValues(strconv.FormatInt(int64(test.userId), 10))
 
 			err := handler.CreatePosts(c)
 			require.NoError(t, err)

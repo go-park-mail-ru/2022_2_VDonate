@@ -21,7 +21,6 @@ import (
 // 		userId                   uint64
 // 		login                    string
 // 		password                 string
-// 		time                     time.Time
 // 		mockBehaviourGetUsername mockBehaviourGetUsername
 // 		mockBehaviourGetEmail    mockBehaviourGetEmail
 // 		mockBehaviourSession     mockBehaviourSession
@@ -32,7 +31,6 @@ import (
 // 			userId:   100,
 // 			login:    "user",
 // 			password: "Qwerty",
-// 			time:     time.Now().AddDate(0, 1, 0),
 // 			mockBehaviourGetUsername: func(r *mock_users.MockRepository, username string) {
 // 				r.EXPECT().GetByUsername(username).Return(&models.User{
 // 					ID:       100,
@@ -43,9 +41,8 @@ import (
 // 			mockBehaviourGetEmail: func(r *mock_users.MockRepository, email string) {},
 // 			mockBehaviourSession: func(r *mock_auth.MockRepository, cookie *models.Cookie) {
 // 				r.EXPECT().CreateSession(cookie).Return(&models.Cookie{
-// 					Value:   cookie.Value,
+// 					Value:   "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
 // 					UserID:  cookie.UserID,
-// 					Expires: cookie.Expires,
 // 				}, nil)
 // 			},
 // 			response: "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
@@ -85,7 +82,7 @@ import (
 
 // 			test.mockBehaviourGetUsername(userMock, test.login)
 // 			test.mockBehaviourGetEmail(userMock, test.login)
-// 			test.mockBehaviourSession(authMock, models.CreateCookie(uint64(test.time.Second())))
+// 			test.mockBehaviourSession(authMock, models.CreateCookie(test.userId))
 
 // 			usecase := New(authMock, userMock)
 // 			post, err := usecase.Login(test.login, test.password)
