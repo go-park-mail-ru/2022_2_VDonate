@@ -4,12 +4,11 @@ INTERNAL_PATH = internal
 
 .PHONY: test
 test: ## Run all the tests
-	echo 'mode: atomic' > coverage.out && go test -covermode=atomic -coverprofile=coverage.out -v -race -timeout=30s ./...
+	go test -race -coverpkg=./... -coverprofile=c.out ./...
 
 .PHONY: cover
 cover: test ## Run all the tests and opens the coverage report
-	go tool cover -func=coverage.out
-	got tool cover -html=coverage.out
+	go tool cover -func=c.out
 
 .PHONY: ci
 ci: lint test ## Run all the tests and code checks
