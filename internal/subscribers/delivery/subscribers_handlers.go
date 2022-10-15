@@ -2,7 +2,7 @@ package httpsubscribers
 
 import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	subscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/usecase"
+	subscribersDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -10,11 +10,11 @@ import (
 )
 
 type Handler struct {
-	subscribersUsecase subscribers.UseCase
+	subscribersUsecase subscribersDomain.UseCase
 	userUsecase        users.UseCase
 }
 
-func New(subscribersUsecase subscribers.UseCase, userUsecase users.UseCase) *Handler {
+func New(subscribersUsecase subscribersDomain.UseCase, userUsecase users.UseCase) *Handler {
 	return &Handler{
 		subscribersUsecase: subscribersUsecase,
 		userUsecase:        userUsecase,
@@ -35,7 +35,7 @@ func (h *Handler) GetSubscribers(c echo.Context) error {
 }
 
 func (h *Handler) CreateSubscriber(c echo.Context) error {
-	var s *models.Subscription
+	var s models.Subscription
 	if err := c.Bind(&s); err != nil {
 		return err
 	}
@@ -49,7 +49,7 @@ func (h *Handler) CreateSubscriber(c echo.Context) error {
 }
 
 func (h *Handler) DeleteSubscriber(c echo.Context) error {
-	var s *models.Subscription
+	var s models.Subscription
 	if err := c.Bind(&s); err != nil {
 		return err
 	}

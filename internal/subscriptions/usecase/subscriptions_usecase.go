@@ -3,57 +3,52 @@ package subscriptions
 import (
 	"errors"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+	subscriptionsDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions"
 	"github.com/jinzhu/copier"
 )
 
-type UseCase interface {
-	GetSubscriptions(authorID uint64) ([]*models.AuthorSubscription, error)
-	AddSubscription(sub *models.AuthorSubscription) (*models.AuthorSubscription, error)
-	UpdateSubscription(sub *models.AuthorSubscription) (*models.AuthorSubscription, error)
-	DeleteSubscription(subID uint64) error
-}
-
-type Repository interface {
-	GetSubscriptions(authorID uint64) ([]*models.AuthorSubscription, error)
-	AddSubscription(sub *models.AuthorSubscription) (*models.AuthorSubscription, error)
-	UpdateSubscription(sub *models.AuthorSubscription) (*models.AuthorSubscription, error)
-	DeleteSubscription(subID uint64) error
-}
-
 type usecase struct {
-	subRepo Repository
+	subRepo subscriptionsDomain.Repository
 }
 
-func New(subRepo Repository) UseCase {
+func New(subRepo subscriptionsDomain.Repository) subscriptionsDomain.UseCase {
 	return &usecase{subRepo: subRepo}
 }
 
-func (u *usecase) GetSubscriptions(authorID uint64) ([]*models.AuthorSubscription, error) {
-	s, err := u.subRepo.GetSubscriptions(authorID)
+func (u *usecase) GetSubscriptionsByAuthorID(authorID uint64) ([]*models.AuthorSubscription, error) {
+	s, err := u.subRepo.GetSubscriptionsByAuthorID(authorID)
 	if err != nil {
 		return nil, err
 	}
 	if len(s) == 0 {
-		return nil, errors.New("no subscribers")
+		return nil, errors.New("no subscriptions")
 	}
 	return s, nil
 }
 
-func (u *usecase) AddSubscription(sub *models.AuthorSubscription) (*models.AuthorSubscription, error) {
+func (u *usecase) GetSubscriptionsByID(ID uint64) (*models.AuthorSubscription, error) {
+	s, err := u.subRepo.GetSubscriptionsByID(ID)
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+
+func (u *usecase) AddSubscription(sub models.AuthorSubscription) (*models.AuthorSubscription, error) {
 	return u.subRepo.AddSubscription(sub)
 }
 
-func (u *usecase) UpdateSubscription(sub *models.AuthorSubscription) (*models.AuthorSubscription, error) {
-	updateSub, err := u.GetSubscriptions(sub.AuthorID)
+func (u *usecase) UpdateSubscription(sub models.AuthorSubscription) (*models.AuthorSubscription, error) {
+	updateSub, err := u.GetSubscriptionsByID(sub.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = copier.CopyWithOption(&updateSub, &sub, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(updateSub, &sub, copier.Option{IgnoreEmpty: true}); err != nil {
 		return nil, err
 	}
 
-	return u.subRepo.UpdateSubscription(sub)
+	return u.subRepo.UpdateSubscription(updateSub)
 }
 
 func (u *usecase) DeleteSubscription(subID uint64) error {

@@ -22,7 +22,7 @@ func NewPostgres(URL string) (*Postgres, error) {
 	return &Postgres{DB: db}, nil
 }
 
-func (p *Postgres) GetSubscriptions(authorID uint64) ([]*models.AuthorSubscription, error) {
+func (p *Postgres) GetSubscriptionsByAuthorID(authorID uint64) ([]*models.AuthorSubscription, error) {
 	var s []*models.AuthorSubscription
 	if err := p.DB.Select(&s, `
 		SELECT * 
@@ -36,7 +36,21 @@ func (p *Postgres) GetSubscriptions(authorID uint64) ([]*models.AuthorSubscripti
 	return s, nil
 }
 
-func (p *Postgres) AddSubscription(sub *models.AuthorSubscription) (*models.AuthorSubscription, error) {
+func (p *Postgres) GetSubscriptionsByID(ID uint64) (*models.AuthorSubscription, error) {
+	var s models.AuthorSubscription
+	if err := p.DB.Get(&s, `
+		SELECT * 
+		FROM author_subscriptions
+		WHERE id = $1`,
+		ID,
+	); err != nil {
+		return nil, err
+	}
+
+	return &s, nil
+}
+
+func (p *Postgres) AddSubscription(sub models.AuthorSubscription) (*models.AuthorSubscription, error) {
 	err := p.DB.QueryRowx(`
 		INSERT INTO author_subscriptions (author_id, tier, text, price) 
 		VALUES ($1, $2, $3, $4) 
@@ -50,7 +64,7 @@ func (p *Postgres) AddSubscription(sub *models.AuthorSubscription) (*models.Auth
 		return nil, err
 	}
 
-	return sub, nil
+	return &sub, nil
 }
 
 func (p *Postgres) UpdateSubscription(sub *models.AuthorSubscription) (*models.AuthorSubscription, error) {
@@ -61,7 +75,7 @@ func (p *Postgres) UpdateSubscription(sub *models.AuthorSubscription) (*models.A
 		    tier=:tier,
 		    text=:text,
 		    price=:price
-		WHERE id = :id`, &sub)
+		WHERE id = :id`, sub)
 	if err != nil {
 		return nil, err
 	}

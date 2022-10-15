@@ -9,9 +9,11 @@ import (
 	httpPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/usecase"
+	subscribersDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers"
 	httpsubscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/delivery"
 	subscribersRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/repository"
 	subscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/usecase"
+	subscriptionsDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions"
 	httpSubscriptions "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/delivery"
 	subscriptionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/repository"
 	subscriptions "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/usecase"
@@ -32,8 +34,8 @@ type Server struct {
 	UserService         users.UseCase
 	PostsService        posts.UseCase
 	AuthService         auth.UseCase
-	SubscriptionService subscriptions.UseCase
-	SubscribersService  subscribers.UseCase
+	SubscriptionService subscriptionsDomain.UseCase
+	SubscribersService  subscribersDomain.UseCase
 
 	authHandler          *httpAuth.Handler
 	userHandler          *httpUsers.Handler
@@ -132,15 +134,18 @@ func (s *Server) makeRouter() {
 	post.Use(s.authMiddleware.LoginRequired)
 
 	subscription := v1.Group("/subscriptions")
-	subscription.GET("/:author_id", s.subscriptionsHandler.GetSubscriptions)
-	subscription.POST("/", s.subscriptionsHandler.CreateSubscription)
-	subscription.PUT("/", s.subscriptionsHandler.UpdateSubscription)
-	subscription.DELETE("/:subscription_id", s.subscriptionsHandler.DeleteSubscription)
+	subscription.Use(s.authMiddleware.LoginRequired)
+	subscription.GET("/:id", s.subscriptionsHandler.GetSubscription)
+	subscription.GET("", s.subscriptionsHandler.GetSubscriptions)
+	subscription.POST("", s.subscriptionsHandler.CreateSubscription)
+	subscription.PUT("", s.subscriptionsHandler.UpdateSubscription)
+	subscription.DELETE("/:id", s.subscriptionsHandler.DeleteSubscription)
 
 	subscriber := v1.Group("/subscribers")
+	subscription.Use(s.authMiddleware.LoginRequired)
 	subscriber.GET("/:author_id", s.subscribersHandler.GetSubscribers)
-	subscriber.POST("/", s.subscribersHandler.CreateSubscriber)
-	subscriber.DELETE("/", s.subscribersHandler.DeleteSubscriber)
+	subscriber.POST("", s.subscribersHandler.CreateSubscriber)
+	subscriber.DELETE("", s.subscribersHandler.DeleteSubscriber)
 }
 
 func (s *Server) makeCORS() {

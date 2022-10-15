@@ -37,13 +37,13 @@ func (p *Postgres) GetSubscribers(authorID uint64) ([]uint64, error) {
 	return subscribers, nil
 }
 
-func (p *Postgres) Subscribe(subscription *models.Subscription) error {
+func (p *Postgres) Subscribe(subscription models.Subscription) error {
 	_, err := p.DB.Query(`
 		INSERT INTO subscriptions (author_id, subscriber_id, subscription_id) 
 		VALUES ($1, $2, $3)`,
 		subscription.AuthorID,
 		subscription.SubscriberID,
-		subscription.SubscriptionID,
+		subscription.AuthorSubscriptionID,
 	)
 	if err != nil {
 		return err

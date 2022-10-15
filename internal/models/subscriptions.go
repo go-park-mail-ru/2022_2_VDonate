@@ -1,9 +1,9 @@
 package models
 
 type Subscription struct {
-	AuthorID       uint64 `json:"author_id" db:"author_id"`
-	SubscriberID   uint64 `json:"subscriber_id" db:"subscriber_id"`
-	SubscriptionID uint64 `json:"subscription_id" db:"subscription_id"`
+	AuthorID             uint64 `json:"author_id" db:"author_id"`
+	SubscriberID         uint64 `json:"subscriber_id" db:"subscriber_id"`
+	AuthorSubscriptionID uint64 `json:"author_subscription_id" db:"author_subscription_id"`
 }
 
 type AuthorSubscription struct {
