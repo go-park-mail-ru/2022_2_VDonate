@@ -1,13 +1,15 @@
 PROJECT_PATH = ./cmd/api/main.go
+MOCKS_DESTINATION = internal/mocks
+INTERNAL_PATH = internal
+ACTIVE_PACKAGES = $(shell go list ./... | grep -v "/mocks/")
 
 .PHONY: test
 test: ## Run all the tests
-	echo 'mode: atomic' > coverage.out && go test -covermode=atomic -coverprofile=coverage.out -v -race -timeout=30s ./...
+	go test $(ACTIVE_PACKAGES) -coverprofile=c.out
 
 .PHONY: cover
 cover: test ## Run all the tests and opens the coverage report
-	go tool cover -func=coverage.out
-	got tool cover -html=coverage.out
+	go tool cover -func=c.out
 
 .PHONY: ci
 ci: lint test ## Run all the tests and code checks
@@ -15,6 +17,12 @@ ci: lint test ## Run all the tests and code checks
 .PHONY: local_build
 local_build: ## Build locally
 	go build ${PROJECT_PATH}
+
+.PHONY: mocks
+mocks: internal/auth/usecase/auth_usecase.go internal/posts/usecase/posts_usecase.go internal/users/usecase/user_usecase.go ## Generate mocks
+	@echo "Generating mocks..."
+	@rm -rf $(MOCKS_DESTINATION)
+	for file in $^; do mockgen -source=$$file -destination=$(MOCKS_DESTINATION)/$$file; done
 
 .PHONY: clean
 clean: ## Remove temporary files
