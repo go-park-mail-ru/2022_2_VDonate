@@ -1,20 +1,20 @@
 package httpUsers
 
 import (
-	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
+	authDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+	usersDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/users"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/errors"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
 	"github.com/labstack/echo/v4"
 	"strconv"
 )
 
 type Handler struct {
-	userUseCase    users.UseCase
-	sessionUseCase auth.UseCase
+	userUseCase    usersDomain.UseCase
+	sessionUseCase authDomain.UseCase
 }
 
-func NewHandler(userUseCase users.UseCase, sessionUseCase auth.UseCase) *Handler {
+func NewHandler(userUseCase usersDomain.UseCase, sessionUseCase authDomain.UseCase) *Handler {
 	return &Handler{userUseCase: userUseCase, sessionUseCase: sessionUseCase}
 }
 
@@ -28,7 +28,7 @@ func (h *Handler) GetUser(c echo.Context) error {
 		return usersErrors.Wrap(c, usersErrors.ErrUserNotFound, err)
 	}
 
-	return UserResponse(user, c)
+	return UserResponse(c, user)
 }
 
 func (h *Handler) PutUser(c echo.Context) error {
@@ -36,13 +36,15 @@ func (h *Handler) PutUser(c echo.Context) error {
 	if err != nil {
 		return usersErrors.Wrap(c, usersErrors.ErrConvertID, err)
 	}
-	var updateUser *models.User
+	var updateUser models.User
 	if err = c.Bind(&updateUser); err != nil {
 		return usersErrors.Wrap(c, usersErrors.ErrBadRequest, err)
 	}
 
-	if updateUser, err = h.userUseCase.Update(id, updateUser); err != nil {
+	updateUser.ID = id
+	user, err := h.userUseCase.Update(updateUser)
+	if err != nil {
 		return usersErrors.Wrap(c, usersErrors.ErrUpdate, err)
 	}
-	return UserResponse(updateUser, c)
+	return UserResponse(c, user)
 }

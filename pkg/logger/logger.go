@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"io"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -22,12 +23,22 @@ func New() *Logger {
 		DisableHTMLEscape: true,
 		PrettyPrint:       true,
 	})
-	newLogger.SetLevel(log.ERROR)
+	newLogger.SetLevel(log.INFO)
 	return &newLogger
 }
 
-// GlobalLogger global logger
-var GlobalLogger = New()
+var lock sync.Mutex
+var SingleLogger *Logger
+
+func GetInstance() *Logger {
+	lock.Lock()
+	defer lock.Unlock()
+
+	if SingleLogger == nil {
+		SingleLogger = New()
+	}
+	return SingleLogger
+}
 
 func toLogrusLevel(level log.Lvl) logrus.Level {
 	switch level {
@@ -100,10 +111,7 @@ func (l *Logger) Printf(format string, args ...interface{}) {
 }
 
 func (l *Logger) Printj(j log.JSON) {
-	b, err := json.Marshal(j)
-	if err != nil {
-		panic(err)
-	}
+	b, _ := json.Marshal(j)
 	l.Logrus.Println(string(b))
 }
 
@@ -116,10 +124,7 @@ func (l *Logger) Debugf(format string, args ...interface{}) {
 }
 
 func (l *Logger) Debugj(j log.JSON) {
-	b, err := json.Marshal(j)
-	if err != nil {
-		panic(err)
-	}
+	b, _ := json.Marshal(j)
 	l.Logrus.Debugln(string(b))
 }
 
@@ -132,10 +137,7 @@ func (l *Logger) Infof(format string, args ...interface{}) {
 }
 
 func (l *Logger) Infoj(j log.JSON) {
-	b, err := json.Marshal(j)
-	if err != nil {
-		panic(err)
-	}
+	b, _ := json.Marshal(j)
 	l.Logrus.Infoln(string(b))
 }
 
@@ -148,10 +150,7 @@ func (l *Logger) Warnf(format string, args ...interface{}) {
 }
 
 func (l *Logger) Warnj(j log.JSON) {
-	b, err := json.Marshal(j)
-	if err != nil {
-		panic(err)
-	}
+	b, _ := json.Marshal(j)
 	l.Logrus.Warnln(string(b))
 }
 
@@ -164,10 +163,7 @@ func (l *Logger) Errorf(format string, args ...interface{}) {
 }
 
 func (l *Logger) Errorj(j log.JSON) {
-	b, err := json.Marshal(j)
-	if err != nil {
-		panic(err)
-	}
+	b, _ := json.Marshal(j)
 	l.Logrus.Errorln(string(b))
 }
 
@@ -180,10 +176,7 @@ func (l *Logger) Fatalf(format string, args ...interface{}) {
 }
 
 func (l *Logger) Fatalj(j log.JSON) {
-	b, err := json.Marshal(j)
-	if err != nil {
-		panic(err)
-	}
+	b, _ := json.Marshal(j)
 	l.Logrus.Fatalln(string(b))
 }
 
@@ -196,10 +189,7 @@ func (l *Logger) Panicf(format string, args ...interface{}) {
 }
 
 func (l *Logger) Panicj(j log.JSON) {
-	b, err := json.Marshal(j)
-	if err != nil {
-		panic(err)
-	}
+	b, _ := json.Marshal(j)
 	l.Logrus.Panicln(string(b))
 }
 
@@ -219,29 +209,13 @@ func Middleware() echo.MiddlewareFunc {
 
 			bytesIn := req.Header.Get(echo.HeaderContentLength)
 
-			if err != nil {
-				GlobalLogger.Logrus.WithFields(map[string]interface{}{
-					"remote_ip":     c.RealIP(),
-					"host":          req.Host,
-					"uri":           req.RequestURI,
-					"method":        req.Method,
-					"path":          p,
-					"error":         err.Error(),
-					"referer":       req.Referer(),
-					"user_agent":    req.UserAgent(),
-					"status":        res.Status,
-					"latency":       strconv.FormatInt(stop.Sub(start).Nanoseconds()/1000, 10),
-					"latency_human": stop.Sub(start).String(),
-					"bytes_in":      bytesIn,
-					"bytes_out":     strconv.FormatInt(res.Size, 10),
-				}).Error("BAD REQUEST")
-			}
-			GlobalLogger.Logrus.WithFields(map[string]interface{}{
+			ctxLog := GetInstance().Logrus.WithFields(map[string]interface{}{
 				"remote_ip":     c.RealIP(),
 				"host":          req.Host,
 				"uri":           req.RequestURI,
 				"method":        req.Method,
 				"path":          p,
+				"error":         err,
 				"referer":       req.Referer(),
 				"user_agent":    req.UserAgent(),
 				"status":        res.Status,
@@ -249,7 +223,13 @@ func Middleware() echo.MiddlewareFunc {
 				"latency_human": stop.Sub(start).String(),
 				"bytes_in":      bytesIn,
 				"bytes_out":     strconv.FormatInt(res.Size, 10),
-			}).Info("REQUEST")
+			})
+			if err != nil {
+				ctxLog.Error("BAD REQUEST")
+
+				return nil
+			}
+			ctxLog.Info("REQUEST")
 
 			return nil
 		}

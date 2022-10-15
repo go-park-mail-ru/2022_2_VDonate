@@ -22,11 +22,14 @@ var (
 	ErrInternal                = errors.New("server error")
 	ErrForbidden               = errors.New("you are not supposed to be here")
 	ErrAuth                    = errors.New("failed to authenticate")
+	ErrNoContent               = errors.New("no content was found")
 )
 
 func Wrap(c echo.Context, errHTTP, errLog error) error {
 	c.Logger().Error(errLog)
 	switch errHTTP {
+	case ErrNoContent:
+		return echo.NewHTTPError(http.StatusNoContent, errHTTP)
 	case ErrNoSession, ErrAuth:
 		return echo.NewHTTPError(http.StatusUnauthorized, errHTTP)
 	case ErrUserNotFound:

@@ -22,14 +22,14 @@ func NewPostgres(URL string) (*Postgres, error) {
 	return &Postgres{DB: db}, nil
 }
 
-func (r *Postgres) Close() error {
+func (r Postgres) Close() error {
 	if err := r.DB.Close(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *Postgres) GetByUserID(id uint64) (*models.Cookie, error) {
+func (r Postgres) GetByUserID(id uint64) (*models.Cookie, error) {
 	var c models.Cookie
 	err := r.DB.Get(&c, "SELECT value, user_id, expire_date FROM sessions WHERE user_id=$1;", id)
 	if err != nil {
@@ -38,7 +38,7 @@ func (r *Postgres) GetByUserID(id uint64) (*models.Cookie, error) {
 	return &c, err
 }
 
-func (r *Postgres) GetBySessionID(sessionID string) (*models.Cookie, error) {
+func (r Postgres) GetBySessionID(sessionID string) (*models.Cookie, error) {
 	var c models.Cookie
 	err := r.DB.Get(&c, "SELECT value, user_id, expire_date FROM sessions WHERE value=$1;", sessionID)
 	if err != nil {
@@ -47,18 +47,21 @@ func (r *Postgres) GetBySessionID(sessionID string) (*models.Cookie, error) {
 	return &c, err
 }
 
-func (r *Postgres) GetByUsername(username string) (*models.Cookie, error) {
+func (r Postgres) GetByUsername(username string) (*models.Cookie, error) {
 	var c models.Cookie
 	err := r.DB.Get(&c, `
-SELECT value, user_id, expire_date 
-FROM sessions JOIN users on users.username = $1`, username)
+		SELECT value, user_id, expire_date 
+		FROM sessions 
+		JOIN users on users.username = $1`,
+		username,
+	)
 	if err != nil {
 		return nil, err
 	}
 	return &c, nil
 }
 
-func (r *Postgres) CreateSession(cookie *models.Cookie) (*models.Cookie, error) {
+func (r Postgres) CreateSession(cookie models.Cookie) (*models.Cookie, error) {
 	_, err := r.DB.Exec(
 		"INSERT INTO sessions (value, user_id, expire_date) VALUES ($1, $2, $3);",
 		cookie.Value,
@@ -68,17 +71,17 @@ func (r *Postgres) CreateSession(cookie *models.Cookie) (*models.Cookie, error) 
 	if err != nil {
 		return nil, err
 	}
-	return cookie, nil
+	return &cookie, nil
 }
 
-func (r *Postgres) DeleteByUserID(id uint64) error {
+func (r Postgres) DeleteByUserID(id uint64) error {
 	_, err := r.DB.Query("DELETE FROM sessions WHERE user_id=$1;", id)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func (r *Postgres) DeleteBySessionID(sessionID string) error {
+func (r Postgres) DeleteBySessionID(sessionID string) error {
 	_, err := r.DB.Query("DELETE FROM sessions WHERE value=$1;", sessionID)
 	if err != nil {
 		return err

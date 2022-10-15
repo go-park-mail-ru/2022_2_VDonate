@@ -2,41 +2,15 @@ package users
 
 import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+	usersDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/users"
 	"github.com/jinzhu/copier"
 )
 
-type UseCase interface {
-	GetByUsername(username string) (*models.User, error)
-	GetByEmail(email string) (*models.User, error)
-	GetByID(id uint64) (*models.User, error)
-	GetBySessionID(sessionID string) (*models.User, error)
-	GetUserByPostID(postID uint64) (*models.User, error)
-	Create(user *models.User) (*models.User, error)
-	Update(id uint64, user *models.User) (*models.User, error)
-	DeleteByID(id uint64) error
-	DeleteByUsername(username string) error
-	DeleteByEmail(email string) error
-	CheckIDAndPassword(id uint64, password string) bool
-	IsExistUsernameAndEmail(username, email string) bool
-}
-
-type Repository interface {
-	Create(u *models.User) (*models.User, error)
-	GetByUsername(username string) (*models.User, error)
-	GetByID(id uint64) (*models.User, error)
-	GetByEmail(email string) (*models.User, error)
-	GetBySessionID(sessionID string) (*models.User, error)
-	GetUserByPostID(postID uint64) (*models.User, error)
-	Update(u *models.User) (*models.User, error)
-	DeleteByID(id uint64) error
-	Close() error
-}
-
 type usecase struct {
-	usersRepo Repository
+	usersRepo usersDomain.Repository
 }
 
-func New(usersRepo Repository) UseCase {
+func New(usersRepo usersDomain.Repository) usersDomain.UseCase {
 	return &usecase{
 		usersRepo: usersRepo,
 	}
@@ -62,17 +36,17 @@ func (u *usecase) GetUserByPostID(postID uint64) (*models.User, error) {
 	return u.usersRepo.GetUserByPostID(postID)
 }
 
-func (u *usecase) Create(user *models.User) (*models.User, error) {
-	return u.usersRepo.Create(user)
+func (u *usecase) Create(user models.User) (*models.User, error) {
+	return u.usersRepo.Create(&user)
 }
 
-func (u *usecase) Update(id uint64, user *models.User) (*models.User, error) {
-	updateUser, err := u.GetByID(id)
+func (u *usecase) Update(user models.User) (*models.User, error) {
+	updateUser, err := u.GetByID(user.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = copier.CopyWithOption(&updateUser, &user, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(updateUser, &user, copier.Option{IgnoreEmpty: true}); err != nil {
 		return nil, err
 	}
 	return u.usersRepo.Update(updateUser)

@@ -1,14 +1,17 @@
 package app
 
 import (
+	authDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/middlewares"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
+	postsDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts"
 	httpPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/usecase"
+	usersDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/users"
 	httpUsers "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
@@ -22,9 +25,9 @@ type Server struct {
 
 	Config *config.Config
 
-	UserService  users.UseCase
-	PostsService posts.UseCase
-	AuthService  auth.UseCase
+	UserService  usersDomain.UseCase
+	PostsService postsDomain.UseCase
+	AuthService  authDomain.UseCase
 
 	authHandler  *httpAuth.Handler
 	userHandler  *httpUsers.Handler
@@ -74,12 +77,12 @@ func (s *Server) makeUseCase(URL string) {
 
 func (s *Server) makeHandlers() {
 	s.authHandler = httpAuth.NewHandler(s.AuthService, s.UserService)
-	s.postsHandler = httpPosts.NewHandler(s.PostsService)
+	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService)
 	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService)
 }
 
 func (s *Server) makeEchoLogger() {
-	s.Echo.Logger = logger.GlobalLogger
+	s.Echo.Logger = logger.GetInstance()
 	s.Echo.Logger.Info("server started")
 }
 
@@ -88,34 +91,36 @@ func (s *Server) makeRouter() {
 	if s.Config.Debug.Request {
 		v1.Use(logger.Middleware())
 	}
-
 	v1.Use(middleware.Secure())
 
 	v1.POST("/login", s.authHandler.Login)
 	v1.GET("/auth", s.authHandler.Auth)
 	v1.DELETE("/logout", s.authHandler.Logout, s.authMiddleware.LoginRequired)
-	v1.POST("/users", s.authHandler.SignUp)
 
-	user := v1.Group("/users/:id")
-	user.GET("", s.userHandler.GetUser)
-	user.PUT("", s.userHandler.PutUser)
+	user := v1.Group("/users")
 	user.Use(s.authMiddleware.LoginRequired)
 
+	user.POST("", s.authHandler.SignUp)
+	user.GET("/:id", s.userHandler.GetUser)
+	user.PUT("/:id", s.userHandler.PutUser)
+
 	post := v1.Group("/posts")
-	post.GET("/", s.postsHandler.GetPosts)
-	post.POST("/", s.postsHandler.CreatePosts, s.authMiddleware.SameSession)
-	post.DELETE("/:post_id/", s.postsHandler.DeletePost, s.authMiddleware.SameSession)
-	post.PUT("/:post_id/", s.postsHandler.PutPost, s.authMiddleware.SameSession)
 	post.Use(s.authMiddleware.LoginRequired)
+
+	post.GET("", s.postsHandler.GetPosts)
+	post.POST("", s.postsHandler.CreatePosts)
+	post.GET("/:id", s.postsHandler.GetPost)
+	post.DELETE("/:id", s.postsHandler.DeletePost, s.authMiddleware.PostSameSessionByID)
+	post.PUT("/:id", s.postsHandler.PutPost, s.authMiddleware.PostSameSessionByID)
+
 }
 
 func (s *Server) makeCORS() {
 	s.Echo.Use(NewCORS())
-	middleware.Logger()
 }
 
 func (s *Server) makeMiddlewares() {
-	s.authMiddleware = authMiddlewares.New(s.AuthService, s.UserService)
+	s.authMiddleware = authMiddlewares.New(s.AuthService, s.UserService, s.PostsService)
 }
 
 func New(echo *echo.Echo, c *config.Config) *Server {

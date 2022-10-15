@@ -2,35 +2,34 @@ package auth
 
 import (
 	"errors"
+	authDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	userAPI "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
+	usersDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/users"
+	"github.com/google/uuid"
+	"time"
 )
 
-type UseCase interface {
-	Login(login, password string) (string, error)
-	Auth(sessionID string) (bool, error)
-	SignUp(user *models.User) (string, error)
-	Logout(sessionID string) (bool, error)
-	IsSameSession(sessionID string, userID uint64) bool
-}
-
-type Repository interface {
-	GetBySessionID(sessionID string) (*models.Cookie, error)
-	GetByUserID(id uint64) (*models.Cookie, error)
-	GetByUsername(username string) (*models.Cookie, error)
-	CreateSession(cookie *models.Cookie) (*models.Cookie, error)
-	DeleteBySessionID(sessionID string) error
-	DeleteByUserID(id uint64) error
-	Close() error
-}
+type cookieCreator func(id uint64) models.Cookie
 
 type usecase struct {
-	authRepo  Repository
-	usersRepo userAPI.Repository
+	authRepo  authDomain.Repository
+	usersRepo usersDomain.Repository
+
+	// cookieCreator is func for creation cookie,
+	// so you can test random sessionID
+	cookieCreator cookieCreator
 }
 
-func New(authRepo Repository, usersRepo userAPI.Repository) UseCase {
-	return &usecase{authRepo: authRepo, usersRepo: usersRepo}
+func New(authRepo authDomain.Repository, usersRepo usersDomain.Repository) authDomain.UseCase {
+	return &usecase{authRepo: authRepo, usersRepo: usersRepo, cookieCreator: createCookie}
+}
+
+func createCookie(id uint64) models.Cookie {
+	return models.Cookie{
+		UserID:  id,
+		Value:   uuid.New().String(),
+		Expires: time.Now().AddDate(0, 1, 0),
+	}
 }
 
 func (u *usecase) Login(login, password string) (string, error) {
@@ -44,7 +43,7 @@ func (u *usecase) Login(login, password string) (string, error) {
 	if password != user.Password {
 		return "", errors.New("passwords not the same")
 	}
-	s, err := u.authRepo.CreateSession(models.CreateCookie(user.ID))
+	s, err := u.authRepo.CreateSession(u.cookieCreator(user.ID))
 	if err != nil {
 		return "", err
 	}
@@ -63,15 +62,15 @@ func (u *usecase) Auth(sessionID string) (bool, error) {
 func (u *usecase) SignUp(user *models.User) (string, error) {
 	_, err := u.usersRepo.GetByUsername(user.Username)
 	if err == nil {
-		return "", err
+		return "", errors.New("username is already exist")
 	}
 	if _, err = u.usersRepo.GetByEmail(user.Email); err == nil {
-		return "", err
+		return "", errors.New("email is already exist")
 	}
 	if user, err = u.usersRepo.Create(user); err != nil {
 		return "", err
 	}
-	s, err := u.authRepo.CreateSession(models.CreateCookie(user.ID))
+	s, err := u.authRepo.CreateSession(u.cookieCreator(user.ID))
 	if err != nil {
 		return "", err
 	}

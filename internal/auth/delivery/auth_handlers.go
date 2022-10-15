@@ -1,11 +1,11 @@
 package httpAuth
 
 import (
+	authDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/errors"
-	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+	usersDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/users"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery"
-	users "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"time"
@@ -36,13 +36,27 @@ func MakeHTTPCookie(c *http.Cookie) *http.Cookie {
 	}
 }
 
-type Handler struct {
-	authUseCase  auth.UseCase
-	usersUseCase users.UseCase
+func makeHTTPCookieFromValue(value string) *http.Cookie {
+	return &http.Cookie{
+		Name:     cookieName,
+		Value:    value,
+		Expires:  time.Now().AddDate(0, 1, 0),
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	}
 }
 
-func NewHandler(authUseCase auth.UseCase, usersUseCase users.UseCase) *Handler {
-	return &Handler{authUseCase: authUseCase, usersUseCase: usersUseCase}
+type Handler struct {
+	authUseCase  authDomain.UseCase
+	usersUseCase usersDomain.UseCase
+}
+
+func NewHandler(authUseCase authDomain.UseCase, usersUseCase usersDomain.UseCase) *Handler {
+	return &Handler{
+		authUseCase:  authUseCase,
+		usersUseCase: usersUseCase,
+	}
 }
 
 func (h *Handler) Auth(c echo.Context) error {
@@ -61,7 +75,7 @@ func (h *Handler) Auth(c echo.Context) error {
 		return authErrors.Wrap(c, authErrors.ErrNoSession, err)
 	}
 
-	return httpUsers.UserResponse(user, c)
+	return httpUsers.UserResponse(c, user)
 }
 
 func (h *Handler) Login(c echo.Context) error {
@@ -76,14 +90,14 @@ func (h *Handler) Login(c echo.Context) error {
 		return authErrors.Wrap(c, authErrors.ErrNoSession, err)
 	}
 
-	c.SetCookie(models.MakeHTTPCookieFromValue(sessionID))
+	c.SetCookie(makeHTTPCookieFromValue(sessionID))
 
 	user, err := h.usersUseCase.GetBySessionID(sessionID)
 	if err != nil {
 		return authErrors.Wrap(c, authErrors.ErrUserNotFound, err)
 	}
 
-	return httpUsers.UserResponse(user, c)
+	return httpUsers.UserResponse(c, user)
 }
 
 func (h *Handler) Logout(c echo.Context) error {
@@ -108,7 +122,7 @@ func (h *Handler) Logout(c echo.Context) error {
 }
 
 func (h *Handler) SignUp(c echo.Context) error {
-	newUser := models.User{}
+	var newUser models.User
 
 	err := c.Bind(&newUser)
 	if err != nil {
@@ -120,6 +134,6 @@ func (h *Handler) SignUp(c echo.Context) error {
 		return authErrors.Wrap(c, authErrors.ErrBadRequest, err)
 	}
 
-	c.SetCookie(models.MakeHTTPCookieFromValue(sessionID))
-	return httpUsers.UserResponse(&newUser, c)
+	c.SetCookie(makeHTTPCookieFromValue(sessionID))
+	return httpUsers.UserResponse(c, &newUser)
 }

@@ -29,25 +29,25 @@ func (r *Postgres) Close() error {
 	return nil
 }
 
-func (r *Postgres) Create(u *model.User) (*model.User, error) {
+func (r *Postgres) Create(user *model.User) (*model.User, error) {
 	err := r.DB.QueryRowx(
 		`
 		INSERT INTO users (username, first_name, last_name, avatar, email, password, is_author, about) 
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;`,
-		u.Username,
-		u.FirstName,
-		u.LastName,
-		u.Avatar,
-		u.Email,
-		u.Password,
-		u.IsAuthor,
-		u.About,
-	).Scan(&u.ID)
+		user.Username,
+		user.FirstName,
+		user.LastName,
+		user.Avatar,
+		user.Email,
+		user.Password,
+		user.IsAuthor,
+		user.About,
+	).Scan(&user.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	return u, nil
+	return user, nil
 }
 
 func (r *Postgres) GetByUsername(username string) (*model.User, error) {
@@ -132,7 +132,7 @@ func (r *Postgres) Update(user *model.User) (*model.User, error) {
 		    phone=:phone,
 		    is_author=:is_author,
 		    about=:about 
-		WHERE id = :id`, &user)
+		WHERE id = :id`, user)
 	if err != nil {
 		return nil, err
 	}

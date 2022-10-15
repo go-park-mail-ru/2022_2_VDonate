@@ -54,7 +54,7 @@ func (r *Postgres) GetPostByID(postID uint64) (*models.PostDB, error) {
 	return &post, nil
 }
 
-func (r *Postgres) Create(post *models.PostDB) (*models.PostDB, error) {
+func (r *Postgres) Create(post models.PostDB) (*models.PostDB, error) {
 	err := r.DB.QueryRowx(
 		`
 		INSERT INTO posts (user_id, img, title, text) 
@@ -67,10 +67,10 @@ func (r *Postgres) Create(post *models.PostDB) (*models.PostDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	return post, nil
+	return &post, nil
 }
 
-func (r *Postgres) Update(post *models.PostDB) (*models.PostDB, error) {
+func (r *Postgres) Update(post models.PostDB) (*models.PostDB, error) {
 	_, err := r.DB.NamedExec(
 		`
                 UPDATE posts
@@ -82,7 +82,7 @@ func (r *Postgres) Update(post *models.PostDB) (*models.PostDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	return post, err
+	return &post, err
 }
 
 func (r *Postgres) DeleteByID(postID uint64) error {

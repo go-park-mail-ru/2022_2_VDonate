@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func UserResponse(u *model.User, c echo.Context) error {
+func UserResponse(c echo.Context, u *model.User) error {
 	if u.IsAuthor {
 		return c.JSON(http.StatusOK, model.ToAuthor(u))
 	}
