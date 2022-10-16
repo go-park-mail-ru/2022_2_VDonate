@@ -94,11 +94,11 @@ func (s *Server) makeRouter() {
 	v1.POST("/login", s.authHandler.Login)
 	v1.GET("/auth", s.authHandler.Auth)
 	v1.DELETE("/logout", s.authHandler.Logout, s.authMiddleware.LoginRequired)
+	v1.POST("/users", s.authHandler.SignUp)
 
 	user := v1.Group("/users")
 	user.Use(s.authMiddleware.LoginRequired)
 
-	user.POST("", s.authHandler.SignUp)
 	user.GET("/:id", s.userHandler.GetUser)
 	user.PUT("/:id", s.userHandler.PutUser)
 
