@@ -1,8 +1,8 @@
-package usersDomain
+package domain
 
 import "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 
-type UseCase interface {
+type UsersUseCase interface {
 	GetByUsername(username string) (*models.User, error)
 	GetByEmail(email string) (*models.User, error)
 	GetByID(id uint64) (*models.User, error)
@@ -17,7 +17,7 @@ type UseCase interface {
 	IsExistUsernameAndEmail(username, email string) bool
 }
 
-type Repository interface {
+type UsersRepository interface {
 	Create(user *models.User) (*models.User, error)
 	GetByUsername(username string) (*models.User, error)
 	GetByID(id uint64) (*models.User, error)

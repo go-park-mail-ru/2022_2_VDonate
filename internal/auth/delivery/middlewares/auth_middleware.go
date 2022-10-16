@@ -1,26 +1,24 @@
 package authMiddlewares
 
 import (
-	authDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth"
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
-	authErrors "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/errors"
-	postsDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts"
-	usersDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/users"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/labstack/echo/v4"
 	"strconv"
 )
 
 type Middlewares struct {
-	authUseCase  authDomain.UseCase
-	postsUseCase postsDomain.UseCase
-	usersUseCase usersDomain.UseCase
+	authUseCase  domain.AuthUseCase
+	postsUseCase domain.PostsUseCase
+	usersUseCase domain.UsersUseCase
 }
 
-func New(authUseCase authDomain.UseCase, usersUseCase usersDomain.UseCase, postsUseCase postsDomain.UseCase) *Middlewares {
+func New(a domain.AuthUseCase, u domain.UsersUseCase, p domain.PostsUseCase) *Middlewares {
 	return &Middlewares{
-		authUseCase:  authUseCase,
-		usersUseCase: usersUseCase,
-		postsUseCase: postsUseCase,
+		authUseCase:  a,
+		usersUseCase: u,
+		postsUseCase: p,
 	}
 }
 
@@ -28,11 +26,11 @@ func (m *Middlewares) LoginRequired(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 		cookie, err := httpAuth.GetCookie(c)
 		if err != nil {
-			return authErrors.Wrap(c, authErrors.ErrNoSession, err)
+			return utils.WrapEchoError(domain.ErrNoSession, err)
 		}
 		isAuth, err := m.authUseCase.Auth(cookie.Value)
 		if !isAuth {
-			return authErrors.Wrap(c, authErrors.ErrAuth, err)
+			return utils.WrapEchoError(domain.ErrAuth, err)
 		}
 
 		return next(c)
@@ -43,18 +41,18 @@ func (m *Middlewares) PostSameSessionByID(next echo.HandlerFunc) echo.HandlerFun
 	return func(c echo.Context) error {
 		cookie, err := httpAuth.GetCookie(c)
 		if err != nil {
-			return authErrors.Wrap(c, authErrors.ErrNoSession, err)
+			return utils.WrapEchoError(domain.ErrNoSession, err)
 		}
 		postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 		if err != nil {
-			return authErrors.Wrap(c, authErrors.ErrBadRequest, err)
+			return utils.WrapEchoError(domain.ErrBadRequest, err)
 		}
 		post, err := m.postsUseCase.GetPostByID(postID)
 		if err != nil {
-			return authErrors.Wrap(c, authErrors.ErrNoContent, err)
+			return utils.WrapEchoError(domain.ErrNoContent, err)
 		}
 		if !m.authUseCase.IsSameSession(cookie.Value, post.UserID) {
-			return authErrors.Wrap(c, authErrors.ErrForbidden, authErrors.ErrForbidden)
+			return utils.WrapEchoError(domain.ErrForbidden, domain.ErrForbidden)
 		}
 
 		return next(c)

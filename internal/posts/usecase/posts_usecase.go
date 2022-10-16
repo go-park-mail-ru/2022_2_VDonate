@@ -2,16 +2,16 @@ package posts
 
 import (
 	"errors"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	postsDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts"
 	"github.com/jinzhu/copier"
 )
 
 type usecase struct {
-	postsRepo postsDomain.Repository
+	postsRepo domain.PostsRepository
 }
 
-func New(repo postsDomain.Repository) postsDomain.UseCase {
+func New(repo domain.PostsRepository) domain.PostsUseCase {
 	return &usecase{postsRepo: repo}
 }
 

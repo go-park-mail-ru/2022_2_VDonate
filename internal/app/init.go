@@ -1,17 +1,15 @@
 package app
 
 import (
-	authDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/middlewares"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
-	postsDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	httpPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/usecase"
-	usersDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/users"
 	httpUsers "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
@@ -25,9 +23,9 @@ type Server struct {
 
 	Config *config.Config
 
-	UserService  usersDomain.UseCase
-	PostsService postsDomain.UseCase
-	AuthService  authDomain.UseCase
+	UserService  domain.UsersUseCase
+	PostsService domain.PostsUseCase
+	AuthService  domain.AuthUseCase
 
 	authHandler  *httpAuth.Handler
 	userHandler  *httpUsers.Handler

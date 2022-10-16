@@ -1,8 +1,8 @@
-package authDomain
+package domain
 
 import "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 
-type UseCase interface {
+type AuthUseCase interface {
 	Login(login, password string) (string, error)
 	Auth(sessionID string) (bool, error)
 	SignUp(user *models.User) (string, error)
@@ -10,7 +10,7 @@ type UseCase interface {
 	IsSameSession(sessionID string, userID uint64) bool
 }
 
-type Repository interface {
+type AuthRepository interface {
 	GetBySessionID(sessionID string) (*models.Cookie, error)
 	GetByUserID(id uint64) (*models.Cookie, error)
 	GetByUsername(username string) (*models.Cookie, error)

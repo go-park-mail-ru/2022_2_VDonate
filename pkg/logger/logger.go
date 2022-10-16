@@ -2,6 +2,7 @@ package logger
 
 import (
 	"encoding/json"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	"github.com/sirupsen/logrus"
@@ -23,7 +24,7 @@ func New() *Logger {
 		DisableHTMLEscape: true,
 		PrettyPrint:       true,
 	})
-	newLogger.SetLevel(log.INFO)
+	newLogger.SetLevel(log.DEBUG)
 	return &newLogger
 }
 
@@ -209,13 +210,15 @@ func Middleware() echo.MiddlewareFunc {
 
 			bytesIn := req.Header.Get(echo.HeaderContentLength)
 
+			message := utils.CutCodeFromError(err)
+
 			ctxLog := GetInstance().Logrus.WithFields(map[string]interface{}{
 				"remote_ip":     c.RealIP(),
 				"host":          req.Host,
 				"uri":           req.RequestURI,
 				"method":        req.Method,
 				"path":          p,
-				"error":         err,
+				"error":         message,
 				"referer":       req.Referer(),
 				"user_agent":    req.UserAgent(),
 				"status":        res.Status,
@@ -225,11 +228,11 @@ func Middleware() echo.MiddlewareFunc {
 				"bytes_out":     strconv.FormatInt(res.Size, 10),
 			})
 			if err != nil {
-				ctxLog.Error("BAD REQUEST")
+				ctxLog.Error("ERROR REQUEST")
 
 				return nil
 			}
-			ctxLog.Info("REQUEST")
+			ctxLog.Debug("REQUEST")
 
 			return nil
 		}

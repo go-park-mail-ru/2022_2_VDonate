@@ -2,9 +2,8 @@ package auth
 
 import (
 	"errors"
-	authDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	usersDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/users"
 	"github.com/google/uuid"
 	"time"
 )
@@ -12,15 +11,15 @@ import (
 type cookieCreator func(id uint64) models.Cookie
 
 type usecase struct {
-	authRepo  authDomain.Repository
-	usersRepo usersDomain.Repository
+	authRepo  domain.AuthRepository
+	usersRepo domain.UsersRepository
 
 	// cookieCreator is func for creation cookie,
 	// so you can test random sessionID
 	cookieCreator cookieCreator
 }
 
-func New(authRepo authDomain.Repository, usersRepo usersDomain.Repository) authDomain.UseCase {
+func New(authRepo domain.AuthRepository, usersRepo domain.UsersRepository) domain.AuthUseCase {
 	return &usecase{authRepo: authRepo, usersRepo: usersRepo, cookieCreator: createCookie}
 }
 

@@ -1,16 +1,16 @@
 package users
 
 import (
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	usersDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/users"
 	"github.com/jinzhu/copier"
 )
 
 type usecase struct {
-	usersRepo usersDomain.Repository
+	usersRepo domain.UsersRepository
 }
 
-func New(usersRepo usersDomain.Repository) usersDomain.UseCase {
+func New(usersRepo domain.UsersRepository) domain.UsersUseCase {
 	return &usecase{
 		usersRepo: usersRepo,
 	}
