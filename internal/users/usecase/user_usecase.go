@@ -3,6 +3,7 @@ package users
 import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/jinzhu/copier"
 )
 
@@ -45,7 +46,10 @@ func (u *usecase) Update(user models.User) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	user.Password, err = utils.HashPassword(user.Password)
+	if err != nil {
+		return nil, err
+	}
 	if err = copier.CopyWithOption(updateUser, &user, copier.Option{IgnoreEmpty: true}); err != nil {
 		return nil, err
 	}
@@ -55,6 +59,7 @@ func (u *usecase) Update(user models.User) (*models.User, error) {
 func (u *usecase) DeleteByID(id uint64) error {
 	return u.usersRepo.DeleteByID(id)
 }
+
 func (u *usecase) DeleteByUsername(username string) error {
 	user, err := u.GetByUsername(username)
 	if err != nil {
@@ -62,6 +67,7 @@ func (u *usecase) DeleteByUsername(username string) error {
 	}
 	return u.DeleteByID(user.ID)
 }
+
 func (u *usecase) DeleteByEmail(email string) error {
 	user, err := u.GetByEmail(email)
 	if err != nil {
@@ -75,7 +81,7 @@ func (u *usecase) CheckIDAndPassword(id uint64, password string) bool {
 	if err != nil {
 		return false
 	}
-	return user.Password == password
+	return utils.CheckHashPassword(password, user.Password)
 }
 
 func (u *usecase) IsExistUsernameAndEmail(username, email string) bool {
