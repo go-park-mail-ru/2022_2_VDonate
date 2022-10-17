@@ -280,7 +280,9 @@ func TestHandler_Auth(t *testing.T) {
 
 			err := handler.Auth(c)
 			require.NoError(t, err)
-			body, _ := ioutil.ReadAll(rec.Body)
+			
+			body, err := ioutil.ReadAll(rec.Body)
+			require.NoError(t, err)
 
 			assert.Equal(t, test.expectedResponseBody, strings.Trim(string(body), "\n"))
 		})
@@ -351,7 +353,8 @@ func TestHandler_Logout(t *testing.T) {
 			err := handler.Logout(c)
 			require.NoError(t, err)
 
-			body, _ := ioutil.ReadAll(rec.Body)
+			body, err := ioutil.ReadAll(rec.Body)
+			require.NoError(t, err)
 
 			assert.Equal(t, test.expectedResponseBody, strings.Trim(string(body), "\n"))
 		})
