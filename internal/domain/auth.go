@@ -9,13 +9,3 @@ type AuthUseCase interface {
 	Logout(sessionID string) (bool, error)
 	IsSameSession(sessionID string, userID uint64) bool
 }
-
-type AuthRepository interface {
-	GetBySessionID(sessionID string) (*models.Cookie, error)
-	GetByUserID(id uint64) (*models.Cookie, error)
-	GetByUsername(username string) (*models.Cookie, error)
-	CreateSession(cookie models.Cookie) (*models.Cookie, error)
-	DeleteBySessionID(sessionID string) error
-	DeleteByUserID(id uint64) error
-	Close() error
-}

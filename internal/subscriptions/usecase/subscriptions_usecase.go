@@ -2,17 +2,17 @@ package subscriptions
 
 import (
 	"errors"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	subscriptionsDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions"
 	"github.com/jinzhu/copier"
 )
 
 type usecase struct {
-	subRepo subscriptionsDomain.Repository
+	subRepo domain.SubscriptionsRepository
 }
 
-func New(subRepo subscriptionsDomain.Repository) subscriptionsDomain.UseCase {
-	return &usecase{subRepo: subRepo}
+func New(s domain.SubscriptionsRepository) domain.SubscriptionsUseCase {
+	return &usecase{subRepo: s}
 }
 
 func (u *usecase) GetSubscriptionsByAuthorID(authorID uint64) ([]*models.AuthorSubscription, error) {

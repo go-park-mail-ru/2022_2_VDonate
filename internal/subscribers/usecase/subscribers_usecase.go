@@ -4,18 +4,17 @@ import (
 	"errors"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	subscribersDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers"
 )
 
 type usecase struct {
-	subscribersRepo subscribersDomain.Repository
+	subscribersRepo domain.SubscribersRepository
 	userRepo        domain.UsersRepository
 }
 
-func New(subscribersRepo subscribersDomain.Repository, userRepo domain.UsersRepository) subscribersDomain.UseCase {
+func New(s domain.SubscribersRepository, u domain.UsersRepository) domain.SubscribersUseCase {
 	return &usecase{
-		subscribersRepo: subscribersRepo,
-		userRepo:        userRepo,
+		subscribersRepo: s,
+		userRepo:        u,
 	}
 }
 
