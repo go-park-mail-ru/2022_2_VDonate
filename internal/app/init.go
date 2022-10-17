@@ -101,8 +101,8 @@ func (s *Server) makeHandlers() {
 	s.authHandler = httpAuth.NewHandler(s.AuthService, s.UserService)
 	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService)
 	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService)
-	s.subscriptionsHandler = httpSubscriptions.New(s.SubscriptionService, s.UserService)
-	s.subscribersHandler = httpsubscribers.New(s.SubscribersService, s.UserService)
+	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionService, s.UserService)
+	s.subscribersHandler = httpsubscribers.NewHandler(s.SubscribersService, s.UserService)
 }
 
 func (s *Server) makeEchoLogger() {
@@ -111,6 +111,7 @@ func (s *Server) makeEchoLogger() {
 }
 
 func (s *Server) makeRouter() {
+	s.Echo.Pre(middleware.RemoveTrailingSlash())
 	v1 := s.Echo.Group("/api/v1")
 	if s.Config.Debug.Request {
 		v1.Use(logger.Middleware())
@@ -137,17 +138,17 @@ func (s *Server) makeRouter() {
 	post.DELETE("/:id", s.postsHandler.DeletePost, s.authMiddleware.PostSameSessionByID)
 	post.PUT("/:id", s.postsHandler.PutPost, s.authMiddleware.PostSameSessionByID)
 
-	subscription := v1.Group("/subscriptions")
-	subscription.Use(s.authMiddleware.LoginRequired)
+	authorSubscription := v1.Group("/subscriptions")
+	authorSubscription.Use(s.authMiddleware.LoginRequired)
 
-	subscription.GET("/:id", s.subscriptionsHandler.GetSubscription)
-	subscription.GET("", s.subscriptionsHandler.GetSubscriptions)
-	subscription.POST("", s.subscriptionsHandler.CreateSubscription)
-	subscription.PUT("", s.subscriptionsHandler.UpdateSubscription)
-	subscription.DELETE("/:id", s.subscriptionsHandler.DeleteSubscription)
+	authorSubscription.GET("", s.subscriptionsHandler.GetSubscriptions)
+	authorSubscription.POST("", s.subscriptionsHandler.CreateSubscription)
+	authorSubscription.PUT("", s.subscriptionsHandler.UpdateSubscription)
+	authorSubscription.GET("/:id", s.subscriptionsHandler.GetSubscription)
+	authorSubscription.DELETE("/:id", s.subscriptionsHandler.DeleteSubscription)
 
 	subscriber := v1.Group("/subscribers")
-	subscription.Use(s.authMiddleware.LoginRequired)
+	subscriber.Use(s.authMiddleware.LoginRequired)
 
 	subscriber.GET("/:author_id", s.subscribersHandler.GetSubscribers)
 	subscriber.POST("", s.subscribersHandler.CreateSubscriber)

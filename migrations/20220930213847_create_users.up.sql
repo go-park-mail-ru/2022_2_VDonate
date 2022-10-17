@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 CREATE TABLE IF NOT EXISTS author_subscriptions (
     id bigserial not null primary key,
     author_id bigserial not null references users(id),
-    tier integer not null DEFAULT 0 UNIQUE,
+    tier integer not null,
     text text not null,
     price bigserial not null
 );

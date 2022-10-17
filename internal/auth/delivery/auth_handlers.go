@@ -58,7 +58,7 @@ func NewHandler(authUseCase domain.AuthUseCase, usersUseCase domain.UsersUseCase
 	}
 }
 
-func (h *Handler) Auth(c echo.Context) error {
+func (h Handler) Auth(c echo.Context) error {
 	cookie, err := GetCookie(c)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrNoSession, err)
@@ -77,7 +77,7 @@ func (h *Handler) Auth(c echo.Context) error {
 	return httpUsers.UserResponse(c, user)
 }
 
-func (h *Handler) Login(c echo.Context) error {
+func (h Handler) Login(c echo.Context) error {
 	var data models.AuthUser
 	err := c.Bind(&data)
 	if err != nil {
@@ -99,7 +99,7 @@ func (h *Handler) Login(c echo.Context) error {
 	return httpUsers.UserResponse(c, user)
 }
 
-func (h *Handler) Logout(c echo.Context) error {
+func (h Handler) Logout(c echo.Context) error {
 	session, err := GetCookie(c)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrNoSession, err)
@@ -120,7 +120,7 @@ func (h *Handler) Logout(c echo.Context) error {
 	return c.JSON(http.StatusOK, struct{}{})
 }
 
-func (h *Handler) SignUp(c echo.Context) error {
+func (h Handler) SignUp(c echo.Context) error {
 	var newUser models.User
 
 	err := c.Bind(&newUser)

@@ -15,14 +15,14 @@ type Handler struct {
 	userUsecase          domain.UsersUseCase
 }
 
-func New(s domain.SubscriptionsUseCase, u domain.UsersUseCase) *Handler {
+func NewHandler(s domain.SubscriptionsUseCase, u domain.UsersUseCase) *Handler {
 	return &Handler{
 		subscriptionsUsecase: s,
 		userUsecase:          u,
 	}
 }
 
-func (h *Handler) GetSubscriptions(c echo.Context) error {
+func (h Handler) GetSubscriptions(c echo.Context) error {
 	cookie, err := httpAuth.GetCookie(c)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrNoSession, err)
@@ -39,7 +39,7 @@ func (h *Handler) GetSubscriptions(c echo.Context) error {
 	return c.JSON(http.StatusOK, s)
 }
 
-func (h *Handler) GetSubscription(c echo.Context) error {
+func (h Handler) GetSubscription(c echo.Context) error {
 	subID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
@@ -52,11 +52,17 @@ func (h *Handler) GetSubscription(c echo.Context) error {
 	return c.JSON(http.StatusOK, s)
 }
 
-func (h *Handler) CreateSubscription(c echo.Context) error {
+func (h Handler) CreateSubscription(c echo.Context) error {
+	cookie, err := httpAuth.GetCookie(c)
+	if err != nil {
+		return utils.WrapEchoError(domain.ErrNoSession, err)
+	}
+	author, err := h.userUsecase.GetBySessionID(cookie.Value)
 	var s models.AuthorSubscription
 	if err := c.Bind(&s); err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
+	s.AuthorID = author.ID
 	newS, err := h.subscriptionsUsecase.AddSubscription(s)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrCreate, err)
@@ -65,7 +71,7 @@ func (h *Handler) CreateSubscription(c echo.Context) error {
 	return c.JSON(http.StatusOK, newS)
 }
 
-func (h *Handler) UpdateSubscription(c echo.Context) error {
+func (h Handler) UpdateSubscription(c echo.Context) error {
 	var s models.AuthorSubscription
 	if err := c.Bind(&s); err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
@@ -79,7 +85,7 @@ func (h *Handler) UpdateSubscription(c echo.Context) error {
 	return c.JSON(http.StatusOK, subscription)
 }
 
-func (h *Handler) DeleteSubscription(c echo.Context) error {
+func (h Handler) DeleteSubscription(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)

@@ -22,7 +22,7 @@ func New(a domain.AuthUseCase, u domain.UsersUseCase, p domain.PostsUseCase) *Mi
 	}
 }
 
-func (m *Middlewares) LoginRequired(next echo.HandlerFunc) echo.HandlerFunc {
+func (m Middlewares) LoginRequired(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 		cookie, err := httpAuth.GetCookie(c)
 		if err != nil {
@@ -37,7 +37,7 @@ func (m *Middlewares) LoginRequired(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func (m *Middlewares) PostSameSessionByID(next echo.HandlerFunc) echo.HandlerFunc {
+func (m Middlewares) PostSameSessionByID(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		cookie, err := httpAuth.GetCookie(c)
 		if err != nil {

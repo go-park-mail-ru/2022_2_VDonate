@@ -14,14 +14,14 @@ type Handler struct {
 	userUsecase        domain.UsersUseCase
 }
 
-func New(s domain.SubscribersUseCase, u domain.UsersUseCase) *Handler {
+func NewHandler(s domain.SubscribersUseCase, u domain.UsersUseCase) *Handler {
 	return &Handler{
 		subscribersUsecase: s,
 		userUsecase:        u,
 	}
 }
 
-func (h *Handler) GetSubscribers(c echo.Context) error {
+func (h Handler) GetSubscribers(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("author_id"), 10, 64)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
@@ -34,7 +34,7 @@ func (h *Handler) GetSubscribers(c echo.Context) error {
 	return c.JSON(http.StatusOK, s)
 }
 
-func (h *Handler) CreateSubscriber(c echo.Context) error {
+func (h Handler) CreateSubscriber(c echo.Context) error {
 	var s models.Subscription
 	if err := c.Bind(&s); err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
@@ -48,7 +48,7 @@ func (h *Handler) CreateSubscriber(c echo.Context) error {
 	return c.JSON(http.StatusOK, s)
 }
 
-func (h *Handler) DeleteSubscriber(c echo.Context) error {
+func (h Handler) DeleteSubscriber(c echo.Context) error {
 	var s models.Subscription
 	if err := c.Bind(&s); err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
