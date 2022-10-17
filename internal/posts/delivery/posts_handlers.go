@@ -36,6 +36,7 @@ func (h *Handler) GetPosts(c echo.Context) error {
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrNotFound, err)
 	}
+
 	return c.JSON(http.StatusOK, allPosts)
 }
 
@@ -62,7 +63,7 @@ func (h *Handler) DeletePost(c echo.Context) error {
 
 func (h *Handler) PutPost(c echo.Context) error {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	var prevPost models.PostDB
+	var prevPost models.Post
 	if err := c.Bind(&prevPost); err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
@@ -85,7 +86,7 @@ func (h *Handler) CreatePosts(c echo.Context) error {
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrNoSession, err)
 	}
-	var post models.PostDB
+	var post models.Post
 	if err := c.Bind(&post); err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}

@@ -29,8 +29,8 @@ func (r *Postgres) Close() error {
 	return nil
 }
 
-func (r *Postgres) GetAllByUserID(userID uint64) ([]*models.PostDB, error) {
-	var posts []*models.PostDB
+func (r *Postgres) GetAllByUserID(userID uint64) ([]*models.Post, error) {
+	var posts []*models.Post
 	if err := r.DB.Select(&posts, "SELECT * FROM posts WHERE user_id=$1;", userID); err != nil {
 		return nil, err
 	}
@@ -38,23 +38,23 @@ func (r *Postgres) GetAllByUserID(userID uint64) ([]*models.PostDB, error) {
 	return posts, nil
 }
 
-func (r *Postgres) GetPostByUserID(userID, postID uint64) (*models.PostDB, error) {
-	var post models.PostDB
+func (r *Postgres) GetPostByUserID(userID, postID uint64) (*models.Post, error) {
+	var post models.Post
 	if err := r.DB.Get(&post, "SELECT * FROM posts WHERE user_id=$1 AND post_id=$2;", userID, postID); err != nil {
 		return nil, err
 	}
 	return &post, nil
 }
 
-func (r *Postgres) GetPostByID(postID uint64) (*models.PostDB, error) {
-	var post models.PostDB
+func (r *Postgres) GetPostByID(postID uint64) (*models.Post, error) {
+	var post models.Post
 	if err := r.DB.Get(&post, "SELECT * FROM posts WHERE post_id=$1;", postID); err != nil {
 		return nil, err
 	}
 	return &post, nil
 }
 
-func (r *Postgres) Create(post models.PostDB) (*models.PostDB, error) {
+func (r *Postgres) Create(post models.Post) (*models.Post, error) {
 	err := r.DB.QueryRowx(
 		`
 		INSERT INTO posts (user_id, img, title, text) 
@@ -70,7 +70,7 @@ func (r *Postgres) Create(post models.PostDB) (*models.PostDB, error) {
 	return &post, nil
 }
 
-func (r *Postgres) Update(post models.PostDB) (*models.PostDB, error) {
+func (r *Postgres) Update(post models.Post) (*models.Post, error) {
 	_, err := r.DB.NamedExec(
 		`
                 UPDATE posts

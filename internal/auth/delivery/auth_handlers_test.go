@@ -54,10 +54,10 @@ func TestHandler_SignUp(t *testing.T) {
 			expectedResponseBody: `{"message":"bad request"}`,
 		},
 		{
-			name:      "SignUp-IncorrectInput",
-			inputBody: `mdaosmdop[23eomqwd`,
-			inputUser: models.User{},
-			mockBehavior: func(r *mock_auth.MockUseCase, user models.User) {},
+			name:                 "SignUp-IncorrectInput",
+			inputBody:            `mdaosmdop[23eomqwd`,
+			inputUser:            models.User{},
+			mockBehavior:         func(r *mock_auth.MockUseCase, user models.User) {},
 			expectedStatusCode:   400,
 			expectedResponseBody: `{"message":"bad request"}`,
 		},
@@ -139,7 +139,7 @@ func TestHandler_Login(t *testing.T) {
 			mockBehaviorLogin: func(r *mock_auth.MockUseCase, user models.AuthUser) {
 				r.EXPECT().Login(user.Username, user.Password).Return("", errors.New(""))
 			},
-			mockBehaviorUser: func(r *mock_users.MockUseCase, sessionId string) {},
+			mockBehaviorUser:     func(r *mock_users.MockUseCase, sessionId string) {},
 			expectedStatusCode:   401,
 			expectedResponseBody: `{"message":"no existing session"}`,
 		},
@@ -161,11 +161,11 @@ func TestHandler_Login(t *testing.T) {
 			expectedResponseBody: `{"message":"user not found"}`,
 		},
 		{
-			name:      "BindError",
-			inputBody: `ksda[k[askd[aksd[a`,
-			inputUser: models.AuthUser{},
-			mockBehaviorLogin: func(r *mock_auth.MockUseCase, user models.AuthUser) {},
-			mockBehaviorUser: func(r *mock_users.MockUseCase, sessionId string) {},
+			name:                 "BindError",
+			inputBody:            `ksda[k[askd[aksd[a`,
+			inputUser:            models.AuthUser{},
+			mockBehaviorLogin:    func(r *mock_auth.MockUseCase, user models.AuthUser) {},
+			mockBehaviorUser:     func(r *mock_users.MockUseCase, sessionId string) {},
 			expectedStatusCode:   400,
 			expectedResponseBody: `{"message":"bad request"}`,
 		},
@@ -212,8 +212,8 @@ func TestHandler_Auth(t *testing.T) {
 		expectedResponseBody string
 	}{
 		{
-			name:      "Auth-Ok",
-			cookie:    "nadojads-dasasondfno312nnsandjo12",
+			name:   "Auth-Ok",
+			cookie: "nadojads-dasasondfno312nnsandjo12",
 			mockBehaviorAuth: func(r *mock_auth.MockUseCase, session_id string) {
 				r.EXPECT().Auth(session_id).Return(true, nil)
 			},
@@ -227,24 +227,24 @@ func TestHandler_Auth(t *testing.T) {
 			expectedResponseBody: `{"id":1,"username":"username","email":"ex@example.com","is_author":false}`,
 		},
 		{
-			name:      "NoExistingSession-1",
-			cookie:    "",
-			mockBehaviorAuth: func(r *mock_auth.MockUseCase, session_id string) {},
-			mockBehaviorUser: func(r *mock_users.MockUseCase, sessionId string) {},
+			name:                 "NoExistingSession-1",
+			cookie:               "",
+			mockBehaviorAuth:     func(r *mock_auth.MockUseCase, session_id string) {},
+			mockBehaviorUser:     func(r *mock_users.MockUseCase, sessionId string) {},
 			expectedResponseBody: `{"message":"no existing session"}`,
 		},
 		{
-			name:      "NoExistingSession-2",
-			cookie:    "nadojads-dasasondfno312nnsandjo12",
+			name:   "NoExistingSession-2",
+			cookie: "nadojads-dasasondfno312nnsandjo12",
 			mockBehaviorAuth: func(r *mock_auth.MockUseCase, session_id string) {
 				r.EXPECT().Auth(session_id).Return(false, nil)
 			},
-			mockBehaviorUser: func(r *mock_users.MockUseCase, sessionId string) {},
+			mockBehaviorUser:     func(r *mock_users.MockUseCase, sessionId string) {},
 			expectedResponseBody: `{"message":"no existing session"}`,
 		},
 		{
-			name:      "Auth-Ok",
-			cookie:    "nadojads-dasasondfno312nnsandjo12",
+			name:   "Auth-Ok",
+			cookie: "nadojads-dasasondfno312nnsandjo12",
 			mockBehaviorAuth: func(r *mock_auth.MockUseCase, session_id string) {
 				r.EXPECT().Auth(session_id).Return(true, nil)
 			},
@@ -280,7 +280,9 @@ func TestHandler_Auth(t *testing.T) {
 
 			err := handler.Auth(c)
 			require.NoError(t, err)
-			body, _ := ioutil.ReadAll(rec.Body)
+
+			body, err := ioutil.ReadAll(rec.Body)
+			require.NoError(t, err)
 
 			assert.Equal(t, test.expectedResponseBody, strings.Trim(string(body), "\n"))
 		})
@@ -318,10 +320,10 @@ func TestHandler_Logout(t *testing.T) {
 			expectedResponseBody: `{"message":"bad session"}`,
 		},
 		{
-			name:      "Logout-NoSession",
-			inputBody: `{"username":"username","password":"qwerty","email":"ex@example.com"}`,
-			cookie:    "",
-			mockBehaviorAuth: func(r *mock_auth.MockUseCase, session_id string) {},
+			name:                 "Logout-NoSession",
+			inputBody:            `{"username":"username","password":"qwerty","email":"ex@example.com"}`,
+			cookie:               "",
+			mockBehaviorAuth:     func(r *mock_auth.MockUseCase, session_id string) {},
 			expectedResponseBody: `{"message":"no existing session"}`,
 		},
 	}
@@ -351,7 +353,8 @@ func TestHandler_Logout(t *testing.T) {
 			err := handler.Logout(c)
 			require.NoError(t, err)
 
-			body, _ := ioutil.ReadAll(rec.Body)
+			body, err := ioutil.ReadAll(rec.Body)
+			require.NoError(t, err)
 
 			assert.Equal(t, test.expectedResponseBody, strings.Trim(string(body), "\n"))
 		})

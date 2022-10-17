@@ -100,7 +100,7 @@ func TestHandler_PutUser(t *testing.T) {
 		{
 			name:        "OK",
 			requestBody: `{"id":345,"username":"superuser","first_name":"Vasya","last_name":"Pupkin","about":"I love sport"}`,
-			userId: 345,
+			userId:      345,
 			userModel: models.User{
 				ID:        345,
 				Username:  "superuser",
@@ -123,7 +123,7 @@ func TestHandler_PutUser(t *testing.T) {
 		{
 			name:        "UserNotFound",
 			requestBody: `{"id":345,"username":"superuser","first_name":"Vasya","last_name":"Pupkin","about":"I love sport"}`,
-			userId: 345,
+			userId:      345,
 			userModel: models.User{
 				ID:        345,
 				Username:  "superuser",
@@ -137,19 +137,19 @@ func TestHandler_PutUser(t *testing.T) {
 			expectedResponseBody: `{"message":"failed to update"}`,
 		},
 		{
-			name:        "BadId",
-			requestBody: `{"id":-100,"username":"superuser","first_name":"Vasya","last_name":"Pupkin","about":"I love sport"}`,
-			userId: -100,
-			userModel: models.User{},
-			mockBehavior: func(r *mock_users.MockUseCase, id uint64, user models.User) {},
+			name:                 "BadId",
+			requestBody:          `{"id":-100,"username":"superuser","first_name":"Vasya","last_name":"Pupkin","about":"I love sport"}`,
+			userId:               -100,
+			userModel:            models.User{},
+			mockBehavior:         func(r *mock_users.MockUseCase, id uint64, user models.User) {},
 			expectedResponseBody: `{"message":"unable to convert id"}`,
 		},
 		{
-			name:        "BindError",
-			requestBody: `mopdapodsooasmp2312nlk14`,
-			userId: 100,
-			userModel: models.User{},
-			mockBehavior: func(r *mock_users.MockUseCase, id uint64, user models.User) {},
+			name:                 "BindError",
+			requestBody:          `mopdapodsooasmp2312nlk14`,
+			userId:               100,
+			userModel:            models.User{},
+			mockBehavior:         func(r *mock_users.MockUseCase, id uint64, user models.User) {},
 			expectedResponseBody: `{"message":"bad request"}`,
 		},
 	}
@@ -178,7 +178,8 @@ func TestHandler_PutUser(t *testing.T) {
 			err := handler.PutUser(c)
 			require.NoError(t, err)
 
-			body, _ := ioutil.ReadAll(rec.Body)
+			body, err := ioutil.ReadAll(rec.Body)
+			require.NoError(t, err)
 
 			assert.Equal(t, test.expectedResponseBody, strings.Trim(string(body), "\n"))
 		})

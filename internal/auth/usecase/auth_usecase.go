@@ -71,7 +71,7 @@ func (u *usecase) SignUp(user *models.User) (string, error) {
 	}
 	user.Password, err = utils.HashPassword(user.Password)
 	if err != nil {
-		return "", errors.New("Cannot hash password")
+		return "", errors.New("cannot hash password")
 	}
 	if user, err = u.usersRepo.Create(user); err != nil {
 		return "", err

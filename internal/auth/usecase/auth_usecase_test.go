@@ -11,91 +11,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// func TestUseCase_Login(t *testing.T) {
-// 	type mockBehaviourGetUsername func(r *mock_users.MockRepository, username string)
-// 	type mockBehaviourGetEmail func(r *mock_users.MockRepository, email string)
-// 	type mockBehaviourSession func(r *mock_auth.MockRepository, cookie *models.Cookie)
-
-// 	tests := []struct {
-// 		name                     string
-// 		userId                   uint64
-// 		login                    string
-// 		password                 string
-// 		mockBehaviourGetUsername mockBehaviourGetUsername
-// 		mockBehaviourGetEmail    mockBehaviourGetEmail
-// 		mockBehaviourSession     mockBehaviourSession
-// 		response                 string
-// 	}{
-// 		{
-// 			name:     "OK",
-// 			userId:   100,
-// 			login:    "user",
-// 			password: "Qwerty",
-// 			mockBehaviourGetUsername: func(r *mock_users.MockRepository, username string) {
-// 				r.EXPECT().GetByUsername(username).Return(&models.User{
-// 					ID:       100,
-// 					Username: username,
-// 					Password: "Qwerty",
-// 				}, nil)
-// 			},
-// 			mockBehaviourGetEmail: func(r *mock_users.MockRepository, email string) {},
-// 			mockBehaviourSession: func(r *mock_auth.MockRepository, cookie *models.Cookie) {
-// 				r.EXPECT().CreateSession(cookie).Return(&models.Cookie{
-// 					Value:   "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
-// 					UserID:  cookie.UserID,
-// 				}, nil)
-// 			},
-// 			response: "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
-// 		},
-// 		// {
-// 		// 	name:     "OK",
-// 		// 	userId:   100,
-// 		// 	login:    "user",
-// 		// 	password: "Qwerty",
-// 		// 	time:     time.Now().AddDate(0, 1, 0),
-// 		// 	mockBehaviourGetUsername: func(r *mock_users.MockRepository, username string) {
-// 		// 		r.EXPECT().GetByUsername(username).Return(&models.User{
-// 		// 			ID:       100,
-// 		// 			Username: username,
-// 		// 			Password: "Qwerty",
-// 		// 		}, nil)
-// 		// 	},
-// 		// 	mockBehaviourGetEmail: func(r *mock_users.MockRepository, email string) {},
-// 		// 	mockBehaviourSession: func(r *mock_auth.MockRepository, cookie *models.Cookie) {
-// 		// 		r.EXPECT().CreateSession(cookie).Return(&models.Cookie{
-// 		// 			Value:   cookie.Value,
-// 		// 			UserID:  cookie.UserID,
-// 		// 			Expires: cookie.Expires,
-// 		// 		}, nil)
-// 		// 	},
-// 		// 	response: "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
-// 		// },
-// 	}
-
-// 	for _, test := range tests {
-// 		t.Run(test.name, func(t *testing.T) {
-// 			ctrl := gomock.NewController(t)
-// 			defer ctrl.Finish()
-
-// 			userMock := mock_users.NewMockRepository(ctrl)
-// 			authMock := mock_auth.NewMockRepository(ctrl)
-
-// 			test.mockBehaviourGetUsername(userMock, test.login)
-// 			test.mockBehaviourGetEmail(userMock, test.login)
-// 			test.mockBehaviourSession(authMock, models.CreateCookie(test.userId))
-
-// 			usecase := New(authMock, userMock)
-// 			post, err := usecase.Login(test.login, test.password)
-// 			if err != nil {
-// 				require.EqualError(t, err, test.response)
-// 			}
-
-// 			require.Equal(t, test.response, post)
-// 		})
-// 	}
-
-// }
-
 func TestUsecase_Auth(t *testing.T) {
 	type mockBehaviourDelete func(r *mock_auth.MockRepository, cookie string)
 
@@ -194,11 +109,11 @@ func TestUsecase_IsSameSession(t *testing.T) {
 	type mockBehaviourGet func(r *mock_users.MockRepository, cookie string)
 
 	tests := []struct {
-		name                string
-		userId              uint64
-		sessionId           string
+		name             string
+		userId           uint64
+		sessionId        string
 		mockBehaviourGet mockBehaviourGet
-		response            bool
+		response         bool
 	}{
 		{
 			name:      "OK",

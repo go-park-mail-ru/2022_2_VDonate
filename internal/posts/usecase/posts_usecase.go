@@ -15,7 +15,7 @@ func New(repo domain.PostsRepository) domain.PostsUseCase {
 	return &usecase{postsRepo: repo}
 }
 
-func (u *usecase) GetPostsByUserID(id uint64) ([]*models.PostDB, error) {
+func (u *usecase) GetPostsByUserID(id uint64) ([]*models.Post, error) {
 	r, err := u.postsRepo.GetAllByUserID(id)
 	if err != nil {
 		return nil, err
@@ -25,13 +25,13 @@ func (u *usecase) GetPostsByUserID(id uint64) ([]*models.PostDB, error) {
 	}
 	return r, nil
 }
-func (u *usecase) GetPostByID(postID uint64) (*models.PostDB, error) {
+func (u *usecase) GetPostByID(postID uint64) (*models.Post, error) {
 	return u.postsRepo.GetPostByID(postID)
 }
-func (u *usecase) Create(post models.PostDB) (*models.PostDB, error) {
+func (u *usecase) Create(post models.Post) (*models.Post, error) {
 	return u.postsRepo.Create(post)
 }
-func (u *usecase) Update(post models.PostDB) (*models.PostDB, error) {
+func (u *usecase) Update(post models.Post) (*models.Post, error) {
 	updatePost, err := u.GetPostByID(post.ID)
 	if err != nil {
 		return nil, err
