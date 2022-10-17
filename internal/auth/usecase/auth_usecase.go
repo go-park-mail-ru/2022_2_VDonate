@@ -2,10 +2,12 @@ package auth
 
 import (
 	"errors"
+	"time"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/google/uuid"
-	"time"
 )
 
 type cookieCreator func(id uint64) models.Cookie
@@ -39,7 +41,8 @@ func (u *usecase) Login(login, password string) (string, error) {
 			return "", err
 		}
 	}
-	if password != user.Password {
+	matchPassword := utils.CheckHashPassword(password, user.Password)
+	if !matchPassword {
 		return "", errors.New("passwords not the same")
 	}
 	s, err := u.authRepo.CreateSession(u.cookieCreator(user.ID))
@@ -65,6 +68,10 @@ func (u *usecase) SignUp(user *models.User) (string, error) {
 	}
 	if _, err = u.usersRepo.GetByEmail(user.Email); err == nil {
 		return "", errors.New("email is already exist")
+	}
+	user.Password, err = utils.HashPassword(user.Password)
+	if err != nil {
+		return "", errors.New("Cannot hash password")
 	}
 	if user, err = u.usersRepo.Create(user); err != nil {
 		return "", err
