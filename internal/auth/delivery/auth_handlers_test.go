@@ -3,14 +3,13 @@ package httpAuth
 import (
 	"bytes"
 	"errors"
+	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/auth/usecase"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/users/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
@@ -19,7 +18,7 @@ import (
 )
 
 func TestHandler_SignUp(t *testing.T) {
-	type mockBehavior func(r *mock_auth.MockUseCase, user models.User)
+	type mockBehavior func(r *mockDomain.MockAuthUseCase, user models.User)
 
 	tests := []struct {
 		name                 string
@@ -30,36 +29,36 @@ func TestHandler_SignUp(t *testing.T) {
 		expectedResponseBody string
 	}{
 		{
-			name:      "SignUp-Ok",
+			name:      "OK",
 			inputBody: `{"username":"username","password":"qwerty","email":"ex@example.com"}`,
 			inputUser: models.User{
 				Username: "username",
 				Password: "qwerty",
 				Email:    "ex@example.com",
 			},
-			mockBehavior: func(r *mock_auth.MockUseCase, user models.User) {
+			mockBehavior: func(r *mockDomain.MockAuthUseCase, user models.User) {
 				r.EXPECT().SignUp(&user).Return("dsapfapspasf", nil)
 			},
 			expectedStatusCode:   200,
 			expectedResponseBody: `{"id":0,"username":"username","email":"ex@example.com","is_author":false}`,
 		},
 		{
-			name:      "SignUp-IncorrectInput",
+			name:      "IncorrectUser",
 			inputBody: `{}`,
 			inputUser: models.User{},
-			mockBehavior: func(r *mock_auth.MockUseCase, user models.User) {
-				r.EXPECT().SignUp(&user).Return("", errors.New("Empty user"))
+			mockBehavior: func(r *mockDomain.MockAuthUseCase, user models.User) {
+				r.EXPECT().SignUp(&user).Return("", errors.New("empty user"))
 			},
-			expectedStatusCode:   400,
-			expectedResponseBody: `{"message":"bad request"}`,
+			expectedStatusCode:   401,
+			expectedResponseBody: `{"message":"no existing session"}`,
 		},
 		{
-			name:                 "SignUp-IncorrectInput",
+			name:                 "IncorrectBody",
 			inputBody:            `mdaosmdop[23eomqwd`,
 			inputUser:            models.User{},
-			mockBehavior:         func(r *mock_auth.MockUseCase, user models.User) {},
+			mockBehavior:         func(r *mockDomain.MockAuthUseCase, user models.User) {},
 			expectedStatusCode:   400,
-			expectedResponseBody: `{"message":"bad request"}`,
+			expectedResponseBody: `{"message":"Syntax error: offset=1, error=invalid character 'm' looking for beginning of value"}`,
 		},
 	}
 
@@ -68,8 +67,8 @@ func TestHandler_SignUp(t *testing.T) {
 			cntx := gomock.NewController(t)
 			defer cntx.Finish()
 
-			repo := mock_auth.NewMockUseCase(cntx)
-			user := mock_users.NewMockUseCase(cntx)
+			repo := mockDomain.NewMockAuthUseCase(cntx)
+			user := mockDomain.NewMockUsersUseCase(cntx)
 			test.mockBehavior(repo, test.inputUser)
 
 			handler := NewHandler(repo, user)
@@ -91,8 +90,8 @@ func TestHandler_SignUp(t *testing.T) {
 }
 
 func TestHandler_Login(t *testing.T) {
-	type mockBehaviorLogin func(r *mock_auth.MockUseCase, user models.AuthUser)
-	type mockBehaviorUser func(r *mock_users.MockUseCase, sessionId string)
+	type mockBehaviorLogin func(r *mockDomain.MockAuthUseCase, user models.AuthUser)
+	type mockBehaviorUser func(r *mockDomain.MockUsersUseCase, sessionId string)
 
 	tests := []struct {
 		name                 string
@@ -105,17 +104,17 @@ func TestHandler_Login(t *testing.T) {
 		expectedResponseBody string
 	}{
 		{
-			name:      "Login-Ok",
+			name:      "OK",
 			inputBody: `{"username":"username","password":"qwerty"}`,
 			inputUser: models.AuthUser{
 				Username: "username",
 				Password: "qwerty",
 			},
 			cookie: "jadbdsap324na4sa-4523sdnasodnoasdsna",
-			mockBehaviorLogin: func(r *mock_auth.MockUseCase, user models.AuthUser) {
+			mockBehaviorLogin: func(r *mockDomain.MockAuthUseCase, user models.AuthUser) {
 				r.EXPECT().Login(user.Username, user.Password).Return("jadbdsap324na4sa-4523sdnasodnoasdsna", nil)
 			},
-			mockBehaviorUser: func(r *mock_users.MockUseCase, sessionId string) {
+			mockBehaviorUser: func(r *mockDomain.MockUsersUseCase, sessionId string) {
 				r.EXPECT().GetBySessionID(sessionId).Return(&models.User{
 					ID:        10,
 					FirstName: "Jane",
@@ -129,45 +128,45 @@ func TestHandler_Login(t *testing.T) {
 			expectedResponseBody: `{"id":10,"username":"username","first_name":"Jane","last_name":"Doe","email":"john@email.com","is_author":false}`,
 		},
 		{
-			name:      "NoExistingSession",
+			name:      "NoExistingSession-1",
 			inputBody: `{"username":"username","password":"qwerty"}`,
 			inputUser: models.AuthUser{
 				Username: "username",
 				Password: "qwerty",
 			},
 			cookie: "jadbdsap324na4sa-4523sdnasodnoasdsna",
-			mockBehaviorLogin: func(r *mock_auth.MockUseCase, user models.AuthUser) {
+			mockBehaviorLogin: func(r *mockDomain.MockAuthUseCase, user models.AuthUser) {
 				r.EXPECT().Login(user.Username, user.Password).Return("", errors.New(""))
 			},
-			mockBehaviorUser:     func(r *mock_users.MockUseCase, sessionId string) {},
+			mockBehaviorUser:     func(r *mockDomain.MockUsersUseCase, sessionId string) {},
 			expectedStatusCode:   401,
 			expectedResponseBody: `{"message":"no existing session"}`,
 		},
 		{
-			name:      "NoExistingSession",
+			name:      "NoExistingSession-2",
 			inputBody: `{"username":"username","password":"qwerty"}`,
 			inputUser: models.AuthUser{
 				Username: "username",
 				Password: "qwerty",
 			},
 			cookie: "jadbdsap324na4sa-4523sdnasodnoasdsna",
-			mockBehaviorLogin: func(r *mock_auth.MockUseCase, user models.AuthUser) {
+			mockBehaviorLogin: func(r *mockDomain.MockAuthUseCase, user models.AuthUser) {
 				r.EXPECT().Login(user.Username, user.Password).Return("jadbdsap324na4sa-4523sdnasodnoasdsna", nil)
 			},
-			mockBehaviorUser: func(r *mock_users.MockUseCase, sessionId string) {
+			mockBehaviorUser: func(r *mockDomain.MockUsersUseCase, sessionId string) {
 				r.EXPECT().GetBySessionID(sessionId).Return(&models.User{}, errors.New("no user"))
 			},
 			expectedStatusCode:   404,
-			expectedResponseBody: `{"message":"user not found"}`,
+			expectedResponseBody: `{"message":"failed to find item"}`,
 		},
 		{
 			name:                 "BindError",
 			inputBody:            `ksda[k[askd[aksd[a`,
 			inputUser:            models.AuthUser{},
-			mockBehaviorLogin:    func(r *mock_auth.MockUseCase, user models.AuthUser) {},
-			mockBehaviorUser:     func(r *mock_users.MockUseCase, sessionId string) {},
+			mockBehaviorLogin:    func(r *mockDomain.MockAuthUseCase, user models.AuthUser) {},
+			mockBehaviorUser:     func(r *mockDomain.MockUsersUseCase, sessionId string) {},
 			expectedStatusCode:   400,
-			expectedResponseBody: `{"message":"bad request"}`,
+			expectedResponseBody: `{"message":"Syntax error: offset=1, error=invalid character 'k' looking for beginning of value"}`,
 		},
 	}
 
@@ -176,8 +175,8 @@ func TestHandler_Login(t *testing.T) {
 			cntx := gomock.NewController(t)
 			defer cntx.Finish()
 
-			repo := mock_auth.NewMockUseCase(cntx)
-			user := mock_users.NewMockUseCase(cntx)
+			repo := mockDomain.NewMockAuthUseCase(cntx)
+			user := mockDomain.NewMockUsersUseCase(cntx)
 
 			test.mockBehaviorLogin(repo, test.inputUser)
 			test.mockBehaviorUser(user, test.cookie)
@@ -201,24 +200,25 @@ func TestHandler_Login(t *testing.T) {
 }
 
 func TestHandler_Auth(t *testing.T) {
-	type mockBehaviorAuth func(r *mock_auth.MockUseCase, sessionId string)
-	type mockBehaviorUser func(r *mock_users.MockUseCase, sessionId string)
+	type mockBehaviorAuth func(r *mockDomain.MockAuthUseCase, sessionId string)
+	type mockBehaviorUser func(r *mockDomain.MockUsersUseCase, sessionId string)
 
 	tests := []struct {
 		name                 string
 		cookie               string
 		mockBehaviorAuth     mockBehaviorAuth
 		mockBehaviorUser     mockBehaviorUser
+		expectedErrorMessage string
 		expectedResponseBody string
 	}{
 		{
-			name:   "Auth-Ok",
+			name:   "OK",
 			cookie: "nadojads-dasasondfno312nnsandjo12",
-			mockBehaviorAuth: func(r *mock_auth.MockUseCase, session_id string) {
-				r.EXPECT().Auth(session_id).Return(true, nil)
+			mockBehaviorAuth: func(r *mockDomain.MockAuthUseCase, sessionID string) {
+				r.EXPECT().Auth(sessionID).Return(true, nil)
 			},
-			mockBehaviorUser: func(r *mock_users.MockUseCase, sessionId string) {
-				r.EXPECT().GetBySessionID(sessionId).Return(&models.User{
+			mockBehaviorUser: func(r *mockDomain.MockUsersUseCase, sessionID string) {
+				r.EXPECT().GetBySessionID(sessionID).Return(&models.User{
 					ID:       1,
 					Email:    "ex@example.com",
 					Username: "username",
@@ -229,29 +229,29 @@ func TestHandler_Auth(t *testing.T) {
 		{
 			name:                 "NoExistingSession-1",
 			cookie:               "",
-			mockBehaviorAuth:     func(r *mock_auth.MockUseCase, session_id string) {},
-			mockBehaviorUser:     func(r *mock_users.MockUseCase, sessionId string) {},
-			expectedResponseBody: `{"message":"no existing session"}`,
+			mockBehaviorAuth:     func(r *mockDomain.MockAuthUseCase, sessionID string) {},
+			mockBehaviorUser:     func(r *mockDomain.MockUsersUseCase, sessionID string) {},
+			expectedErrorMessage: "code=401, message=no existing session, internal=http: named cookie not present",
 		},
 		{
 			name:   "NoExistingSession-2",
 			cookie: "nadojads-dasasondfno312nnsandjo12",
-			mockBehaviorAuth: func(r *mock_auth.MockUseCase, session_id string) {
-				r.EXPECT().Auth(session_id).Return(false, nil)
+			mockBehaviorAuth: func(r *mockDomain.MockAuthUseCase, sessionID string) {
+				r.EXPECT().Auth(sessionID).Return(false, nil)
 			},
-			mockBehaviorUser:     func(r *mock_users.MockUseCase, sessionId string) {},
-			expectedResponseBody: `{"message":"no existing session"}`,
+			mockBehaviorUser:     func(r *mockDomain.MockUsersUseCase, sessionID string) {},
+			expectedErrorMessage: "code=401, message=failed to authenticate",
 		},
 		{
-			name:   "Auth-Ok",
+			name:   "NoExistingSession-3",
 			cookie: "nadojads-dasasondfno312nnsandjo12",
-			mockBehaviorAuth: func(r *mock_auth.MockUseCase, session_id string) {
-				r.EXPECT().Auth(session_id).Return(true, nil)
+			mockBehaviorAuth: func(r *mockDomain.MockAuthUseCase, sessionID string) {
+				r.EXPECT().Auth(sessionID).Return(true, nil)
 			},
-			mockBehaviorUser: func(r *mock_users.MockUseCase, sessionId string) {
-				r.EXPECT().GetBySessionID(sessionId).Return(&models.User{}, errors.New("no existing session"))
+			mockBehaviorUser: func(r *mockDomain.MockUsersUseCase, sessionID string) {
+				r.EXPECT().GetBySessionID(sessionID).Return(&models.User{}, errors.New("no existing session"))
 			},
-			expectedResponseBody: `{"message":"no existing session"}`,
+			expectedErrorMessage: "code=404, message=failed to find item, internal=no existing session",
 		},
 	}
 
@@ -260,8 +260,8 @@ func TestHandler_Auth(t *testing.T) {
 			cntx := gomock.NewController(t)
 			defer cntx.Finish()
 
-			repo := mock_auth.NewMockUseCase(cntx)
-			user := mock_users.NewMockUseCase(cntx)
+			repo := mockDomain.NewMockAuthUseCase(cntx)
+			user := mockDomain.NewMockUsersUseCase(cntx)
 
 			test.mockBehaviorAuth(repo, test.cookie)
 			test.mockBehaviorUser(user, test.cookie)
@@ -279,7 +279,9 @@ func TestHandler_Auth(t *testing.T) {
 			}
 
 			err := handler.Auth(c)
-			require.NoError(t, err)
+			if err != nil {
+				assert.Equal(t, test.expectedErrorMessage, err.Error())
+			}
 
 			body, err := ioutil.ReadAll(rec.Body)
 			require.NoError(t, err)
@@ -290,8 +292,7 @@ func TestHandler_Auth(t *testing.T) {
 }
 
 func TestHandler_Logout(t *testing.T) {
-	type mockBehaviorAuth func(r *mock_auth.MockUseCase, sessionId string)
-	type mockBehaviorUser func(r *mock_users.MockUseCase, sessionId string)
+	type mockBehaviorAuth func(r *mockDomain.MockAuthUseCase, sessionId string)
 
 	tests := []struct {
 		name                 string
@@ -300,31 +301,32 @@ func TestHandler_Logout(t *testing.T) {
 		cookie               string
 		mockBehaviorAuth     mockBehaviorAuth
 		expectedResponseBody string
+		expectedErrorMessage string
 	}{
 		{
-			name:      "Logout-Ok",
+			name:      "OK",
 			inputBody: `{"username":"username","password":"qwerty","email":"ex@example.com"}`,
 			cookie:    "nadojads-dasasondfno312nnsandjo12",
-			mockBehaviorAuth: func(r *mock_auth.MockUseCase, session_id string) {
-				r.EXPECT().Logout(session_id).Return(true, nil)
+			mockBehaviorAuth: func(r *mockDomain.MockAuthUseCase, sessionID string) {
+				r.EXPECT().Logout(sessionID).Return(true, nil)
 			},
 			expectedResponseBody: `{}`,
 		},
 		{
-			name:      "Logout-BadSession",
+			name:      "BadSession",
 			inputBody: `{"username":"username","password":"qwerty","email":"ex@example.com"}`,
 			cookie:    "nadojads-dasasondfno312nnsandjo12",
-			mockBehaviorAuth: func(r *mock_auth.MockUseCase, session_id string) {
-				r.EXPECT().Logout(session_id).Return(false, nil)
+			mockBehaviorAuth: func(r *mockDomain.MockAuthUseCase, sessionID string) {
+				r.EXPECT().Logout(sessionID).Return(false, nil)
 			},
-			expectedResponseBody: `{"message":"bad session"}`,
+			expectedErrorMessage: "code=500, message=bad session",
 		},
 		{
-			name:                 "Logout-NoSession",
+			name:                 "NoSession",
 			inputBody:            `{"username":"username","password":"qwerty","email":"ex@example.com"}`,
 			cookie:               "",
-			mockBehaviorAuth:     func(r *mock_auth.MockUseCase, session_id string) {},
-			expectedResponseBody: `{"message":"no existing session"}`,
+			mockBehaviorAuth:     func(r *mockDomain.MockAuthUseCase, sessionID string) {},
+			expectedErrorMessage: "code=401, message=no existing session, internal=http: named cookie not present",
 		},
 	}
 
@@ -333,8 +335,8 @@ func TestHandler_Logout(t *testing.T) {
 			cntx := gomock.NewController(t)
 			defer cntx.Finish()
 
-			repo := mock_auth.NewMockUseCase(cntx)
-			user := mock_users.NewMockUseCase(cntx)
+			repo := mockDomain.NewMockAuthUseCase(cntx)
+			user := mockDomain.NewMockUsersUseCase(cntx)
 
 			test.mockBehaviorAuth(repo, test.cookie)
 
@@ -351,7 +353,9 @@ func TestHandler_Logout(t *testing.T) {
 			}
 
 			err := handler.Logout(c)
-			require.NoError(t, err)
+			if err != nil {
+				assert.Equal(t, test.expectedErrorMessage, err.Error())
+			}
 
 			body, err := ioutil.ReadAll(rec.Body)
 			require.NoError(t, err)

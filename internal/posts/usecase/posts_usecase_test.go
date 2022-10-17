@@ -1,29 +1,30 @@
 package posts
 
 import (
+	mock_domain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
+	"github.com/stretchr/testify/assert"
 	"testing"
 
-	mock_posts "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/posts/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 )
 
-func TestUsecase_GetPostsByUserId(t *testing.T) {
-	type mockBehaviour func(s *mock_posts.MockRepository, userId uint64)
+func TestUsecase_GetPostsByUserID(t *testing.T) {
+	type mockBehaviour func(s *mock_domain.MockPostsRepository, userID uint64)
 
 	tests := []struct {
-		name          string
-		userId        uint64
-		mockBehaviour mockBehaviour
-		err           string
-		response      []*models.PostDB
+		name                 string
+		userID               uint64
+		mockBehaviour        mockBehaviour
+		response             []*models.Post
+		responseErrorMessage string
 	}{
 		{
 			name:   "OK",
-			userId: 200,
-			mockBehaviour: func(s *mock_posts.MockRepository, userId uint64) {
-				s.EXPECT().GetAllByUserID(userId).Return([]*models.PostDB{
+			userID: 200,
+			mockBehaviour: func(s *mock_domain.MockPostsRepository, userID uint64) {
+				s.EXPECT().GetAllByUserID(userID).Return([]*models.Post{
 					{
 						ID:     1,
 						UserID: 200,
@@ -32,8 +33,7 @@ func TestUsecase_GetPostsByUserId(t *testing.T) {
 					},
 				}, nil)
 			},
-			err: "",
-			response: []*models.PostDB{
+			response: []*models.Post{
 				{
 					ID:     1,
 					UserID: 200,
@@ -43,13 +43,12 @@ func TestUsecase_GetPostsByUserId(t *testing.T) {
 			},
 		},
 		{
-			name:   "Not-OK",
-			userId: 200,
-			mockBehaviour: func(s *mock_posts.MockRepository, userId uint64) {
-				s.EXPECT().GetAllByUserID(userId).Return([]*models.PostDB{}, nil)
+			name:   "NoPosts",
+			userID: 200,
+			mockBehaviour: func(s *mock_domain.MockPostsRepository, userID uint64) {
+				s.EXPECT().GetAllByUserID(userID).Return([]*models.Post{}, nil)
 			},
-			err: "no posts",
-			response: []*models.PostDB(nil),
+			responseErrorMessage: "no posts were found",
 		},
 	}
 
@@ -58,13 +57,14 @@ func TestUsecase_GetPostsByUserId(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			postMock := mock_posts.NewMockRepository(ctrl)
-			test.mockBehaviour(postMock, test.userId)
+			postMock := mock_domain.NewMockPostsRepository(ctrl)
+
+			test.mockBehaviour(postMock, test.userID)
 
 			usecase := New(postMock)
-			post, err := usecase.GetPostsByUserID(test.userId)
+			post, err := usecase.GetPostsByUserID(test.userID)
 			if err != nil {
-				require.EqualError(t, err, test.err)
+				assert.Equal(t, test.responseErrorMessage, err.Error())
 			}
 
 			require.Equal(t, test.response, post)
