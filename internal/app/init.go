@@ -9,6 +9,14 @@ import (
 	httpPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/usecase"
+	subscribersDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers"
+	httpsubscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/delivery"
+	subscribersRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/repository"
+	subscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/usecase"
+	subscriptionsDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions"
+	httpSubscriptions "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/delivery"
+	subscriptionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/repository"
+	subscriptions "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/usecase"
 	httpUsers "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
@@ -23,13 +31,17 @@ type Server struct {
 
 	Config *config.Config
 
-	UserService  users.UseCase
-	PostsService posts.UseCase
-	AuthService  auth.UseCase
+	UserService         users.UseCase
+	PostsService        posts.UseCase
+	AuthService         auth.UseCase
+	SubscriptionService subscriptionsDomain.UseCase
+	SubscribersService  subscribersDomain.UseCase
 
-	authHandler  *httpAuth.Handler
-	userHandler  *httpUsers.Handler
-	postsHandler *httpPosts.Handler
+	authHandler          *httpAuth.Handler
+	userHandler          *httpUsers.Handler
+	postsHandler         *httpPosts.Handler
+	subscriptionsHandler *httpSubscriptions.Handler
+	subscribersHandler   *httpsubscribers.Handler
 
 	authMiddleware *authMiddlewares.Middlewares
 }
@@ -62,6 +74,14 @@ func (s *Server) makeUseCase(URL string) {
 	if err != nil {
 		s.Echo.Logger.Error(err)
 	}
+	subscriptionsRepo, err := subscriptionsRepository.NewPostgres(URL)
+	if err != nil {
+		s.Echo.Logger.Error(err)
+	}
+	subscribersRepo, err := subscribersRepository.NewPostgres(URL)
+	if err != nil {
+		s.Echo.Logger.Error(err)
+	}
 
 	//-----------------------sessions-----------------------//
 	s.AuthService = auth.New(sessionRepo, userRepo)
@@ -71,12 +91,20 @@ func (s *Server) makeUseCase(URL string) {
 
 	//-------------------------post-------------------------//
 	s.PostsService = posts.New(postsRepo)
+
+	//----------------------subscriber----------------------//
+	s.SubscribersService = subscribers.New(subscribersRepo, userRepo)
+
+	//---------------------subscription---------------------//
+	s.SubscriptionService = subscriptions.New(subscriptionsRepo)
 }
 
 func (s *Server) makeHandlers() {
 	s.authHandler = httpAuth.NewHandler(s.AuthService, s.UserService)
 	s.postsHandler = httpPosts.NewHandler(s.PostsService)
 	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService)
+	s.subscriptionsHandler = httpSubscriptions.New(s.SubscriptionService, s.UserService)
+	s.subscribersHandler = httpsubscribers.New(s.SubscribersService, s.UserService)
 }
 
 func (s *Server) makeLogger(l *io.PipeWriter) {
@@ -104,6 +132,20 @@ func (s *Server) makeRouter() {
 	post.GET("/users/:id", s.postsHandler.GetPosts)
 	post.POST("/users/:id", s.postsHandler.CreatePosts, s.authMiddleware.SameSession)
 	post.Use(s.authMiddleware.LoginRequired)
+
+	subscription := v1.Group("/subscriptions")
+	subscription.Use(s.authMiddleware.LoginRequired)
+	subscription.GET("/:id", s.subscriptionsHandler.GetSubscription)
+	subscription.GET("", s.subscriptionsHandler.GetSubscriptions)
+	subscription.POST("", s.subscriptionsHandler.CreateSubscription)
+	subscription.PUT("", s.subscriptionsHandler.UpdateSubscription)
+	subscription.DELETE("/:id", s.subscriptionsHandler.DeleteSubscription)
+
+	subscriber := v1.Group("/subscribers")
+	subscription.Use(s.authMiddleware.LoginRequired)
+	subscriber.GET("/:author_id", s.subscribersHandler.GetSubscribers)
+	subscriber.POST("", s.subscribersHandler.CreateSubscriber)
+	subscriber.DELETE("", s.subscribersHandler.DeleteSubscriber)
 }
 
 func (s *Server) makeCORS() {

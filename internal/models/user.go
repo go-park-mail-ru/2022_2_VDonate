@@ -13,6 +13,24 @@ type User struct {
 	About     string `json:"about,omitempty" db:"about"`
 }
 
+func (u User) GetID() uint64 {
+	return u.ID
+}
+
+type model interface {
+	*User | *Post
+	GetID() uint64
+}
+
+func Contains[M model](slice []M, ID uint64) bool {
+	for _, el := range slice {
+		if el.GetID() == ID {
+			return true
+		}
+	}
+	return false
+}
+
 type AuthUser struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

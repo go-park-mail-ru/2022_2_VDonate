@@ -35,7 +35,7 @@ func (h *Handler) CreatePosts(c echo.Context) error {
 	if err != nil {
 		return postsErrors.Wrap(c, postsErrors.ErrBadRequest, err)
 	}
-	var post *models.PostDB
+	var post *models.Post
 	if err := c.Bind(&post); err != nil {
 		return postsErrors.Wrap(c, postsErrors.ErrInternal, err)
 	}
