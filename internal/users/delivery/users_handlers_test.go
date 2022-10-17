@@ -178,7 +178,8 @@ func TestHandler_PutUser(t *testing.T) {
 			err := handler.PutUser(c)
 			require.NoError(t, err)
 
-			body, _ := ioutil.ReadAll(rec.Body)
+			body, err := ioutil.ReadAll(rec.Body)
+			require.NoError(t, err)
 
 			assert.Equal(t, test.expectedResponseBody, strings.Trim(string(body), "\n"))
 		})
