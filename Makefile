@@ -1,11 +1,11 @@
 PROJECT_PATH = ./cmd/api/main.go
 MOCKS_DESTINATION = internal/mocks
 INTERNAL_PATH = internal
-ACTIVE_PACKAGES = $(shell go list ./... | grep -v "/mocks/")
+ACTIVE_PACKAGES = $(shell go list ./... | grep -v "/mocks/" | tr '\n' ',')
 
 .PHONY: test
 test: ## Run all the tests
-	go test $(ACTIVE_PACKAGES) -coverprofile=c.out
+	go test -coverpkg=$(ACTIVE_PACKAGES) -coverprofile=c.out ./...
 
 .PHONY: cover
 cover: test ## Run all the tests and opens the coverage report
