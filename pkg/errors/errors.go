@@ -1,4 +1,4 @@
-package utils
+package errorHandling
 
 import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func WrapEchoError(errHTTP, errInternal error) error {
+func WrapEcho(errHTTP, errInternal error) error {
 	switch errHTTP {
 	case domain.ErrNoContent:
 		return echo.NewHTTPError(http.StatusNoContent, errHTTP.Error()).SetInternal(errInternal)
@@ -36,7 +36,7 @@ func WrapEchoError(errHTTP, errInternal error) error {
 	}
 }
 
-func CutCodeFromError(err error) string {
+func CutCode(err error) string {
 	if err == nil {
 		return ""
 	}

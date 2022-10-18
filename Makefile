@@ -23,7 +23,7 @@ local_build: ## Build locally
 	go build ${PROJECT_PATH}
 
 .PHONY: mocks
-mocks: internal/domain/auth.go internal/posts/usecase/posts_usecase.go internal/users/usecase/user_usecase.go ## Generate mocks
+mocks: ## Generate mocks
 	@echo "Generating mocks..."
 	@rm -rf $(MOCKS_DESTINATION)
 	@mockgen -source=internal/domain/auth.go -destination=$(MOCKS_DESTINATION)/domain/auth.go
