@@ -100,7 +100,7 @@ func (s *Server) makeUseCase(URL string) {
 func (s *Server) makeHandlers() {
 	s.authHandler = httpAuth.NewHandler(s.AuthService, s.UserService)
 	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService)
-	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService)
+	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService, s.SubscriptionService)
 	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionService, s.UserService)
 	s.subscribersHandler = httpsubscribers.NewHandler(s.SubscribersService, s.UserService)
 }

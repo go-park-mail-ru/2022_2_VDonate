@@ -9,16 +9,20 @@ import (
 )
 
 type Handler struct {
-	sessionUseCase domain.AuthUseCase
-	subscriptions  domain.SubscriptionsUseCase
-	subscribers    domain.SubscribersUseCase
-	userUseCase    domain.UsersUseCase
+	sessionUseCase       domain.AuthUseCase
+	subscriptionsUseCase domain.SubscriptionsUseCase
+	userUseCase          domain.UsersUseCase
 }
 
-func NewHandler(userUseCase domain.UsersUseCase, sessionUseCase domain.AuthUseCase) *Handler {
+func NewHandler(
+	userUseCase domain.UsersUseCase,
+	sessionUseCase domain.AuthUseCase,
+	subscriptionsUseCase domain.SubscriptionsUseCase,
+) *Handler {
 	return &Handler{
-		userUseCase:    userUseCase,
-		sessionUseCase: sessionUseCase,
+		userUseCase:          userUseCase,
+		sessionUseCase:       sessionUseCase,
+		subscriptionsUseCase: subscriptionsUseCase,
 	}
 }
 
@@ -33,12 +37,15 @@ func (h *Handler) GetUser(c echo.Context) error {
 	}
 
 	if user.IsAuthor {
-		user.AuthorSubscriptions, err = h.subscriptions.GetAuthorSubscriptionsByAuthorID(user.ID)
+		user.AuthorSubscriptions, err = h.subscriptionsUseCase.GetAuthorSubscriptionsByAuthorID(user.ID)
 		if err != nil {
 			return errorHandling.WrapEcho(domain.ErrInternal, err)
 		}
 	}
-	user.UserSubscriptions, err = h.subscriptions.GetSubscriptionsByUserID(user.ID)
+	user.UserSubscriptions, err = h.subscriptionsUseCase.GetSubscriptionsByUserID(user.ID)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
+	}
 
 	return UserResponse(c, user)
 }
