@@ -12,3 +12,14 @@ func UserResponse(c echo.Context, u *model.User) error {
 	}
 	return c.JSON(http.StatusOK, model.ToNonAuthor(u))
 }
+
+func UsersResponse(c echo.Context, u []*model.User) error {
+	var result []interface{}
+	for _, user := range u {
+		if user.IsAuthor {
+			result = append(result, model.ToAuthor(user))
+		}
+		result = append(result, model.ToNonAuthor(user))
+	}
+	return c.JSON(http.StatusOK, result)
+}

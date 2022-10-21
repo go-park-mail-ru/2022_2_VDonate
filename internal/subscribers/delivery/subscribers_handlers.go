@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+	httpUsers "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	errors2 "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 	"github.com/labstack/echo/v4"
@@ -36,7 +37,7 @@ func (h Handler) GetSubscribers(c echo.Context) error {
 		return c.JSON(http.StatusOK, struct{}{})
 	}
 
-	return c.JSON(http.StatusOK, s)
+	return c.JSON(http.StatusOK, httpUsers.UsersResponse(c, s))
 }
 
 func (h Handler) CreateSubscriber(c echo.Context) error {

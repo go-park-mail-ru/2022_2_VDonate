@@ -12,8 +12,8 @@ type User struct {
 	IsAuthor  bool   `json:"is_author" db:"is_author"`
 	About     string `json:"about,omitempty" db:"about"`
 
-	UserSubscriptions   []*AuthorSubscription `json:"user_subscriptions,omitempty"`
-	AuthorSubscriptions []*AuthorSubscription `json:"author_subscriptions,omitempty"`
+	UserSubscriptions   []AuthorSubscription `json:"user_subscriptions,omitempty"`
+	AuthorSubscriptions []AuthorSubscription `json:"author_subscriptions,omitempty"`
 }
 
 func (u User) GetID() uint64 {
@@ -50,8 +50,8 @@ type Author struct {
 	IsAuthor  bool   `json:"is_author"`
 	About     string `json:"about,omitempty"`
 
-	UserSubscriptions   []*AuthorSubscription `json:"user_subscriptions,omitempty"`
-	AuthorSubscriptions []*AuthorSubscription `json:"author_subscriptions,omitempty"`
+	UserSubscriptions   []AuthorSubscription `json:"user_subscriptions,omitempty"`
+	AuthorSubscriptions []AuthorSubscription `json:"author_subscriptions,omitempty"`
 }
 
 type NotAuthor struct {
@@ -64,7 +64,7 @@ type NotAuthor struct {
 	Phone     string `json:"phone,omitempty"`
 	IsAuthor  bool   `json:"is_author"`
 
-	UserSubscriptions []*AuthorSubscription `json:"user_subscriptions,omitempty"`
+	UserSubscriptions []AuthorSubscription `json:"user_subscriptions,omitempty"`
 }
 
 func ToAuthor(u *User) *Author {

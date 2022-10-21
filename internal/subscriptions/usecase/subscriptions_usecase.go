@@ -16,7 +16,7 @@ func New(s domain.SubscriptionsRepository) domain.SubscriptionsUseCase {
 	}
 }
 
-func (u *usecase) GetSubscriptionsByUserID(userID uint64) ([]*models.AuthorSubscription, error) {
+func (u *usecase) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscription, error) {
 	s, err := u.subscriptionsRepo.GetSubscriptionsByUserID(userID)
 	if err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func (u *usecase) GetSubscriptionsByUserID(userID uint64) ([]*models.AuthorSubsc
 	return s, nil
 }
 
-func (u *usecase) GetAuthorSubscriptionsByAuthorID(authorID uint64) ([]*models.AuthorSubscription, error) {
+func (u *usecase) GetAuthorSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error) {
 	s, err := u.subscriptionsRepo.GetSubscriptionsByAuthorID(authorID)
 	if err != nil {
 		return nil, err
@@ -32,26 +32,26 @@ func (u *usecase) GetAuthorSubscriptionsByAuthorID(authorID uint64) ([]*models.A
 	return s, nil
 }
 
-func (u *usecase) GetAuthorSubscriptionByID(ID uint64) (*models.AuthorSubscription, error) {
+func (u *usecase) GetAuthorSubscriptionByID(ID uint64) (models.AuthorSubscription, error) {
 	s, err := u.subscriptionsRepo.GetSubscriptionsByID(ID)
 	if err != nil {
-		return nil, err
+		return models.AuthorSubscription{}, err
 	}
 	return s, nil
 }
 
-func (u *usecase) AddAuthorSubscription(sub models.AuthorSubscription) (*models.AuthorSubscription, error) {
+func (u *usecase) AddAuthorSubscription(sub models.AuthorSubscription) (models.AuthorSubscription, error) {
 	return u.subscriptionsRepo.AddSubscription(sub)
 }
 
-func (u *usecase) UpdateAuthorSubscription(sub models.AuthorSubscription) (*models.AuthorSubscription, error) {
+func (u *usecase) UpdateAuthorSubscription(sub models.AuthorSubscription) (models.AuthorSubscription, error) {
 	updateSub, err := u.GetAuthorSubscriptionByID(sub.ID)
 	if err != nil {
-		return nil, err
+		return models.AuthorSubscription{}, err
 	}
 
-	if err = copier.CopyWithOption(updateSub, &sub, copier.Option{IgnoreEmpty: true}); err != nil {
-		return nil, err
+	if err = copier.CopyWithOption(&updateSub, &sub, copier.Option{IgnoreEmpty: true}); err != nil {
+		return models.AuthorSubscription{}, err
 	}
 
 	return u.subscriptionsRepo.UpdateSubscription(updateSub)
