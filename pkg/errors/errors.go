@@ -8,10 +8,13 @@ import (
 )
 
 func WrapEcho(errHTTP, errInternal error) error {
-	switch errInternal.Error() {
-	case domain.ErrUsernameExist, domain.ErrEmailExist, domain.ErrPasswordsNotSame:
+	switch errInternal {
+	case domain.ErrUsernameExist, domain.ErrEmailExist:
 		return echo.NewHTTPError(http.StatusConflict, errInternal.Error()).SetInternal(errInternal)
+	case domain.ErrUserNotFound, domain.ErrPasswordsNotSame:
+		return echo.NewHTTPError(http.StatusBadRequest, errInternal.Error()).SetInternal(errInternal)
 	}
+
 	switch errHTTP {
 	case domain.ErrNoContent:
 		return echo.NewHTTPError(http.StatusNoContent, errHTTP.Error()).SetInternal(errInternal)
@@ -24,8 +27,6 @@ func WrapEcho(errHTTP, errInternal error) error {
 	case domain.ErrInvalidLoginOrPassword,
 		domain.ErrBadRequest:
 		return echo.NewHTTPError(http.StatusBadRequest, errHTTP.Error()).SetInternal(errInternal)
-	case domain.ErrUserOrEmailAlreadyExist:
-		return echo.NewHTTPError(http.StatusConflict, errHTTP.Error()).SetInternal(errInternal)
 	case domain.ErrJSONMarshal,
 		domain.ErrResponse,
 		domain.ErrJSONUnmarshal,

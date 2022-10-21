@@ -38,12 +38,12 @@ func (u *usecase) Login(login, password string) (string, error) {
 	if err != nil {
 		user, err = u.usersRepo.GetByEmail(login)
 		if err != nil {
-			return "", err
+			return "", domain.ErrUserNotFound
 		}
 	}
 	matchPassword := utils.CheckHashPassword(password, user.Password)
 	if !matchPassword {
-		return "", errors.New("passwords not the same")
+		return "", domain.ErrPasswordsNotSame
 	}
 	s, err := u.authRepo.CreateSession(u.cookieCreator(user.ID))
 	if err != nil {
@@ -64,10 +64,10 @@ func (u *usecase) Auth(sessionID string) (bool, error) {
 func (u *usecase) SignUp(user *models.User) (string, error) {
 	_, err := u.usersRepo.GetByUsername(user.Username)
 	if err == nil {
-		return "", errors.New("username already exist")
+		return "", domain.ErrUsernameExist
 	}
 	if _, err = u.usersRepo.GetByEmail(user.Email); err == nil {
-		return "", errors.New("email already exist")
+		return "", domain.ErrEmailExist
 	}
 	user.Password, err = utils.HashPassword(user.Password)
 	if err != nil {

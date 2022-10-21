@@ -3,10 +3,9 @@ package domain
 import "errors"
 
 var (
-	ErrBadRequest              = errors.New("bad request")
-	ErrUserOrEmailAlreadyExist = errors.New("username of email is already exist")
-	ErrInvalidLoginOrPassword  = errors.New("invalid login or password")
-	ErrForbidden               = errors.New("you are not supposed to be here")
+	ErrBadRequest             = errors.New("bad request")
+	ErrInvalidLoginOrPassword = errors.New("invalid login or password")
+	ErrForbidden              = errors.New("you are not supposed to be here")
 
 	ErrCreate = errors.New("failed to create item")
 	ErrUpdate = errors.New("failed to update item")
@@ -26,8 +25,9 @@ var (
 	ErrCopy          = errors.New("failed to copy item")
 )
 
-const (
-	ErrUsernameExist    = "username already exist"
-	ErrEmailExist       = "email already exist"
-	ErrPasswordsNotSame = "password is wrong"
+var (
+	ErrUsernameExist    = errors.New("username already exist")
+	ErrEmailExist       = errors.New("email already exist")
+	ErrPasswordsNotSame = errors.New("password is wrong")
+	ErrUserNotFound     = errors.New("user with such email or username not exist")
 )
