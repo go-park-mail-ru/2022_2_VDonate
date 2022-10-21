@@ -25,3 +25,9 @@ var (
 	ErrJSONUnmarshal = errors.New("failed to unmarshal json")
 	ErrCopy          = errors.New("failed to copy item")
 )
+
+const (
+	ErrUsernameExist    = "username already exist"
+	ErrEmailExist       = "email already exist"
+	ErrPasswordsNotSame = "password is wrong"
+)

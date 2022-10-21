@@ -36,14 +36,16 @@ func createCookie(id uint64) models.Cookie {
 func (u *usecase) Login(login, password string) (string, error) {
 	user, err := u.usersRepo.GetByUsername(login)
 	if err != nil {
-		user, err = u.usersRepo.GetByEmail(login)
-		if err != nil {
-			return "", err
-		}
+		return "", errors.New("username already exist")
+	}
+
+	user, err = u.usersRepo.GetByEmail(login)
+	if err != nil {
+		return "", errors.New("email already exist")
 	}
 	matchPassword := utils.CheckHashPassword(password, user.Password)
 	if !matchPassword {
-		return "", errors.New("passwords not the same")
+		return "", errors.New("password is wrong")
 	}
 	s, err := u.authRepo.CreateSession(u.cookieCreator(user.ID))
 	if err != nil {
