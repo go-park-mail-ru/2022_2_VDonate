@@ -23,16 +23,12 @@ func NewHandler(p domain.PostsUseCase, u domain.UsersUseCase) *Handler {
 }
 
 func (h *Handler) GetPosts(c echo.Context) error {
-	cookie, err := httpAuth.GetCookie(c)
+	userID, err := strconv.ParseUint(c.QueryParam("user_id"), 10, 64)
 	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrNoSession, err)
-	}
-	user, err := h.usersUseCase.GetBySessionID(cookie.Value)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrBadSession, err)
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	allPosts, err := h.postsUseCase.GetPostsByUserID(user.ID)
+	allPosts, err := h.postsUseCase.GetPostsByUserID(userID)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
