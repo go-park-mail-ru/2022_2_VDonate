@@ -8,6 +8,13 @@ import (
 )
 
 func WrapEcho(errHTTP, errInternal error) error {
+	switch errInternal {
+	case domain.ErrNoLikes:
+		return echo.NewHTTPError(http.StatusNoContent, errInternal.Error()).SetInternal(errInternal)
+	case domain.ErrUserLiked:
+		return echo.NewHTTPError(http.StatusFound, errInternal.Error()).SetInternal(errInternal)
+	}
+
 	switch errHTTP {
 	case domain.ErrNoContent:
 		return echo.NewHTTPError(http.StatusNoContent, errHTTP.Error()).SetInternal(errInternal)

@@ -19,6 +19,10 @@ type PostsRepository interface {
 	Update(post models.Post) (*models.Post, error)
 	DeleteByID(postID uint64) error
 	Close() error
+	GetLikeByUserAndPostID(userID, postID uint64) (*models.Like, error)
+	GetAllLikesByPostID(postID uint64) ([] *models.Like, error)
+	CreateLike(like models.Like) error
+	DeleteLikeByID(userID, postID uint64) error
 }
 
 type SubscribersRepository interface {

@@ -36,7 +36,7 @@ func (h *Handler) GetPosts(c echo.Context) error {
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
-	if len(allPosts) == 0 {
+	if len(allPosts) == 0 { 
 		return c.JSON(http.StatusOK, struct{}{})
 	}
 
@@ -99,4 +99,62 @@ func (h *Handler) CreatePosts(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 	return c.JSON(http.StatusOK, newPost)
+}
+
+func (h *Handler) GetLikes(c echo.Context) error {
+	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return err
+	}
+
+	allLikes, err := h.postsUseCase.GetLikesByPostID(postID)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNotFound, err)
+	}
+	if len(allLikes) == 0 {
+		return c.JSON(http.StatusOK, struct{}{})
+	}
+	return c.JSON(http.StatusOK, allLikes)
+}
+
+func (h *Handler) CreateLike(c echo.Context) error {
+	postID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	cookie, err := httpAuth.GetCookie(c)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+	}
+
+	user, err := h.usersUseCase.GetBySessionID(cookie.Value)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+	}
+
+	var like models.Like
+	like.UserID = user.ID
+	like.PostID = postID
+	
+	err = h.postsUseCase.LikePost(like)
+	if err != nil {
+		return errorHandling.WrapEcho(err, err)
+	}
+	return c.JSON(http.StatusOK, struct{}{})
+}
+
+func (h *Handler) DeleteLike(c echo.Context) error {
+	postID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	cookie, err := httpAuth.GetCookie(c)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+	}
+
+	user, err := h.usersUseCase.GetBySessionID(cookie.Value)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+	}
+
+	if err = h.postsUseCase.UnlikePost(user.ID, postID); err != nil {
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
+	}
+
+	return c.JSON(http.StatusOK, struct{}{})
 }

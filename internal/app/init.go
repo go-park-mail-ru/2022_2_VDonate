@@ -132,6 +132,10 @@ func (s *Server) makeRouter() {
 	post := v1.Group("/posts")
 	post.Use(s.authMiddleware.LoginRequired)
 
+	post.GET("/:id/likes", s.postsHandler.GetLikes)
+	post.POST("/:id/likes", s.postsHandler.CreateLike)
+	post.DELETE("/:id/likes", s.postsHandler.DeleteLike)
+
 	post.GET("", s.postsHandler.GetPosts)
 	post.POST("", s.postsHandler.CreatePosts)
 	post.GET("/:id", s.postsHandler.GetPost)

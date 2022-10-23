@@ -38,3 +38,8 @@ CREATE TABLE IF NOT EXISTS subscriptions (
                                              subscriber_id bigserial not null references users(id),
                                              subscription_id bigserial not null references author_subscriptions(id)
 );
+
+CREATE TABLE IF NOT EXISTS likes (
+    user_id bigserial NOT NULL REFERENCES users(id),
+    post_id bigserial NOT NULL REFERENCES posts(post_id)
+);

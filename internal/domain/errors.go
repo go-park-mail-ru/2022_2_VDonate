@@ -25,3 +25,8 @@ var (
 	ErrJSONUnmarshal = errors.New("failed to unmarshal json")
 	ErrCopy          = errors.New("failed to copy item")
 )
+
+var (
+	ErrNoLikes = errors.New("no likes were found")
+	ErrUserLiked = errors.New("user already had like on this post")
+)
