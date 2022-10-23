@@ -135,7 +135,7 @@ func (h *Handler) CreateLike(c echo.Context) error {
 	
 	err = h.postsUseCase.LikePost(like)
 	if err != nil {
-		return errorHandling.WrapEcho(err, err)
+		return errorHandling.WrapEcho(domain.ErrConflict, err)
 	}
 	return c.JSON(http.StatusOK, struct{}{})
 }

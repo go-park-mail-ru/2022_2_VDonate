@@ -11,8 +11,6 @@ func WrapEcho(errHTTP, errInternal error) error {
 	switch errInternal {
 	case domain.ErrNoLikes:
 		return echo.NewHTTPError(http.StatusNoContent, errInternal.Error()).SetInternal(errInternal)
-	case domain.ErrUserLiked:
-		return echo.NewHTTPError(http.StatusFound, errInternal.Error()).SetInternal(errInternal)
 	}
 
 	switch errHTTP {
@@ -27,7 +25,7 @@ func WrapEcho(errHTTP, errInternal error) error {
 	case domain.ErrInvalidLoginOrPassword,
 		domain.ErrBadRequest:
 		return echo.NewHTTPError(http.StatusBadRequest, errHTTP.Error()).SetInternal(errInternal)
-	case domain.ErrUserOrEmailAlreadyExist:
+	case domain.ErrUserOrEmailAlreadyExist, domain.ErrConflict:
 		return echo.NewHTTPError(http.StatusConflict, errHTTP.Error()).SetInternal(errInternal)
 	case domain.ErrJSONMarshal,
 		domain.ErrResponse,

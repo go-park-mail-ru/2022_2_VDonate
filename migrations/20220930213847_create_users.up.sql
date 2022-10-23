@@ -41,5 +41,6 @@ CREATE TABLE IF NOT EXISTS subscriptions (
 
 CREATE TABLE IF NOT EXISTS likes (
     user_id bigserial NOT NULL REFERENCES users(id),
-    post_id bigserial NOT NULL REFERENCES posts(post_id)
+    post_id bigserial NOT NULL REFERENCES posts(post_id),
+    primary key (user_id, post_id)
 );

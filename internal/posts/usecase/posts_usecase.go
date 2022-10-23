@@ -68,10 +68,6 @@ func (u *usecase) GetLikeByUserAndPostID(userID, postID uint64) (*models.Like, e
 }
 
 func (u *usecase) LikePost(like models.Like) error {
-	recievedLike, _ := u.postsRepo.GetLikeByUserAndPostID(like.UserID, like.PostID)
-	if recievedLike != nil {
-		return domain.ErrUserLiked
-	}
 	return u.postsRepo.CreateLike(like)
 }
 
