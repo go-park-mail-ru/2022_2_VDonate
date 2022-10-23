@@ -22,8 +22,6 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: 1.19
-      - name: Setup the environment
-        run: go mod download && go mod tidy
       - uses: actions/checkout@v3
       - name: Build the project
         run: make local_build
@@ -33,8 +31,6 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: 1.19
-      - name: Setup the environment
-        run: go mod download && go mod tidy
       - uses: actions/checkout@v3
       - name: Setup mocks
         run: make mocks
