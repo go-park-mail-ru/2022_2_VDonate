@@ -16,7 +16,6 @@ func TestPostPostgres_Create(t *testing.T) {
 
 	r := &Postgres{DB: db}
 	require.NoError(t, err)
-	db = r.DB
 
 	type MockBehaviour func(user models.User, id uint64)
 
@@ -30,10 +29,10 @@ func TestPostPostgres_Create(t *testing.T) {
 		{
 			name: "Ok",
 			user: models.User{
-				Username:  "user",
-				Email:     "user@ex.com",
-				Password:  "Qwerty",
-				IsAuthor:  false,
+				Username: "user",
+				Email:    "user@ex.com",
+				Password: "Qwerty",
+				IsAuthor: false,
 			},
 			id: 2,
 			mockBehaviour: func(user models.User, id uint64) {

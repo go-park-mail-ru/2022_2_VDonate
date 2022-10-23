@@ -63,6 +63,9 @@ func (h *Handler) DeletePost(c echo.Context) error {
 
 func (h *Handler) PutPost(c echo.Context) error {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return utils.WrapEchoError(domain.ErrBadRequest, err)
+	}
 	var prevPost models.Post
 	if err := c.Bind(&prevPost); err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)

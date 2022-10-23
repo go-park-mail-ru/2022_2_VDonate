@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -283,7 +283,7 @@ func TestHandler_Auth(t *testing.T) {
 				assert.Equal(t, test.expectedErrorMessage, err.Error())
 			}
 
-			body, err := ioutil.ReadAll(rec.Body)
+			body, err := io.ReadAll(rec.Body)
 			require.NoError(t, err)
 
 			assert.Equal(t, test.expectedResponseBody, strings.Trim(string(body), "\n"))
@@ -357,7 +357,7 @@ func TestHandler_Logout(t *testing.T) {
 				assert.Equal(t, test.expectedErrorMessage, err.Error())
 			}
 
-			body, err := ioutil.ReadAll(rec.Body)
+			body, err := io.ReadAll(rec.Body)
 			require.NoError(t, err)
 
 			assert.Equal(t, test.expectedResponseBody, strings.Trim(string(body), "\n"))

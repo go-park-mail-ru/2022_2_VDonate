@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	mock_domain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -103,7 +103,7 @@ func TestHangler_GetPosts(t *testing.T) {
 				assert.Equal(t, test.expectedErrorMessage, err.Error())
 			}
 
-			body, err := ioutil.ReadAll(rec.Body)
+			body, err := io.ReadAll(rec.Body)
 			require.NoError(t, err)
 
 			assert.Equal(t, test.expectedRequestBody, strings.Trim(string(body), "\n"))
@@ -170,7 +170,7 @@ func TestHangler_GetPost(t *testing.T) {
 				assert.Equal(t, test.expectedErrorMessage, err.Error())
 			}
 
-			body, err := ioutil.ReadAll(rec.Body)
+			body, err := io.ReadAll(rec.Body)
 			require.NoError(t, err)
 
 			assert.Equal(t, test.expectedRequestBody, strings.Trim(string(body), "\n"))
@@ -313,7 +313,7 @@ func TestHandler_CreatePosts(t *testing.T) {
 				assert.Equal(t, test.expectedErrorMessage, err.Error())
 			}
 
-			body, err := ioutil.ReadAll(rec.Body)
+			body, err := io.ReadAll(rec.Body)
 			require.NoError(t, err)
 
 			assert.Equal(t, test.expectedResponseBody, strings.Trim(string(body), "\n"))

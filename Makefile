@@ -1,11 +1,11 @@
-PROJECT_PATH = ./cmd/api/main.go
+MAIN_PATH = ./cmd/api/main.go
 MOCKS_DESTINATION = internal/mocks
 INTERNAL_PATH = internal
-ACTIVE_PACKAGES = $(shell go list ./... | grep -v "/mocks/")
+ACTIVE_PACKAGES = $(shell go list ./... | grep -v "/mocks/" | tr '\n' ',')
 
 .PHONY: test
 test: ## Run all the tests
-	go test $(ACTIVE_PACKAGES) -coverprofile=c.out
+	go test -coverpkg=$(ACTIVE_PACKAGES) -coverprofile=c.out ./...
 
 .PHONY: cover_out
 cover_out: test ## Run all the tests and opens the coverage report
@@ -20,10 +20,10 @@ ci: lint test ## Run all the tests and code checks
 
 .PHONY: local_build
 local_build: ## Build locally
-	go build ${PROJECT_PATH}
+	go build -o bin/ ${MAIN_PATH}
 
 .PHONY: mocks
-mocks: internal/domain/auth.go internal/posts/usecase/posts_usecase.go internal/users/usecase/user_usecase.go ## Generate mocks
+mocks: ## Generate mocks
 	@echo "Generating mocks..."
 	@rm -rf $(MOCKS_DESTINATION)
 	@mockgen -source=internal/domain/auth.go -destination=$(MOCKS_DESTINATION)/domain/auth.go

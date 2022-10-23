@@ -21,8 +21,16 @@ func main() {
 	}
 
 	/*----------------------------server--------------------------*/
-	s := app.New(echo.New(), cfg)
-	if err := s.Start(); err != nil {
-		s.Echo.Logger.Error("server errors: %s", err)
+	a := app.New(echo.New(), cfg)
+	switch cfg.Deploy.Mode {
+	case true:
+		if err := a.StartTLS(); err != nil {
+			a.Echo.Logger.Error(err)
+		}
+	default:
+		if err := a.Start(); err != nil {
+			a.Echo.Logger.Error(err)
+		}
 	}
+
 }

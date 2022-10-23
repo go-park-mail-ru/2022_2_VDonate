@@ -58,6 +58,15 @@ func (s *Server) Start() error {
 	return s.Echo.Start(s.Config.Server.Host + ":" + s.Config.Server.Port)
 }
 
+func (s *Server) StartTLS() error {
+	s.init()
+	return s.Echo.StartTLS(
+		s.Config.Server.Host+":"+s.Config.Server.Port,
+		s.Config.Server.CertPath,
+		s.Config.Server.KeyPath,
+	)
+}
+
 func (s *Server) makeUseCase(URL string) {
 	//-------------------------repo-------------------------//
 	sessionRepo, err := sessionsRepository.NewPostgres(URL)
@@ -107,15 +116,14 @@ func (s *Server) makeHandlers() {
 
 func (s *Server) makeEchoLogger() {
 	s.Echo.Logger = logger.GetInstance()
+	s.Echo.Logger.SetLevel(logger.ToLevel(s.Config.Logger.Level))
 	s.Echo.Logger.Info("server started")
 }
 
 func (s *Server) makeRouter() {
 	s.Echo.Pre(middleware.RemoveTrailingSlash())
 	v1 := s.Echo.Group("/api/v1")
-	if s.Config.Debug.Request {
-		v1.Use(logger.Middleware())
-	}
+	v1.Use(logger.Middleware())
 	v1.Use(middleware.Secure())
 
 	v1.POST("/login", s.authHandler.Login)

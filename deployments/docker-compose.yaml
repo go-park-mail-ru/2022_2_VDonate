@@ -1,0 +1,54 @@
+version: "3.8"
+services:
+  app:
+    hostname: api
+    container_name: vdonate-api
+    image: zeronethunter/vdonate-api:1.0.0
+    ports:
+      - "8080:8080"
+    env_file:
+      - ../.env
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - vdonate-network-api
+  db:
+    hostname: postgresql
+    container_name: vdonate-db
+    image: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ubuntu -d dev" ]
+      interval: 2s
+      timeout: 1s
+      retries: 5
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - ../.env
+    volumes:
+      - ../migrations/full_up.sql:/docker-entrypoint-initdb.d/init.sql
+      - /var/lib/postgresql/data:/var/lib/postgresql/data
+    networks:
+      - vdonate-network-api
+  pgadmin:
+    hostname: postgres
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+      - PGADMIN_LISTEN_PORT=5433
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5433:5433"
+    networks:
+      - vdonate-network-api
+networks:
+  vdonate-network-api:
+    name: "vdonate-network-api"
+    driver: bridge
+    external: false

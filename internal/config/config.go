@@ -7,17 +7,21 @@ import (
 )
 
 const (
-	host         = "127.0.0.1"
-	port         = "8080"
-	dbURL        = "host=localhost dbname=dev sslmode=disabled"
-	dbDriver     = "postgres"
-	requestDebug = true
+	host        = "127.0.0.1"
+	port        = "8080"
+	dbURL       = "host=localhost dbname=dev sslmode=disabled"
+	dbDriver    = "postgres"
+	loggerLevel = "debug"
+	certPath    = ""
+	keyPath     = ""
 )
 
 type Config struct {
 	Server struct {
-		Host string `yaml:"host"`
-		Port string `yaml:"port"`
+		Host     string `yaml:"host"`
+		Port     string `yaml:"port"`
+		CertPath string `yaml:"cert_path"`
+		KeyPath  string `yaml:"key_path"`
 	} `yaml:"server"`
 
 	DB struct {
@@ -25,20 +29,28 @@ type Config struct {
 		URL    string `yaml:"url"`
 	} `yaml:"db"`
 
-	Debug struct {
-		Request bool `yaml:"request"`
+	Logger struct {
+		Level string `yaml:"level"`
 	} `yaml:"debug"`
+
+	Deploy struct {
+		Mode bool `yaml:"mode"`
+	} `yaml:"deploy"`
 }
 
 func New() *Config {
 	return &Config{
 		Server: struct {
-			Host string `yaml:"host"`
-			Port string `yaml:"port"`
+			Host     string `yaml:"host"`
+			Port     string `yaml:"port"`
+			CertPath string `yaml:"cert_path"`
+			KeyPath  string `yaml:"key_path"`
 		}(struct {
-			Host string
-			Port string
-		}{Host: host, Port: port}),
+			Host     string
+			Port     string
+			CertPath string
+			KeyPath  string
+		}{Host: host, Port: port, CertPath: certPath, KeyPath: keyPath}),
 
 		DB: struct {
 			Driver string `yaml:"driver"`
@@ -48,9 +60,13 @@ func New() *Config {
 			URL    string
 		}{Driver: dbDriver, URL: dbURL}),
 
-		Debug: struct {
-			Request bool `yaml:"request"`
-		}{Request: requestDebug},
+		Logger: struct {
+			Level string `yaml:"level"`
+		}{Level: loggerLevel},
+
+		Deploy: struct {
+			Mode bool `yaml:"mode"`
+		}{Mode: false},
 	}
 }
 

@@ -1,0 +1,60 @@
+# These owners will be the default owners for everything in the repo.
+*       @zeronethunter @themilchenko
+
+name: actions
+on: [ push ]
+
+jobs:
+  golangci-lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - uses: actions/checkout@v3
+      - name: Setup the environment
+        run: go mod download && go mod tidy
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Setup the environment
+        run: go mod download && go mod tidy
+      - uses: actions/checkout@v3
+      - name: Build the project
+        run: make local_build
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Setup the environment
+        run: go mod download && go mod tidy
+      - uses: actions/checkout@v3
+      - name: Setup mocks
+        run: make mocks
+      - name: Testing
+        run: make cover_out
+      - name: Coverage check
+        env:
+          TESTCOVERAGE_THRESHOLD: 10
+        run: |
+          echo "Checking test coverage is above threshold..."
+          echo "Threshold             : $TESTCOVERAGE_THRESHOLD %"
+          totalCoverage=`make cover_out | grep total | grep -Eo '[0-9]+\.[0-9]+'`
+          echo "Current test coverage : $totalCoverage %"
+          if (( $(echo "$totalCoverage $TESTCOVERAGE_THRESHOLD" | awk '{print ($1 > $2)}') )); then
+              echo "OK"
+          else
+              echo "Current test coverage is below threshold. Please add more tests or adjust threshold to a lower value."
+              echo "Failed"
+              exit 1
+          fi

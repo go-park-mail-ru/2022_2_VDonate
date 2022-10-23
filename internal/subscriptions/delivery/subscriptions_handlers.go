@@ -58,6 +58,9 @@ func (h Handler) CreateSubscription(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrNoSession, err)
 	}
 	author, err := h.userUsecase.GetBySessionID(cookie.Value)
+	if err != nil {
+		return utils.WrapEchoError(domain.ErrNoSession, err)
+	}
 	var s models.AuthorSubscription
 	if err := c.Bind(&s); err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)

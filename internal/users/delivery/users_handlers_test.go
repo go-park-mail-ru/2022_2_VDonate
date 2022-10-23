@@ -3,7 +3,7 @@ package httpUsers
 import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	mock_domain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -81,7 +81,7 @@ func TestHadler_GetUser(t *testing.T) {
 				assert.Equal(t, test.expectedErrorMessage, err.Error())
 			}
 
-			body, _ := ioutil.ReadAll(rec.Body)
+			body, _ := io.ReadAll(rec.Body)
 
 			assert.Equal(t, test.expectedResponseBody, strings.Trim(string(body), "\n"))
 		})
@@ -194,7 +194,7 @@ func TestHandler_PutUser(t *testing.T) {
 				assert.Equal(t, test.expectedErrorMessage, err.Error())
 			}
 
-			body, err := ioutil.ReadAll(rec.Body)
+			body, err := io.ReadAll(rec.Body)
 			require.NoError(t, err)
 
 			assert.Equal(t, test.expectedResponseBody, strings.Trim(string(body), "\n"))

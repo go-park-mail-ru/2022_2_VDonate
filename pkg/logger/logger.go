@@ -24,7 +24,6 @@ func New() *Logger {
 		DisableHTMLEscape: true,
 		PrettyPrint:       true,
 	})
-	newLogger.SetLevel(log.DEBUG)
 	return &newLogger
 }
 
@@ -39,6 +38,21 @@ func GetInstance() *Logger {
 		SingleLogger = New()
 	}
 	return SingleLogger
+}
+
+func ToLevel(level string) log.Lvl {
+	switch level {
+	case "debug":
+		return log.DEBUG
+	case "info":
+		return log.INFO
+	case "warn":
+		return log.WARN
+	case "error":
+		return log.ERROR
+	default:
+		return log.INFO
+	}
 }
 
 func toLogrusLevel(level log.Lvl) logrus.Level {
