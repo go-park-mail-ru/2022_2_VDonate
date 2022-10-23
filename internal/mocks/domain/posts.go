@@ -63,6 +63,36 @@ func (mr *MockPostsUseCaseMockRecorder) DeleteByID(postID interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockPostsUseCase)(nil).DeleteByID), postID)
 }
 
+// GetLikeByUserAndPostID mocks base method.
+func (m *MockPostsUseCase) GetLikeByUserAndPostID(userID, postID uint64) (*models.Like, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLikeByUserAndPostID", userID, postID)
+	ret0, _ := ret[0].(*models.Like)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLikeByUserAndPostID indicates an expected call of GetLikeByUserAndPostID.
+func (mr *MockPostsUseCaseMockRecorder) GetLikeByUserAndPostID(userID, postID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLikeByUserAndPostID", reflect.TypeOf((*MockPostsUseCase)(nil).GetLikeByUserAndPostID), userID, postID)
+}
+
+// GetLikesByPostID mocks base method.
+func (m *MockPostsUseCase) GetLikesByPostID(postID uint64) ([]*models.Like, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLikesByPostID", postID)
+	ret0, _ := ret[0].([]*models.Like)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLikesByPostID indicates an expected call of GetLikesByPostID.
+func (mr *MockPostsUseCaseMockRecorder) GetLikesByPostID(postID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLikesByPostID", reflect.TypeOf((*MockPostsUseCase)(nil).GetLikesByPostID), postID)
+}
+
 // GetPostByID mocks base method.
 func (m *MockPostsUseCase) GetPostByID(postID uint64) (*models.Post, error) {
 	m.ctrl.T.Helper()
@@ -91,6 +121,34 @@ func (m *MockPostsUseCase) GetPostsByUserID(id uint64) ([]*models.Post, error) {
 func (mr *MockPostsUseCaseMockRecorder) GetPostsByUserID(id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostsByUserID", reflect.TypeOf((*MockPostsUseCase)(nil).GetPostsByUserID), id)
+}
+
+// LikePost mocks base method.
+func (m *MockPostsUseCase) LikePost(like models.Like) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LikePost", like)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// LikePost indicates an expected call of LikePost.
+func (mr *MockPostsUseCaseMockRecorder) LikePost(like interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LikePost", reflect.TypeOf((*MockPostsUseCase)(nil).LikePost), like)
+}
+
+// UnlikePost mocks base method.
+func (m *MockPostsUseCase) UnlikePost(userID, postID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UnlikePost", userID, postID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UnlikePost indicates an expected call of UnlikePost.
+func (mr *MockPostsUseCaseMockRecorder) UnlikePost(userID, postID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnlikePost", reflect.TypeOf((*MockPostsUseCase)(nil).UnlikePost), userID, postID)
 }
 
 // Update mocks base method.
