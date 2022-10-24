@@ -91,6 +91,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           source: "deployments/docker-compose.yaml, migrations/full_up.sql, .env"
           target: "backend"
+          rm: true
       - name: executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@master
         with:
