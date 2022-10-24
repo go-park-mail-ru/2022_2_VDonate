@@ -100,4 +100,4 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             sudo docker rm $(sudo docker ps -a -q)
-            cd ~/backend/deployments && docker-compose up -d
+            cd ~/backend/deployments && sudo docker-compose up -d
