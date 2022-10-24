@@ -43,7 +43,7 @@ dev: ## Start containers
 	# Clearing all stopped containers
 	docker container prune -f
     # UP backend docker compose
-	docker-compose -f ../deployments/dev/docker-compose.yaml up -d
+	docker-compose -f deployments/docker-compose.yaml up -d
 
 .PHONY: help
 help:

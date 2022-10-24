@@ -73,6 +73,33 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./deployments/dev/api/Dockerfile
+          file: ./deployments/deploy/api/Dockerfile
           push: true
-          tags: zeronethunter/vdonate-app:latest
+          tags: zeronethunter/vdonate-api:latest
+
+  deploy:
+    name: pulling api
+    needs: build_push_api
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: copy file via ssh password
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "deployments/docker-compose.yaml, migrations/full_up.sql, .env"
+          target: "deploy"
+      - name: executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo docker rm $(sudo docker ps -a -q)
+            mkdir ~/migrations
+            mv ~/deploy/full_up.sql ~/migrations/full_up.sql
+            mv ~/deploy/.env ~/.env
+            cd ~/deploy && docker-compose up -d
