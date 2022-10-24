@@ -18,6 +18,7 @@ func NewCORS() echo.MiddlewareFunc {
 		AllowOrigins: []string{
 			"https://vdonate.ml",
 			"http://localhost:8080",
+			"http://localhost:4200",
 		},
 		AllowCredentials: true,
 		AllowHeaders: []string{
