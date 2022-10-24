@@ -17,12 +17,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
           go-version: 1.19
-      - uses: actions/checkout@v3
-      - name: Setup the environment
-        run: go mod download && go mod tidy
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
@@ -76,6 +74,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: deployments/dev/api/Dockerfile
+          file: ./deployments/dev/api/Dockerfile
           push: true
           tags: zeronethunter/vdonate-app
