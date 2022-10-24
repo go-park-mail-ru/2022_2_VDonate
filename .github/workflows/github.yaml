@@ -99,5 +99,5 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo docker rm -f $(sudo docker ps -a -q)
+            sudo docker pull zeronethunter/vdonate-api
             cd ~/backend/deployments && sudo docker-compose up -d

@@ -2,11 +2,11 @@ server:
   host: 0.0.0.0
   port: 8080
   cert_path: "/etc/letsencrypt/live/vdonate.ml/fullchain.pem"
-  ket_path: "/etc/letsencrypt/live/vdonate.ml/privkey.pem"
+  key_path: "/etc/letsencrypt/live/vdonate.ml/privkey.pem"
 
 db:
   driver: postgres
-  url: host=localhost port=5432 user=ubuntu password=secretkey dbname=dev sslmode=disable
+  url: host=postgresql port=5432 user=ubuntu password=secretkey dbname=dev sslmode=disable
 
 logger:
   level: info

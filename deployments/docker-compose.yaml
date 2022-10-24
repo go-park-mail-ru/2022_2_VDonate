@@ -8,10 +8,12 @@ services:
       - "8080:8080"
     env_file:
       - ../.env
-    restart: always
     depends_on:
       - db
       - s3storage
+    volumes:
+      - /etc/letsencrypt/live/vdonate.ml/fullchain.pem:/etc/letsencrypt/live/vdonate.ml/fullchain.pem
+      - /etc/letsencrypt/live/vdonate.ml/privkey.pem:/etc/letsencrypt/live/vdonate.ml/privkey.pem
     networks:
       - vdonate-network-api
   db:

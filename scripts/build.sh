@@ -3,4 +3,4 @@
 PREFIX=zeronethunter/vdonate
 
 # building Docker image
-docker build -f ../deployments/dev/api/Dockerfile ../ --tag ${PREFIX}-api
+docker build -f ../deployments/deploy/api/Dockerfile ../ --tag ${PREFIX}-api

@@ -4,6 +4,8 @@ FROM golang:latest
 
 RUN mkdir ../build
 
+RUN mkdir -p /etc/letsencrypt/live/vdonate.ml/
+
 WORKDIR ../build
 
 COPY / .
