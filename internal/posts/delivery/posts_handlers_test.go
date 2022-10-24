@@ -74,7 +74,7 @@ func TestHangler_GetPosts(t *testing.T) {
 				s.EXPECT().GetBySessionID(cookie).Return(nil, domain.ErrBadSession)
 			},
 			mockBehaviorGet:      func(s mockDomain.MockPostsUseCase, userID uint64) {},
-			expectedErrorMessage: "code=500, message=bad session",
+			expectedErrorMessage: "code=500, message=bad session, internal=bad session",
 		},
 	}
 
@@ -281,7 +281,7 @@ func TestHandler_CreatePosts(t *testing.T) {
 			mockBehaviorCreate: func(s *mockDomain.MockPostsUseCase, post models.Post) {
 				s.EXPECT().Create(post).Return(nil, domain.ErrCreate)
 			},
-			expectedErrorMessage: "code=500, message=failed to create item",
+			expectedErrorMessage: "code=500, message=failed to create item, internal=failed to create item",
 		},
 	}
 

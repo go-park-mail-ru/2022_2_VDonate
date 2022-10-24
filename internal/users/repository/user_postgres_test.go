@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	sqlmock "github.com/zhashkevych/go-sqlxmock"
@@ -13,10 +12,6 @@ import (
 func TestPostPostgres_Create(t *testing.T) {
 	db, mock, err := sqlmock.Newx()
 	assert.NoError(t, err)
-
-	defer func(db *sqlx.DB) {
-		assert.Nil(t, db.Close())
-	}(db)
 
 	r := &Postgres{DB: db}
 

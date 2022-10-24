@@ -164,7 +164,7 @@ func TestHandler_PutUser(t *testing.T) {
 			mockBehavior: func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {
 				r.EXPECT().Update(user).Return(nil, domain.ErrUpdate)
 			},
-			expectedErrorMessage: "code=500, message=failed to update item",
+			expectedErrorMessage: "code=500, message=failed to update item, internal=failed to update item",
 		},
 	}
 
