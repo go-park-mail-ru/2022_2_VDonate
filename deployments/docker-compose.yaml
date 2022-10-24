@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.7"
 services:
   app:
     hostname: api
@@ -10,10 +10,8 @@ services:
       - ../.env
     restart: always
     depends_on:
-      db:
-        condition: service_healthy
-      s3storage:
-        condition: service_healthy
+      - db
+      - s3storage
     networks:
       - vdonate-network-api
   db:
@@ -41,8 +39,7 @@ services:
     env_file:
       - ../.env
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     ports:
       - "5433:5433"
     networks:
