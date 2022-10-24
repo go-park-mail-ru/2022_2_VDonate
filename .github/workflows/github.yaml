@@ -18,6 +18,8 @@ jobs:
           version: latest
           args: -c configs/.golangci.yaml
   build:
+    name: build
+    needs: golangci-lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v3
@@ -27,6 +29,8 @@ jobs:
       - name: Build the project
         run: make local_build
   test:
+    name: test
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v3
