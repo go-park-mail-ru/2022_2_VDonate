@@ -2,10 +2,11 @@ package main
 
 import (
 	"flag"
+	"log"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/app"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
 	"github.com/labstack/echo/v4"
-	"log"
 )
 
 func main() {
@@ -32,5 +33,4 @@ func main() {
 			a.Echo.Logger.Error(err)
 		}
 	}
-
 }

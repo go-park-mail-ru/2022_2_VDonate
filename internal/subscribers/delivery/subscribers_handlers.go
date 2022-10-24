@@ -1,12 +1,13 @@
 package httpsubscribers
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"strconv"
 )
 
 type Handler struct {
@@ -26,6 +27,7 @@ func (h Handler) GetSubscribers(c echo.Context) error {
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
+
 	s, err := h.subscribersUsecase.GetSubscribers(id)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrNotFound, err)
@@ -53,6 +55,7 @@ func (h Handler) DeleteSubscriber(c echo.Context) error {
 	if err := c.Bind(&s); err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
+
 	err := h.subscribersUsecase.Unsubscribe(s.SubscriberID, s.AuthorID)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrDelete, err)

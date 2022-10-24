@@ -1,6 +1,12 @@
 package domain
 
-import "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+import (
+	"mime/multipart"
+	"net/url"
+	"time"
+
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+)
 
 type AuthRepository interface {
 	GetBySessionID(sessionID string) (*models.Cookie, error)
@@ -45,4 +51,9 @@ type UsersRepository interface {
 	Update(user *models.User) (*models.User, error)
 	DeleteByID(id uint64) error
 	Close() error
+}
+
+type ImagesRepository interface {
+	CreateImage(image *multipart.FileHeader, bucket string) error
+	GetImage(bucket string, filename string, expires time.Duration) (*url.URL, error)
 }

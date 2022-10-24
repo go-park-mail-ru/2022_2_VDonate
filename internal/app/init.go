@@ -1,15 +1,18 @@
 package app
 
 import (
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/middlewares"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
+	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
+	authMiddlewares "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/middlewares"
+	sessionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
+	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	httpImages "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/delivery"
+	imagesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/repository"
+	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	httpPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/usecase"
+	postsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
+	posts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/usecase"
 	httpsubscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/delivery"
 	subscribersRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/repository"
 	subscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/usecase"
@@ -17,8 +20,8 @@ import (
 	subscriptionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/repository"
 	subscriptions "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/usecase"
 	httpUsers "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/repository"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
+	userRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/repository"
+	users "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -34,12 +37,14 @@ type Server struct {
 	AuthService         domain.AuthUseCase
 	SubscriptionService domain.SubscriptionsUseCase
 	SubscribersService  domain.SubscribersUseCase
+	ImagesService       domain.ImageUseCase
 
 	authHandler          *httpAuth.Handler
 	userHandler          *httpUsers.Handler
 	postsHandler         *httpPosts.Handler
 	subscriptionsHandler *httpSubscriptions.Handler
 	subscribersHandler   *httpsubscribers.Handler
+	imagesHandler        *httpImages.Handler
 
 	authMiddleware *authMiddlewares.Middlewares
 }
@@ -55,6 +60,7 @@ func (s *Server) init() {
 
 func (s *Server) Start() error {
 	s.init()
+
 	return s.Echo.Start(s.Config.Server.Host + ":" + s.Config.Server.Port)
 }
 
@@ -67,25 +73,34 @@ func (s *Server) StartTLS() error {
 	)
 }
 
-func (s *Server) makeUseCase(URL string) {
+func (s *Server) makeUseCase(url string) {
 	//-------------------------repo-------------------------//
-	sessionRepo, err := sessionsRepository.NewPostgres(URL)
+	sessionRepo, err := sessionsRepository.NewPostgres(url)
 	if err != nil {
 		s.Echo.Logger.Error(err)
 	}
-	userRepo, err := userRepository.NewPostgres(URL)
+	userRepo, err := userRepository.NewPostgres(url)
 	if err != nil {
 		s.Echo.Logger.Error(err)
 	}
-	postsRepo, err := postsRepository.NewPostgres(URL)
+	postsRepo, err := postsRepository.NewPostgres(url)
 	if err != nil {
 		s.Echo.Logger.Error(err)
 	}
-	subscriptionsRepo, err := subscriptionsRepository.NewPostgres(URL)
+	subscriptionsRepo, err := subscriptionsRepository.NewPostgres(url)
 	if err != nil {
 		s.Echo.Logger.Error(err)
 	}
-	subscribersRepo, err := subscribersRepository.NewPostgres(URL)
+	subscribersRepo, err := subscribersRepository.NewPostgres(url)
+	if err != nil {
+		s.Echo.Logger.Error(err)
+	}
+	imagesRepo, err := imagesRepository.New(
+		s.Config.S3.Endpoint,
+		s.Config.S3.AccessKeyID,
+		s.Config.S3.SecretAccessKey,
+		s.Config.S3.UseSSL,
+	)
 	if err != nil {
 		s.Echo.Logger.Error(err)
 	}
@@ -104,6 +119,9 @@ func (s *Server) makeUseCase(URL string) {
 
 	//---------------------subscription---------------------//
 	s.SubscriptionService = subscriptions.New(subscriptionsRepo)
+
+	//------------------------images------------------------//
+	s.ImagesService = images.New(imagesRepo)
 }
 
 func (s *Server) makeHandlers() {
@@ -112,6 +130,7 @@ func (s *Server) makeHandlers() {
 	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService)
 	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionService, s.UserService)
 	s.subscribersHandler = httpsubscribers.NewHandler(s.SubscribersService, s.UserService)
+	s.imagesHandler = httpImages.NewHandler(s.ImagesService)
 }
 
 func (s *Server) makeEchoLogger() {
@@ -122,9 +141,9 @@ func (s *Server) makeEchoLogger() {
 
 func (s *Server) makeRouter() {
 	s.Echo.Pre(middleware.RemoveTrailingSlash())
+	s.Echo.Use(logger.Middleware())
+	s.Echo.Use(middleware.Secure())
 	v1 := s.Echo.Group("/api/v1")
-	v1.Use(logger.Middleware())
-	v1.Use(middleware.Secure())
 
 	v1.POST("/login", s.authHandler.Login)
 	v1.GET("/auth", s.authHandler.Auth)
@@ -161,6 +180,10 @@ func (s *Server) makeRouter() {
 	subscriber.GET("/:author_id", s.subscribersHandler.GetSubscribers)
 	subscriber.POST("", s.subscribersHandler.CreateSubscriber)
 	subscriber.DELETE("", s.subscribersHandler.DeleteSubscriber)
+
+	image := s.Echo.Group("/cloud/:bucket")
+	image.GET("/:filename", s.imagesHandler.GetImage)
+	image.POST("", s.imagesHandler.CreateImage)
 }
 
 func (s *Server) makeCORS() {

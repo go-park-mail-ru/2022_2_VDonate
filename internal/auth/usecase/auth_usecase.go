@@ -41,10 +41,13 @@ func (u *usecase) Login(login, password string) (string, error) {
 			return "", err
 		}
 	}
+
 	matchPassword := utils.CheckHashPassword(password, user.Password)
+
 	if !matchPassword {
 		return "", errors.New("passwords not the same")
 	}
+
 	s, err := u.authRepo.CreateSession(u.cookieCreator(user.ID))
 	if err != nil {
 		return "", err
@@ -58,6 +61,7 @@ func (u *usecase) Auth(sessionID string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	return true, nil
 }
 
@@ -66,20 +70,26 @@ func (u *usecase) SignUp(user *models.User) (string, error) {
 	if err == nil {
 		return "", errors.New("username is already exist")
 	}
+
 	if _, err = u.usersRepo.GetByEmail(user.Email); err == nil {
 		return "", errors.New("email is already exist")
 	}
+
 	user.Password, err = utils.HashPassword(user.Password)
+
 	if err != nil {
 		return "", errors.New("cannot hash password")
 	}
+
 	if user, err = u.usersRepo.Create(user); err != nil {
 		return "", err
 	}
+
 	s, err := u.authRepo.CreateSession(u.cookieCreator(user.ID))
 	if err != nil {
 		return "", err
 	}
+
 	return s.Value, nil
 }
 
@@ -87,6 +97,7 @@ func (u *usecase) Logout(sessionID string) (bool, error) {
 	if err := u.authRepo.DeleteBySessionID(sessionID); err != nil {
 		return false, err
 	}
+
 	return true, nil
 }
 
@@ -95,5 +106,6 @@ func (u *usecase) IsSameSession(sessionID string, userID uint64) bool {
 	if err != nil {
 		return false
 	}
+
 	return user.ID == userID
 }

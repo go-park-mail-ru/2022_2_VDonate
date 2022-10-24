@@ -6,15 +6,15 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/zhashkevych/go-sqlxmock"
+	sqlmock "github.com/zhashkevych/go-sqlxmock"
 )
 
 func TestPostPostgres_Create(t *testing.T) {
 	db, mock, err := sqlmock.Newx()
 	assert.NoError(t, err)
-	defer db.Close()
 
 	r := &Postgres{DB: db}
+
 	require.NoError(t, err)
 
 	type MockBehaviour func(user models.User, id uint64)

@@ -2,6 +2,7 @@ package subscribers
 
 import (
 	"errors"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 )
@@ -23,11 +24,12 @@ func (u *usecase) GetSubscribers(authorID uint64) ([]*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if len(s) == 0 {
 		return nil, errors.New("no subscribers")
 	}
 
-	var subs []*models.User
+	subs := make([]*models.User, 0)
 
 	for _, userID := range s {
 		// Notion: if there is an error while getting user, skip it

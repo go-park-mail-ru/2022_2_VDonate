@@ -1,13 +1,14 @@
 package httpSubscriptions
 
 import (
+	"net/http"
+	"strconv"
+
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"strconv"
 )
 
 type Handler struct {
@@ -27,10 +28,12 @@ func (h Handler) GetSubscriptions(c echo.Context) error {
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrNoSession, err)
 	}
+
 	author, err := h.userUsecase.GetBySessionID(cookie.Value)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrNotFound, err)
 	}
+
 	s, err := h.subscriptionsUsecase.GetSubscriptionsByAuthorID(author.ID)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrNotFound, err)
@@ -44,6 +47,7 @@ func (h Handler) GetSubscription(c echo.Context) error {
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
+
 	s, err := h.subscriptionsUsecase.GetSubscriptionsByID(subID)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrNotFound, err)
@@ -57,14 +61,18 @@ func (h Handler) CreateSubscription(c echo.Context) error {
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrNoSession, err)
 	}
+
 	author, err := h.userUsecase.GetBySessionID(cookie.Value)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrNoSession, err)
 	}
+
 	var s models.AuthorSubscription
-	if err := c.Bind(&s); err != nil {
+
+	if err = c.Bind(&s); err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
+
 	s.AuthorID = author.ID
 	newS, err := h.subscriptionsUsecase.AddSubscription(s)
 	if err != nil {
@@ -93,7 +101,8 @@ func (h Handler) DeleteSubscription(c echo.Context) error {
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
-	if err := h.subscriptionsUsecase.DeleteSubscription(id); err != nil {
+
+	if err = h.subscriptionsUsecase.DeleteSubscription(id); err != nil {
 		return utils.WrapEchoError(domain.ErrDelete, err)
 	}
 

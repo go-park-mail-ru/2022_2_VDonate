@@ -25,3 +25,8 @@ var (
 	ErrJSONUnmarshal = errors.New("failed to unmarshal json")
 	ErrCopy          = errors.New("failed to copy item")
 )
+
+var (
+	ErrBucketNotExists = errors.New("bucket doesn't exist")
+	ErrFileOpen        = errors.New("failed to open file")
+)

@@ -1,11 +1,12 @@
 package logger
 
 import (
-	"encoding/json"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	"github.com/sirupsen/logrus"
+
+	"encoding/json"
 	"io"
 	"strconv"
 	"sync"
@@ -16,7 +17,7 @@ type Logger struct {
 	Logrus *logrus.Logger
 }
 
-// New settings of logger
+// New settings of logger.
 func New() *Logger {
 	newLogger := Logger{Logrus: logrus.New()}
 	newLogger.SetFormatter(&logrus.JSONFormatter{
@@ -27,8 +28,10 @@ func New() *Logger {
 	return &newLogger
 }
 
-var lock sync.Mutex
-var SingleLogger *Logger
+var (
+	lock         sync.Mutex
+	SingleLogger *Logger
+)
 
 func GetInstance() *Logger {
 	lock.Lock()
@@ -244,7 +247,7 @@ func Middleware() echo.MiddlewareFunc {
 			if err != nil {
 				ctxLog.Error("ERROR REQUEST")
 
-				return nil
+				return err
 			}
 			ctxLog.Debug("REQUEST")
 

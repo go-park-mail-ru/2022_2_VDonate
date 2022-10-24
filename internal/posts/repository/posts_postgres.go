@@ -10,11 +10,12 @@ type Postgres struct {
 	DB *sqlx.DB
 }
 
-func NewPostgres(URL string) (*Postgres, error) {
-	db, err := sqlx.Open("postgres", URL)
+func NewPostgres(url string) (*Postgres, error) {
+	db, err := sqlx.Open("postgres", url)
 	if err != nil {
 		return nil, err
 	}
+
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
@@ -26,6 +27,7 @@ func (r *Postgres) Close() error {
 	if err := r.DB.Close(); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -43,6 +45,7 @@ func (r *Postgres) GetPostByID(postID uint64) (*models.Post, error) {
 	if err := r.DB.Get(&post, "SELECT * FROM posts WHERE post_id=$1;", postID); err != nil {
 		return nil, err
 	}
+
 	return &post, nil
 }
 
@@ -59,6 +62,7 @@ func (r *Postgres) Create(post models.Post) (*models.Post, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &post, nil
 }
 
@@ -74,13 +78,15 @@ func (r *Postgres) Update(post models.Post) (*models.Post, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &post, err
 }
 
 func (r *Postgres) DeleteByID(postID uint64) error {
-	_, err := r.DB.Query("DELETE FROM posts WHERE post_id=$1;", postID)
+	_, err := r.DB.Exec("DELETE FROM posts WHERE post_id=$1;", postID)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }

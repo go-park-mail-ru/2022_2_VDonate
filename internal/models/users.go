@@ -22,12 +22,13 @@ type model interface {
 	GetID() uint64
 }
 
-func Contains[M model](slice []M, ID uint64) bool {
+func Contains[M model](slice []M, id uint64) bool {
 	for _, el := range slice {
-		if el.GetID() == ID {
+		if el.GetID() == id {
 			return true
 		}
 	}
+
 	return false
 }
 

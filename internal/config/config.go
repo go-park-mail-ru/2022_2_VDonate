@@ -2,18 +2,27 @@ package config
 
 import (
 	"flag"
-	"gopkg.in/yaml.v3"
 	"os"
+
+	"gopkg.in/yaml.v3"
 )
 
 const (
-	host        = "127.0.0.1"
-	port        = "8080"
-	dbURL       = "host=localhost dbname=dev sslmode=disabled"
-	dbDriver    = "postgres"
+	host = "127.0.0.1"
+	port = "8080"
+
+	dbURL    = "host=localhost dbname=dev sslmode=disabled"
+	dbDriver = "postgres"
+
 	loggerLevel = "debug"
-	certPath    = ""
-	keyPath     = ""
+
+	certPath = ""
+	keyPath  = ""
+
+	endpoint        = "0.0.0.0/cloud"
+	assessKeyID     = "admin"
+	secretAccessKey = "secretkey"
+	useSSL          = false
 )
 
 type Config struct {
@@ -36,6 +45,13 @@ type Config struct {
 	Deploy struct {
 		Mode bool `yaml:"mode"`
 	} `yaml:"deploy"`
+
+	S3 struct {
+		Endpoint        string `yaml:"endpoint"`
+		AccessKeyID     string `yaml:"access_key_id"`
+		SecretAccessKey string `yaml:"secret_access_key"`
+		UseSSL          bool   `yaml:"use_ssl"`
+	}
 }
 
 func New() *Config {
@@ -67,6 +83,13 @@ func New() *Config {
 		Deploy: struct {
 			Mode bool `yaml:"mode"`
 		}{Mode: false},
+
+		S3: struct {
+			Endpoint        string `yaml:"endpoint"`
+			AccessKeyID     string `yaml:"access_key_id"`
+			SecretAccessKey string `yaml:"secret_access_key"`
+			UseSSL          bool   `yaml:"use_ssl"`
+		}{Endpoint: endpoint, AccessKeyID: assessKeyID, SecretAccessKey: secretAccessKey, UseSSL: useSSL},
 	}
 }
 
@@ -77,7 +100,7 @@ func (c *Config) Open(path string) error {
 	}
 
 	// Start YAML decoding from file
-	if err := yaml.NewDecoder(file).Decode(&c); err != nil {
+	if err = yaml.NewDecoder(file).Decode(&c); err != nil {
 		return err
 	}
 

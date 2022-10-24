@@ -10,11 +10,12 @@ type Postgres struct {
 	DB *sqlx.DB
 }
 
-func NewPostgres(URL string) (*Postgres, error) {
-	db, err := sqlx.Open("postgres", URL)
+func NewPostgres(url string) (*Postgres, error) {
+	db, err := sqlx.Open("postgres", url)
 	if err != nil {
 		return nil, err
 	}
+
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
@@ -26,6 +27,7 @@ func (r *Postgres) Close() error {
 	if err := r.DB.Close(); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -33,7 +35,8 @@ func (r *Postgres) Create(user *model.User) (*model.User, error) {
 	err := r.DB.QueryRowx(
 		`
 		INSERT INTO users (username, first_name, last_name, avatar, email, password, is_author, about) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;`,
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+		RETURNING id;`,
 		user.Username,
 		user.FirstName,
 		user.LastName,
@@ -54,7 +57,10 @@ func (r *Postgres) GetByUsername(username string) (*model.User, error) {
 	var u model.User
 	if err := r.DB.Get(
 		&u,
-		"SELECT id, username, first_name, last_name, avatar, email, password, is_author, about FROM users WHERE username = $1;",
+		`
+		SELECT id, username, first_name, last_name, avatar, email, password, is_author, about 
+		FROM users 
+		WHERE username = $1;`,
 		username,
 	); err != nil {
 		return nil, err
@@ -67,7 +73,10 @@ func (r *Postgres) GetByID(id uint64) (*model.User, error) {
 	var u model.User
 	if err := r.DB.Get(
 		&u,
-		"SELECT id, username, first_name, last_name, avatar, email, password, is_author, about FROM users WHERE id = $1;",
+		`
+		SELECT id, username, first_name, last_name, avatar, email, password, is_author, about 
+		FROM users 
+		WHERE id = $1;`,
 		id,
 	); err != nil {
 		return nil, err
@@ -80,7 +89,10 @@ func (r *Postgres) GetByEmail(email string) (*model.User, error) {
 	var u model.User
 	if err := r.DB.Get(
 		&u,
-		"SELECT id, username, first_name, last_name, avatar, email, password, is_author, about FROM users WHERE email = $1;",
+		`
+		SELECT id, username, first_name, last_name, avatar, email, password, is_author, about 
+		FROM users 
+		WHERE email = $1;`,
 		email,
 	); err != nil {
 		return nil, err
@@ -136,13 +148,15 @@ func (r *Postgres) Update(user *model.User) (*model.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return user, err
 }
 
 func (r *Postgres) DeleteByID(id uint64) error {
-	_, err := r.DB.Query("DELETE FROM users WHERE id=$1;", id)
+	_, err := r.DB.Exec("DELETE FROM users WHERE id=$1;", id)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }

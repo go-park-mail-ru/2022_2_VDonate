@@ -3,6 +3,7 @@ package utils
 import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/labstack/echo/v4"
+
 	"net/http"
 	"strings"
 )
@@ -30,9 +31,9 @@ func WrapEchoError(errHTTP, errInternal error) error {
 		domain.ErrBadSession,
 		domain.ErrInternal,
 		domain.ErrDelete:
-		return echo.NewHTTPError(http.StatusInternalServerError, errHTTP.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, errHTTP.Error()).SetInternal(errInternal)
 	default:
-		return echo.NewHTTPError(http.StatusInternalServerError, errHTTP.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, errHTTP.Error()).SetInternal(errInternal)
 	}
 }
 
@@ -40,5 +41,6 @@ func CutCodeFromError(err error) string {
 	if err == nil {
 		return ""
 	}
+
 	return err.Error()[strings.Index(err.Error(), " ")+1:]
 }

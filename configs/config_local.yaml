@@ -6,10 +6,19 @@ server:
 
 db:
   driver: postgres
-  url: host=postgresql port=5432 user=ubuntu password=secretkey dbname=dev sslmode=disable
+  url: host=localhost port=5432 user=ubuntu password=secretkey dbname=dev sslmode=disable
 
 logger:
-  level: debug
+  level: info
 
 deploy:
   mode: false
+
+s3:
+  endpoint: localhost:9000
+  access_key_id: admin
+  secret_access_key: secretkey
+  use_ssl: false
+
+lint:
+
