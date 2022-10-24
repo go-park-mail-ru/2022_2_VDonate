@@ -78,7 +78,7 @@ jobs:
           tags: zeronethunter/vdonate-api:latest
 
   deploy:
-    name: pulling api
+    name: deploy
     needs: build_push_api
     runs-on: ubuntu-latest
     steps:
@@ -90,7 +90,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           source: "deployments/docker-compose.yaml, migrations/full_up.sql, .env"
-          target: ""
+          target: "backend"
       - name: executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@master
         with:
@@ -99,4 +99,4 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             sudo docker rm $(sudo docker ps -a -q)
-            cd ~/deployments && docker-compose up -d
+            cd ~/backend/deployments && docker-compose up -d
