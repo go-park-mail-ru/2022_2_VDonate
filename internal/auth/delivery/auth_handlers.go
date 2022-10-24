@@ -1,13 +1,14 @@
 package httpAuth
 
 import (
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"time"
+
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+	httpUsers "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
+	"github.com/labstack/echo/v4"
 )
 
 const (
@@ -79,8 +80,7 @@ func (h Handler) Auth(c echo.Context) error {
 
 func (h Handler) Login(c echo.Context) error {
 	var data models.AuthUser
-	err := c.Bind(&data)
-	if err != nil {
+	if err := c.Bind(&data); err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
 
@@ -123,8 +123,7 @@ func (h Handler) Logout(c echo.Context) error {
 func (h Handler) SignUp(c echo.Context) error {
 	var newUser models.User
 
-	err := c.Bind(&newUser)
-	if err != nil {
+	if err := c.Bind(&newUser); err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
 
@@ -134,5 +133,6 @@ func (h Handler) SignUp(c echo.Context) error {
 	}
 
 	c.SetCookie(makeHTTPCookieFromValue(sessionID))
+
 	return httpUsers.UserResponse(c, &newUser)
 }

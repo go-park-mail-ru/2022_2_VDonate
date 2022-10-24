@@ -3,13 +3,13 @@ package httpAuth
 import (
 	"bytes"
 	"errors"
-	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
+	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
@@ -91,6 +91,7 @@ func TestHandler_SignUp(t *testing.T) {
 
 func TestHandler_Login(t *testing.T) {
 	type mockBehaviorLogin func(r *mockDomain.MockAuthUseCase, user models.AuthUser)
+
 	type mockBehaviorUser func(r *mockDomain.MockUsersUseCase, sessionId string)
 
 	tests := []struct {
@@ -201,6 +202,7 @@ func TestHandler_Login(t *testing.T) {
 
 func TestHandler_Auth(t *testing.T) {
 	type mockBehaviorAuth func(r *mockDomain.MockAuthUseCase, sessionId string)
+
 	type mockBehaviorUser func(r *mockDomain.MockUsersUseCase, sessionId string)
 
 	tests := []struct {

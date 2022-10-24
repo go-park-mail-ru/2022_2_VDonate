@@ -46,13 +46,17 @@ func (u *usecase) Update(user models.User) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	user.Password, err = utils.HashPassword(user.Password)
+
 	if err != nil {
 		return nil, err
 	}
+
 	if err = copier.CopyWithOption(updateUser, &user, copier.Option{IgnoreEmpty: true}); err != nil {
 		return nil, err
 	}
+
 	return u.usersRepo.Update(updateUser)
 }
 
@@ -65,6 +69,7 @@ func (u *usecase) DeleteByUsername(username string) error {
 	if err != nil {
 		return err
 	}
+
 	return u.DeleteByID(user.ID)
 }
 
@@ -73,6 +78,7 @@ func (u *usecase) DeleteByEmail(email string) error {
 	if err != nil {
 		return err
 	}
+
 	return u.DeleteByID(user.ID)
 }
 
@@ -81,6 +87,7 @@ func (u *usecase) CheckIDAndPassword(id uint64, password string) bool {
 	if err != nil {
 		return false
 	}
+
 	return utils.CheckHashPassword(password, user.Password)
 }
 
@@ -91,5 +98,6 @@ func (u *usecase) IsExistUsernameAndEmail(username, email string) bool {
 			return true
 		}
 	}
+
 	return false
 }

@@ -1,11 +1,12 @@
 package httpUsers
 
 import (
+	"strconv"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/labstack/echo/v4"
-	"strconv"
 )
 
 type Handler struct {
@@ -25,6 +26,7 @@ func (h *Handler) GetUser(c echo.Context) error {
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
+
 	user, err := h.userUseCase.GetByID(id)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrNotFound, err)
@@ -38,7 +40,9 @@ func (h *Handler) PutUser(c echo.Context) error {
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
+
 	var updateUser models.User
+
 	if err = c.Bind(&updateUser); err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
@@ -48,5 +52,6 @@ func (h *Handler) PutUser(c echo.Context) error {
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrUpdate, err)
 	}
+
 	return UserResponse(c, user)
 }

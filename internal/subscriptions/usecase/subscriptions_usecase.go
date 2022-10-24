@@ -2,6 +2,7 @@ package subscriptions
 
 import (
 	"errors"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jinzhu/copier"
@@ -20,17 +21,20 @@ func (u *usecase) GetSubscriptionsByAuthorID(authorID uint64) ([]*models.AuthorS
 	if err != nil {
 		return nil, err
 	}
+
 	if len(s) == 0 {
 		return nil, errors.New("no subscriptions")
 	}
+
 	return s, nil
 }
 
-func (u *usecase) GetSubscriptionsByID(ID uint64) (*models.AuthorSubscription, error) {
-	s, err := u.subRepo.GetSubscriptionsByID(ID)
+func (u *usecase) GetSubscriptionsByID(id uint64) (*models.AuthorSubscription, error) {
+	s, err := u.subRepo.GetSubscriptionsByID(id)
 	if err != nil {
 		return nil, err
 	}
+
 	return s, nil
 }
 

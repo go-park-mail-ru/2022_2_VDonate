@@ -13,3 +13,9 @@ logger:
 
 deploy:
   mode: true
+
+s3:
+  endpoint: 0.0.0.0/cloud
+  access_key_id: admin
+  secret_access_key: secretkey
+  use_ssl: true

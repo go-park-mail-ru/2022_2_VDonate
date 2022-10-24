@@ -10,11 +10,12 @@ type Postgres struct {
 	DB *sqlx.DB
 }
 
-func NewPostgres(URL string) (*Postgres, error) {
-	db, err := sqlx.Open("postgres", URL)
+func NewPostgres(url string) (*Postgres, error) {
+	db, err := sqlx.Open("postgres", url)
 	if err != nil {
 		return nil, err
 	}
+
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
@@ -36,13 +37,13 @@ func (p *Postgres) GetSubscriptionsByAuthorID(authorID uint64) ([]*models.Author
 	return s, nil
 }
 
-func (p *Postgres) GetSubscriptionsByID(ID uint64) (*models.AuthorSubscription, error) {
+func (p *Postgres) GetSubscriptionsByID(id uint64) (*models.AuthorSubscription, error) {
 	var s models.AuthorSubscription
 	if err := p.DB.Get(&s, `
 		SELECT * 
 		FROM author_subscriptions
 		WHERE id = $1`,
-		ID,
+		id,
 	); err != nil {
 		return nil, err
 	}
@@ -79,11 +80,12 @@ func (p *Postgres) UpdateSubscription(sub *models.AuthorSubscription) (*models.A
 	if err != nil {
 		return nil, err
 	}
+
 	return sub, err
 }
 
 func (p *Postgres) DeleteSubscription(subID uint64) error {
-	_, err := p.DB.Query(`
+	_, err := p.DB.Exec(`
 		DELETE FROM author_subscriptions 
 		WHERE id=$1`,
 		subID,

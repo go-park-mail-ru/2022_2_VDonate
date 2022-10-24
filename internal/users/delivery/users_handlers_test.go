@@ -1,8 +1,6 @@
 package httpUsers
 
 import (
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-	mock_domain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -10,6 +8,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
@@ -18,7 +18,7 @@ import (
 )
 
 func TestHadler_GetUser(t *testing.T) {
-	type mockBehavior func(r *mock_domain.MockUsersUseCase, id uint64)
+	type mockBehavior func(r *mockDomain.MockUsersUseCase, id uint64)
 
 	tests := []struct {
 		name                 string
@@ -30,7 +30,7 @@ func TestHadler_GetUser(t *testing.T) {
 		{
 			name:       "OK",
 			redirectID: 24,
-			mockBehavior: func(r *mock_domain.MockUsersUseCase, id uint64) {
+			mockBehavior: func(r *mockDomain.MockUsersUseCase, id uint64) {
 				r.EXPECT().GetByID(id).Return(&models.User{
 					ID:       id,
 					Username: "themilchenko",
@@ -43,13 +43,13 @@ func TestHadler_GetUser(t *testing.T) {
 		{
 			name:                 "BadID",
 			redirectID:           -1,
-			mockBehavior:         func(r *mock_domain.MockUsersUseCase, id uint64) {},
+			mockBehavior:         func(r *mockDomain.MockUsersUseCase, id uint64) {},
 			expectedErrorMessage: "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
 		},
 		{
 			name:       "NotFound",
 			redirectID: 24,
-			mockBehavior: func(r *mock_domain.MockUsersUseCase, id uint64) {
+			mockBehavior: func(r *mockDomain.MockUsersUseCase, id uint64) {
 				r.EXPECT().GetByID(id).Return(nil, domain.ErrNotFound)
 			},
 			expectedErrorMessage: "code=404, message=failed to find item, internal=failed to find item",
@@ -61,8 +61,8 @@ func TestHadler_GetUser(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			user := mock_domain.NewMockUsersUseCase(ctrl)
-			auth := mock_domain.NewMockAuthUseCase(ctrl)
+			user := mockDomain.NewMockUsersUseCase(ctrl)
+			auth := mockDomain.NewMockAuthUseCase(ctrl)
 			test.mockBehavior(user, uint64(test.redirectID))
 
 			handler := NewHandler(user, auth)
@@ -89,7 +89,7 @@ func TestHadler_GetUser(t *testing.T) {
 }
 
 func TestHandler_PutUser(t *testing.T) {
-	type mockBehavior func(r *mock_domain.MockUsersUseCase, id uint64, user models.User)
+	type mockBehavior func(r *mockDomain.MockUsersUseCase, id uint64, user models.User)
 
 	tests := []struct {
 		name                 string
@@ -111,7 +111,7 @@ func TestHandler_PutUser(t *testing.T) {
 				LastName:  "Pupkin",
 				About:     "I love sport",
 			},
-			mockBehavior: func(r *mock_domain.MockUsersUseCase, id uint64, user models.User) {
+			mockBehavior: func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {
 				r.EXPECT().Update(user).Return(&models.User{
 					ID:        id,
 					Username:  "superuser",
@@ -134,7 +134,7 @@ func TestHandler_PutUser(t *testing.T) {
 				LastName:  "Pupkin",
 				About:     "I love sport",
 			},
-			mockBehavior:         func(r *mock_domain.MockUsersUseCase, id uint64, user models.User) {},
+			mockBehavior:         func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {},
 			expectedErrorMessage: "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
 		},
 		{
@@ -142,7 +142,7 @@ func TestHandler_PutUser(t *testing.T) {
 			requestBody:  `NotJSON`,
 			userID:       345,
 			userModel:    models.User{},
-			mockBehavior: func(r *mock_domain.MockUsersUseCase, id uint64, user models.User) {},
+			mockBehavior: func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {},
 			expectedErrorMessage: "code=400, " +
 				"message=bad request, " +
 				"internal=code=400, " +
@@ -161,7 +161,7 @@ func TestHandler_PutUser(t *testing.T) {
 				LastName:  "Pupkin",
 				About:     "I love sport",
 			},
-			mockBehavior: func(r *mock_domain.MockUsersUseCase, id uint64, user models.User) {
+			mockBehavior: func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {
 				r.EXPECT().Update(user).Return(nil, domain.ErrUpdate)
 			},
 			expectedErrorMessage: "code=500, message=failed to update item",
@@ -173,8 +173,8 @@ func TestHandler_PutUser(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			user := mock_domain.NewMockUsersUseCase(ctrl)
-			auth := mock_domain.NewMockAuthUseCase(ctrl)
+			user := mockDomain.NewMockUsersUseCase(ctrl)
+			auth := mockDomain.NewMockAuthUseCase(ctrl)
 			test.mockBehavior(user, test.userModel.ID, test.userModel)
 
 			handler := NewHandler(user, auth)

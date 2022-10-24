@@ -2,8 +2,6 @@ package httpPosts
 
 import (
 	"bytes"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-	mock_domain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +9,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
@@ -19,8 +19,9 @@ import (
 )
 
 func TestHangler_GetPosts(t *testing.T) {
-	type mockBehaviorGet func(s mock_domain.MockPostsUseCase, userID uint64)
-	type mockBehaviorUser func(s mock_domain.MockUsersUseCase, cookie string)
+	type mockBehaviorGet func(s mockDomain.MockPostsUseCase, userID uint64)
+
+	type mockBehaviorUser func(s mockDomain.MockUsersUseCase, cookie string)
 
 	tests := []struct {
 		name                 string
@@ -36,12 +37,12 @@ func TestHangler_GetPosts(t *testing.T) {
 			name:   "OK",
 			cookie: "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
 			userID: 123,
-			mockBehaviorUser: func(s mock_domain.MockUsersUseCase, cookie string) {
+			mockBehaviorUser: func(s mockDomain.MockUsersUseCase, cookie string) {
 				s.EXPECT().GetBySessionID(cookie).Return(&models.User{
 					ID: 123,
 				}, nil)
 			},
-			mockBehaviorGet: func(s mock_domain.MockPostsUseCase, userID uint64) {
+			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
 				s.EXPECT().GetPostsByUserID(userID).Return([]*models.Post{
 					{
 						UserID: userID,
@@ -56,12 +57,12 @@ func TestHangler_GetPosts(t *testing.T) {
 		{
 			name:   "ServerError",
 			userID: 123,
-			mockBehaviorUser: func(s mock_domain.MockUsersUseCase, cookie string) {
+			mockBehaviorUser: func(s mockDomain.MockUsersUseCase, cookie string) {
 				s.EXPECT().GetBySessionID(cookie).Return(&models.User{
 					ID: 123,
 				}, nil)
 			},
-			mockBehaviorGet: func(s mock_domain.MockPostsUseCase, userID uint64) {
+			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
 				s.EXPECT().GetPostsByUserID(userID).Return([]*models.Post{}, domain.ErrNotFound)
 			},
 			expectedErrorMessage: "code=404, message=failed to find item, internal=failed to find item",
@@ -69,10 +70,10 @@ func TestHangler_GetPosts(t *testing.T) {
 		{
 			name:   "BadId",
 			userID: -1,
-			mockBehaviorUser: func(s mock_domain.MockUsersUseCase, cookie string) {
+			mockBehaviorUser: func(s mockDomain.MockUsersUseCase, cookie string) {
 				s.EXPECT().GetBySessionID(cookie).Return(nil, domain.ErrBadSession)
 			},
-			mockBehaviorGet:      func(s mock_domain.MockPostsUseCase, userID uint64) {},
+			mockBehaviorGet:      func(s mockDomain.MockPostsUseCase, userID uint64) {},
 			expectedErrorMessage: "code=500, message=bad session",
 		},
 	}
@@ -82,8 +83,8 @@ func TestHangler_GetPosts(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			post := mock_domain.NewMockPostsUseCase(ctrl)
-			users := mock_domain.NewMockUsersUseCase(ctrl)
+			post := mockDomain.NewMockPostsUseCase(ctrl)
+			users := mockDomain.NewMockUsersUseCase(ctrl)
 
 			test.mockBehaviorUser(*users, test.cookie)
 			test.mockBehaviorGet(*post, uint64(test.userID))
@@ -112,7 +113,7 @@ func TestHangler_GetPosts(t *testing.T) {
 }
 
 func TestHangler_GetPost(t *testing.T) {
-	type mockBehaviorGet func(s mock_domain.MockPostsUseCase, userID uint64)
+	type mockBehaviorGet func(s mockDomain.MockPostsUseCase, userID uint64)
 
 	tests := []struct {
 		name                 string
@@ -125,7 +126,7 @@ func TestHangler_GetPost(t *testing.T) {
 		{
 			name:   "OK",
 			postID: 123,
-			mockBehaviorGet: func(s mock_domain.MockPostsUseCase, postID uint64) {
+			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, postID uint64) {
 				s.EXPECT().GetPostByID(postID).Return(&models.Post{
 					Img:   "path/to/img",
 					Title: "Look at this!!!",
@@ -137,7 +138,7 @@ func TestHangler_GetPost(t *testing.T) {
 		{
 			name:   "NotFound",
 			postID: 123,
-			mockBehaviorGet: func(s mock_domain.MockPostsUseCase, postID uint64) {
+			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, postID uint64) {
 				s.EXPECT().GetPostByID(postID).Return(nil, domain.ErrNotFound)
 			},
 			expectedErrorMessage: "code=404, message=failed to find item, internal=failed to find item",
@@ -149,8 +150,8 @@ func TestHangler_GetPost(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			post := mock_domain.NewMockPostsUseCase(ctrl)
-			users := mock_domain.NewMockUsersUseCase(ctrl)
+			post := mockDomain.NewMockPostsUseCase(ctrl)
+			users := mockDomain.NewMockUsersUseCase(ctrl)
 
 			test.mockBehaviorGet(*post, uint64(test.postID))
 
@@ -179,8 +180,9 @@ func TestHangler_GetPost(t *testing.T) {
 }
 
 func TestHandler_CreatePosts(t *testing.T) {
-	type mockBehaviorUsers func(s *mock_domain.MockUsersUseCase, cookie string)
-	type mockBehaviorCreate func(s *mock_domain.MockPostsUseCase, postID models.Post)
+	type mockBehaviorUsers func(s *mockDomain.MockUsersUseCase, cookie string)
+
+	type mockBehaviorCreate func(s *mockDomain.MockPostsUseCase, postID models.Post)
 
 	tests := []struct {
 		name                 string
@@ -203,12 +205,12 @@ func TestHandler_CreatePosts(t *testing.T) {
 				Title:  "Title",
 				Text:   "Text",
 			},
-			mockBehaviorUsers: func(s *mock_domain.MockUsersUseCase, cookie string) {
+			mockBehaviorUsers: func(s *mockDomain.MockUsersUseCase, cookie string) {
 				s.EXPECT().GetBySessionID(cookie).Return(&models.User{
 					ID: 100,
 				}, nil)
 			},
-			mockBehaviorCreate: func(s *mock_domain.MockPostsUseCase, post models.Post) {
+			mockBehaviorCreate: func(s *mockDomain.MockPostsUseCase, post models.Post) {
 				s.EXPECT().Create(post).Return(&models.Post{
 					ID:     0,
 					UserID: 100,
@@ -224,8 +226,8 @@ func TestHandler_CreatePosts(t *testing.T) {
 			cookie:               "",
 			inputBody:            `{"title":"Title","text":"Text"}`,
 			inputPost:            models.Post{},
-			mockBehaviorUsers:    func(s *mock_domain.MockUsersUseCase, cookie string) {},
-			mockBehaviorCreate:   func(s *mock_domain.MockPostsUseCase, post models.Post) {},
+			mockBehaviorUsers:    func(s *mockDomain.MockUsersUseCase, cookie string) {},
+			mockBehaviorCreate:   func(s *mockDomain.MockPostsUseCase, post models.Post) {},
 			expectedErrorMessage: "code=401, message=no existing session, internal=http: named cookie not present",
 		},
 		{
@@ -233,10 +235,10 @@ func TestHandler_CreatePosts(t *testing.T) {
 			userID:    100,
 			cookie:    "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
 			inputPost: models.Post{},
-			mockBehaviorUsers: func(s *mock_domain.MockUsersUseCase, cookie string) {
+			mockBehaviorUsers: func(s *mockDomain.MockUsersUseCase, cookie string) {
 				s.EXPECT().GetBySessionID(cookie).Return(nil, domain.ErrNoSession)
 			},
-			mockBehaviorCreate:   func(s *mock_domain.MockPostsUseCase, post models.Post) {},
+			mockBehaviorCreate:   func(s *mockDomain.MockPostsUseCase, post models.Post) {},
 			expectedErrorMessage: "code=401, message=no existing session, internal=no existing session",
 		},
 		{
@@ -249,12 +251,12 @@ func TestHandler_CreatePosts(t *testing.T) {
 				Title:  "Title",
 				Text:   "Text",
 			},
-			mockBehaviorUsers: func(s *mock_domain.MockUsersUseCase, cookie string) {
+			mockBehaviorUsers: func(s *mockDomain.MockUsersUseCase, cookie string) {
 				s.EXPECT().GetBySessionID(cookie).Return(&models.User{
 					ID: 100,
 				}, nil)
 			},
-			mockBehaviorCreate: func(s *mock_domain.MockPostsUseCase, post models.Post) {},
+			mockBehaviorCreate: func(s *mockDomain.MockPostsUseCase, post models.Post) {},
 			expectedErrorMessage: "code=400," +
 				" message=bad request," +
 				" internal=code=400," +
@@ -271,12 +273,12 @@ func TestHandler_CreatePosts(t *testing.T) {
 				Title:  "Title",
 				Text:   "Text",
 			},
-			mockBehaviorUsers: func(s *mock_domain.MockUsersUseCase, cookie string) {
+			mockBehaviorUsers: func(s *mockDomain.MockUsersUseCase, cookie string) {
 				s.EXPECT().GetBySessionID(cookie).Return(&models.User{
 					ID: 100,
 				}, nil)
 			},
-			mockBehaviorCreate: func(s *mock_domain.MockPostsUseCase, post models.Post) {
+			mockBehaviorCreate: func(s *mockDomain.MockPostsUseCase, post models.Post) {
 				s.EXPECT().Create(post).Return(nil, domain.ErrCreate)
 			},
 			expectedErrorMessage: "code=500, message=failed to create item",
@@ -288,8 +290,8 @@ func TestHandler_CreatePosts(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			post := mock_domain.NewMockPostsUseCase(ctrl)
-			user := mock_domain.NewMockUsersUseCase(ctrl)
+			post := mockDomain.NewMockPostsUseCase(ctrl)
+			user := mockDomain.NewMockUsersUseCase(ctrl)
 
 			test.mockBehaviorUsers(user, test.cookie)
 			test.mockBehaviorCreate(post, test.inputPost)
