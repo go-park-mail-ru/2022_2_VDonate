@@ -38,6 +38,13 @@ clean: ## Remove temporary files
 	rm -f main
 	go clean
 
+.PHONY: dev
+dev: ## Start containers
+	# Clearing all stopped containers
+	docker container prune -f
+    # UP backend docker compose
+	docker-compose -f ../deployments/dev/docker-compose.yaml up -d
+
 .PHONY: help
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

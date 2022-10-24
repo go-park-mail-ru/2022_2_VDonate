@@ -3,11 +3,11 @@ services:
   app:
     hostname: api
     container_name: vdonate-api
-    image: zeronethunter/vdonate-api:1.0.0
+    image: zeronethunter/vdonate-api
     ports:
       - "8080:8080"
     env_file:
-      - ../.env
+      - ../../.env
     restart: always
     depends_on:
       db:
@@ -29,17 +29,17 @@ services:
     ports:
       - "5432:5432"
     env_file:
-      - ../.env
+      - ../../.env
     volumes:
       - ../migrations/full_up.sql:/docker-entrypoint-initdb.d/init.sql
       - /var/lib/postgresql/data:/var/lib/postgresql/data
     networks:
       - vdonate-network-api
   pgadmin:
-    hostname: postgres
+    hostname: pgadmin
     image: dpage/pgadmin4
     env_file:
-      - ../.env
+      - ../../.env
     depends_on:
       db:
         condition: service_healthy
@@ -59,7 +59,7 @@ services:
       - "9000:9000"
       - "9090:9090"
     env_file:
-      - ../.env
+      - ../../.env
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
       interval: 10s
