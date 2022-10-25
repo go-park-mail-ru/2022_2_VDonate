@@ -13,10 +13,46 @@ type S3 struct {
 	client *minio.Client
 }
 
-func New(endpoint, accessKeyID, secretAccessKey string, secure bool) (*S3, error) {
+func getPolicy(client *minio.Client, bucket, policy string) error {
+	bucketPolicy, err := client.GetBucketPolicy(bucket)
+	if err != nil || bucketPolicy != policy {
+		if err = client.SetBucketPolicy(bucket, policy); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func existBucket(client *minio.Client, bucket, policy string) error {
+	exists, err := client.BucketExists(bucket)
+	if err == nil || exists {
+		if err = getPolicy(client, bucket, policy); err != nil {
+			return err
+		}
+		return nil
+	}
+	return err
+}
+
+func makeBucket(client *minio.Client, bucket, policy string) error {
+	if client.MakeBucket(bucket, "") != nil {
+		if err := existBucket(client, bucket, policy); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func New(endpoint, accessKeyID, secretAccessKey string, secure bool, buckets map[string]string) (*S3, error) {
 	client, err := minio.New(endpoint, accessKeyID, secretAccessKey, secure)
 	if err != nil {
 		return nil, err
+	}
+
+	for bucket, policy := range buckets {
+		if err = makeBucket(client, bucket, policy); err != nil {
+			return nil, err
+		}
 	}
 
 	return &S3{

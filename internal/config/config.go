@@ -25,6 +25,13 @@ const (
 	useSSL          = false
 )
 
+var (
+	buckets = map[string]string{
+		"img":    "img",
+		"avatar": "avatar",
+	}
+)
+
 type Config struct {
 	Server struct {
 		Host     string `yaml:"host"`
@@ -47,11 +54,12 @@ type Config struct {
 	} `yaml:"deploy"`
 
 	S3 struct {
-		Endpoint        string `yaml:"endpoint"`
-		AccessKeyID     string `yaml:"access_key_id"`
-		SecretAccessKey string `yaml:"secret_access_key"`
-		UseSSL          bool   `yaml:"use_ssl"`
-	}
+		Endpoint        string            `yaml:"endpoint"`
+		AccessKeyID     string            `yaml:"access_key_id"`
+		SecretAccessKey string            `yaml:"secret_access_key"`
+		UseSSL          bool              `yaml:"use_ssl"`
+		Buckets         map[string]string `yaml:"buckets"`
+	} `yaml:"s3"`
 }
 
 func New() *Config {
@@ -66,7 +74,12 @@ func New() *Config {
 			Port     string
 			CertPath string
 			KeyPath  string
-		}{Host: host, Port: port, CertPath: certPath, KeyPath: keyPath}),
+		}{
+			Host:     host,
+			Port:     port,
+			CertPath: certPath,
+			KeyPath:  keyPath,
+		}),
 
 		DB: struct {
 			Driver string `yaml:"driver"`
@@ -74,22 +87,36 @@ func New() *Config {
 		}(struct {
 			Driver string
 			URL    string
-		}{Driver: dbDriver, URL: dbURL}),
+		}{
+			Driver: dbDriver,
+			URL:    dbURL,
+		}),
 
 		Logger: struct {
 			Level string `yaml:"level"`
-		}{Level: loggerLevel},
+		}{
+			Level: loggerLevel,
+		},
 
 		Deploy: struct {
 			Mode bool `yaml:"mode"`
-		}{Mode: false},
+		}{
+			Mode: false,
+		},
 
 		S3: struct {
-			Endpoint        string `yaml:"endpoint"`
-			AccessKeyID     string `yaml:"access_key_id"`
-			SecretAccessKey string `yaml:"secret_access_key"`
-			UseSSL          bool   `yaml:"use_ssl"`
-		}{Endpoint: endpoint, AccessKeyID: assessKeyID, SecretAccessKey: secretAccessKey, UseSSL: useSSL},
+			Endpoint        string            `yaml:"endpoint"`
+			AccessKeyID     string            `yaml:"access_key_id"`
+			SecretAccessKey string            `yaml:"secret_access_key"`
+			UseSSL          bool              `yaml:"use_ssl"`
+			Buckets         map[string]string `yaml:"buckets"`
+		}{
+			Endpoint:        endpoint,
+			AccessKeyID:     assessKeyID,
+			SecretAccessKey: secretAccessKey,
+			UseSSL:          useSSL,
+			Buckets:         buckets,
+		},
 	}
 }
 

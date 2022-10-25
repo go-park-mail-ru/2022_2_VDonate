@@ -100,6 +100,7 @@ func (s *Server) makeUseCase(url string) {
 		s.Config.S3.AccessKeyID,
 		s.Config.S3.SecretAccessKey,
 		s.Config.S3.UseSSL,
+		s.Config.S3.Buckets,
 	)
 	if err != nil {
 		s.Echo.Logger.Error(err)
@@ -182,7 +183,6 @@ func (s *Server) makeRouter() {
 	subscriber.DELETE("", s.subscribersHandler.DeleteSubscriber)
 
 	image := s.Echo.Group("/cloud/:bucket")
-	image.GET("/:filename", s.imagesHandler.GetImage)
 	image.POST("", s.imagesHandler.CreateImage)
 }
 

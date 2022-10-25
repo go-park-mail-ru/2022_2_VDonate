@@ -38,14 +38,14 @@ func (u *usecase) Login(login, password string) (string, error) {
 	if err != nil {
 		user, err = u.usersRepo.GetByEmail(login)
 		if err != nil {
-			return "", err
+			return "", domain.ErrUsernameOrEmailExist
 		}
 	}
 
 	matchPassword := utils.CheckHashPassword(password, user.Password)
 
 	if !matchPassword {
-		return "", errors.New("passwords not the same")
+		return "", domain.ErrPasswordsNotEqual
 	}
 
 	s, err := u.authRepo.CreateSession(u.cookieCreator(user.ID))

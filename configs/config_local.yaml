@@ -19,3 +19,7 @@ s3:
   access_key_id: admin
   secret_access_key: secretkey
   use_ssl: false
+  # Declare polices of buckets here
+  buckets:
+    img: ""
+    avatar: ""
