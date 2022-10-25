@@ -51,6 +51,7 @@ func (s *Server) init() {
 	s.makeHandlers()
 	s.makeRouter()
 	s.makeCORS()
+	s.makeCSRF()
 }
 
 func (s *Server) Start() error {
@@ -117,10 +118,12 @@ func (s *Server) makeRouter() {
 	}
 	v1.Use(middleware.Secure())
 
-	v1.POST("/login", s.authHandler.Login)
+	v1.GET("/get_csrf", s.authHandler.GetCSRF)
+
+	v1.POST("/login", s.authHandler.Login, s.authMiddleware.CSRFRequired)
 	v1.GET("/auth", s.authHandler.Auth)
-	v1.DELETE("/logout", s.authHandler.Logout, s.authMiddleware.LoginRequired)
-	v1.POST("/users", s.authHandler.SignUp)
+	v1.DELETE("/logout", s.authHandler.Logout, s.authMiddleware.LoginRequired, s.authMiddleware.CSRFRequired)
+	v1.POST("/users", s.authHandler.SignUp, s.authMiddleware.CSRFRequired)
 
 	user := v1.Group("/users/:id")
 	user.Use(s.authMiddleware.LoginRequired)
@@ -156,6 +159,10 @@ func (s *Server) makeRouter() {
 
 func (s *Server) makeCORS() {
 	s.Echo.Use(NewCORS())
+}
+
+func (s *Server) makeCSRF() {
+	s.Echo.Use(NewCSRF())
 }
 
 func (s *Server) makeMiddlewares() {
