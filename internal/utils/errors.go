@@ -10,10 +10,12 @@ import (
 
 func WrapEchoError(errHTTP, errInternal error) error {
 	switch errInternal {
-	case domain.ErrUsernameOrEmailExist:
+	case domain.ErrUsernameOrEmailNotExist:
 		return echo.NewHTTPError(http.StatusNotFound, errInternal.Error()).SetInternal(errInternal)
 	case domain.ErrPasswordsNotEqual:
 		return echo.NewHTTPError(http.StatusBadRequest, errInternal.Error()).SetInternal(errInternal)
+	case domain.ErrEmailExist, domain.ErrUsernameExist:
+		return echo.NewHTTPError(http.StatusConflict, errInternal.Error()).SetInternal(errInternal)
 	}
 
 	switch errHTTP {

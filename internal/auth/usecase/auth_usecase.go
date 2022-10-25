@@ -38,7 +38,7 @@ func (u *usecase) Login(login, password string) (string, error) {
 	if err != nil {
 		user, err = u.usersRepo.GetByEmail(login)
 		if err != nil {
-			return "", domain.ErrUsernameOrEmailExist
+			return "", domain.ErrUsernameOrEmailNotExist
 		}
 	}
 
@@ -68,11 +68,11 @@ func (u *usecase) Auth(sessionID string) (bool, error) {
 func (u *usecase) SignUp(user *models.User) (string, error) {
 	_, err := u.usersRepo.GetByUsername(user.Username)
 	if err == nil {
-		return "", errors.New("username is already exist")
+		return "", domain.ErrUsernameExist
 	}
 
 	if _, err = u.usersRepo.GetByEmail(user.Email); err == nil {
-		return "", errors.New("email is already exist")
+		return "", domain.ErrEmailExist
 	}
 
 	user.Password, err = utils.HashPassword(user.Password)

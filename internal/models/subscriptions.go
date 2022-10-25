@@ -9,6 +9,7 @@ type Subscription struct {
 type AuthorSubscription struct {
 	ID       uint64 `json:"id" db:"id"`
 	AuthorID uint64 `json:"author_id" db:"author_id"`
+	Img      string `json:"img" db:"img"`
 	Tier     uint64 `json:"tier" db:"tier"`
 	Text     string `json:"text" db:"text"`
 	Price    uint64 `json:"price" db:"price"`

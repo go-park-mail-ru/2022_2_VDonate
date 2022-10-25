@@ -27,8 +27,10 @@ var (
 )
 
 var (
-	ErrBucketNotExists      = errors.New("bucket doesn't exist")
-	ErrFileOpen             = errors.New("failed to open file")
-	ErrUsernameOrEmailExist = errors.New("username or email exists")
-	ErrPasswordsNotEqual    = errors.New("passwords not the same")
+	ErrBucketNotExists         = errors.New("bucket doesn't exist")
+	ErrFileOpen                = errors.New("failed to open file")
+	ErrUsernameExist           = errors.New("username exists")
+	ErrEmailExist              = errors.New("email exists")
+	ErrUsernameOrEmailNotExist = errors.New("username or email not exists")
+	ErrPasswordsNotEqual       = errors.New("passwords not the same")
 )

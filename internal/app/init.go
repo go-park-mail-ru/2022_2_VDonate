@@ -7,7 +7,6 @@ import (
 	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-	httpImages "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/delivery"
 	imagesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/repository"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	httpPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery"
@@ -44,7 +43,6 @@ type Server struct {
 	postsHandler         *httpPosts.Handler
 	subscriptionsHandler *httpSubscriptions.Handler
 	subscribersHandler   *httpsubscribers.Handler
-	imagesHandler        *httpImages.Handler
 
 	authMiddleware *authMiddlewares.Middlewares
 }
@@ -131,7 +129,6 @@ func (s *Server) makeHandlers() {
 	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService)
 	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionService, s.UserService)
 	s.subscribersHandler = httpsubscribers.NewHandler(s.SubscribersService, s.UserService)
-	s.imagesHandler = httpImages.NewHandler(s.ImagesService)
 }
 
 func (s *Server) makeEchoLogger() {
@@ -181,9 +178,6 @@ func (s *Server) makeRouter() {
 	subscriber.GET("/:author_id", s.subscribersHandler.GetSubscribers)
 	subscriber.POST("", s.subscribersHandler.CreateSubscriber)
 	subscriber.DELETE("", s.subscribersHandler.DeleteSubscriber)
-
-	image := s.Echo.Group("/cloud/:bucket")
-	image.POST("", s.imagesHandler.CreateImage)
 }
 
 func (s *Server) makeCORS() {
