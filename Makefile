@@ -31,6 +31,7 @@ mocks: ## Generate mocks
 	@mockgen -source=internal/domain/users.go -destination=$(MOCKS_DESTINATION)/domain/users.go
 	@mockgen -source=internal/domain/subscribers.go -destination=$(MOCKS_DESTINATION)/domain/subscribers.go
 	@mockgen -source=internal/domain/subscriptions.go -destination=$(MOCKS_DESTINATION)/domain/subscriptions.go
+	@mockgen -source=internal/domain/images.go -destination=$(MOCKS_DESTINATION)/domain/images.go
 	@mockgen -source=internal/domain/repository.go -destination=$(MOCKS_DESTINATION)/domain/repository.go
 
 .PHONY: clean

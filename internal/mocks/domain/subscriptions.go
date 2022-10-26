@@ -35,12 +35,11 @@ func (m *MockSubscriptionsUseCase) EXPECT() *MockSubscriptionsUseCaseMockRecorde
 }
 
 // AddSubscription mocks base method.
-func (m *MockSubscriptionsUseCase) AddSubscription(sub models.AuthorSubscription) (*models.AuthorSubscription, error) {
+func (m *MockSubscriptionsUseCase) AddSubscription(sub models.AuthorSubscription) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddSubscription", sub)
-	ret0, _ := ret[0].(*models.AuthorSubscription)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // AddSubscription indicates an expected call of AddSubscription.
@@ -94,12 +93,11 @@ func (mr *MockSubscriptionsUseCaseMockRecorder) GetSubscriptionsByID(ID interfac
 }
 
 // UpdateSubscription mocks base method.
-func (m *MockSubscriptionsUseCase) UpdateSubscription(sub models.AuthorSubscription) (*models.AuthorSubscription, error) {
+func (m *MockSubscriptionsUseCase) UpdateSubscription(sub models.AuthorSubscription) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateSubscription", sub)
-	ret0, _ := ret[0].(*models.AuthorSubscription)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // UpdateSubscription indicates an expected call of UpdateSubscription.

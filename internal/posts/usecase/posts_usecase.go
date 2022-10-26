@@ -33,25 +33,21 @@ func (u *usecase) GetPostByID(postID uint64) (*models.Post, error) {
 	return u.postsRepo.GetPostByID(postID)
 }
 
-func (u *usecase) Create(post models.Post) (*models.Post, error) {
+func (u *usecase) Create(post models.Post) error {
 	return u.postsRepo.Create(post)
 }
 
-func (u *usecase) Update(post models.Post) (*models.Post, error) {
+func (u *usecase) Update(post models.Post) error {
 	updatePost, err := u.GetPostByID(post.ID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if err = copier.CopyWithOption(updatePost, &post, copier.Option{IgnoreEmpty: true}); err != nil {
-		return nil, err
+		return err
 	}
 
-	if updatePost, err = u.postsRepo.Update(*updatePost); err != nil {
-		return nil, err
-	}
-
-	return updatePost, nil
+	return u.postsRepo.Update(*updatePost)
 }
 
 func (u *usecase) DeleteByID(postID uint64) error {

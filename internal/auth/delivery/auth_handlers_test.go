@@ -117,12 +117,10 @@ func TestHandler_Login(t *testing.T) {
 			},
 			mockBehaviorUser: func(r *mockDomain.MockUsersUseCase, sessionId string) {
 				r.EXPECT().GetBySessionID(sessionId).Return(&models.User{
-					ID:        10,
-					FirstName: "Jane",
-					LastName:  "Doe",
-					Email:     "john@email.com",
-					Username:  "username",
-					Password:  "qwerty",
+					ID:       10,
+					Email:    "john@email.com",
+					Username: "username",
+					Password: "qwerty",
 				}, nil)
 			},
 			expectedStatusCode:   200,

@@ -37,24 +37,22 @@ func (u *usecase) GetUserByPostID(postID uint64) (*models.User, error) {
 	return u.usersRepo.GetUserByPostID(postID)
 }
 
-func (u *usecase) Create(user models.User) (*models.User, error) {
+func (u *usecase) Create(user models.User) error {
 	return u.usersRepo.Create(&user)
 }
 
-func (u *usecase) Update(user models.User) (*models.User, error) {
+func (u *usecase) Update(user models.User) error {
 	updateUser, err := u.GetByID(user.ID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	user.Password, err = utils.HashPassword(user.Password)
-
-	if err != nil {
-		return nil, err
+	if user.Password, err = utils.HashPassword(user.Password); err != nil {
+		return err
 	}
 
 	if err = copier.CopyWithOption(updateUser, &user, copier.Option{IgnoreEmpty: true}); err != nil {
-		return nil, err
+		return err
 	}
 
 	return u.usersRepo.Update(updateUser)

@@ -38,7 +38,7 @@ func TestPostPostgres_Create(t *testing.T) {
 			mockBehaviour: func(user models.User, id uint64) {
 				rows := sqlmock.NewRows([]string{"id"}).AddRow(id)
 				mock.ExpectQuery("INSERT INTO users").
-					WithArgs(user.Username, user.FirstName, user.LastName, user.Avatar, user.Email, user.Password, user.IsAuthor, user.About).
+					WithArgs(user.Username, user.Avatar, user.Email, user.Password, user.IsAuthor, user.About).
 					WillReturnRows(rows)
 				mock.ExpectCommit()
 			},
@@ -49,12 +49,11 @@ func TestPostPostgres_Create(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			test.mockBehaviour(test.user, test.id)
 
-			got, err := r.Create(&test.user)
+			err := r.Create(&test.user)
 			if test.responseError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, test.id, got.ID)
 			}
 		})
 	}

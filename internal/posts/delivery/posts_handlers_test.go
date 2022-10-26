@@ -85,11 +85,12 @@ func TestHangler_GetPosts(t *testing.T) {
 
 			post := mockDomain.NewMockPostsUseCase(ctrl)
 			users := mockDomain.NewMockUsersUseCase(ctrl)
+			images := mockDomain.NewMockImageUseCase(ctrl)
 
 			test.mockBehaviorUser(*users, test.cookie)
 			test.mockBehaviorGet(*post, uint64(test.userID))
 
-			handler := NewHandler(post, users)
+			handler := NewHandler(post, users, images, "img")
 
 			e := echo.New()
 			req := httptest.NewRequest(http.MethodGet, "https://127.0.0.1/api/v1/posts", nil)
@@ -152,10 +153,11 @@ func TestHangler_GetPost(t *testing.T) {
 
 			post := mockDomain.NewMockPostsUseCase(ctrl)
 			users := mockDomain.NewMockUsersUseCase(ctrl)
+			images := mockDomain.NewMockImageUseCase(ctrl)
 
 			test.mockBehaviorGet(*post, uint64(test.postID))
 
-			handler := NewHandler(post, users)
+			handler := NewHandler(post, users, images, "img")
 
 			e := echo.New()
 			req := httptest.NewRequest(http.MethodGet, "https://127.0.0.1/api/v1/", nil)
@@ -292,10 +294,11 @@ func TestHandler_CreatePosts(t *testing.T) {
 
 			post := mockDomain.NewMockPostsUseCase(ctrl)
 			user := mockDomain.NewMockUsersUseCase(ctrl)
+			images := mockDomain.NewMockImageUseCase(ctrl)
 
 			test.mockBehaviorUsers(user, test.cookie)
 			test.mockBehaviorCreate(post, test.inputPost)
-			handler := NewHandler(post, user)
+			handler := NewHandler(post, user, images, "img")
 
 			e := echo.New()
 			req := httptest.NewRequest(http.MethodPost, "https://127.0.0.1/api/v1/posts/", bytes.NewBufferString(test.inputBody))

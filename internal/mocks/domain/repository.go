@@ -5,6 +5,8 @@
 package mock_domain
 
 import (
+	multipart "mime/multipart"
+	url "net/url"
 	reflect "reflect"
 
 	models "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
@@ -174,12 +176,11 @@ func (mr *MockPostsRepositoryMockRecorder) Close() *gomock.Call {
 }
 
 // Create mocks base method.
-func (m *MockPostsRepository) Create(post models.Post) (*models.Post, error) {
+func (m *MockPostsRepository) Create(post models.Post) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", post)
-	ret0, _ := ret[0].(*models.Post)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Create indicates an expected call of Create.
@@ -233,12 +234,11 @@ func (mr *MockPostsRepositoryMockRecorder) GetPostByID(postID interface{}) *gomo
 }
 
 // Update mocks base method.
-func (m *MockPostsRepository) Update(post models.Post) (*models.Post, error) {
+func (m *MockPostsRepository) Update(post models.Post) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", post)
-	ret0, _ := ret[0].(*models.Post)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Update indicates an expected call of Update.
@@ -337,12 +337,11 @@ func (m *MockSubscriptionsRepository) EXPECT() *MockSubscriptionsRepositoryMockR
 }
 
 // AddSubscription mocks base method.
-func (m *MockSubscriptionsRepository) AddSubscription(sub models.AuthorSubscription) (*models.AuthorSubscription, error) {
+func (m *MockSubscriptionsRepository) AddSubscription(sub models.AuthorSubscription) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddSubscription", sub)
-	ret0, _ := ret[0].(*models.AuthorSubscription)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // AddSubscription indicates an expected call of AddSubscription.
@@ -396,12 +395,11 @@ func (mr *MockSubscriptionsRepositoryMockRecorder) GetSubscriptionsByID(ID inter
 }
 
 // UpdateSubscription mocks base method.
-func (m *MockSubscriptionsRepository) UpdateSubscription(sub *models.AuthorSubscription) (*models.AuthorSubscription, error) {
+func (m *MockSubscriptionsRepository) UpdateSubscription(sub *models.AuthorSubscription) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateSubscription", sub)
-	ret0, _ := ret[0].(*models.AuthorSubscription)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // UpdateSubscription indicates an expected call of UpdateSubscription.
@@ -448,12 +446,11 @@ func (mr *MockUsersRepositoryMockRecorder) Close() *gomock.Call {
 }
 
 // Create mocks base method.
-func (m *MockUsersRepository) Create(user *models.User) (*models.User, error) {
+func (m *MockUsersRepository) Create(user *models.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", user)
-	ret0, _ := ret[0].(*models.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Create indicates an expected call of Create.
@@ -552,16 +549,82 @@ func (mr *MockUsersRepositoryMockRecorder) GetUserByPostID(postID interface{}) *
 }
 
 // Update mocks base method.
-func (m *MockUsersRepository) Update(user *models.User) (*models.User, error) {
+func (m *MockUsersRepository) Update(user *models.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", user)
-	ret0, _ := ret[0].(*models.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Update indicates an expected call of Update.
 func (mr *MockUsersRepositoryMockRecorder) Update(user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsersRepository)(nil).Update), user)
+}
+
+// MockImagesRepository is a mock of ImagesRepository interface.
+type MockImagesRepository struct {
+	ctrl     *gomock.Controller
+	recorder *MockImagesRepositoryMockRecorder
+}
+
+// MockImagesRepositoryMockRecorder is the mock recorder for MockImagesRepository.
+type MockImagesRepositoryMockRecorder struct {
+	mock *MockImagesRepository
+}
+
+// NewMockImagesRepository creates a new mock instance.
+func NewMockImagesRepository(ctrl *gomock.Controller) *MockImagesRepository {
+	mock := &MockImagesRepository{ctrl: ctrl}
+	mock.recorder = &MockImagesRepositoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockImagesRepository) EXPECT() *MockImagesRepositoryMockRecorder {
+	return m.recorder
+}
+
+// CreateImage mocks base method.
+func (m *MockImagesRepository) CreateImage(image *multipart.FileHeader, bucket string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateImage", image, bucket)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateImage indicates an expected call of CreateImage.
+func (mr *MockImagesRepositoryMockRecorder) CreateImage(image, bucket interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateImage", reflect.TypeOf((*MockImagesRepository)(nil).CreateImage), image, bucket)
+}
+
+// GetImage mocks base method.
+func (m *MockImagesRepository) GetImage(bucket, filename string) (*url.URL, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetImage", bucket, filename)
+	ret0, _ := ret[0].(*url.URL)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetImage indicates an expected call of GetImage.
+func (mr *MockImagesRepositoryMockRecorder) GetImage(bucket, filename interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImage", reflect.TypeOf((*MockImagesRepository)(nil).GetImage), bucket, filename)
+}
+
+// GetPermanentImage mocks base method.
+func (m *MockImagesRepository) GetPermanentImage(bucket, filename string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPermanentImage", bucket, filename)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPermanentImage indicates an expected call of GetPermanentImage.
+func (mr *MockImagesRepositoryMockRecorder) GetPermanentImage(bucket, filename interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPermanentImage", reflect.TypeOf((*MockImagesRepository)(nil).GetPermanentImage), bucket, filename)
 }

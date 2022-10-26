@@ -8,8 +8,8 @@ type UsersUseCase interface {
 	GetByID(id uint64) (*models.User, error)
 	GetBySessionID(sessionID string) (*models.User, error)
 	GetUserByPostID(postID uint64) (*models.User, error)
-	Create(user models.User) (*models.User, error)
-	Update(user models.User) (*models.User, error)
+	Create(user models.User) error
+	Update(user models.User) error
 	DeleteByID(id uint64) error
 	DeleteByUsername(username string) error
 	DeleteByEmail(email string) error

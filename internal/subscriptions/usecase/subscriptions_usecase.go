@@ -38,18 +38,18 @@ func (u *usecase) GetSubscriptionsByID(id uint64) (*models.AuthorSubscription, e
 	return s, nil
 }
 
-func (u *usecase) AddSubscription(sub models.AuthorSubscription) (*models.AuthorSubscription, error) {
+func (u *usecase) AddSubscription(sub models.AuthorSubscription) error {
 	return u.subRepo.AddSubscription(sub)
 }
 
-func (u *usecase) UpdateSubscription(sub models.AuthorSubscription) (*models.AuthorSubscription, error) {
+func (u *usecase) UpdateSubscription(sub models.AuthorSubscription) error {
 	updateSub, err := u.GetSubscriptionsByID(sub.ID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if err = copier.CopyWithOption(updateSub, &sub, copier.Option{IgnoreEmpty: true}); err != nil {
-		return nil, err
+		return err
 	}
 
 	return u.subRepo.UpdateSubscription(updateSub)

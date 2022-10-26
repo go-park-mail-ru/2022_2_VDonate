@@ -21,7 +21,6 @@ func TestUsecase_Update(t *testing.T) {
 		inputUser           *models.User
 		mockBehaviourGet    mockBehaviourGet
 		mockBehaviourUpdate mockBehaviourUpdate
-		response            *models.User
 		responseError       string
 	}{
 		{
@@ -43,11 +42,6 @@ func TestUsecase_Update(t *testing.T) {
 					Email:    "user@ex.org",
 				}, nil)
 			},
-			response: &models.User{
-				ID:       200,
-				Username: "username",
-				Email:    "user@ex.org",
-			},
 		},
 		{
 			name: "NotFound",
@@ -59,7 +53,6 @@ func TestUsecase_Update(t *testing.T) {
 				r.EXPECT().GetByID(userID).Return(&models.User{}, errors.New("not found"))
 			},
 			mockBehaviourUpdate: func(r *mockDomain.MockUsersRepository, user *models.User) {},
-			response:            nil,
 			responseError:       "not found",
 		},
 	}
@@ -76,11 +69,10 @@ func TestUsecase_Update(t *testing.T) {
 
 			usecase := New(userMock)
 
-			user, err := usecase.Update(*test.inputUser)
+			err := usecase.Update(*test.inputUser)
 			if err != nil {
 				require.EqualError(t, err, test.responseError)
 			}
-			require.Equal(t, user, test.response)
 		})
 	}
 }

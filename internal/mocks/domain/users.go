@@ -49,12 +49,11 @@ func (mr *MockUsersUseCaseMockRecorder) CheckIDAndPassword(id, password interfac
 }
 
 // Create mocks base method.
-func (m *MockUsersUseCase) Create(user models.User) (*models.User, error) {
+func (m *MockUsersUseCase) Create(user models.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", user)
-	ret0, _ := ret[0].(*models.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Create indicates an expected call of Create.
@@ -195,12 +194,11 @@ func (mr *MockUsersUseCaseMockRecorder) IsExistUsernameAndEmail(username, email 
 }
 
 // Update mocks base method.
-func (m *MockUsersUseCase) Update(user models.User) (*models.User, error) {
+func (m *MockUsersUseCase) Update(user models.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", user)
-	ret0, _ := ret[0].(*models.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Update indicates an expected call of Update.

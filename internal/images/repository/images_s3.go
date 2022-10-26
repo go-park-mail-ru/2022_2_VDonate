@@ -13,6 +13,10 @@ type S3 struct {
 	client *minio.Client
 }
 
+const (
+	expire = time.Hour
+)
+
 func getPolicy(client *minio.Client, bucket, policy string) error {
 	bucketPolicy, err := client.GetBucketPolicy(bucket)
 	if err != nil || bucketPolicy != policy {
@@ -75,20 +79,18 @@ func (s *S3) CreateImage(image *multipart.FileHeader, bucket string) error {
 		return domain.ErrFileOpen
 	}
 
-	if _, err = s.client.PutObject(
+	_, err = s.client.PutObject(
 		bucket,
 		image.Filename,
 		file,
 		image.Size,
 		minio.PutObjectOptions{ContentType: image.Header.Get("Content-Type")},
-	); err != nil {
-		return err
-	}
+	)
 
-	return nil
+	return err
 }
 
-func (s *S3) GetImage(bucket, filename string, expires time.Duration) (*url.URL, error) {
+func (s *S3) GetImage(bucket, filename string) (*url.URL, error) {
 	image, err := s.client.GetObject(bucket, filename, minio.GetObjectOptions{})
 	if err != nil {
 		return nil, err
@@ -98,10 +100,13 @@ func (s *S3) GetImage(bucket, filename string, expires time.Duration) (*url.URL,
 		return nil, err
 	}
 
-	object, err := s.client.PresignedGetObject(bucket, filename, expires, url.Values{})
-	if err != nil {
-		return nil, err
-	}
+	return s.client.PresignedGetObject(bucket, filename, expire, url.Values{})
+}
 
-	return object, err
+func (s *S3) GetPermanentImage(bucket, filename string) (string, error) {
+	urlImage, err := s.client.PresignedGetObject(bucket, filename, expire, url.Values{})
+	if err != nil {
+		return "", err
+	}
+	return urlImage.Scheme + "://" + urlImage.Host + "/" + bucket + "/" + filename, nil
 }

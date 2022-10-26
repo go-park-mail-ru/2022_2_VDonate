@@ -75,13 +75,11 @@ func (u *usecase) SignUp(user *models.User) (string, error) {
 		return "", domain.ErrEmailExist
 	}
 
-	user.Password, err = utils.HashPassword(user.Password)
-
-	if err != nil {
+	if user.Password, err = utils.HashPassword(user.Password); err != nil {
 		return "", errors.New("cannot hash password")
 	}
 
-	if user, err = u.usersRepo.Create(user); err != nil {
+	if err = u.usersRepo.Create(user); err != nil {
 		return "", err
 	}
 

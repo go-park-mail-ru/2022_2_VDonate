@@ -35,12 +35,11 @@ func (m *MockPostsUseCase) EXPECT() *MockPostsUseCaseMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockPostsUseCase) Create(post models.Post) (*models.Post, error) {
+func (m *MockPostsUseCase) Create(post models.Post) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", post)
-	ret0, _ := ret[0].(*models.Post)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Create indicates an expected call of Create.
@@ -94,12 +93,11 @@ func (mr *MockPostsUseCaseMockRecorder) GetPostsByUserID(id interface{}) *gomock
 }
 
 // Update mocks base method.
-func (m *MockPostsUseCase) Update(post models.Post) (*models.Post, error) {
+func (m *MockPostsUseCase) Update(post models.Post) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", post)
-	ret0, _ := ret[0].(*models.Post)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Update indicates an expected call of Update.

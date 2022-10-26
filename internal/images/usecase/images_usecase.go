@@ -1,11 +1,9 @@
 package images
 
 import (
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"mime/multipart"
 	"net/url"
-	"time"
-
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 )
 
 type usecase struct {
@@ -23,5 +21,16 @@ func (u usecase) CreateImage(image *multipart.FileHeader, bucket string) error {
 }
 
 func (u usecase) GetImage(bucket, name string) (*url.URL, error) {
-	return u.ImageRepo.GetImage(bucket, name, time.Hour)
+	switch bucket {
+	case "img":
+		return u.ImageRepo.GetImage(bucket, name)
+	case "avatar":
+		urlImage, err := u.ImageRepo.GetPermanentImage(bucket, name)
+		if err != nil {
+			return nil, err
+		}
+		return url.Parse(urlImage)
+	default:
+		return u.ImageRepo.GetImage(bucket, name)
+	}
 }

@@ -51,37 +51,31 @@ func (p *Postgres) GetSubscriptionsByID(id uint64) (*models.AuthorSubscription, 
 	return &s, nil
 }
 
-func (p *Postgres) AddSubscription(sub models.AuthorSubscription) (*models.AuthorSubscription, error) {
-	err := p.DB.QueryRowx(`
-		INSERT INTO author_subscriptions (author_id, tier, text, price) 
-		VALUES ($1, $2, $3, $4) 
+func (p *Postgres) AddSubscription(sub models.AuthorSubscription) error {
+	return p.DB.QueryRowx(`
+		INSERT INTO author_subscriptions (author_id, img, tier, text, price) 
+		VALUES ($1, $2, $3, $4, $5) 
 		RETURNING id`,
 		sub.AuthorID,
+		sub.Img,
 		sub.Tier,
 		sub.Text,
 		sub.Price,
-	).Scan(&sub.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	return &sub, nil
+	).Err()
 }
 
-func (p *Postgres) UpdateSubscription(sub *models.AuthorSubscription) (*models.AuthorSubscription, error) {
+func (p *Postgres) UpdateSubscription(sub *models.AuthorSubscription) error {
 	_, err := p.DB.NamedExec(
 		`
 		UPDATE author_subscriptions 
 		SET author_id=:author_id,
+		    img=:img,
 		    tier=:tier,
 		    text=:text,
 		    price=:price
 		WHERE id = :id`, sub)
-	if err != nil {
-		return nil, err
-	}
 
-	return sub, err
+	return err
 }
 
 func (p *Postgres) DeleteSubscription(subID uint64) error {
@@ -90,9 +84,6 @@ func (p *Postgres) DeleteSubscription(subID uint64) error {
 		WHERE id=$1`,
 		subID,
 	)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }

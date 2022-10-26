@@ -1,8 +1,10 @@
 package httpSubscriptions
 
 import (
+	"github.com/google/uuid"
 	"net/http"
 	"strconv"
+	"strings"
 
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
@@ -14,12 +16,17 @@ import (
 type Handler struct {
 	subscriptionsUsecase domain.SubscriptionsUseCase
 	userUsecase          domain.UsersUseCase
+	imageUsecase         domain.ImageUseCase
+
+	bucket string
 }
 
-func NewHandler(s domain.SubscriptionsUseCase, u domain.UsersUseCase) *Handler {
+func NewHandler(s domain.SubscriptionsUseCase, u domain.UsersUseCase, i domain.ImageUseCase, bucket string) *Handler {
 	return &Handler{
 		subscriptionsUsecase: s,
 		userUsecase:          u,
+		imageUsecase:         i,
+		bucket:               bucket,
 	}
 }
 
@@ -39,6 +46,14 @@ func (h Handler) GetSubscriptions(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrNotFound, err)
 	}
 
+	for _, subscription := range s {
+		url, err := h.imageUsecase.GetImage(h.bucket, subscription.Img)
+		if err != nil {
+			return err
+		}
+		subscription.Img = url.String()
+	}
+
 	return c.JSON(http.StatusOK, s)
 }
 
@@ -52,6 +67,12 @@ func (h Handler) GetSubscription(c echo.Context) error {
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrNotFound, err)
 	}
+
+	url, err := h.imageUsecase.GetImage(h.bucket, s.Img)
+	if err != nil {
+		return err
+	}
+	s.Img = url.String()
 
 	return c.JSON(http.StatusOK, s)
 }
@@ -67,33 +88,53 @@ func (h Handler) CreateSubscription(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrNoSession, err)
 	}
 
+	file, err := c.FormFile("file")
+	if err != nil {
+		return utils.WrapEchoError(domain.ErrBadRequest, err)
+	}
+	file.Filename = uuid.New().String() + file.Filename[strings.IndexByte(file.Filename, '.'):]
+
 	var s models.AuthorSubscription
 
 	if err = c.Bind(&s); err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
 
-	s.AuthorID = author.ID
-	newS, err := h.subscriptionsUsecase.AddSubscription(s)
-	if err != nil {
+	if err = h.imageUsecase.CreateImage(file, h.bucket); err != nil {
 		return utils.WrapEchoError(domain.ErrCreate, err)
 	}
 
-	return c.JSON(http.StatusOK, newS)
+	s.Img = file.Filename
+	s.AuthorID = author.ID
+	if err = h.subscriptionsUsecase.AddSubscription(s); err != nil {
+		return utils.WrapEchoError(domain.ErrCreate, err)
+	}
+
+	return c.JSON(http.StatusOK, struct{}{})
 }
 
 func (h Handler) UpdateSubscription(c echo.Context) error {
+	file, err := c.FormFile("file")
+	if err != nil {
+		return utils.WrapEchoError(domain.ErrBadRequest, err)
+	}
+	file.Filename = uuid.New().String() + file.Filename[strings.IndexByte(file.Filename, '.'):]
+
 	var s models.AuthorSubscription
-	if err := c.Bind(&s); err != nil {
+
+	if err = c.Bind(&s); err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
 
-	subscription, err := h.subscriptionsUsecase.UpdateSubscription(s)
-	if err != nil {
+	if err = h.imageUsecase.CreateImage(file, h.bucket); err != nil {
+		return utils.WrapEchoError(domain.ErrCreate, err)
+	}
+
+	if err = h.subscriptionsUsecase.UpdateSubscription(s); err != nil {
 		return utils.WrapEchoError(domain.ErrUpdate, err)
 	}
 
-	return c.JSON(http.StatusOK, subscription)
+	return c.JSON(http.StatusOK, struct{}{})
 }
 
 func (h Handler) DeleteSubscription(c echo.Context) error {

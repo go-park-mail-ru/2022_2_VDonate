@@ -125,9 +125,9 @@ func (s *Server) makeUseCase(url string) {
 
 func (s *Server) makeHandlers() {
 	s.authHandler = httpAuth.NewHandler(s.AuthService, s.UserService)
-	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService)
-	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService)
-	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionService, s.UserService)
+	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService, s.ImagesService, "img")
+	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService, s.ImagesService, "avatar")
+	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionService, s.UserService, s.ImagesService, "img")
 	s.subscribersHandler = httpsubscribers.NewHandler(s.SubscribersService, s.UserService)
 }
 
