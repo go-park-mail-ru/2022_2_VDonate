@@ -2,6 +2,7 @@ package domain
 
 import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+
 	"mime/multipart"
 	"net/url"
 )

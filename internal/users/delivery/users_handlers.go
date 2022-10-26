@@ -1,7 +1,6 @@
 package httpUsers
 
 import (
-	"github.com/google/uuid"
 	"net/http"
 	"strconv"
 	"strings"
@@ -9,6 +8,7 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -20,7 +20,12 @@ type Handler struct {
 	bucket string
 }
 
-func NewHandler(userUseCase domain.UsersUseCase, sessionUseCase domain.AuthUseCase, imageUseCase domain.ImageUseCase, bucket string) *Handler {
+func NewHandler(
+	userUseCase domain.UsersUseCase,
+	sessionUseCase domain.AuthUseCase,
+	imageUseCase domain.ImageUseCase,
+	bucket string,
+) *Handler {
 	return &Handler{
 		userUseCase:    userUseCase,
 		sessionUseCase: sessionUseCase,

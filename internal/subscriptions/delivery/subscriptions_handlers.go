@@ -1,7 +1,6 @@
 package httpSubscriptions
 
 import (
-	"github.com/google/uuid"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,6 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -47,9 +47,9 @@ func (h Handler) GetSubscriptions(c echo.Context) error {
 	}
 
 	for _, subscription := range s {
-		url, err := h.imageUsecase.GetImage(h.bucket, subscription.Img)
-		if err != nil {
-			return err
+		url, errGetImage := h.imageUsecase.GetImage(h.bucket, subscription.Img)
+		if errGetImage != nil {
+			return errGetImage
 		}
 		subscription.Img = url.String()
 	}

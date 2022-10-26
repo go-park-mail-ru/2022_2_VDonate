@@ -34,6 +34,10 @@ mocks: ## Generate mocks
 	@mockgen -source=internal/domain/images.go -destination=$(MOCKS_DESTINATION)/domain/images.go
 	@mockgen -source=internal/domain/repository.go -destination=$(MOCKS_DESTINATION)/domain/repository.go
 
+.PHONY: lint
+lint: ## Make linters
+	@golangci-lint run -c configs/.golangci.yaml
+
 .PHONY: clean
 clean: ## Remove temporary files
 	rm -f main
