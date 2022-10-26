@@ -8,6 +8,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/labstack/echo/v4 v4.9.0
 	github.com/lib/pq v1.2.0
+	github.com/minio/minio-go v6.0.14+incompatible
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.7.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -15,7 +16,6 @@ require (
 
 require (
 	github.com/go-ini/ini v1.67.0 // indirect
-	github.com/minio/minio-go v6.0.14+incompatible // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 )
 

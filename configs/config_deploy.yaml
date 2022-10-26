@@ -18,7 +18,8 @@ s3:
   endpoint: minio:9000
   access_key_id: admin
   secret_access_key: secretkey
-  use_ssl: true
+  # TODO: set up tls for minio
+  use_ssl: false
   # Declare polices of buckets here
   buckets:
     img: ""
