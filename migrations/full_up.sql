@@ -28,11 +28,12 @@ CREATE TABLE IF NOT EXISTS author_subscriptions (
     author_id bigserial not null references users(id),
     img varchar,
     tier integer not null,
+    title varchar not null,
     text text not null,
     price bigserial not null,
     unique (author_id, tier),
-    unique (author_id, text),
-    unique (tier, text, price)
+    unique (author_id, title),
+    unique (author_id, price)
 );
 
 CREATE TABLE IF NOT EXISTS subscriptions (

@@ -53,7 +53,7 @@ type UsersRepository interface {
 }
 
 type ImagesRepository interface {
-	CreateImage(image *multipart.FileHeader, bucket string) error
+	CreateImage(image *multipart.FileHeader, bucket string) (string, error)
 	GetImage(bucket string, filename string) (*url.URL, error)
 	GetPermanentImage(bucket string, filename string) (string, error)
 }

@@ -586,11 +586,12 @@ func (m *MockImagesRepository) EXPECT() *MockImagesRepositoryMockRecorder {
 }
 
 // CreateImage mocks base method.
-func (m *MockImagesRepository) CreateImage(image *multipart.FileHeader, bucket string) error {
+func (m *MockImagesRepository) CreateImage(image *multipart.FileHeader, bucket string) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateImage", image, bucket)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // CreateImage indicates an expected call of CreateImage.

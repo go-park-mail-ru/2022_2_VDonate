@@ -11,6 +11,7 @@ type AuthorSubscription struct {
 	AuthorID uint64 `json:"author_id" form:"author_id" db:"author_id"`
 	Img      string `json:"img" db:"img"`
 	Tier     uint64 `json:"tier" form:"tier" db:"tier"`
+	Title    string `json:"title" form:"title" db:"title"`
 	Text     string `json:"text" form:"text" db:"text"`
 	Price    uint64 `json:"price" form:"price" db:"price"`
 }

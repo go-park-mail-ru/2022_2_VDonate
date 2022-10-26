@@ -1,16 +1,15 @@
 package httpPosts
 
 import (
-	"net/http"
-	"strconv"
-	"strings"
-
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+
+	"net/http"
+	"strconv"
 )
 
 type Handler struct {
@@ -93,11 +92,10 @@ func (h *Handler) PutPost(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
 
-	file, err := c.FormFile("file")
+	file, err := images.GetFileFromContext(c)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
-	file.Filename = uuid.New().String() + file.Filename[strings.IndexByte(file.Filename, '.'):]
 
 	var prevPost models.Post
 
@@ -105,10 +103,12 @@ func (h *Handler) PutPost(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
 
-	if err = h.imageUseCase.CreateImage(file, h.bucket); err != nil {
+	newFile, err := h.imageUseCase.CreateImage(file, h.bucket)
+	if err != nil {
 		return utils.WrapEchoError(domain.ErrCreate, err)
 	}
 
+	prevPost.Img = newFile
 	prevPost.ID = postID
 	if err = h.postsUseCase.Update(prevPost); err != nil {
 		return utils.WrapEchoError(domain.ErrUpdate, err)
@@ -128,11 +128,10 @@ func (h *Handler) CreatePosts(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrNoSession, err)
 	}
 
-	file, err := c.FormFile("file")
+	file, err := images.GetFileFromContext(c)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
-	file.Filename = uuid.New().String() + file.Filename[strings.IndexByte(file.Filename, '.'):]
 
 	var post models.Post
 
@@ -140,11 +139,12 @@ func (h *Handler) CreatePosts(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
 
-	if err = h.imageUseCase.CreateImage(file, h.bucket); err != nil {
+	newImage, err := h.imageUseCase.CreateImage(file, h.bucket)
+	if err != nil {
 		return utils.WrapEchoError(domain.ErrCreate, err)
 	}
 
-	post.Img = file.Filename
+	post.Img = newImage
 	post.UserID = user.ID
 	if err = h.postsUseCase.Create(post); err != nil {
 		return utils.WrapEchoError(domain.ErrCreate, err)

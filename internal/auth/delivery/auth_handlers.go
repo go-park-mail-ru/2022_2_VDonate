@@ -32,7 +32,7 @@ func MakeHTTPCookie(c *http.Cookie) *http.Cookie {
 		Expires:  c.Expires,
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteNoneMode,
 	}
 }
 
@@ -43,7 +43,7 @@ func makeHTTPCookieFromValue(value string) *http.Cookie {
 		Expires:  time.Now().AddDate(0, 1, 0),
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteNoneMode,
 	}
 }
 

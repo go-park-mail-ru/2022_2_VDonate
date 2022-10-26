@@ -64,19 +64,19 @@ func New(endpoint, accessKeyID, secretAccessKey string, secure bool, buckets map
 	}, nil
 }
 
-func (s *S3) CreateImage(image *multipart.FileHeader, bucket string) error {
+func (s *S3) CreateImage(image *multipart.FileHeader, bucket string) (string, error) {
 	exists, err := s.client.BucketExists(bucket)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if !exists {
-		return domain.ErrBucketNotExists
+		return "", domain.ErrBucketNotExists
 	}
 
 	file, err := image.Open()
 	if err != nil {
-		return domain.ErrFileOpen
+		return "", domain.ErrFileOpen
 	}
 
 	_, err = s.client.PutObject(
@@ -87,7 +87,7 @@ func (s *S3) CreateImage(image *multipart.FileHeader, bucket string) error {
 		minio.PutObjectOptions{ContentType: image.Header.Get("Content-Type")},
 	)
 
-	return err
+	return image.Filename, err
 }
 
 func (s *S3) GetImage(bucket, filename string) (*url.URL, error) {

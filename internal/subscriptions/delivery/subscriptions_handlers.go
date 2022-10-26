@@ -1,16 +1,15 @@
 package httpSubscriptions
 
 import (
-	"net/http"
-	"strconv"
-	"strings"
-
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+
+	"net/http"
+	"strconv"
 )
 
 type Handler struct {
@@ -88,11 +87,10 @@ func (h Handler) CreateSubscription(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrNoSession, err)
 	}
 
-	file, err := c.FormFile("file")
+	file, err := images.GetFileFromContext(c)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
-	file.Filename = uuid.New().String() + file.Filename[strings.IndexByte(file.Filename, '.'):]
 
 	var s models.AuthorSubscription
 
@@ -100,11 +98,12 @@ func (h Handler) CreateSubscription(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
 
-	if err = h.imageUsecase.CreateImage(file, h.bucket); err != nil {
+	newFile, err := h.imageUsecase.CreateImage(file, h.bucket)
+	if err != nil {
 		return utils.WrapEchoError(domain.ErrCreate, err)
 	}
 
-	s.Img = file.Filename
+	s.Img = newFile
 	s.AuthorID = author.ID
 	if err = h.subscriptionsUsecase.AddSubscription(s); err != nil {
 		return utils.WrapEchoError(domain.ErrCreate, err)
@@ -114,11 +113,10 @@ func (h Handler) CreateSubscription(c echo.Context) error {
 }
 
 func (h Handler) UpdateSubscription(c echo.Context) error {
-	file, err := c.FormFile("file")
+	file, err := images.GetFileFromContext(c)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
-	file.Filename = uuid.New().String() + file.Filename[strings.IndexByte(file.Filename, '.'):]
 
 	var s models.AuthorSubscription
 
@@ -126,10 +124,12 @@ func (h Handler) UpdateSubscription(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
 
-	if err = h.imageUsecase.CreateImage(file, h.bucket); err != nil {
+	newFile, err := h.imageUsecase.CreateImage(file, h.bucket)
+	if err != nil {
 		return utils.WrapEchoError(domain.ErrCreate, err)
 	}
 
+	s.Img = newFile
 	if err = h.subscriptionsUsecase.UpdateSubscription(s); err != nil {
 		return utils.WrapEchoError(domain.ErrUpdate, err)
 	}

@@ -36,11 +36,7 @@ func TestUsecase_Update(t *testing.T) {
 				}, nil)
 			},
 			mockBehaviourUpdate: func(r *mockDomain.MockUsersRepository, user *models.User) {
-				r.EXPECT().Update(user).Return(&models.User{
-					ID:       200,
-					Username: "username",
-					Email:    "user@ex.org",
-				}, nil)
+				r.EXPECT().Update(user).Return(nil)
 			},
 		},
 		{

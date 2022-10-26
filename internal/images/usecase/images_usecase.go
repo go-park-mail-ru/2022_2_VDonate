@@ -2,9 +2,12 @@ package images
 
 import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 
 	"mime/multipart"
 	"net/url"
+	"strings"
 )
 
 type usecase struct {
@@ -17,7 +20,8 @@ func New(imageRepo domain.ImagesRepository) domain.ImageUseCase {
 	}
 }
 
-func (u usecase) CreateImage(image *multipart.FileHeader, bucket string) error {
+func (u usecase) CreateImage(image *multipart.FileHeader, bucket string) (string, error) {
+	image.Filename = uuid.New().String() + image.Filename[strings.IndexByte(image.Filename, '.'):]
 	return u.ImageRepo.CreateImage(image, bucket)
 }
 
@@ -34,4 +38,8 @@ func (u usecase) GetImage(bucket, name string) (*url.URL, error) {
 	default:
 		return u.ImageRepo.GetImage(bucket, name)
 	}
+}
+
+func GetFileFromContext(c echo.Context) (*multipart.FileHeader, error) {
+	return c.FormFile("file")
 }

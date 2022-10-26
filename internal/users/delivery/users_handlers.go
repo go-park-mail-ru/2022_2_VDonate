@@ -1,15 +1,14 @@
 package httpUsers
 
 import (
-	"net/http"
-	"strconv"
-	"strings"
-
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+
+	"net/http"
+	"strconv"
 )
 
 type Handler struct {
@@ -61,11 +60,10 @@ func (h *Handler) PutUser(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
 
-	file, err := c.FormFile("file")
+	file, err := images.GetFileFromContext(c)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
-	file.Filename = uuid.New().String() + file.Filename[strings.IndexByte(file.Filename, '.'):]
 
 	var updateUser models.User
 
@@ -73,11 +71,12 @@ func (h *Handler) PutUser(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
 
-	if err = h.imageUseCase.CreateImage(file, h.bucket); err != nil {
+	newFile, err := h.imageUseCase.CreateImage(file, h.bucket)
+	if err != nil {
 		return utils.WrapEchoError(domain.ErrCreate, err)
 	}
 
-	updateUser.Avatar = file.Filename
+	updateUser.Avatar = newFile
 	updateUser.ID = id
 	if err = h.userUseCase.Update(updateUser); err != nil {
 		return utils.WrapEchoError(domain.ErrUpdate, err)

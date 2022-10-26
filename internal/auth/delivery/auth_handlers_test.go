@@ -124,7 +124,7 @@ func TestHandler_Login(t *testing.T) {
 				}, nil)
 			},
 			expectedStatusCode:   200,
-			expectedResponseBody: `{"id":10,"username":"username","first_name":"Jane","last_name":"Doe","email":"john@email.com","is_author":false}`,
+			expectedResponseBody: `{"id":10,"username":"username","email":"john@email.com","is_author":false}`,
 		},
 		{
 			name:      "NoExistingSession-1",
