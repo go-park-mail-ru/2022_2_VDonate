@@ -22,4 +22,5 @@ s3:
   # Declare polices of buckets here
   buckets:
     img: ""
-    avatar: `{"Version": "2022-10-26","Statement": [{"Action": ["s3:GetObject"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::avatar/*"],"Sid": ""}]}`
+    avatar: >-
+      {"Version": "2012-10-17","Statement": [{"Action": ["s3:GetObject"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::avatar/*"],"Sid": ""}]}
