@@ -49,7 +49,7 @@ func TestHadler_GetUser(t *testing.T) {
 			mockImageBehavior: func(r *mockDomain.MockImageUseCase, bucket, filename string) {
 				r.EXPECT().GetImage(bucket, filename).Return(&url.URL{}, nil)
 			},
-			expectedResponseBody: `{"id":24,"username":"themilchenko","email":"example@ex.com","is_author":false}`,
+			expectedResponseBody: `{"username":"themilchenko","email":"example@ex.com","is_author":false}`,
 		},
 		{
 			name:                 "BadID",

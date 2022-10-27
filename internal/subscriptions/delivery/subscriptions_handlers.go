@@ -178,6 +178,9 @@ func (h Handler) CreateSubscription(c echo.Context) error {
 // @Router      /subscriptions/{id} [put]
 func (h Handler) UpdateSubscription(c echo.Context) error {
 	subID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return utils.WrapEchoError(domain.ErrBadRequest, err)
+	}
 	file, err := images.GetFileFromContext(c)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)

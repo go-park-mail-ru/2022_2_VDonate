@@ -40,7 +40,7 @@ func TestHandler_SignUp(t *testing.T) {
 				r.EXPECT().SignUp(&user).Return("dsapfapspasf", nil)
 			},
 			expectedStatusCode:   200,
-			expectedResponseBody: `{"id":0,"username":"username","email":"ex@example.com","is_author":false}`,
+			expectedResponseBody: `{}`,
 		},
 		{
 			name:      "IncorrectUser",
@@ -49,8 +49,8 @@ func TestHandler_SignUp(t *testing.T) {
 			mockBehavior: func(r *mockDomain.MockAuthUseCase, user models.User) {
 				r.EXPECT().SignUp(&user).Return("", errors.New("empty user"))
 			},
-			expectedStatusCode:   401,
-			expectedResponseBody: `{"message":"no existing session"}`,
+			expectedStatusCode:   500,
+			expectedResponseBody: `{"message":"server error"}`,
 		},
 		{
 			name:                 "IncorrectBody",
@@ -124,7 +124,7 @@ func TestHandler_Login(t *testing.T) {
 				}, nil)
 			},
 			expectedStatusCode:   200,
-			expectedResponseBody: `{"id":10,"username":"username","email":"john@email.com","is_author":false}`,
+			expectedResponseBody: `{"username":"username","email":"john@email.com","is_author":false}`,
 		},
 		{
 			name:      "NoExistingSession-1",
@@ -224,7 +224,7 @@ func TestHandler_Auth(t *testing.T) {
 					Username: "username",
 				}, nil)
 			},
-			expectedResponseBody: `{"id":1,"username":"username","email":"ex@example.com","is_author":false}`,
+			expectedResponseBody: `{"username":"username","email":"ex@example.com","is_author":false}`,
 		},
 		{
 			name:                 "NoExistingSession-1",
@@ -319,7 +319,7 @@ func TestHandler_Logout(t *testing.T) {
 			mockBehaviorAuth: func(r *mockDomain.MockAuthUseCase, sessionID string) {
 				r.EXPECT().Logout(sessionID).Return(false, nil)
 			},
-			expectedErrorMessage: "code=500, message=bad session",
+			expectedErrorMessage: "code=400, message=bad session",
 		},
 		{
 			name:                 "NoSession",

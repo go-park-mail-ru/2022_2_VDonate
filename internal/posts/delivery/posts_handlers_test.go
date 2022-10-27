@@ -86,7 +86,7 @@ func TestHandler_GetPosts(t *testing.T) {
 			},
 			mockBehaviorGet:      func(s mockDomain.MockPostsUseCase, userID uint64) {},
 			mockBehaviorImage:    func(s mockDomain.MockImageUseCase, bucket, filename string) {},
-			expectedErrorMessage: "code=500, message=bad session, internal=bad session",
+			expectedErrorMessage: "code=400, message=bad session, internal=bad session",
 		},
 	}
 
@@ -370,7 +370,7 @@ func TestHandler_CreatePosts(t *testing.T) {
 
 			test.mockBehaviorImage(image, "img", c)
 
-			if err = handler.CreatePosts(c); err != nil {
+			if err = handler.CreatePost(c); err != nil {
 				assert.Equal(t, test.expectedErrorMessage, err.Error())
 			}
 		})
