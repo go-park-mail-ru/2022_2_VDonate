@@ -29,6 +29,19 @@ func NewHandler(s domain.SubscriptionsUseCase, u domain.UsersUseCase, i domain.I
 	}
 }
 
+// GetSubscriptions godoc
+// @Summary     Get user's subscriptions
+// @Description Get user's subscriptions by Cookie
+// @ID          get_subscriptions
+// @Tags        subscriptions
+// @Produce     json
+// @Success     200 {object} []models.Subscription "Successfully received subscriptions"
+// @Failure     400 {object} echo.HTTPError        "Bad request"
+// @Failure     401 {object} echo.HTTPError        "No session"
+// @Failure     403 {object} echo.HTTPError        "You are not supposed to make this requests"
+// @Failure     500 {object} echo.HTTPError        "Internal error"
+// @Security    ApiKeyAuth
+// @Router      /subscriptions [get]
 func (h Handler) GetSubscriptions(c echo.Context) error {
 	cookie, err := httpAuth.GetCookie(c)
 	if err != nil {
@@ -56,6 +69,21 @@ func (h Handler) GetSubscriptions(c echo.Context) error {
 	return c.JSON(http.StatusOK, s)
 }
 
+// GetSubscription godoc
+// @Summary     Get user's subscription
+// @Description Get user's subscription by id
+// @ID          get_subscription
+// @Tags        subscriptions
+// @Produce     json
+// @Param       id  path     integer             true "Subscription ID"
+// @Success     200 {object} models.Subscription "Successfully received subscription"
+// @Failure     400 {object} echo.HTTPError      "Bad request"
+// @Failure     401 {object} echo.HTTPError      "No session"
+// @Failure     403 {object} echo.HTTPError      "You are not supposed to make this requests"
+// @Failure     404 {object} echo.HTTPError      "Subscription not found"
+// @Failure     500 {object} echo.HTTPError      "Internal error"
+// @Security    ApiKeyAuth
+// @Router      /subscriptions/{id} [get]
 func (h Handler) GetSubscription(c echo.Context) error {
 	subID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -76,6 +104,23 @@ func (h Handler) GetSubscription(c echo.Context) error {
 	return c.JSON(http.StatusOK, s)
 }
 
+// CreateSubscription godoc
+// @Summary     Create subscription
+// @Description Create subscription by user's Cookie
+// @ID          create_subscription
+// @Tags        subscriptions
+// @Produce     json
+// @Accept      mpfd
+// @Param       data formData models.AuthorSubscriptionMpfd true  "POST request of all information about `User`"
+// @Param       file formData file                          false "Upload image"
+// @Success     200  {object} models.ResponseImage          "Successfully created subscription"
+// @Failure     400  {object} echo.HTTPError                "Bad request"
+// @Failure     401  {object} echo.HTTPError                "No session"
+// @Failure     403  {object} echo.HTTPError                "You are not supposed to make this requests"
+// @Failure     404  {object} echo.HTTPError                "Subscription not found"
+// @Failure     500  {object} echo.HTTPError                "Internal error"
+// @Security    ApiKeyAuth
+// @Router      /subscriptions [post]
 func (h Handler) CreateSubscription(c echo.Context) error {
 	cookie, err := httpAuth.GetCookie(c)
 	if err != nil {
@@ -109,10 +154,30 @@ func (h Handler) CreateSubscription(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrCreate, err)
 	}
 
-	return c.JSON(http.StatusOK, struct{}{})
+	return c.JSON(http.StatusOK, models.ResponseImage{
+		ImgPath: s.Img,
+	})
 }
 
+// UpdateSubscription godoc
+// @Summary     Update subscription
+// @Description Update subscription by subscription id
+// @ID          update_subscription
+// @Tags        subscriptions
+// @Produce     json
+// @Accept      mpfd
+// @Param       id   path     integer                       true  "Subscription ID"
+// @Param       data formData models.AuthorSubscriptionMpfd true  "POST request of all information about `User`"
+// @Param       file formData file                          false "Upload image"
+// @Success     200  {object} models.ResponseImage          "Successfully updated subscription"
+// @Failure     400  {object} echo.HTTPError                "Bad request"
+// @Failure     401  {object} echo.HTTPError                "No session"
+// @Failure     403  {object} echo.HTTPError                "You are not supposed to make this requests"
+// @Failure     500  {object} echo.HTTPError                "Internal / update error"
+// @Security    ApiKeyAuth
+// @Router      /subscriptions/{id} [put]
 func (h Handler) UpdateSubscription(c echo.Context) error {
+	subID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	file, err := images.GetFileFromContext(c)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
@@ -129,14 +194,32 @@ func (h Handler) UpdateSubscription(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrCreate, err)
 	}
 
+	s.ID = subID
 	s.Img = newFile
 	if err = h.subscriptionsUsecase.UpdateSubscription(s); err != nil {
 		return utils.WrapEchoError(domain.ErrUpdate, err)
 	}
 
-	return c.JSON(http.StatusOK, struct{}{})
+	return c.JSON(http.StatusOK, models.ResponseImage{
+		ImgPath: s.Img,
+	})
 }
 
+// DeleteSubscription godoc
+// @Summary     Delete subscription
+// @Description Delete subscription by subscription id
+// @ID          delete_subscription
+// @Tags        subscriptions
+// @Produce     json
+// @Accept      mpfd
+// @Param       id  path     integer            true "Subscription ID"
+// @Success     200 {object} models.EmptyStruct "Successfully updated subscription"
+// @Failure     400 {object} echo.HTTPError     "Bad request"
+// @Failure     401 {object} echo.HTTPError     "No session"
+// @Failure     403 {object} echo.HTTPError     "You are not supposed to make this requests"
+// @Failure     500 {object} echo.HTTPError     "Internal / delete error"
+// @Security    ApiKeyAuth
+// @Router      /subscriptions/{id} [delete]
 func (h Handler) DeleteSubscription(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

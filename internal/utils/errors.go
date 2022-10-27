@@ -28,7 +28,7 @@ func WrapEchoError(errHTTP, errInternal error) error {
 	case domain.ErrForbidden:
 		return echo.NewHTTPError(http.StatusForbidden, errHTTP.Error()).SetInternal(errInternal)
 	case domain.ErrInvalidLoginOrPassword,
-		domain.ErrBadRequest:
+		domain.ErrBadRequest, domain.ErrBadSession:
 		return echo.NewHTTPError(http.StatusBadRequest, errHTTP.Error()).SetInternal(errInternal)
 	case domain.ErrUserOrEmailAlreadyExist:
 		return echo.NewHTTPError(http.StatusConflict, errHTTP.Error()).SetInternal(errInternal)
@@ -37,7 +37,6 @@ func WrapEchoError(errHTTP, errInternal error) error {
 		domain.ErrJSONUnmarshal,
 		domain.ErrCreate,
 		domain.ErrCopy,
-		domain.ErrBadSession,
 		domain.ErrInternal,
 		domain.ErrDelete:
 		return echo.NewHTTPError(http.StatusInternalServerError, errHTTP.Error()).SetInternal(errInternal)

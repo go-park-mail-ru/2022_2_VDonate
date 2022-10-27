@@ -34,6 +34,20 @@ func NewHandler(
 	}
 }
 
+// GetUser godoc
+// @Summary     Get a User
+// @Description Get a User information from server
+// @ID          get_user
+// @Tags        users
+// @Produce     json
+// @Param       id  path     integer        true "User ID"
+// @Success     200 {object} models.Author  "User was successfully received"
+// @Failure     400 {object} echo.HTTPError "Bad request"
+// @Failure     401 {object} echo.HTTPError "No session provided"
+// @Failure     404 {object} echo.HTTPError "User / avatars not found"
+// @Failure     500 {object} echo.HTTPError "Internal error"
+// @Security    ApiKeyAuth
+// @Router      /users/{id} [get]
 func (h *Handler) GetUser(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -54,6 +68,23 @@ func (h *Handler) GetUser(c echo.Context) error {
 	return UserResponse(c, user)
 }
 
+// PutUser godoc
+// @Summary     Update user
+// @Description Update user by user id
+// @ID          update_user
+// @Tags        users
+// @Produce     json
+// @Param       id path integer true "User ID"
+// @Accept      mpfd
+// @Param       post formData models.UserMpfd true  "New Post"
+// @Param       file formData file            false "Uploaded file"
+// @Success     200  {object} models.User     "User was successfully updated"
+// @Failure     400  {object} echo.HTTPError  "Bad request"
+// @Failure     401  {object} echo.HTTPError  "No session provided"
+// @Failure     403  {object} echo.HTTPError  "Not a user"
+// @Failure     500  {object} echo.HTTPError  "Internal error / failed to create user"
+// @Security    ApiKeyAuth
+// @Router      /users/{id} [put]
 func (h *Handler) PutUser(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

@@ -22,6 +22,11 @@ ci: lint test ## Run all the tests and code checks
 local_build: ## Build locally
 	go build -o bin/ ${MAIN_PATH}
 
+.PHONY: docs
+docs: ## Make swagger docs
+	swag fmt
+	swag init --parseDependency --parseInternal -g cmd/api/main.go
+
 .PHONY: mocks
 mocks: ## Generate mocks
 	@echo "Generating mocks..."

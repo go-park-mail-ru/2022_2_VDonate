@@ -24,6 +24,7 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 type Server struct {
@@ -139,6 +140,9 @@ func (s *Server) makeEchoLogger() {
 
 func (s *Server) makeRouter() {
 	s.Echo.Pre(middleware.RemoveTrailingSlash())
+
+	s.Echo.GET("backend/swagger/*", echoSwagger.WrapHandler)
+
 	s.Echo.Use(logger.Middleware())
 	s.Echo.Use(middleware.Secure())
 	v1 := s.Echo.Group("/api/v1")
@@ -158,7 +162,7 @@ func (s *Server) makeRouter() {
 	post.Use(s.authMiddleware.LoginRequired)
 
 	post.GET("", s.postsHandler.GetPosts)
-	post.POST("", s.postsHandler.CreatePosts)
+	post.POST("", s.postsHandler.CreatePost)
 	post.GET("/:id", s.postsHandler.GetPost)
 	post.DELETE("/:id", s.postsHandler.DeletePost, s.authMiddleware.PostSameSessionByID)
 	post.PUT("/:id", s.postsHandler.PutPost, s.authMiddleware.PostSameSessionByID)

@@ -59,6 +59,16 @@ func NewHandler(authUseCase domain.AuthUseCase, usersUseCase domain.UsersUseCase
 	}
 }
 
+// Auth godoc
+// @Summary     User authentication request
+// @Description Check authentication of `User` by cookies
+// @ID          auth
+// @Tags        auth
+// @Produce     json
+// @Success     200 {object} models.EmptyStruct "Session was successfully found"
+// @Failure     401 {object} echo.HTTPError     "User is unauthorized"
+// @Failure     404 {object} echo.HTTPError     "User was not found"
+// @Router      /auth [get]
 func (h Handler) Auth(c echo.Context) error {
 	cookie, err := GetCookie(c)
 	if err != nil {
@@ -78,6 +88,18 @@ func (h Handler) Auth(c echo.Context) error {
 	return httpUsers.UserResponse(c, user)
 }
 
+// Login godoc
+// @Summary     User login request
+// @Description Authorization of `User`
+// @ID          login
+// @Tags        auth
+// @Accept      json
+// @Produce     json
+// @Param       authData body     models.AuthUser true "username and password"
+// @Success     200      {object} models.Author   "Session was successfully found"
+// @Failure     400      {object} echo.HTTPError  "Wrong login or password or bad data was received"
+// @Failure     404      {object} echo.HTTPError  "User was not found"
+// @Router      /login [post]
 func (h Handler) Login(c echo.Context) error {
 	var data models.AuthUser
 	if err := c.Bind(&data); err != nil {
@@ -99,6 +121,17 @@ func (h Handler) Login(c echo.Context) error {
 	return httpUsers.UserResponse(c, user)
 }
 
+// Logout godoc
+// @Summary     User logout
+// @Description Get request for user logout
+// @ID          logout
+// @Tags        auth
+// @Produce     json
+// @Success     200 {object} models.EmptyStruct "Successfully logout"
+// @Failure     400 {object} echo.HTTPError     "Bad session / request"
+// @Failure     401 {object} echo.HTTPError     "No session provided"
+// @Security    ApiKeyAuth
+// @Router      /logout [delete]
 func (h Handler) Logout(c echo.Context) error {
 	session, err := GetCookie(c)
 	if err != nil {
@@ -120,6 +153,20 @@ func (h Handler) Logout(c echo.Context) error {
 	return c.JSON(http.StatusOK, struct{}{})
 }
 
+// SignUp godoc
+// @Summary     Creates a User
+// @Description Request to server for `User` creation
+// @ID          signup
+// @Tags        users
+// @Accept      mpfd
+// @Produce     json
+// @Param       data formData models.UserMpfd    true  "POST request of all information about `User`"
+// @Param       file formData file               false "Upload avatar"
+// @Success     200  {object} models.EmptyStruct "User was successfully created"
+// @Failure     400  {object} echo.HTTPError     "Bad request"
+// @Failure     409  {object} echo.HTTPError     "Username or email is already exists"
+// @Failure     500  {object} echo.HTTPError     "Internal error"
+// @Router      /users [post]
 func (h Handler) SignUp(c echo.Context) error {
 	var newUser models.User
 
@@ -129,10 +176,10 @@ func (h Handler) SignUp(c echo.Context) error {
 
 	sessionID, err := h.authUseCase.SignUp(&newUser)
 	if err != nil {
-		return utils.WrapEchoError(domain.ErrNoSession, err)
+		return utils.WrapEchoError(domain.ErrInternal, err)
 	}
 
 	c.SetCookie(makeHTTPCookieFromValue(sessionID))
 
-	return httpUsers.UserResponse(c, &newUser)
+	return c.JSON(http.StatusOK, models.EmptyStruct{})
 }

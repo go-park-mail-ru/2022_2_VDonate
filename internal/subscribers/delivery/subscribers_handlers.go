@@ -22,6 +22,18 @@ func NewHandler(s domain.SubscribersUseCase, u domain.UsersUseCase) *Handler {
 	}
 }
 
+// GetSubscribers godoc
+// @Summary     Returns subscribers by author ID
+// @Description Request to server for subscriptions of requested `Author`
+// @ID          get_subscribers
+// @Tags        subscribers
+// @Produce     json
+// @Param       author_id path     integer         true "Author ID"
+// @Success     200       {object} []models.Author "Get list of author subscribers"
+// @Failure     400       {object} echo.HTTPError  "Bad request"
+// @Failure     404       {object} echo.HTTPError  "Not found"
+// @Security    ApiKeyAuth
+// @Router      /subscribers/{author_id} [get]
 func (h Handler) GetSubscribers(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("author_id"), 10, 64)
 	if err != nil {
@@ -36,6 +48,19 @@ func (h Handler) GetSubscribers(c echo.Context) error {
 	return c.JSON(http.StatusOK, s)
 }
 
+// CreateSubscriber godoc
+// @Summary     Subscribe
+// @Description Subscribe user to author with paid subscription
+// @ID          create_subscriber
+// @Tags        subscribers
+// @Accept      json
+// @Produce     json
+// @Param       Subscription body     models.Subscription true "Subscription info with required UserID, AuthorID and Subscription ID"
+// @Success     200          {object} models.Subscription "Successfully subscribed"
+// @Failure     400          {object} echo.HTTPError      "Bad request"
+// @Failure     500          {object} echo.HTTPError      "Not created"
+// @Security    ApiKeyAuth
+// @Router      /subscribers [post]
 func (h Handler) CreateSubscriber(c echo.Context) error {
 	var s models.Subscription
 	if err := c.Bind(&s); err != nil {
@@ -50,6 +75,19 @@ func (h Handler) CreateSubscriber(c echo.Context) error {
 	return c.JSON(http.StatusOK, s)
 }
 
+// DeleteSubscriber godoc
+// @Summary     Unsubscribe
+// @Description Unsubscribe user from author
+// @ID          delete_subscriber
+// @Tags        subscribers
+// @Accept      json
+// @Produce     json
+// @Param       Subscription body     models.Subscription true "Subscription info with required UserID, AuthorID and Subscription ID"
+// @Success     200          {object} models.EmptyStruct  "Subscriber was successfully unsubscribed"
+// @Failure     400          {object} echo.HTTPError      "Bad request"
+// @Failure     500          {object} echo.HTTPError      "Not deleted"
+// @Security    ApiKeyAuth
+// @Router      /subscribers [delete]
 func (h Handler) DeleteSubscriber(c echo.Context) error {
 	var s models.Subscription
 	if err := c.Bind(&s); err != nil {
