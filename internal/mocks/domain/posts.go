@@ -64,10 +64,10 @@ func (mr *MockPostsUseCaseMockRecorder) DeleteByID(postID interface{}) *gomock.C
 }
 
 // GetLikeByUserAndPostID mocks base method.
-func (m *MockPostsUseCase) GetLikeByUserAndPostID(userID, postID uint64) (*models.Like, error) {
+func (m *MockPostsUseCase) GetLikeByUserAndPostID(userID, postID uint64) (models.Like, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLikeByUserAndPostID", userID, postID)
-	ret0, _ := ret[0].(*models.Like)
+	ret0, _ := ret[0].(models.Like)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -79,10 +79,10 @@ func (mr *MockPostsUseCaseMockRecorder) GetLikeByUserAndPostID(userID, postID in
 }
 
 // GetLikesByPostID mocks base method.
-func (m *MockPostsUseCase) GetLikesByPostID(postID uint64) ([]*models.Like, error) {
+func (m *MockPostsUseCase) GetLikesByPostID(postID uint64) ([]models.Like, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLikesByPostID", postID)
-	ret0, _ := ret[0].([]*models.Like)
+	ret0, _ := ret[0].([]models.Like)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -124,17 +124,17 @@ func (mr *MockPostsUseCaseMockRecorder) GetPostsByUserID(id interface{}) *gomock
 }
 
 // LikePost mocks base method.
-func (m *MockPostsUseCase) LikePost(like models.Like) error {
+func (m *MockPostsUseCase) LikePost(userID, postID uint64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LikePost", like)
+	ret := m.ctrl.Call(m, "LikePost", userID, postID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // LikePost indicates an expected call of LikePost.
-func (mr *MockPostsUseCaseMockRecorder) LikePost(like interface{}) *gomock.Call {
+func (mr *MockPostsUseCaseMockRecorder) LikePost(userID, postID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LikePost", reflect.TypeOf((*MockPostsUseCase)(nil).LikePost), like)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LikePost", reflect.TypeOf((*MockPostsUseCase)(nil).LikePost), userID, postID)
 }
 
 // UnlikePost mocks base method.

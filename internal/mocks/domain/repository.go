@@ -189,17 +189,17 @@ func (mr *MockPostsRepositoryMockRecorder) Create(post interface{}) *gomock.Call
 }
 
 // CreateLike mocks base method.
-func (m *MockPostsRepository) CreateLike(like models.Like) error {
+func (m *MockPostsRepository) CreateLike(userID, postID uint64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateLike", like)
+	ret := m.ctrl.Call(m, "CreateLike", userID, postID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateLike indicates an expected call of CreateLike.
-func (mr *MockPostsRepositoryMockRecorder) CreateLike(like interface{}) *gomock.Call {
+func (mr *MockPostsRepositoryMockRecorder) CreateLike(userID, postID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLike", reflect.TypeOf((*MockPostsRepository)(nil).CreateLike), like)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLike", reflect.TypeOf((*MockPostsRepository)(nil).CreateLike), userID, postID)
 }
 
 // DeleteByID mocks base method.
@@ -246,10 +246,10 @@ func (mr *MockPostsRepositoryMockRecorder) GetAllByUserID(userID interface{}) *g
 }
 
 // GetAllLikesByPostID mocks base method.
-func (m *MockPostsRepository) GetAllLikesByPostID(postID uint64) ([]*models.Like, error) {
+func (m *MockPostsRepository) GetAllLikesByPostID(postID uint64) ([]models.Like, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllLikesByPostID", postID)
-	ret0, _ := ret[0].([]*models.Like)
+	ret0, _ := ret[0].([]models.Like)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -261,10 +261,10 @@ func (mr *MockPostsRepositoryMockRecorder) GetAllLikesByPostID(postID interface{
 }
 
 // GetLikeByUserAndPostID mocks base method.
-func (m *MockPostsRepository) GetLikeByUserAndPostID(userID, postID uint64) (*models.Like, error) {
+func (m *MockPostsRepository) GetLikeByUserAndPostID(userID, postID uint64) (models.Like, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLikeByUserAndPostID", userID, postID)
-	ret0, _ := ret[0].(*models.Like)
+	ret0, _ := ret[0].(models.Like)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

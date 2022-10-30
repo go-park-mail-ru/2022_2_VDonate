@@ -106,8 +106,8 @@ func (r Postgres) CreateLike(userID, postID uint64) error {
 		`
 		INSERT INTO likes (user_id, post_id)
 		VALUES ($1, $2);`,
-		userID, 
-		postID, 
+		userID,
+		postID,
 	).Err()
 }
 
