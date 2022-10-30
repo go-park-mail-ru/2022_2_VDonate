@@ -55,7 +55,7 @@ func (u *usecase) DeleteByID(postID uint64) error {
 	return u.postsRepo.DeleteByID(postID)
 }
 
-func (u *usecase) GetLikesByPostID(postID uint64) ([] *models.Like, error) {
+func (u *usecase) GetLikesByPostID(postID uint64) ([]models.Like, error) {
 	r, err := u.postsRepo.GetAllLikesByPostID(postID)
 	if err != nil {
 		return nil, err
@@ -63,12 +63,12 @@ func (u *usecase) GetLikesByPostID(postID uint64) ([] *models.Like, error) {
 	return r, nil
 }
 
-func (u *usecase) GetLikeByUserAndPostID(userID, postID uint64) (*models.Like, error) {
+func (u *usecase) GetLikeByUserAndPostID(userID, postID uint64) (models.Like, error) {
 	return u.postsRepo.GetLikeByUserAndPostID(userID, postID)
 }
 
-func (u *usecase) LikePost(like models.Like) error {
-	return u.postsRepo.CreateLike(like)
+func (u *usecase) LikePost(userID, postID uint64) error {
+	return u.postsRepo.CreateLike(userID, postID)
 }
 
 func (u *usecase) UnlikePost(userID, postID uint64) error {

@@ -85,33 +85,33 @@ func (r *Postgres) DeleteByID(postID uint64) error {
 	return nil
 }
 
-func (r *Postgres) GetLikeByUserAndPostID(userID, postID uint64) (*models.Like, error) {
+func (r Postgres) GetLikeByUserAndPostID(userID, postID uint64) (models.Like, error) {
 	var like models.Like
 	if err := r.DB.Get(&like, "SELECT * FROM likes WHERE user_id=$1 AND post_id=$2;", userID, postID); err != nil {
-		return nil, err
+		return models.Like{}, err
 	}
-	return &like, nil
+	return like, nil
 }
 
-func (r *Postgres) GetAllLikesByPostID(postID uint64) ([] *models.Like, error) {
-	var likes []*models.Like
+func (r Postgres) GetAllLikesByPostID(postID uint64) ([]models.Like, error) {
+	var likes []models.Like
 	if err := r.DB.Select(&likes, "SELECT * FROM likes WHERE post_id=$1;", postID); err != nil {
 		return nil, err
 	}
 	return likes, nil
 }
 
-func (r *Postgres) CreateLike(like models.Like) error {
+func (r Postgres) CreateLike(userID, postID uint64) error {
 	return r.DB.QueryRowx(
 		`
 		INSERT INTO likes (user_id, post_id)
 		VALUES ($1, $2);`,
-		like.UserID, 
-		like.PostID, 
+		userID, 
+		postID, 
 	).Err()
 }
 
-func (r *Postgres) DeleteLikeByID(userID, postID uint64) error {
+func (r Postgres) DeleteLikeByID(userID, postID uint64) error {
 	_, err := r.DB.Query("DELETE FROM likes WHERE user_id=$1 AND post_id=$2;", userID, postID)
 	return err
 }

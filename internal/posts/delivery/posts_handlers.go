@@ -112,13 +112,16 @@ func (h *Handler) GetLikes(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
 	if len(allLikes) == 0 {
-		return c.JSON(http.StatusOK, struct{}{})
+		return c.JSON(http.StatusOK, []models.Like{})
 	}
 	return c.JSON(http.StatusOK, allLikes)
 }
 
 func (h *Handler) CreateLike(c echo.Context) error {
-	postID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
 	cookie, err := httpAuth.GetCookie(c)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNoSession, err)
@@ -128,12 +131,8 @@ func (h *Handler) CreateLike(c echo.Context) error {
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
-
-	var like models.Like
-	like.UserID = user.ID
-	like.PostID = postID
 	
-	err = h.postsUseCase.LikePost(like)
+	err = h.postsUseCase.LikePost(user.ID, postID)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrConflict, err)
 	}
@@ -141,7 +140,10 @@ func (h *Handler) CreateLike(c echo.Context) error {
 }
 
 func (h *Handler) DeleteLike(c echo.Context) error {
-	postID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
 	cookie, err := httpAuth.GetCookie(c)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNoSession, err)
