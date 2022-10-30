@@ -24,6 +24,4 @@ var (
 	ErrJSONMarshal   = errors.New("failed to marshal json")
 	ErrJSONUnmarshal = errors.New("failed to unmarshal json")
 	ErrCopy          = errors.New("failed to copy item")
-
-	ErrToken = errors.New("token error")
 )

@@ -20,8 +20,6 @@ func WrapEchoError(errHTTP, errInternal error) error {
 	case domain.ErrInvalidLoginOrPassword,
 		domain.ErrBadRequest:
 		return echo.NewHTTPError(http.StatusBadRequest, errHTTP.Error()).SetInternal(errInternal)
-	case domain.ErrToken:
-		return echo.NewHTTPError(http.StatusConflict, errHTTP.Error()).SetInternal(errInternal)
 	case domain.ErrUserOrEmailAlreadyExist:
 		return echo.NewHTTPError(http.StatusConflict, errHTTP.Error()).SetInternal(errInternal)
 	case domain.ErrJSONMarshal,

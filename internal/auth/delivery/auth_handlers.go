@@ -12,7 +12,6 @@ import (
 
 const (
 	cookieName   = "session_id"
-	csrfTokenKey = echo.HeaderXCSRFToken
 )
 
 var deleteExpire = map[string]int{
@@ -44,14 +43,6 @@ func makeHTTPCookieFromValue(value string) *http.Cookie {
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
-	}
-}
-
-func makeCSRFCookie(csrfToken string) *http.Cookie {
-	return &http.Cookie{
-		Name:     csrfTokenKey,
-		Value:    csrfToken,
-		HttpOnly: true,
 	}
 }
 
@@ -144,30 +135,4 @@ func (h *Handler) SignUp(c echo.Context) error {
 
 	c.SetCookie(makeHTTPCookieFromValue(sessionID))
 	return httpUsers.UserResponse(c, &newUser)
-}
-
-func (h *Handler) GetCSRF(c echo.Context) error {
-	session, err := GetCookie(c)
-	if err != nil {
-		return utils.WrapEchoError(domain.ErrNoSession, err)
-	}
-	user, err := h.usersUseCase.GetBySessionID(session.Value)
-	if err != nil {
-		return utils.WrapEchoError(domain.ErrNotFound, err)
-	}
-
-	token := utils.NewHMACHashToken(session.Value)
-	csrfToken, err := token.CreateCSRF(&models.Cookie{
-		Value:   session.Value,
-		UserID:  user.ID,
-		Expires: session.Expires,
-	}, time.Now().Add(24*time.Hour).Unix())
-	if err != nil {
-		return utils.WrapEchoError(domain.ErrInternal, err)
-	}
-
-	c.Response().Header().Set(echo.HeaderXCSRFToken, csrfToken)
-	c.SetCookie(makeCSRFCookie(csrfToken))
-
-	return c.JSON(http.StatusOK, AuthCSRFSuccessResponse())
 }

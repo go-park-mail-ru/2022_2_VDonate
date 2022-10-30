@@ -1,12 +1,10 @@
 package authMiddlewares
 
 import (
-	"net/http"
 	"strconv"
 
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/labstack/echo/v4"
 )
@@ -56,33 +54,6 @@ func (m *Middlewares) PostSameSessionByID(next echo.HandlerFunc) echo.HandlerFun
 		}
 		if !m.authUseCase.IsSameSession(cookie.Value, post.UserID) {
 			return utils.WrapEchoError(domain.ErrForbidden, domain.ErrForbidden)
-		}
-
-		return next(c)
-	}
-}
-
-func (m *Middlewares) CSRFRequired(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		cookie, err := c.Cookie(echo.HeaderXCSRFToken)
-		if err != nil {
-			return utils.WrapEchoError(domain.ErrNoSession, err)
-		}
-		user, err := m.usersUseCase.GetBySessionID(cookie.Value)
-		if err != nil {
-			return utils.WrapEchoError(domain.ErrNotFound, err)
-		}
-
-		csrf := c.Request().Header.Get(echo.HeaderXCSRFToken)
-		hash := utils.NewHMACHashToken(cookie.Value)
-
-		isCSRFCorrect, err := hash.CheckCSRF(&models.Cookie{
-			Value: cookie.Value,
-			UserID: user.ID,
-			Expires: cookie.Expires,
-		}, csrf)
-		if !isCSRFCorrect {
-			return c.JSON(http.StatusUnauthorized, httpAuth.AuthMiddlewareErrorResponse(err))
 		}
 
 		return next(c)

@@ -118,12 +118,10 @@ func (s *Server) makeRouter() {
 	}
 	v1.Use(middleware.Secure())
 
-	v1.GET("/get_csrf", s.authHandler.GetCSRF)
-
-	v1.POST("/login", s.authHandler.Login, s.authMiddleware.CSRFRequired)
+	v1.POST("/login", s.authHandler.Login)
 	v1.GET("/auth", s.authHandler.Auth)
-	v1.DELETE("/logout", s.authHandler.Logout, s.authMiddleware.LoginRequired, s.authMiddleware.CSRFRequired)
-	v1.POST("/users", s.authHandler.SignUp, s.authMiddleware.CSRFRequired)
+	v1.DELETE("/logout", s.authHandler.Logout, s.authMiddleware.LoginRequired)
+	v1.POST("/users", s.authHandler.SignUp)
 
 	user := v1.Group("/users/:id")
 	user.Use(s.authMiddleware.LoginRequired)
