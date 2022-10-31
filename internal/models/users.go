@@ -15,7 +15,7 @@ func (u User) GetID() uint64 {
 }
 
 type model interface {
-	*User | *Post
+	User | Post
 	GetID() uint64
 }
 
@@ -49,8 +49,8 @@ type NotAuthor struct {
 	IsAuthor bool   `json:"is_author" validate:"required" example:"true"`
 }
 
-func ToAuthor(u *User) *Author {
-	return &Author{
+func ToAuthor(u User) Author {
+	return Author{
 		Username: u.Username,
 		Email:    u.Email,
 		Avatar:   u.Avatar,
@@ -59,8 +59,8 @@ func ToAuthor(u *User) *Author {
 	}
 }
 
-func ToNonAuthor(u *User) *NotAuthor {
-	return &NotAuthor{
+func ToNonAuthor(u User) NotAuthor {
+	return NotAuthor{
 		Username: u.Username,
 		Email:    u.Email,
 		Avatar:   u.Avatar,

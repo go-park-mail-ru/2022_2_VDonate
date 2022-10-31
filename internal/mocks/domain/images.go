@@ -6,7 +6,6 @@ package mock_domain
 
 import (
 	multipart "mime/multipart"
-	url "net/url"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -51,10 +50,10 @@ func (mr *MockImageUseCaseMockRecorder) CreateImage(image, bucket interface{}) *
 }
 
 // GetImage mocks base method.
-func (m *MockImageUseCase) GetImage(bucket, name string) (*url.URL, error) {
+func (m *MockImageUseCase) GetImage(bucket, name string) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetImage", bucket, name)
-	ret0, _ := ret[0].(*url.URL)
+	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

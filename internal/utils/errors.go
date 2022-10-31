@@ -1,11 +1,11 @@
 package utils
 
 import (
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-	"github.com/labstack/echo/v4"
-
 	"net/http"
 	"strings"
+
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	"github.com/labstack/echo/v4"
 )
 
 func WrapEchoError(errHTTP, errInternal error) error {

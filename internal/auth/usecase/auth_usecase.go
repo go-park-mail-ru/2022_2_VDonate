@@ -22,7 +22,11 @@ type usecase struct {
 }
 
 func New(authRepo domain.AuthRepository, usersRepo domain.UsersRepository) domain.AuthUseCase {
-	return &usecase{authRepo: authRepo, usersRepo: usersRepo, cookieCreator: createCookie}
+	return &usecase{
+		authRepo:      authRepo,
+		usersRepo:     usersRepo,
+		cookieCreator: createCookie,
+	}
 }
 
 func createCookie(id uint64) models.Cookie {
@@ -65,7 +69,7 @@ func (u *usecase) Auth(sessionID string) (bool, error) {
 	return true, nil
 }
 
-func (u *usecase) SignUp(user *models.User) (string, error) {
+func (u *usecase) SignUp(user models.User) (string, error) {
 	_, err := u.usersRepo.GetByUsername(user.Username)
 	if err == nil {
 		return "", domain.ErrUsernameExist

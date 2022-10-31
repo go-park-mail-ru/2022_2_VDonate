@@ -1,6 +1,16 @@
 package httpUsers
 
 import (
+	"bytes"
+	"io"
+	"mime/multipart"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"strconv"
+	"strings"
+	"testing"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
@@ -8,17 +18,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-
-	"bytes"
-	"io"
-	"mime/multipart"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
-	"os"
-	"strconv"
-	"strings"
-	"testing"
 )
 
 func TestHadler_GetUser(t *testing.T) {
@@ -38,7 +37,7 @@ func TestHadler_GetUser(t *testing.T) {
 			name:       "OK",
 			redirectID: 24,
 			mockUserBehavior: func(r *mockDomain.MockUsersUseCase, id uint64) {
-				r.EXPECT().GetByID(id).Return(&models.User{
+				r.EXPECT().GetByID(id).Return(models.User{
 					ID:       id,
 					Username: "themilchenko",
 					Avatar:   "filename",
@@ -47,7 +46,7 @@ func TestHadler_GetUser(t *testing.T) {
 				}, nil)
 			},
 			mockImageBehavior: func(r *mockDomain.MockImageUseCase, bucket, filename string) {
-				r.EXPECT().GetImage(bucket, filename).Return(&url.URL{}, nil)
+				r.EXPECT().GetImage(bucket, filename).Return("", nil)
 			},
 			expectedResponseBody: `{"username":"themilchenko","email":"example@ex.com","is_author":false}`,
 		},
@@ -62,7 +61,7 @@ func TestHadler_GetUser(t *testing.T) {
 			name:       "NotFound",
 			redirectID: 24,
 			mockUserBehavior: func(r *mockDomain.MockUsersUseCase, id uint64) {
-				r.EXPECT().GetByID(id).Return(nil, domain.ErrNotFound)
+				r.EXPECT().GetByID(id).Return(models.User{}, domain.ErrNotFound)
 			},
 			mockImageBehavior:    func(r *mockDomain.MockImageUseCase, bucket, filename string) {},
 			expectedErrorMessage: "code=404, message=failed to find item, internal=failed to find item",
@@ -81,7 +80,7 @@ func TestHadler_GetUser(t *testing.T) {
 			test.mockUserBehavior(user, uint64(test.redirectID))
 			test.mockImageBehavior(image, "avatar", "filename")
 
-			handler := NewHandler(user, auth, image, "avatar")
+			handler := NewHandler(user, auth, image)
 
 			e := echo.New()
 			req := httptest.NewRequest(http.MethodGet, "https://127.0.0.1/api/v1/users", nil)
@@ -91,7 +90,7 @@ func TestHadler_GetUser(t *testing.T) {
 			c.SetPath("https://127.0.0.1/api/v1/users/:id")
 			c.SetParamNames("id")
 			c.SetParamValues(strconv.FormatInt(int64(test.redirectID), 10))
-
+			c.Set("bucket", "avatar")
 			err := handler.GetUser(c)
 			if err != nil {
 				assert.Equal(t, test.expectedErrorMessage, err.Error())
@@ -134,7 +133,7 @@ func TestHandler_PutUser(t *testing.T) {
 				About:    "I love sport",
 			},
 			mockUserBehavior: func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {
-				r.EXPECT().Update(user).Return(nil)
+				r.EXPECT().Update(user, user.ID).Return(nil)
 			},
 			mockImagesBehavior: func(r *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
@@ -200,7 +199,7 @@ func TestHandler_PutUser(t *testing.T) {
 				About:    "I love sport",
 			},
 			mockUserBehavior: func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {
-				r.EXPECT().Update(user).Return(domain.ErrUpdate)
+				r.EXPECT().Update(user, user.ID).Return(domain.ErrUpdate)
 			},
 			mockImagesBehavior: func(r *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
@@ -222,7 +221,7 @@ func TestHandler_PutUser(t *testing.T) {
 
 			test.mockUserBehavior(user, test.inputUser.ID, test.inputUser)
 
-			handler := NewHandler(user, auth, image, "avatar")
+			handler := NewHandler(user, auth, image)
 
 			e := echo.New()
 			body := new(bytes.Buffer)
@@ -262,6 +261,7 @@ func TestHandler_PutUser(t *testing.T) {
 			c.SetPath("https://127.0.0.1/api/v1/users/:id")
 			c.SetParamNames("id")
 			c.SetParamValues(strconv.FormatInt(int64(test.userID), 10))
+			c.Set("bucket", "avatar")
 
 			test.mockImagesBehavior(image, "avatar", c)
 			err = handler.PutUser(c)

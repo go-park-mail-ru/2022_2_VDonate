@@ -23,7 +23,7 @@ func NewPostgres(url string) (*Postgres, error) {
 	return &Postgres{DB: db}, nil
 }
 
-func (p *Postgres) GetSubscribers(authorID uint64) ([]uint64, error) {
+func (p Postgres) GetSubscribers(authorID uint64) ([]uint64, error) {
 	var subscribers []uint64
 	err := p.DB.Select(&subscribers, `
 		SELECT subscriber_id 
@@ -38,7 +38,7 @@ func (p *Postgres) GetSubscribers(authorID uint64) ([]uint64, error) {
 	return subscribers, nil
 }
 
-func (p *Postgres) Subscribe(subscription models.Subscription) error {
+func (p Postgres) Subscribe(subscription models.Subscription) error {
 	_, err := p.DB.Exec(`
 		INSERT INTO subscriptions (author_id, subscriber_id, subscription_id) 
 		VALUES ($1, $2, $3)`,
@@ -53,7 +53,7 @@ func (p *Postgres) Subscribe(subscription models.Subscription) error {
 	return nil
 }
 
-func (p *Postgres) Unsubscribe(userID, authorID uint64) error {
+func (p Postgres) Unsubscribe(userID, authorID uint64) error {
 	_, err := p.DB.Exec(`
 		DELETE FROM subscriptions 
 		WHERE author_id=$1 AND subscriber_id=$2`,

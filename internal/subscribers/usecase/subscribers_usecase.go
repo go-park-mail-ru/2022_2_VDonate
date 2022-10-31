@@ -19,7 +19,7 @@ func New(s domain.SubscribersRepository, u domain.UsersRepository) domain.Subscr
 	}
 }
 
-func (u *usecase) GetSubscribers(authorID uint64) ([]*models.User, error) {
+func (u *usecase) GetSubscribers(authorID uint64) ([]models.User, error) {
 	s, err := u.subscribersRepo.GetSubscribers(authorID)
 	if err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func (u *usecase) GetSubscribers(authorID uint64) ([]*models.User, error) {
 		return nil, errors.New("no subscribers")
 	}
 
-	subs := make([]*models.User, 0)
+	var subs []models.User
 
 	for _, userID := range s {
 		// Notion: if there is an error while getting user, skip it
@@ -54,7 +54,7 @@ func (u usecase) IsSubscriber(userID, authorID uint64) (bool, error) {
 		return false, err
 	}
 
-	if !models.Contains[*models.User](s, userID) {
+	if !models.Contains[models.User](s, userID) {
 		return false, errors.New("user is not a subscriber")
 	}
 

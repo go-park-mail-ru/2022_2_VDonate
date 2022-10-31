@@ -1,16 +1,16 @@
 package logger
 
 import (
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
-	"github.com/sirupsen/logrus"
-
 	"encoding/json"
 	"io"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
+	"github.com/sirupsen/logrus"
 )
 
 type Logger struct {

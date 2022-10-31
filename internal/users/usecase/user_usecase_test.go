@@ -14,41 +14,41 @@ import (
 func TestUsecase_Update(t *testing.T) {
 	type mockBehaviourGet func(r *mockDomain.MockUsersRepository, userID uint64)
 
-	type mockBehaviourUpdate func(r *mockDomain.MockUsersRepository, user *models.User)
+	type mockBehaviourUpdate func(r *mockDomain.MockUsersRepository, user models.User)
 
 	tests := []struct {
 		name                string
-		inputUser           *models.User
+		inputUser           models.User
 		mockBehaviourGet    mockBehaviourGet
 		mockBehaviourUpdate mockBehaviourUpdate
 		responseError       string
 	}{
 		{
 			name: "OK",
-			inputUser: &models.User{
+			inputUser: models.User{
 				ID:       200,
 				Username: "user",
 			},
 			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, userID uint64) {
-				r.EXPECT().GetByID(userID).Return(&models.User{
+				r.EXPECT().GetByID(userID).Return(models.User{
 					ID:       200,
 					Username: "user",
 				}, nil)
 			},
-			mockBehaviourUpdate: func(r *mockDomain.MockUsersRepository, user *models.User) {
+			mockBehaviourUpdate: func(r *mockDomain.MockUsersRepository, user models.User) {
 				r.EXPECT().Update(user).Return(nil)
 			},
 		},
 		{
 			name: "NotFound",
-			inputUser: &models.User{
+			inputUser: models.User{
 				ID:       200,
 				Username: "user",
 			},
 			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, userID uint64) {
-				r.EXPECT().GetByID(userID).Return(&models.User{}, errors.New("not found"))
+				r.EXPECT().GetByID(userID).Return(models.User{}, errors.New("not found"))
 			},
-			mockBehaviourUpdate: func(r *mockDomain.MockUsersRepository, user *models.User) {},
+			mockBehaviourUpdate: func(r *mockDomain.MockUsersRepository, user models.User) {},
 			responseError:       "not found",
 		},
 	}
@@ -65,7 +65,7 @@ func TestUsecase_Update(t *testing.T) {
 
 			usecase := New(userMock)
 
-			err := usecase.Update(*test.inputUser)
+			err := usecase.Update(test.inputUser, test.inputUser.ID)
 			if err != nil {
 				require.EqualError(t, err, test.responseError)
 			}
@@ -91,7 +91,7 @@ func TestUsecase_DeleteByUsername(t *testing.T) {
 			userID:   123,
 			usernmae: "user",
 			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, username string) {
-				r.EXPECT().GetByUsername(username).Return(&models.User{
+				r.EXPECT().GetByUsername(username).Return(models.User{
 					ID:       123,
 					Username: username,
 				}, nil)
@@ -106,7 +106,7 @@ func TestUsecase_DeleteByUsername(t *testing.T) {
 			userID:   123,
 			usernmae: "user",
 			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, username string) {
-				r.EXPECT().GetByUsername(username).Return(&models.User{}, errors.New("user not found"))
+				r.EXPECT().GetByUsername(username).Return(models.User{}, errors.New("user not found"))
 			},
 			mockBehaviourDelete: func(r *mockDomain.MockUsersRepository, userID uint64) {},
 			responseError:       errors.New("user not found"),
@@ -149,7 +149,7 @@ func TestUsecase_DeleteByEmail(t *testing.T) {
 			userID: 200,
 			email:  "ex@mail.ru",
 			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, email string) {
-				r.EXPECT().GetByEmail(email).Return(&models.User{
+				r.EXPECT().GetByEmail(email).Return(models.User{
 					ID:       200,
 					Username: "user",
 					Email:    email,
@@ -165,7 +165,7 @@ func TestUsecase_DeleteByEmail(t *testing.T) {
 			userID: 200,
 			email:  "ex@mail.ru",
 			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, email string) {
-				r.EXPECT().GetByEmail(email).Return(&models.User{}, errors.New("user not found"))
+				r.EXPECT().GetByEmail(email).Return(models.User{}, errors.New("user not found"))
 			},
 			mockBehaviourDelete: func(r *mockDomain.MockUsersRepository, userID uint64) {},
 			responseError:       errors.New("user not found"),
@@ -209,7 +209,7 @@ func TestUsecase_CheckIDAndPassword(t *testing.T) {
 				if err != nil {
 					t.Error(err)
 				}
-				r.EXPECT().GetByID(userID).Return(&models.User{
+				r.EXPECT().GetByID(userID).Return(models.User{
 					ID:       userID,
 					Password: p,
 				}, nil)
@@ -221,7 +221,7 @@ func TestUsecase_CheckIDAndPassword(t *testing.T) {
 			userID:   200,
 			password: "Qwerty",
 			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, userID uint64) {
-				r.EXPECT().GetByID(userID).Return(nil, errors.New("user not found"))
+				r.EXPECT().GetByID(userID).Return(models.User{}, errors.New("user not found"))
 			},
 			response: false,
 		},
@@ -262,13 +262,13 @@ func TestUsecase_IsExistUsernameAndEmail(t *testing.T) {
 			username: "user",
 			email:    "a@d.com",
 			mockBehaviourGetByUsername: func(r *mockDomain.MockUsersRepository, username string) {
-				r.EXPECT().GetByUsername(username).Return(&models.User{
+				r.EXPECT().GetByUsername(username).Return(models.User{
 					Username: username,
 					Email:    "a@d.com",
 				}, nil)
 			},
 			mockBehaviourGetByEmail: func(r *mockDomain.MockUsersRepository, email string) {
-				r.EXPECT().GetByEmail(email).Return(&models.User{
+				r.EXPECT().GetByEmail(email).Return(models.User{
 					Username: "user",
 					Email:    email,
 				}, nil)
@@ -280,7 +280,7 @@ func TestUsecase_IsExistUsernameAndEmail(t *testing.T) {
 			username: "user",
 			email:    "a@d.com",
 			mockBehaviourGetByUsername: func(r *mockDomain.MockUsersRepository, username string) {
-				r.EXPECT().GetByUsername(username).Return(&models.User{}, errors.New("not exist"))
+				r.EXPECT().GetByUsername(username).Return(models.User{}, errors.New("not exist"))
 			},
 			mockBehaviourGetByEmail: func(r *mockDomain.MockUsersRepository, email string) {},
 			response:                false,
@@ -290,13 +290,13 @@ func TestUsecase_IsExistUsernameAndEmail(t *testing.T) {
 			username: "user",
 			email:    "a@d.com",
 			mockBehaviourGetByUsername: func(r *mockDomain.MockUsersRepository, username string) {
-				r.EXPECT().GetByUsername(username).Return(&models.User{
+				r.EXPECT().GetByUsername(username).Return(models.User{
 					Username: username,
 					Email:    "adnsonjo@d.com",
 				}, nil)
 			},
 			mockBehaviourGetByEmail: func(r *mockDomain.MockUsersRepository, email string) {
-				r.EXPECT().GetByEmail(email).Return(&models.User{}, errors.New("not exist"))
+				r.EXPECT().GetByEmail(email).Return(models.User{}, errors.New("not exist"))
 			},
 			response: false,
 		},

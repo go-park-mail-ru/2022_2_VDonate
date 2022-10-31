@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"net/http"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -23,12 +24,29 @@ const (
 	assessKeyID     = "admin"
 	secretAccessKey = "secretkey"
 	useSSL          = false
+
+	allowCredentials = true
 )
 
 var (
 	buckets = map[string]string{
-		"img":    "img",
-		"avatar": "avatar",
+		"image":  "",
+		"avatar": "{\"Version\": \"2012-10-17\",\"Statement\": [{\"Action\": [\"s3:GetObject\"],\"Effect\": \"Allow\",\"Principal\": {\"AWS\": [\"*\"]},\"Resource\": [\"arn:aws:s3:::avatar/*\"],\"Sid\": \"\"}]}",
+	}
+	allowMethods = []string{
+		http.MethodDelete,
+		http.MethodGet,
+		http.MethodPost,
+		http.MethodPut,
+	}
+	allowHeaders = []string{
+		"Content-Type",
+		"Content-length",
+	}
+	allowOrigins = []string{
+		"https://vdonate.ml",
+		"http://localhost:8080",
+		"http://localhost:4200",
 	}
 )
 
@@ -52,6 +70,13 @@ type Config struct {
 	Deploy struct {
 		Mode bool `yaml:"mode"`
 	} `yaml:"deploy"`
+
+	CORS struct {
+		AllowMethods     []string `yaml:"allow_methods"`
+		AllowHeaders     []string `yaml:"allow_headers"`
+		AllowCredentials bool     `yaml:"allow_credentials"`
+		AllowOrigins     []string `yaml:"allow_origins"`
+	} `yaml:"cors"`
 
 	S3 struct {
 		Endpoint        string            `yaml:"endpoint"`
@@ -102,6 +127,18 @@ func New() *Config {
 			Mode bool `yaml:"mode"`
 		}{
 			Mode: false,
+		},
+
+		CORS: struct {
+			AllowMethods     []string `yaml:"allow_methods"`
+			AllowHeaders     []string `yaml:"allow_headers"`
+			AllowCredentials bool     `yaml:"allow_credentials"`
+			AllowOrigins     []string `yaml:"allow_origins"`
+		}{
+			AllowMethods:     allowMethods,
+			AllowHeaders:     allowHeaders,
+			AllowCredentials: allowCredentials,
+			AllowOrigins:     allowOrigins,
 		},
 
 		S3: struct {

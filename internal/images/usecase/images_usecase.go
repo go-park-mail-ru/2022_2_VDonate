@@ -1,13 +1,13 @@
 package images
 
 import (
+	"errors"
+	"mime/multipart"
+	"strings"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-
-	"mime/multipart"
-	"net/url"
-	"strings"
 )
 
 type usecase struct {
@@ -25,18 +25,21 @@ func (u usecase) CreateImage(image *multipart.FileHeader, bucket string) (string
 	return u.ImageRepo.CreateImage(image, bucket)
 }
 
-func (u usecase) GetImage(bucket, name string) (*url.URL, error) {
+func (u usecase) GetImage(bucket, name string) (string, error) {
+	if len(name) == 0 {
+		return "", nil
+	}
 	switch bucket {
-	case "img":
-		return u.ImageRepo.GetImage(bucket, name)
-	case "avatar":
-		urlImage, err := u.ImageRepo.GetPermanentImage(bucket, name)
+	case "image":
+		newURL, err := u.ImageRepo.GetImage(bucket, name)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
-		return url.Parse(urlImage)
+		return newURL.String(), err
+	case "avatar":
+		return u.ImageRepo.GetPermanentImage(bucket, name)
 	default:
-		return u.ImageRepo.GetImage(bucket, name)
+		return "", errors.New("bad url")
 	}
 }
 

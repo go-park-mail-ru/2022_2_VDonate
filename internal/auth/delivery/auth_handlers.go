@@ -32,6 +32,7 @@ func MakeHTTPCookie(c *http.Cookie) *http.Cookie {
 		Expires:  c.Expires,
 		HttpOnly: true,
 		Secure:   true,
+		// Temporary for frontend
 		SameSite: http.SameSiteNoneMode,
 	}
 }
@@ -43,6 +44,7 @@ func makeHTTPCookieFromValue(value string) *http.Cookie {
 		Expires:  time.Now().AddDate(0, 1, 0),
 		HttpOnly: true,
 		Secure:   true,
+		// Temporary for frontend
 		SameSite: http.SameSiteNoneMode,
 	}
 }
@@ -80,12 +82,7 @@ func (h Handler) Auth(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrAuth, err)
 	}
 
-	user, err := h.usersUseCase.GetBySessionID(cookie.Value)
-	if err != nil {
-		return utils.WrapEchoError(domain.ErrNotFound, err)
-	}
-
-	return httpUsers.UserResponse(c, user)
+	return c.JSON(http.StatusOK, models.EmptyStruct{})
 }
 
 // Login godoc
@@ -174,7 +171,7 @@ func (h Handler) SignUp(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
 
-	sessionID, err := h.authUseCase.SignUp(&newUser)
+	sessionID, err := h.authUseCase.SignUp(newUser)
 	if err != nil {
 		return utils.WrapEchoError(domain.ErrInternal, err)
 	}

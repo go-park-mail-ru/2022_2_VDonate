@@ -1,31 +1,29 @@
 package httpSubscriptions
 
 import (
+	"fmt"
+	"net/http"
+	"strconv"
+
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/labstack/echo/v4"
-
-	"net/http"
-	"strconv"
 )
 
 type Handler struct {
 	subscriptionsUsecase domain.SubscriptionsUseCase
 	userUsecase          domain.UsersUseCase
 	imageUsecase         domain.ImageUseCase
-
-	bucket string
 }
 
-func NewHandler(s domain.SubscriptionsUseCase, u domain.UsersUseCase, i domain.ImageUseCase, bucket string) *Handler {
+func NewHandler(s domain.SubscriptionsUseCase, u domain.UsersUseCase, i domain.ImageUseCase) *Handler {
 	return &Handler{
 		subscriptionsUsecase: s,
 		userUsecase:          u,
 		imageUsecase:         i,
-		bucket:               bucket,
 	}
 }
 
@@ -58,12 +56,10 @@ func (h Handler) GetSubscriptions(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrNotFound, err)
 	}
 
-	for _, subscription := range s {
-		url, errGetImage := h.imageUsecase.GetImage(h.bucket, subscription.Img)
-		if errGetImage != nil {
-			return errGetImage
+	for i, subscription := range s {
+		if s[i].Img, err = h.imageUsecase.GetImage(fmt.Sprint(c.Get("bucket")), subscription.Img); err != nil {
+			return utils.WrapEchoError(domain.ErrInternal, err)
 		}
-		subscription.Img = url.String()
 	}
 
 	return c.JSON(http.StatusOK, s)
@@ -95,11 +91,9 @@ func (h Handler) GetSubscription(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrNotFound, err)
 	}
 
-	url, err := h.imageUsecase.GetImage(h.bucket, s.Img)
-	if err != nil {
-		return err
+	if s.Img, err = h.imageUsecase.GetImage(fmt.Sprint(c.Get("bucket")), s.Img); err != nil {
+		return utils.WrapEchoError(domain.ErrInternal, err)
 	}
-	s.Img = url.String()
 
 	return c.JSON(http.StatusOK, s)
 }
@@ -143,14 +137,11 @@ func (h Handler) CreateSubscription(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
 
-	newFile, err := h.imageUsecase.CreateImage(file, h.bucket)
-	if err != nil {
+	if s.Img, err = h.imageUsecase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
 		return utils.WrapEchoError(domain.ErrCreate, err)
 	}
 
-	s.Img = newFile
-	s.AuthorID = author.ID
-	if err = h.subscriptionsUsecase.AddSubscription(s); err != nil {
+	if err = h.subscriptionsUsecase.CreateSubscription(s, author.ID); err != nil {
 		return utils.WrapEchoError(domain.ErrCreate, err)
 	}
 
@@ -192,14 +183,11 @@ func (h Handler) UpdateSubscription(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
 
-	newFile, err := h.imageUsecase.CreateImage(file, h.bucket)
-	if err != nil {
+	if s.Img, err = h.imageUsecase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
 		return utils.WrapEchoError(domain.ErrCreate, err)
 	}
 
-	s.ID = subID
-	s.Img = newFile
-	if err = h.subscriptionsUsecase.UpdateSubscription(s); err != nil {
+	if err = h.subscriptionsUsecase.UpdateSubscription(s, subID); err != nil {
 		return utils.WrapEchoError(domain.ErrUpdate, err)
 	}
 

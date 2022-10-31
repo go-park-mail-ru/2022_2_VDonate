@@ -1121,7 +1121,7 @@
                         }
                     },
                     "404": {
-                        "description": "User / avatars not found",
+                        "description": "User not found",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -1283,6 +1283,7 @@
         "models.Post": {
             "type": "object",
             "required": [
+                "img",
                 "text",
                 "title"
             ],

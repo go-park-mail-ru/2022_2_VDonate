@@ -64,7 +64,7 @@ func New(endpoint, accessKeyID, secretAccessKey string, secure bool, buckets map
 	}, nil
 }
 
-func (s *S3) CreateImage(image *multipart.FileHeader, bucket string) (string, error) {
+func (s S3) CreateImage(image *multipart.FileHeader, bucket string) (string, error) {
 	exists, err := s.client.BucketExists(bucket)
 	if err != nil {
 		return "", err
@@ -90,7 +90,7 @@ func (s *S3) CreateImage(image *multipart.FileHeader, bucket string) (string, er
 	return image.Filename, err
 }
 
-func (s *S3) GetImage(bucket, filename string) (*url.URL, error) {
+func (s S3) GetImage(bucket, filename string) (*url.URL, error) {
 	image, err := s.client.GetObject(bucket, filename, minio.GetObjectOptions{})
 	if err != nil {
 		return nil, err
@@ -103,7 +103,7 @@ func (s *S3) GetImage(bucket, filename string) (*url.URL, error) {
 	return s.client.PresignedGetObject(bucket, filename, expire, url.Values{})
 }
 
-func (s *S3) GetPermanentImage(bucket, filename string) (string, error) {
+func (s S3) GetPermanentImage(bucket, filename string) (string, error) {
 	urlImage, err := s.client.PresignedGetObject(bucket, filename, expire, url.Values{})
 	if err != nil {
 		return "", err

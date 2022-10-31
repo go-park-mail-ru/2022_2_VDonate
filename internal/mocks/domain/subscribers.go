@@ -35,10 +35,10 @@ func (m *MockSubscribersUseCase) EXPECT() *MockSubscribersUseCaseMockRecorder {
 }
 
 // GetSubscribers mocks base method.
-func (m *MockSubscribersUseCase) GetSubscribers(authorID uint64) ([]*models.User, error) {
+func (m *MockSubscribersUseCase) GetSubscribers(authorID uint64) ([]models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetSubscribers", authorID)
-	ret0, _ := ret[0].([]*models.User)
+	ret0, _ := ret[0].([]models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

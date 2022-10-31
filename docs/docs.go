@@ -1129,7 +1129,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": "User / avatars not found",
+                        "description": "User not found",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -1291,6 +1291,7 @@ const docTemplate = `{
         "models.Post": {
             "type": "object",
             "required": [
+                "img",
                 "text",
                 "title"
             ],

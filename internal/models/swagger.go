@@ -2,8 +2,7 @@ package models
 
 import "mime/multipart"
 
-type EmptyStruct struct {
-}
+type EmptyStruct struct{}
 
 type Error struct {
 	Message string

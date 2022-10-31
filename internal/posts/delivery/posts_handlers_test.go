@@ -1,6 +1,16 @@
 package httpPosts
 
 import (
+	"bytes"
+	"io"
+	"mime/multipart"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"strconv"
+	"strings"
+	"testing"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
@@ -9,17 +19,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"bytes"
-	"io"
-	"mime/multipart"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
-	"os"
-	"strconv"
-	"strings"
-	"testing"
 )
 
 func TestHandler_GetPosts(t *testing.T) {
@@ -45,15 +44,15 @@ func TestHandler_GetPosts(t *testing.T) {
 			cookie: "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
 			userID: 123,
 			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {
-				s.EXPECT().GetImage(bucket, filename).Return(&url.URL{}, nil)
+				s.EXPECT().GetImage(bucket, filename).Return("", nil)
 			},
 			mockBehaviorUser: func(s mockDomain.MockUsersUseCase, cookie string) {
-				s.EXPECT().GetBySessionID(cookie).Return(&models.User{
+				s.EXPECT().GetBySessionID(cookie).Return(models.User{
 					ID: 123,
 				}, nil)
 			},
 			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
-				s.EXPECT().GetPostsByUserID(userID).Return([]*models.Post{
+				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{
 					{
 						UserID: userID,
 						Img:    "path/to/img",
@@ -68,12 +67,12 @@ func TestHandler_GetPosts(t *testing.T) {
 			name:   "ServerError",
 			userID: 123,
 			mockBehaviorUser: func(s mockDomain.MockUsersUseCase, cookie string) {
-				s.EXPECT().GetBySessionID(cookie).Return(&models.User{
+				s.EXPECT().GetBySessionID(cookie).Return(models.User{
 					ID: 123,
 				}, nil)
 			},
 			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
-				s.EXPECT().GetPostsByUserID(userID).Return([]*models.Post{}, domain.ErrNotFound)
+				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{}, domain.ErrNotFound)
 			},
 			mockBehaviorImage:    func(s mockDomain.MockImageUseCase, bucket, filename string) {},
 			expectedErrorMessage: "code=404, message=failed to find item, internal=failed to find item",
@@ -82,7 +81,7 @@ func TestHandler_GetPosts(t *testing.T) {
 			name:   "BadId",
 			userID: -1,
 			mockBehaviorUser: func(s mockDomain.MockUsersUseCase, cookie string) {
-				s.EXPECT().GetBySessionID(cookie).Return(nil, domain.ErrBadSession)
+				s.EXPECT().GetBySessionID(cookie).Return(models.User{}, domain.ErrBadSession)
 			},
 			mockBehaviorGet:      func(s mockDomain.MockPostsUseCase, userID uint64) {},
 			mockBehaviorImage:    func(s mockDomain.MockImageUseCase, bucket, filename string) {},
@@ -101,9 +100,9 @@ func TestHandler_GetPosts(t *testing.T) {
 
 			test.mockBehaviorUser(*users, test.cookie)
 			test.mockBehaviorGet(*post, uint64(test.userID))
-			test.mockBehaviorImage(*image, "img", "path/to/img")
+			test.mockBehaviorImage(*image, "image", "path/to/img")
 
-			handler := NewHandler(post, users, image, "img")
+			handler := NewHandler(post, users, image)
 
 			e := echo.New()
 			req := httptest.NewRequest(http.MethodGet, "https://127.0.0.1/api/v1/posts", nil)
@@ -112,6 +111,7 @@ func TestHandler_GetPosts(t *testing.T) {
 
 			c := e.NewContext(req, rec)
 			c.SetPath("https://127.0.0.1/api/v1/posts")
+			c.Set("bucket", "image")
 
 			err := handler.GetPosts(c)
 			if err != nil {
@@ -144,14 +144,14 @@ func TestHangler_GetPost(t *testing.T) {
 			name:   "OK",
 			postID: 123,
 			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, postID uint64) {
-				s.EXPECT().GetPostByID(postID).Return(&models.Post{
+				s.EXPECT().GetPostByID(postID).Return(models.Post{
 					Img:   "path/to/img",
 					Title: "Look at this!!!",
 					Text:  "Some text about my work",
 				}, nil)
 			},
 			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {
-				s.EXPECT().GetImage(bucket, filename).Return(&url.URL{}, nil)
+				s.EXPECT().GetImage(bucket, filename).Return("", nil)
 			},
 			expectedRequestBody: `{"id":0,"user_id":0,"img":"","title":"Look at this!!!","text":"Some text about my work"}`,
 		},
@@ -159,7 +159,7 @@ func TestHangler_GetPost(t *testing.T) {
 			name:   "NotFound",
 			postID: 123,
 			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, postID uint64) {
-				s.EXPECT().GetPostByID(postID).Return(nil, domain.ErrNotFound)
+				s.EXPECT().GetPostByID(postID).Return(models.Post{}, domain.ErrNotFound)
 			},
 			mockBehaviorImage:    func(s mockDomain.MockImageUseCase, bucket, filename string) {},
 			expectedErrorMessage: "code=404, message=failed to find item, internal=failed to find item",
@@ -176,9 +176,9 @@ func TestHangler_GetPost(t *testing.T) {
 			image := mockDomain.NewMockImageUseCase(ctrl)
 
 			test.mockBehaviorGet(*post, uint64(test.postID))
-			test.mockBehaviorImage(*image, "img", "path/to/img")
+			test.mockBehaviorImage(*image, "image", "path/to/img")
 
-			handler := NewHandler(post, users, image, "img")
+			handler := NewHandler(post, users, image)
 
 			e := echo.New()
 			req := httptest.NewRequest(http.MethodGet, "https://127.0.0.1/api/v1/", nil)
@@ -188,6 +188,7 @@ func TestHangler_GetPost(t *testing.T) {
 			c.SetPath("https://127.0.0.1/api/v1/:id")
 			c.SetParamNames("id")
 			c.SetParamValues(strconv.FormatInt(int64(test.postID), 10))
+			c.Set("bucket", "image")
 
 			err := handler.GetPost(c)
 			if err != nil {
@@ -209,6 +210,8 @@ func TestHandler_CreatePosts(t *testing.T) {
 
 	type mockBehaviorImage func(s *mockDomain.MockImageUseCase, bucket string, c echo.Context)
 
+	type mockBehaviorGetImage func(s *mockDomain.MockImageUseCase, bucket string)
+
 	tests := []struct {
 		name                 string
 		userID               int
@@ -217,6 +220,7 @@ func TestHandler_CreatePosts(t *testing.T) {
 		mockBehaviorUsers    mockBehaviorUsers
 		mockBehaviorCreate   mockBehaviorCreate
 		mockBehaviorImage    mockBehaviorImage
+		mockBehaviorGetImage mockBehaviorGetImage
 		expectedStatusCode   int
 		expectedErrorMessage string
 	}{
@@ -230,7 +234,7 @@ func TestHandler_CreatePosts(t *testing.T) {
 				Text:   "Text",
 			},
 			mockBehaviorUsers: func(s *mockDomain.MockUsersUseCase, cookie string) {
-				s.EXPECT().GetBySessionID(cookie).Return(&models.User{
+				s.EXPECT().GetBySessionID(cookie).Return(models.User{
 					ID: 100,
 				}, nil)
 			},
@@ -240,7 +244,10 @@ func TestHandler_CreatePosts(t *testing.T) {
 				s.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
 			},
 			mockBehaviorCreate: func(s *mockDomain.MockPostsUseCase, post models.Post) {
-				s.EXPECT().Create(post).Return(nil)
+				s.EXPECT().Create(post, post.UserID).Return(nil)
+			},
+			mockBehaviorGetImage: func(s *mockDomain.MockImageUseCase, bucket string) {
+				s.EXPECT().GetImage(bucket, "../../../test/test.txt").Return("", nil)
 			},
 		},
 		{
@@ -251,6 +258,7 @@ func TestHandler_CreatePosts(t *testing.T) {
 			mockBehaviorUsers:    func(s *mockDomain.MockUsersUseCase, cookie string) {},
 			mockBehaviorCreate:   func(s *mockDomain.MockPostsUseCase, post models.Post) {},
 			mockBehaviorImage:    func(s *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
+			mockBehaviorGetImage: func(s *mockDomain.MockImageUseCase, bucket string) {},
 			expectedErrorMessage: "code=401, message=no existing session, internal=http: named cookie not present",
 		},
 		{
@@ -259,10 +267,11 @@ func TestHandler_CreatePosts(t *testing.T) {
 			cookie:    "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
 			inputPost: models.Post{},
 			mockBehaviorUsers: func(s *mockDomain.MockUsersUseCase, cookie string) {
-				s.EXPECT().GetBySessionID(cookie).Return(nil, domain.ErrNoSession)
+				s.EXPECT().GetBySessionID(cookie).Return(models.User{}, domain.ErrNoSession)
 			},
 			mockBehaviorCreate:   func(s *mockDomain.MockPostsUseCase, post models.Post) {},
 			mockBehaviorImage:    func(s *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
+			mockBehaviorGetImage: func(s *mockDomain.MockImageUseCase, bucket string) {},
 			expectedErrorMessage: "code=401, message=no existing session, internal=no existing session",
 		},
 		{
@@ -271,12 +280,13 @@ func TestHandler_CreatePosts(t *testing.T) {
 			cookie:    "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
 			inputPost: models.Post{},
 			mockBehaviorUsers: func(s *mockDomain.MockUsersUseCase, cookie string) {
-				s.EXPECT().GetBySessionID(cookie).Return(&models.User{
+				s.EXPECT().GetBySessionID(cookie).Return(models.User{
 					ID: 100,
 				}, nil)
 			},
-			mockBehaviorImage:  func(s *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
-			mockBehaviorCreate: func(s *mockDomain.MockPostsUseCase, post models.Post) {},
+			mockBehaviorImage:    func(s *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
+			mockBehaviorCreate:   func(s *mockDomain.MockPostsUseCase, post models.Post) {},
+			mockBehaviorGetImage: func(s *mockDomain.MockImageUseCase, bucket string) {},
 			expectedErrorMessage: "code=400," +
 				" message=bad request," +
 				" internal=code=400," +
@@ -293,7 +303,7 @@ func TestHandler_CreatePosts(t *testing.T) {
 				Text:   "Text",
 			},
 			mockBehaviorUsers: func(s *mockDomain.MockUsersUseCase, cookie string) {
-				s.EXPECT().GetBySessionID(cookie).Return(&models.User{
+				s.EXPECT().GetBySessionID(cookie).Return(models.User{
 					ID: 100,
 				}, nil)
 			},
@@ -303,8 +313,9 @@ func TestHandler_CreatePosts(t *testing.T) {
 				s.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
 			},
 			mockBehaviorCreate: func(s *mockDomain.MockPostsUseCase, post models.Post) {
-				s.EXPECT().Create(post).Return(domain.ErrCreate)
+				s.EXPECT().Create(post, post.UserID).Return(domain.ErrCreate)
 			},
+			mockBehaviorGetImage: func(s *mockDomain.MockImageUseCase, bucket string) {},
 			expectedErrorMessage: "code=500, message=failed to create item, internal=failed to create item",
 		},
 	}
@@ -321,7 +332,7 @@ func TestHandler_CreatePosts(t *testing.T) {
 			test.mockBehaviorUsers(user, test.cookie)
 			test.mockBehaviorCreate(post, test.inputPost)
 
-			handler := NewHandler(post, user, image, "img")
+			handler := NewHandler(post, user, image)
 
 			e := echo.New()
 			body := new(bytes.Buffer)
@@ -367,8 +378,10 @@ func TestHandler_CreatePosts(t *testing.T) {
 			c.SetPath("https://127.0.0.1/api/v1/posts/:id")
 			c.SetParamNames("id")
 			c.SetParamValues(strconv.FormatInt(int64(test.userID), 10))
+			c.Set("bucket", "image")
 
-			test.mockBehaviorImage(image, "img", c)
+			test.mockBehaviorImage(image, "image", c)
+			test.mockBehaviorGetImage(image, "image")
 
 			if err = handler.CreatePost(c); err != nil {
 				assert.Equal(t, test.expectedErrorMessage, err.Error())

@@ -51,10 +51,10 @@ func (mr *MockAuthRepositoryMockRecorder) Close() *gomock.Call {
 }
 
 // CreateSession mocks base method.
-func (m *MockAuthRepository) CreateSession(cookie models.Cookie) (*models.Cookie, error) {
+func (m *MockAuthRepository) CreateSession(cookie models.Cookie) (models.Cookie, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateSession", cookie)
-	ret0, _ := ret[0].(*models.Cookie)
+	ret0, _ := ret[0].(models.Cookie)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -94,10 +94,10 @@ func (mr *MockAuthRepositoryMockRecorder) DeleteByUserID(id interface{}) *gomock
 }
 
 // GetBySessionID mocks base method.
-func (m *MockAuthRepository) GetBySessionID(sessionID string) (*models.Cookie, error) {
+func (m *MockAuthRepository) GetBySessionID(sessionID string) (models.Cookie, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBySessionID", sessionID)
-	ret0, _ := ret[0].(*models.Cookie)
+	ret0, _ := ret[0].(models.Cookie)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -109,10 +109,10 @@ func (mr *MockAuthRepositoryMockRecorder) GetBySessionID(sessionID interface{}) 
 }
 
 // GetByUserID mocks base method.
-func (m *MockAuthRepository) GetByUserID(id uint64) (*models.Cookie, error) {
+func (m *MockAuthRepository) GetByUserID(id uint64) (models.Cookie, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByUserID", id)
-	ret0, _ := ret[0].(*models.Cookie)
+	ret0, _ := ret[0].(models.Cookie)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -124,10 +124,10 @@ func (mr *MockAuthRepositoryMockRecorder) GetByUserID(id interface{}) *gomock.Ca
 }
 
 // GetByUsername mocks base method.
-func (m *MockAuthRepository) GetByUsername(username string) (*models.Cookie, error) {
+func (m *MockAuthRepository) GetByUsername(username string) (models.Cookie, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByUsername", username)
-	ret0, _ := ret[0].(*models.Cookie)
+	ret0, _ := ret[0].(models.Cookie)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -204,10 +204,10 @@ func (mr *MockPostsRepositoryMockRecorder) DeleteByID(postID interface{}) *gomoc
 }
 
 // GetAllByUserID mocks base method.
-func (m *MockPostsRepository) GetAllByUserID(userID uint64) ([]*models.Post, error) {
+func (m *MockPostsRepository) GetAllByUserID(userID uint64) ([]models.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllByUserID", userID)
-	ret0, _ := ret[0].([]*models.Post)
+	ret0, _ := ret[0].([]models.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -219,10 +219,10 @@ func (mr *MockPostsRepositoryMockRecorder) GetAllByUserID(userID interface{}) *g
 }
 
 // GetPostByID mocks base method.
-func (m *MockPostsRepository) GetPostByID(postID uint64) (*models.Post, error) {
+func (m *MockPostsRepository) GetPostByID(postID uint64) (models.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPostByID", postID)
-	ret0, _ := ret[0].(*models.Post)
+	ret0, _ := ret[0].(models.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -365,10 +365,10 @@ func (mr *MockSubscriptionsRepositoryMockRecorder) DeleteSubscription(subID inte
 }
 
 // GetSubscriptionsByAuthorID mocks base method.
-func (m *MockSubscriptionsRepository) GetSubscriptionsByAuthorID(authorID uint64) ([]*models.AuthorSubscription, error) {
+func (m *MockSubscriptionsRepository) GetSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetSubscriptionsByAuthorID", authorID)
-	ret0, _ := ret[0].([]*models.AuthorSubscription)
+	ret0, _ := ret[0].([]models.AuthorSubscription)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -380,10 +380,10 @@ func (mr *MockSubscriptionsRepositoryMockRecorder) GetSubscriptionsByAuthorID(au
 }
 
 // GetSubscriptionsByID mocks base method.
-func (m *MockSubscriptionsRepository) GetSubscriptionsByID(ID uint64) (*models.AuthorSubscription, error) {
+func (m *MockSubscriptionsRepository) GetSubscriptionsByID(ID uint64) (models.AuthorSubscription, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetSubscriptionsByID", ID)
-	ret0, _ := ret[0].(*models.AuthorSubscription)
+	ret0, _ := ret[0].(models.AuthorSubscription)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -395,7 +395,7 @@ func (mr *MockSubscriptionsRepositoryMockRecorder) GetSubscriptionsByID(ID inter
 }
 
 // UpdateSubscription mocks base method.
-func (m *MockSubscriptionsRepository) UpdateSubscription(sub *models.AuthorSubscription) error {
+func (m *MockSubscriptionsRepository) UpdateSubscription(sub models.AuthorSubscription) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateSubscription", sub)
 	ret0, _ := ret[0].(error)
@@ -446,7 +446,7 @@ func (mr *MockUsersRepositoryMockRecorder) Close() *gomock.Call {
 }
 
 // Create mocks base method.
-func (m *MockUsersRepository) Create(user *models.User) error {
+func (m *MockUsersRepository) Create(user models.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", user)
 	ret0, _ := ret[0].(error)
@@ -474,10 +474,10 @@ func (mr *MockUsersRepositoryMockRecorder) DeleteByID(id interface{}) *gomock.Ca
 }
 
 // GetByEmail mocks base method.
-func (m *MockUsersRepository) GetByEmail(email string) (*models.User, error) {
+func (m *MockUsersRepository) GetByEmail(email string) (models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByEmail", email)
-	ret0, _ := ret[0].(*models.User)
+	ret0, _ := ret[0].(models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -489,10 +489,10 @@ func (mr *MockUsersRepositoryMockRecorder) GetByEmail(email interface{}) *gomock
 }
 
 // GetByID mocks base method.
-func (m *MockUsersRepository) GetByID(id uint64) (*models.User, error) {
+func (m *MockUsersRepository) GetByID(id uint64) (models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByID", id)
-	ret0, _ := ret[0].(*models.User)
+	ret0, _ := ret[0].(models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -504,10 +504,10 @@ func (mr *MockUsersRepositoryMockRecorder) GetByID(id interface{}) *gomock.Call 
 }
 
 // GetBySessionID mocks base method.
-func (m *MockUsersRepository) GetBySessionID(sessionID string) (*models.User, error) {
+func (m *MockUsersRepository) GetBySessionID(sessionID string) (models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBySessionID", sessionID)
-	ret0, _ := ret[0].(*models.User)
+	ret0, _ := ret[0].(models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -519,10 +519,10 @@ func (mr *MockUsersRepositoryMockRecorder) GetBySessionID(sessionID interface{})
 }
 
 // GetByUsername mocks base method.
-func (m *MockUsersRepository) GetByUsername(username string) (*models.User, error) {
+func (m *MockUsersRepository) GetByUsername(username string) (models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByUsername", username)
-	ret0, _ := ret[0].(*models.User)
+	ret0, _ := ret[0].(models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -534,10 +534,10 @@ func (mr *MockUsersRepositoryMockRecorder) GetByUsername(username interface{}) *
 }
 
 // GetUserByPostID mocks base method.
-func (m *MockUsersRepository) GetUserByPostID(postID uint64) (*models.User, error) {
+func (m *MockUsersRepository) GetUserByPostID(postID uint64) (models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserByPostID", postID)
-	ret0, _ := ret[0].(*models.User)
+	ret0, _ := ret[0].(models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -549,7 +549,7 @@ func (mr *MockUsersRepositoryMockRecorder) GetUserByPostID(postID interface{}) *
 }
 
 // Update mocks base method.
-func (m *MockUsersRepository) Update(user *models.User) error {
+func (m *MockUsersRepository) Update(user models.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", user)
 	ret0, _ := ret[0].(error)

@@ -7,6 +7,7 @@ import (
 	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	imagesMiddleware "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/middlewares"
 	imagesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/repository"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	httpPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery"
@@ -126,9 +127,9 @@ func (s *Server) makeUseCase(url string) {
 
 func (s *Server) makeHandlers() {
 	s.authHandler = httpAuth.NewHandler(s.AuthService, s.UserService)
-	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService, s.ImagesService, "img")
-	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService, s.ImagesService, "avatar")
-	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionService, s.UserService, s.ImagesService, "img")
+	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService, s.ImagesService)
+	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService, s.ImagesService)
+	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionService, s.UserService, s.ImagesService)
 	s.subscribersHandler = httpsubscribers.NewHandler(s.SubscribersService, s.UserService)
 }
 
@@ -141,11 +142,13 @@ func (s *Server) makeEchoLogger() {
 func (s *Server) makeRouter() {
 	s.Echo.Pre(middleware.RemoveTrailingSlash())
 
-	s.Echo.GET("backend/swagger/*", echoSwagger.WrapHandler)
+	s.Echo.GET("docs/*", echoSwagger.WrapHandler)
 
 	s.Echo.Use(logger.Middleware())
 	s.Echo.Use(middleware.Secure())
 	v1 := s.Echo.Group("/api/v1")
+
+	v1.Use(imagesMiddleware.BucketManager)
 
 	v1.POST("/login", s.authHandler.Login)
 	v1.GET("/auth", s.authHandler.Auth)
@@ -185,7 +188,12 @@ func (s *Server) makeRouter() {
 }
 
 func (s *Server) makeCORS() {
-	s.Echo.Use(NewCORS())
+	s.Echo.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     s.Config.CORS.AllowOrigins,
+		AllowMethods:     s.Config.CORS.AllowMethods,
+		AllowCredentials: s.Config.CORS.AllowCredentials,
+		AllowHeaders:     s.Config.CORS.AllowHeaders,
+	}))
 }
 
 func (s *Server) makeMiddlewares() {

@@ -14,14 +14,33 @@ logger:
 deploy:
   mode: true
 
+cors:
+  allow_methods: [
+                   "POST",
+                   "GET",
+                   "DELETE",
+                   "PUT",
+  ]
+  allow_origins: [
+                   "https://vdonate.ml",
+                   "http://localhost:8080",
+                   "https://localhost:8080",
+                   "http://localhost:4200",
+  ]
+  allow_credentials: true
+  allow_headers: [
+                   "Content-Type",
+                   "Content-length",
+  ]
+
 s3:
   endpoint: minio:9000
   access_key_id: admin
   secret_access_key: secretkey
   # TODO: set up tls for minio
   use_ssl: false
-  # Declare polices of buckets here
   buckets:
-    img: ""
-    avatar: >-
+    # Declare polices of buckets here
+    "image": ""
+    "avatar": >-
       {"Version": "2012-10-17","Statement": [{"Action": ["s3:GetObject"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::avatar/*"],"Sid": ""}]}

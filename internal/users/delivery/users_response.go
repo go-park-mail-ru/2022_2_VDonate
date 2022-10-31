@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func UserResponse(c echo.Context, u *model.User) error {
+func UserResponse(c echo.Context, u model.User) error {
 	if u.IsAuthor {
 		return c.JSON(http.StatusOK, model.ToAuthor(u))
 	}

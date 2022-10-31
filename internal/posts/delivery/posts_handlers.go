@@ -1,32 +1,29 @@
 package httpPosts
 
 import (
+	"fmt"
+	"net/http"
+	"strconv"
+
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/labstack/echo/v4"
-
-	"net/http"
-	"strconv"
 )
 
 type Handler struct {
 	postsUseCase domain.PostsUseCase
 	usersUseCase domain.UsersUseCase
 	imageUseCase domain.ImageUseCase
-
-	bucket string
 }
 
-func NewHandler(p domain.PostsUseCase, u domain.UsersUseCase, i domain.ImageUseCase, bucket string) *Handler {
+func NewHandler(p domain.PostsUseCase, u domain.UsersUseCase, i domain.ImageUseCase) *Handler {
 	return &Handler{
 		postsUseCase: p,
 		usersUseCase: u,
 		imageUseCase: i,
-
-		bucket: bucket,
 	}
 }
 
@@ -61,12 +58,10 @@ func (h *Handler) GetPosts(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrNotFound, err)
 	}
 
-	for _, post := range allPosts {
-		url, errGetImage := h.imageUseCase.GetImage(h.bucket, post.Img)
-		if errGetImage != nil {
-			return utils.WrapEchoError(domain.ErrInternal, errGetImage)
+	for i, post := range allPosts {
+		if allPosts[i].Img, err = h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), post.Img); err != nil {
+			return utils.WrapEchoError(domain.ErrInternal, err)
 		}
-		post.Img = url.String()
 	}
 
 	return c.JSON(http.StatusOK, allPosts)
@@ -94,11 +89,9 @@ func (h *Handler) GetPost(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrNotFound, err)
 	}
 
-	url, err := h.imageUseCase.GetImage(h.bucket, post.Img)
-	if err != nil {
+	if post.Img, err = h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), post.Img); err != nil {
 		return utils.WrapEchoError(domain.ErrInternal, err)
 	}
-	post.Img = url.String()
 
 	return c.JSON(http.StatusOK, post)
 }
@@ -167,19 +160,21 @@ func (h *Handler) PutPost(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
 
-	newFile, err := h.imageUseCase.CreateImage(file, h.bucket)
-	if err != nil {
+	if prevPost.Img, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
 		return utils.WrapEchoError(domain.ErrCreate, err)
 	}
 
-	prevPost.Img = newFile
-	prevPost.ID = postID
-	if err = h.postsUseCase.Update(prevPost); err != nil {
+	if err = h.postsUseCase.Update(prevPost, postID); err != nil {
 		return utils.WrapEchoError(domain.ErrUpdate, err)
 	}
 
+	tmpURL, err := h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), prevPost.Img)
+	if err != nil {
+		return utils.WrapEchoError(domain.ErrInternal, err)
+	}
+
 	return c.JSON(http.StatusOK, models.ResponseImage{
-		ImgPath: prevPost.Img,
+		ImgPath: tmpURL,
 	})
 }
 
@@ -222,18 +217,20 @@ func (h *Handler) CreatePost(c echo.Context) error {
 		return utils.WrapEchoError(domain.ErrBadRequest, err)
 	}
 
-	newImage, err := h.imageUseCase.CreateImage(file, h.bucket)
-	if err != nil {
+	if post.Img, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
 		return utils.WrapEchoError(domain.ErrCreate, err)
 	}
 
-	post.Img = newImage
-	post.UserID = user.ID
-	if err = h.postsUseCase.Create(post); err != nil {
+	if err = h.postsUseCase.Create(post, user.ID); err != nil {
 		return utils.WrapEchoError(domain.ErrCreate, err)
+	}
+
+	tmpURL, err := h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), post.Img)
+	if err != nil {
+		return utils.WrapEchoError(domain.ErrInternal, err)
 	}
 
 	return c.JSON(http.StatusOK, models.ResponseImage{
-		ImgPath: post.Img,
+		ImgPath: tmpURL,
 	})
 }

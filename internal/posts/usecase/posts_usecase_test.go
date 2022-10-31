@@ -17,14 +17,14 @@ func TestUsecase_GetPostsByUserID(t *testing.T) {
 		name                 string
 		userID               uint64
 		mockBehaviour        mockBehaviour
-		response             []*models.Post
+		response             []models.Post
 		responseErrorMessage string
 	}{
 		{
 			name:   "OK",
 			userID: 200,
 			mockBehaviour: func(s *mockDomain.MockPostsRepository, userID uint64) {
-				s.EXPECT().GetAllByUserID(userID).Return([]*models.Post{
+				s.EXPECT().GetAllByUserID(userID).Return([]models.Post{
 					{
 						ID:     1,
 						UserID: 200,
@@ -33,7 +33,7 @@ func TestUsecase_GetPostsByUserID(t *testing.T) {
 					},
 				}, nil)
 			},
-			response: []*models.Post{
+			response: []models.Post{
 				{
 					ID:     1,
 					UserID: 200,
@@ -46,8 +46,9 @@ func TestUsecase_GetPostsByUserID(t *testing.T) {
 			name:   "NoPosts",
 			userID: 200,
 			mockBehaviour: func(s *mockDomain.MockPostsRepository, userID uint64) {
-				s.EXPECT().GetAllByUserID(userID).Return([]*models.Post{}, nil)
+				s.EXPECT().GetAllByUserID(userID).Return([]models.Post{}, nil)
 			},
+			response:             []models.Post{},
 			responseErrorMessage: "no posts were found",
 		},
 	}

@@ -58,6 +58,7 @@ definitions:
         example: 1
         type: integer
     required:
+    - img
     - text
     - title
     type: object
@@ -847,7 +848,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
         "404":
-          description: User / avatars not found
+          description: User not found
           schema:
             $ref: '#/definitions/echo.HTTPError'
         "500":

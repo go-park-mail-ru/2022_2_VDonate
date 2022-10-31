@@ -35,17 +35,17 @@ func (m *MockPostsUseCase) EXPECT() *MockPostsUseCaseMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockPostsUseCase) Create(post models.Post) error {
+func (m *MockPostsUseCase) Create(post models.Post, userID uint64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", post)
+	ret := m.ctrl.Call(m, "Create", post, userID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockPostsUseCaseMockRecorder) Create(post interface{}) *gomock.Call {
+func (mr *MockPostsUseCaseMockRecorder) Create(post, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockPostsUseCase)(nil).Create), post)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockPostsUseCase)(nil).Create), post, userID)
 }
 
 // DeleteByID mocks base method.
@@ -63,10 +63,10 @@ func (mr *MockPostsUseCaseMockRecorder) DeleteByID(postID interface{}) *gomock.C
 }
 
 // GetPostByID mocks base method.
-func (m *MockPostsUseCase) GetPostByID(postID uint64) (*models.Post, error) {
+func (m *MockPostsUseCase) GetPostByID(postID uint64) (models.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPostByID", postID)
-	ret0, _ := ret[0].(*models.Post)
+	ret0, _ := ret[0].(models.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -78,10 +78,10 @@ func (mr *MockPostsUseCaseMockRecorder) GetPostByID(postID interface{}) *gomock.
 }
 
 // GetPostsByUserID mocks base method.
-func (m *MockPostsUseCase) GetPostsByUserID(id uint64) ([]*models.Post, error) {
+func (m *MockPostsUseCase) GetPostsByUserID(id uint64) ([]models.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPostsByUserID", id)
-	ret0, _ := ret[0].([]*models.Post)
+	ret0, _ := ret[0].([]models.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -93,15 +93,15 @@ func (mr *MockPostsUseCaseMockRecorder) GetPostsByUserID(id interface{}) *gomock
 }
 
 // Update mocks base method.
-func (m *MockPostsUseCase) Update(post models.Post) error {
+func (m *MockPostsUseCase) Update(post models.Post, postID uint64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", post)
+	ret := m.ctrl.Call(m, "Update", post, postID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockPostsUseCaseMockRecorder) Update(post interface{}) *gomock.Call {
+func (mr *MockPostsUseCaseMockRecorder) Update(post, postID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockPostsUseCase)(nil).Update), post)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockPostsUseCase)(nil).Update), post, postID)
 }

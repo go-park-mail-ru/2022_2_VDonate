@@ -17,32 +17,32 @@ func New(usersRepo domain.UsersRepository) domain.UsersUseCase {
 	}
 }
 
-func (u *usecase) GetByID(id uint64) (*models.User, error) {
+func (u *usecase) GetByID(id uint64) (models.User, error) {
 	return u.usersRepo.GetByID(id)
 }
 
-func (u *usecase) GetByUsername(username string) (*models.User, error) {
+func (u *usecase) GetByUsername(username string) (models.User, error) {
 	return u.usersRepo.GetByUsername(username)
 }
 
-func (u *usecase) GetByEmail(email string) (*models.User, error) {
+func (u *usecase) GetByEmail(email string) (models.User, error) {
 	return u.usersRepo.GetByEmail(email)
 }
 
-func (u *usecase) GetBySessionID(sessionID string) (*models.User, error) {
+func (u *usecase) GetBySessionID(sessionID string) (models.User, error) {
 	return u.usersRepo.GetBySessionID(sessionID)
 }
 
-func (u *usecase) GetUserByPostID(postID uint64) (*models.User, error) {
+func (u *usecase) GetUserByPostID(postID uint64) (models.User, error) {
 	return u.usersRepo.GetUserByPostID(postID)
 }
 
 func (u *usecase) Create(user models.User) error {
-	return u.usersRepo.Create(&user)
+	return u.usersRepo.Create(user)
 }
 
-func (u *usecase) Update(user models.User) error {
-	updateUser, err := u.GetByID(user.ID)
+func (u *usecase) Update(user models.User, id uint64) error {
+	updateUser, err := u.GetByID(id)
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,9 @@ func (u *usecase) Update(user models.User) error {
 		return err
 	}
 
-	if err = copier.CopyWithOption(updateUser, &user, copier.Option{IgnoreEmpty: true}); err != nil {
+	updateUser.Avatar = user.Avatar
+
+	if err = copier.CopyWithOption(&updateUser, &user, copier.Option{IgnoreEmpty: true}); err != nil {
 		return err
 	}
 
