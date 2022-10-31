@@ -11,7 +11,7 @@ func NewCSRF() echo.MiddlewareFunc {
 		TokenLength:  32,
 		TokenLookup:  "header:" + echo.HeaderXCSRFToken,
 		ContextKey:   "csrf",
-		CookieName:   "_csrf",
+		CookieName:   "csrf_token",
 		CookieMaxAge: 86400,
 	})
 }
