@@ -1,6 +1,8 @@
 name: deploy
+
 on:
-  workflow_dispatch:
+  workflow_dispatch
+
 jobs:
   deploy:
     needs: build_push_api
