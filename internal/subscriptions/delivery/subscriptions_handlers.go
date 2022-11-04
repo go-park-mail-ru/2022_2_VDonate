@@ -34,11 +34,11 @@ func NewHandler(s domain.SubscriptionsUseCase, u domain.UsersUseCase, i domain.I
 // @ID          get_user_subscriptions
 // @Tags        subscriptions
 // @Produce     json
-// @Success     200 {object} []models.Subscription "Successfully received subscriptions"
-// @Failure     400 {object} echo.HTTPError        "Bad request"
-// @Failure     401 {object} echo.HTTPError        "No session"
-// @Failure     403 {object} echo.HTTPError        "You are not supposed to make this requests"
-// @Failure     500 {object} echo.HTTPError        "Internal error"
+// @Success     200 {object} []models.AuthorSubscriptionMpfd "Successfully received subscriptions"
+// @Failure     400 {object} echo.HTTPError                  "Bad request"
+// @Failure     401 {object} echo.HTTPError                  "No session"
+// @Failure     403 {object} echo.HTTPError                  "You are not supposed to make this requests"
+// @Failure     500 {object} echo.HTTPError                  "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /subscriptions [get]
 func (h Handler) GetSubscriptions(c echo.Context) error {
@@ -58,7 +58,13 @@ func (h Handler) GetSubscriptions(c echo.Context) error {
 	}
 
 	if len(s) == 0 {
-		return c.JSON(http.StatusOK, struct{}{})
+		return c.JSON(http.StatusOK, models.EmptyStruct{})
+	}
+
+	for i, subscription := range s {
+		if s[i].Img, err = h.imageUsecase.GetImage(fmt.Sprint(c.Get("bucket")), subscription.Img); err != nil {
+			return errorHandling.WrapEcho(domain.ErrInternal, err)
+		}
 	}
 
 	return c.JSON(http.StatusOK, s)
@@ -70,11 +76,11 @@ func (h Handler) GetSubscriptions(c echo.Context) error {
 // @ID          get_author_subscriptions
 // @Tags        subscriptions
 // @Produce     json
-// @Success     200 {object} []models.Subscription "Successfully received subscriptions"
-// @Failure     400 {object} echo.HTTPError        "Bad request"
-// @Failure     401 {object} echo.HTTPError        "No session"
-// @Failure     403 {object} echo.HTTPError        "You are not supposed to make this requests"
-// @Failure     500 {object} echo.HTTPError        "Internal error"
+// @Success     200 {object} []models.AuthorSubscriptionMpfd "Successfully received subscriptions"
+// @Failure     400 {object} echo.HTTPError                  "Bad request"
+// @Failure     401 {object} echo.HTTPError                  "No session"
+// @Failure     403 {object} echo.HTTPError                  "You are not supposed to make this requests"
+// @Failure     500 {object} echo.HTTPError                  "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /author/subscriptions [get]
 func (h Handler) GetAuthorSubscriptions(c echo.Context) error {
@@ -112,13 +118,13 @@ func (h Handler) GetAuthorSubscriptions(c echo.Context) error {
 // @ID          get_author_subscription
 // @Tags        subscriptions
 // @Produce     json
-// @Param       id  path     integer             true "Subscription ID"
-// @Success     200 {object} models.Subscription "Successfully received subscription"
-// @Failure     400 {object} echo.HTTPError      "Bad request"
-// @Failure     401 {object} echo.HTTPError      "No session"
-// @Failure     403 {object} echo.HTTPError      "You are not supposed to make this requests"
-// @Failure     404 {object} echo.HTTPError      "Subscription not found"
-// @Failure     500 {object} echo.HTTPError      "Internal error"
+// @Param       id  path     integer                       true "Subscription ID"
+// @Success     200 {object} models.AuthorSubscriptionMpfd "Successfully received subscription"
+// @Failure     400 {object} echo.HTTPError                "Bad request"
+// @Failure     401 {object} echo.HTTPError                "No session"
+// @Failure     403 {object} echo.HTTPError                "You are not supposed to make this requests"
+// @Failure     404 {object} echo.HTTPError                "Subscription not found"
+// @Failure     500 {object} echo.HTTPError                "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /author/subscriptions/{id} [get]
 func (h Handler) GetAuthorSubscription(c echo.Context) error {
@@ -262,5 +268,5 @@ func (h Handler) DeleteAuthorSubscription(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrDelete, err)
 	}
 
-	return c.JSON(http.StatusOK, struct{}{})
+	return c.JSON(http.StatusOK, models.EmptyStruct{})
 }

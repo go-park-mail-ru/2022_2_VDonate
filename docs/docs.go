@@ -75,7 +75,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Subscription"
+                                "$ref": "#/definitions/models.AuthorSubscriptionMpfd"
                             }
                         }
                     },
@@ -124,6 +124,13 @@ const docTemplate = `{
                 "summary": "Create Author subscription",
                 "operationId": "create_author_subscription",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "example": "path/to/image",
+                        "name": "img",
+                        "in": "formData",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "example": 2999,
@@ -228,7 +235,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully received subscription",
                         "schema": {
-                            "$ref": "#/definitions/models.Subscription"
+                            "$ref": "#/definitions/models.AuthorSubscriptionMpfd"
                         }
                     },
                     "400": {
@@ -287,6 +294,13 @@ const docTemplate = `{
                         "description": "Subscription ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "path/to/image",
+                        "name": "img",
+                        "in": "formData",
                         "required": true
                     },
                     {
@@ -1035,7 +1049,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Subscription"
+                                "$ref": "#/definitions/models.AuthorSubscriptionMpfd"
                             }
                         }
                     },
@@ -1335,6 +1349,38 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "example": "admin"
+                }
+            }
+        },
+        "models.AuthorSubscriptionMpfd": {
+            "type": "object",
+            "required": [
+                "img",
+                "price",
+                "text",
+                "tier",
+                "title"
+            ],
+            "properties": {
+                "img": {
+                    "type": "string",
+                    "example": "path/to/image"
+                },
+                "price": {
+                    "type": "integer",
+                    "example": 2999
+                },
+                "text": {
+                    "type": "string",
+                    "example": "some text"
+                },
+                "tier": {
+                    "type": "integer",
+                    "example": 15
+                },
+                "title": {
+                    "type": "string",
+                    "example": "some title"
                 }
             }
         },

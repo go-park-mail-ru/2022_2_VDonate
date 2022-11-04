@@ -21,6 +21,7 @@ type UserMpfd struct {
 }
 
 type AuthorSubscriptionMpfd struct {
+	Img   string `json:"img" form:"img" db:"img" validate:"required" example:"path/to/image"`
 	Tier  uint64 `json:"tier" form:"tier" db:"tier" validate:"required" example:"15"`
 	Title string `json:"title" form:"title" db:"title" validate:"required" example:"some title"`
 	Text  string `json:"text" form:"text" db:"text" validate:"required" example:"some text"`

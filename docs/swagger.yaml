@@ -38,6 +38,30 @@ definitions:
     - is_author
     - username
     type: object
+  models.AuthorSubscriptionMpfd:
+    properties:
+      img:
+        example: path/to/image
+        type: string
+      price:
+        example: 2999
+        type: integer
+      text:
+        example: some text
+        type: string
+      tier:
+        example: 15
+        type: integer
+      title:
+        example: some title
+        type: string
+    required:
+    - img
+    - price
+    - text
+    - tier
+    - title
+    type: object
   models.EmptyStruct:
     type: object
   models.Post:
@@ -157,7 +181,7 @@ paths:
           description: Successfully received subscriptions
           schema:
             items:
-              $ref: '#/definitions/models.Subscription'
+              $ref: '#/definitions/models.AuthorSubscriptionMpfd'
             type: array
         "400":
           description: Bad request
@@ -186,6 +210,11 @@ paths:
       description: Create Author subscription by user's Cookie
       operationId: create_author_subscription
       parameters:
+      - example: path/to/image
+        in: formData
+        name: img
+        required: true
+        type: string
       - example: 2999
         in: formData
         name: price
@@ -297,7 +326,7 @@ paths:
         "200":
           description: Successfully received subscription
           schema:
-            $ref: '#/definitions/models.Subscription'
+            $ref: '#/definitions/models.AuthorSubscriptionMpfd'
         "400":
           description: Bad request
           schema:
@@ -334,6 +363,11 @@ paths:
         name: id
         required: true
         type: integer
+      - example: path/to/image
+        in: formData
+        name: img
+        required: true
+        type: string
       - example: 2999
         in: formData
         name: price
@@ -785,7 +819,7 @@ paths:
           description: Successfully received subscriptions
           schema:
             items:
-              $ref: '#/definitions/models.Subscription'
+              $ref: '#/definitions/models.AuthorSubscriptionMpfd'
             type: array
         "400":
           description: Bad request
