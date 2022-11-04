@@ -133,20 +133,28 @@ func (s *Server) makeRouter() {
 	post := v1.Group("/posts")
 	post.Use(s.authMiddleware.LoginRequired)
 
+	post.GET("/:id/likes", s.postsHandler.GetLikes)
+	post.POST("/:id/likes", s.postsHandler.CreateLike)
+	post.DELETE("/:id/likes", s.postsHandler.DeleteLike)
+
 	post.GET("", s.postsHandler.GetPosts)
 	post.POST("", s.postsHandler.CreatePosts)
 	post.GET("/:id", s.postsHandler.GetPost)
 	post.DELETE("/:id", s.postsHandler.DeletePost, s.authMiddleware.PostSameSessionByID)
 	post.PUT("/:id", s.postsHandler.PutPost, s.authMiddleware.PostSameSessionByID)
 
-	authorSubscription := v1.Group("/subscriptions")
-	authorSubscription.Use(s.authMiddleware.LoginRequired)
+	subscription := v1.Group("/subscriptions")
+	subscription.Use(s.authMiddleware.LoginRequired)
 
-	authorSubscription.GET("", s.subscriptionsHandler.GetSubscriptions)
-	authorSubscription.POST("", s.subscriptionsHandler.CreateSubscription)
-	authorSubscription.PUT("", s.subscriptionsHandler.UpdateSubscription)
-	authorSubscription.GET("/:id", s.subscriptionsHandler.GetSubscription)
-	authorSubscription.DELETE("/:id", s.subscriptionsHandler.DeleteSubscription)
+	subscription.GET("", s.subscriptionsHandler.GetSubscriptions)
+
+	authorSubscription := subscription.Group("/author")
+
+	authorSubscription.GET("", s.subscriptionsHandler.GetAuthorSubscriptions)
+	authorSubscription.POST("", s.subscriptionsHandler.CreateAuthorSubscription)
+	authorSubscription.PUT("/:id", s.subscriptionsHandler.UpdateAuthorSubscription)
+	authorSubscription.GET("/:id", s.subscriptionsHandler.GetAuthorSubscription)
+	authorSubscription.DELETE("/:id", s.subscriptionsHandler.DeleteAuthorSubscription)
 
 	subscriber := v1.Group("/subscribers")
 	subscriber.Use(s.authMiddleware.LoginRequired)

@@ -8,6 +8,11 @@ type Post struct {
 	Text   string `json:"text" db:"text"`
 }
 
+type Like struct {
+	UserID        uint64 `json:"user_id" db:"user_id"`
+	PostID        uint64 `json:"post_id" db:"post_id"`
+}
+
 func (p Post) GetID() uint64 {
 	return p.ID
 }

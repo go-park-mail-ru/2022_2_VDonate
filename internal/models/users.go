@@ -11,6 +11,9 @@ type User struct {
 	Phone     string `json:"phone,omitempty" db:"phone"`
 	IsAuthor  bool   `json:"is_author" db:"is_author"`
 	About     string `json:"about,omitempty" db:"about"`
+
+	UserSubscriptions   []*AuthorSubscription `json:"user_subscriptions,omitempty"`
+	AuthorSubscriptions []*AuthorSubscription `json:"author_subscriptions,omitempty"`
 }
 
 func (u User) GetID() uint64 {
@@ -46,6 +49,9 @@ type Author struct {
 	Phone     string `json:"phone,omitempty"`
 	IsAuthor  bool   `json:"is_author"`
 	About     string `json:"about,omitempty"`
+
+	UserSubscriptions   []*AuthorSubscription `json:"user_subscriptions,omitempty"`
+	AuthorSubscriptions []*AuthorSubscription `json:"author_subscriptions,omitempty"`
 }
 
 type NotAuthor struct {
@@ -57,6 +63,8 @@ type NotAuthor struct {
 	Avatar    string `json:"avatar,omitempty"`
 	Phone     string `json:"phone,omitempty"`
 	IsAuthor  bool   `json:"is_author"`
+
+	UserSubscriptions []*AuthorSubscription `json:"user_subscriptions,omitempty"`
 }
 
 func ToAuthor(u *User) *Author {
@@ -70,6 +78,9 @@ func ToAuthor(u *User) *Author {
 		Phone:     u.Phone,
 		IsAuthor:  true,
 		About:     u.About,
+
+		UserSubscriptions:   u.UserSubscriptions,
+		AuthorSubscriptions: u.AuthorSubscriptions,
 	}
 }
 
@@ -83,5 +94,7 @@ func ToNonAuthor(u *User) *NotAuthor {
 		Avatar:    u.Avatar,
 		Phone:     u.Phone,
 		IsAuthor:  false,
+
+		UserSubscriptions: u.UserSubscriptions,
 	}
 }

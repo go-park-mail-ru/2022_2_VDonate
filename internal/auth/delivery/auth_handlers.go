@@ -4,7 +4,7 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
+	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"time"
@@ -61,17 +61,17 @@ func NewHandler(authUseCase domain.AuthUseCase, usersUseCase domain.UsersUseCase
 func (h Handler) Auth(c echo.Context) error {
 	cookie, err := GetCookie(c)
 	if err != nil {
-		return utils.WrapEchoError(domain.ErrNoSession, err)
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
 
 	isAuth, err := h.authUseCase.Auth(cookie.Value)
 	if !isAuth {
-		return utils.WrapEchoError(domain.ErrAuth, err)
+		return errorHandling.WrapEcho(domain.ErrAuth, err)
 	}
 
 	user, err := h.usersUseCase.GetBySessionID(cookie.Value)
 	if err != nil {
-		return utils.WrapEchoError(domain.ErrNotFound, err)
+		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
 
 	return httpUsers.UserResponse(c, user)
@@ -81,19 +81,19 @@ func (h Handler) Login(c echo.Context) error {
 	var data models.AuthUser
 	err := c.Bind(&data)
 	if err != nil {
-		return utils.WrapEchoError(domain.ErrBadRequest, err)
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
 	sessionID, err := h.authUseCase.Login(data.Username, data.Password)
 	if err != nil {
-		return utils.WrapEchoError(domain.ErrNoSession, err)
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
 
 	c.SetCookie(makeHTTPCookieFromValue(sessionID))
 
 	user, err := h.usersUseCase.GetBySessionID(sessionID)
 	if err != nil {
-		return utils.WrapEchoError(domain.ErrNotFound, err)
+		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
 
 	return httpUsers.UserResponse(c, user)
@@ -102,12 +102,12 @@ func (h Handler) Login(c echo.Context) error {
 func (h Handler) Logout(c echo.Context) error {
 	session, err := GetCookie(c)
 	if err != nil {
-		return utils.WrapEchoError(domain.ErrNoSession, err)
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
 
 	isLogout, err := h.authUseCase.Logout(session.Value)
 	if !isLogout {
-		return utils.WrapEchoError(domain.ErrBadSession, err)
+		return errorHandling.WrapEcho(domain.ErrBadSession, err)
 	}
 
 	session.Expires = time.Now().AddDate(
@@ -125,12 +125,12 @@ func (h Handler) SignUp(c echo.Context) error {
 
 	err := c.Bind(&newUser)
 	if err != nil {
-		return utils.WrapEchoError(domain.ErrBadRequest, err)
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
 	sessionID, err := h.authUseCase.SignUp(&newUser)
 	if err != nil {
-		return utils.WrapEchoError(domain.ErrNoSession, err)
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
 
 	c.SetCookie(makeHTTPCookieFromValue(sessionID))

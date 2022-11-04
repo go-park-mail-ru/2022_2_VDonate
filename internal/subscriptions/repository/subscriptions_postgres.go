@@ -22,6 +22,24 @@ func NewPostgres(URL string) (*Postgres, error) {
 	return &Postgres{DB: db}, nil
 }
 
+func (p *Postgres) GetSubscriptionsByUserID(userID uint64) ([]*models.AuthorSubscription, error) {
+	var s []*models.AuthorSubscription
+	if err := p.DB.Select(&s, `
+		SELECT author_subscriptions.id,
+		       author_subscriptions.author_id,
+		       author_subscriptions.tier,
+		       author_subscriptions.text,
+		       author_subscriptions.price
+		FROM subscriptions JOIN author_subscriptions on author_subscriptions.id = subscriptions.subscription_id
+		WHERE subscriber_id = $1`,
+		userID,
+	); err != nil {
+		return nil, err
+	}
+
+	return s, nil
+}
+
 func (p *Postgres) GetSubscriptionsByAuthorID(authorID uint64) ([]*models.AuthorSubscription, error) {
 	var s []*models.AuthorSubscription
 	if err := p.DB.Select(&s, `

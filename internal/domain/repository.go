@@ -19,6 +19,10 @@ type PostsRepository interface {
 	Update(post models.Post) (*models.Post, error)
 	DeleteByID(postID uint64) error
 	Close() error
+	GetLikeByUserAndPostID(userID, postID uint64) (models.Like, error)
+	GetAllLikesByPostID(postID uint64) ([]models.Like, error)
+	CreateLike(userID, postID uint64) error
+	DeleteLikeByID(userID, postID uint64) error
 }
 
 type SubscribersRepository interface {
@@ -28,6 +32,7 @@ type SubscribersRepository interface {
 }
 
 type SubscriptionsRepository interface {
+	GetSubscriptionsByUserID(userID uint64) ([]*models.AuthorSubscription, error)
 	GetSubscriptionsByAuthorID(authorID uint64) ([]*models.AuthorSubscription, error)
 	GetSubscriptionsByID(ID uint64) (*models.AuthorSubscription, error)
 	AddSubscription(sub models.AuthorSubscription) (*models.AuthorSubscription, error)

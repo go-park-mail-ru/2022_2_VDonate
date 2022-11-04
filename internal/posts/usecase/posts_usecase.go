@@ -25,12 +25,15 @@ func (u *usecase) GetPostsByUserID(id uint64) ([]*models.Post, error) {
 	}
 	return r, nil
 }
+
 func (u *usecase) GetPostByID(postID uint64) (*models.Post, error) {
 	return u.postsRepo.GetPostByID(postID)
 }
+
 func (u *usecase) Create(post models.Post) (*models.Post, error) {
 	return u.postsRepo.Create(post)
 }
+
 func (u *usecase) Update(post models.Post) (*models.Post, error) {
 	updatePost, err := u.GetPostByID(post.ID)
 	if err != nil {
@@ -47,6 +50,27 @@ func (u *usecase) Update(post models.Post) (*models.Post, error) {
 
 	return updatePost, nil
 }
+
 func (u *usecase) DeleteByID(postID uint64) error {
 	return u.postsRepo.DeleteByID(postID)
+}
+
+func (u *usecase) GetLikesByPostID(postID uint64) ([]models.Like, error) {
+	r, err := u.postsRepo.GetAllLikesByPostID(postID)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+func (u *usecase) GetLikeByUserAndPostID(userID, postID uint64) (models.Like, error) {
+	return u.postsRepo.GetLikeByUserAndPostID(userID, postID)
+}
+
+func (u *usecase) LikePost(userID, postID uint64) error {
+	return u.postsRepo.CreateLike(userID, postID)
+}
+
+func (u *usecase) UnlikePost(userID, postID uint64) error {
+	return u.postsRepo.DeleteLikeByID(userID, postID)
 }

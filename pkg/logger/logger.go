@@ -2,7 +2,7 @@ package logger
 
 import (
 	"encoding/json"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
+	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	"github.com/sirupsen/logrus"
@@ -210,7 +210,7 @@ func Middleware() echo.MiddlewareFunc {
 
 			bytesIn := req.Header.Get(echo.HeaderContentLength)
 
-			message := utils.CutCodeFromError(err)
+			message := errorHandling.CutCode(err)
 
 			ctxLog := GetInstance().Logrus.WithFields(map[string]interface{}{
 				"remote_ip":     c.RealIP(),
