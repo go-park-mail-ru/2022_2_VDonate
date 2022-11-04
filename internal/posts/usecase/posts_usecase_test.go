@@ -1,30 +1,30 @@
 package posts
 
 import (
-	mock_domain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
-	"github.com/stretchr/testify/assert"
 	"testing"
 
+	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestUsecase_GetPostsByUserID(t *testing.T) {
-	type mockBehaviour func(s *mock_domain.MockPostsRepository, userID uint64)
+	type mockBehaviour func(s *mockDomain.MockPostsRepository, userID uint64)
 
 	tests := []struct {
 		name                 string
 		userID               uint64
 		mockBehaviour        mockBehaviour
-		response             []*models.Post
+		response             []models.Post
 		responseErrorMessage string
 	}{
 		{
 			name:   "OK",
 			userID: 200,
-			mockBehaviour: func(s *mock_domain.MockPostsRepository, userID uint64) {
-				s.EXPECT().GetAllByUserID(userID).Return([]*models.Post{
+			mockBehaviour: func(s *mockDomain.MockPostsRepository, userID uint64) {
+				s.EXPECT().GetAllByUserID(userID).Return([]models.Post{
 					{
 						ID:     1,
 						UserID: 200,
@@ -33,7 +33,7 @@ func TestUsecase_GetPostsByUserID(t *testing.T) {
 					},
 				}, nil)
 			},
-			response: []*models.Post{
+			response: []models.Post{
 				{
 					ID:     1,
 					UserID: 200,
@@ -45,9 +45,10 @@ func TestUsecase_GetPostsByUserID(t *testing.T) {
 		{
 			name:   "NoPosts",
 			userID: 200,
-			mockBehaviour: func(s *mock_domain.MockPostsRepository, userID uint64) {
-				s.EXPECT().GetAllByUserID(userID).Return([]*models.Post{}, nil)
+			mockBehaviour: func(s *mockDomain.MockPostsRepository, userID uint64) {
+				s.EXPECT().GetAllByUserID(userID).Return([]models.Post{}, nil)
 			},
+			response:             []models.Post{},
 			responseErrorMessage: "no posts were found",
 		},
 	}
@@ -57,7 +58,7 @@ func TestUsecase_GetPostsByUserID(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			postMock := mock_domain.NewMockPostsRepository(ctrl)
+			postMock := mockDomain.NewMockPostsRepository(ctrl)
 
 			test.mockBehaviour(postMock, test.userID)
 

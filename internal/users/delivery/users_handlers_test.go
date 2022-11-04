@@ -1,57 +1,69 @@
 package httpUsers
 
 import (
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-	mock_domain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
-	"io/ioutil"
+	"bytes"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strconv"
 	"strings"
 	"testing"
 
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
+	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestHadler_GetUser(t *testing.T) {
-	type mockBehavior func(r *mock_domain.MockUsersUseCase, id uint64)
+	type mockUserBehavior func(r *mockDomain.MockUsersUseCase, id uint64)
+
+	type mockImageBehavior func(r *mockDomain.MockImageUseCase, bucket, filename string)
 
 	tests := []struct {
 		name                 string
 		redirectID           int
-		mockBehavior         mockBehavior
+		mockUserBehavior     mockUserBehavior
+		mockImageBehavior    mockImageBehavior
 		expectedResponseBody string
 		expectedErrorMessage string
 	}{
 		{
 			name:       "OK",
 			redirectID: 24,
-			mockBehavior: func(r *mock_domain.MockUsersUseCase, id uint64) {
-				r.EXPECT().GetByID(id).Return(&models.User{
+			mockUserBehavior: func(r *mockDomain.MockUsersUseCase, id uint64) {
+				r.EXPECT().GetByID(id).Return(models.User{
 					ID:       id,
 					Username: "themilchenko",
+					Avatar:   "filename",
 					Email:    "example@ex.com",
 					IsAuthor: false,
 				}, nil)
 			},
-			expectedResponseBody: `{"id":24,"username":"themilchenko","email":"example@ex.com","is_author":false}`,
+			mockImageBehavior: func(r *mockDomain.MockImageUseCase, bucket, filename string) {
+				r.EXPECT().GetImage(bucket, filename).Return("", nil)
+			},
+			expectedResponseBody: `{"username":"themilchenko","email":"example@ex.com","is_author":false}`,
 		},
 		{
 			name:                 "BadID",
 			redirectID:           -1,
-			mockBehavior:         func(r *mock_domain.MockUsersUseCase, id uint64) {},
+			mockUserBehavior:     func(r *mockDomain.MockUsersUseCase, id uint64) {},
+			mockImageBehavior:    func(r *mockDomain.MockImageUseCase, bucket, filename string) {},
 			expectedErrorMessage: "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
 		},
 		{
 			name:       "NotFound",
 			redirectID: 24,
-			mockBehavior: func(r *mock_domain.MockUsersUseCase, id uint64) {
-				r.EXPECT().GetByID(id).Return(nil, domain.ErrNotFound)
+			mockUserBehavior: func(r *mockDomain.MockUsersUseCase, id uint64) {
+				r.EXPECT().GetByID(id).Return(models.User{}, domain.ErrNotFound)
 			},
+			mockImageBehavior:    func(r *mockDomain.MockImageUseCase, bucket, filename string) {},
 			expectedErrorMessage: "code=404, message=failed to find item, internal=failed to find item",
 		},
 	}
@@ -61,11 +73,14 @@ func TestHadler_GetUser(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			user := mock_domain.NewMockUsersUseCase(ctrl)
-			auth := mock_domain.NewMockAuthUseCase(ctrl)
-			test.mockBehavior(user, uint64(test.redirectID))
+			user := mockDomain.NewMockUsersUseCase(ctrl)
+			auth := mockDomain.NewMockAuthUseCase(ctrl)
+			image := mockDomain.NewMockImageUseCase(ctrl)
 
-			handler := NewHandler(user, auth)
+			test.mockUserBehavior(user, uint64(test.redirectID))
+			test.mockImageBehavior(image, "avatar", "filename")
+
+			handler := NewHandler(user, auth, image)
 
 			e := echo.New()
 			req := httptest.NewRequest(http.MethodGet, "https://127.0.0.1/api/v1/users", nil)
@@ -75,13 +90,13 @@ func TestHadler_GetUser(t *testing.T) {
 			c.SetPath("https://127.0.0.1/api/v1/users/:id")
 			c.SetParamNames("id")
 			c.SetParamValues(strconv.FormatInt(int64(test.redirectID), 10))
-
+			c.Set("bucket", "avatar")
 			err := handler.GetUser(c)
 			if err != nil {
 				assert.Equal(t, test.expectedErrorMessage, err.Error())
 			}
 
-			body, _ := ioutil.ReadAll(rec.Body)
+			body, _ := io.ReadAll(rec.Body)
 
 			assert.Equal(t, test.expectedResponseBody, strings.Trim(string(body), "\n"))
 		})
@@ -89,82 +104,109 @@ func TestHadler_GetUser(t *testing.T) {
 }
 
 func TestHandler_PutUser(t *testing.T) {
-	type mockBehavior func(r *mock_domain.MockUsersUseCase, id uint64, user models.User)
+	type mockUserBehavior func(r *mockDomain.MockUsersUseCase, id uint64, user models.User)
+	type mockImagesBehavior func(r *mockDomain.MockImageUseCase, bucket string, c echo.Context)
 
 	tests := []struct {
 		name                 string
 		userID               int
-		requestBody          string
-		userModel            models.User
-		mockBehavior         mockBehavior
+		requestBody          multipart.Form
+		inputUser            models.User
+		mockUserBehavior     mockUserBehavior
+		mockImagesBehavior   mockImagesBehavior
 		expectedErrorMessage string
 		expectedResponseBody string
 	}{
 		{
-			name:        "OK",
-			requestBody: `{"id":345,"username":"superuser","first_name":"Vasya","last_name":"Pupkin","about":"I love sport"}`,
-			userID:      345,
-			userModel: models.User{
-				ID:        345,
-				Username:  "superuser",
-				FirstName: "Vasya",
-				LastName:  "Pupkin",
-				About:     "I love sport",
+			name: "OK",
+			requestBody: multipart.Form{
+				Value: map[string][]string{
+					"id":       {"345"},
+					"username": {"superuser"},
+					"about":    {"I love sport"},
+				},
 			},
-			mockBehavior: func(r *mock_domain.MockUsersUseCase, id uint64, user models.User) {
-				r.EXPECT().Update(user).Return(&models.User{
-					ID:        id,
-					Username:  "superuser",
-					FirstName: "Vasya",
-					LastName:  "Pupkin",
-					IsAuthor:  true,
-					About:     "I love sport",
-				}, nil)
+			userID: 345,
+			inputUser: models.User{
+				ID:       345,
+				Username: "superuser",
+				About:    "I love sport",
 			},
-			expectedResponseBody: `{"id":345,"username":"superuser","first_name":"Vasya","last_name":"Pupkin","email":"","is_author":true,"about":"I love sport"}`,
+			mockUserBehavior: func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {
+				r.EXPECT().Update(user, user.ID).Return(nil)
+			},
+			mockImagesBehavior: func(r *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
+				file, err := images.GetFileFromContext(c)
+				assert.NoError(t, err)
+				r.EXPECT().CreateImage(file, bucket)
+			},
+			expectedResponseBody: `{"id":345,"username":"superuser","email":"","is_author":true,"about":"I love sport"}`,
 		},
 		{
-			name:        "BadRequest-ID",
-			requestBody: `{"id":345,"username":"superuser","first_name":"Vasya","last_name":"Pupkin","about":"I love sport"}`,
-			userID:      -1,
-			userModel: models.User{
-				ID:        345,
-				Username:  "superuser",
-				FirstName: "Vasya",
-				LastName:  "Pupkin",
-				About:     "I love sport",
+			name: "BadRequest-ID",
+			requestBody: multipart.Form{
+				Value: map[string][]string{
+					"id":       {"345"},
+					"username": {"superuser"},
+					"about":    {"I love sport"},
+				},
 			},
-			mockBehavior:         func(r *mock_domain.MockUsersUseCase, id uint64, user models.User) {},
-			expectedErrorMessage: "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
+			userID: -1,
+			inputUser: models.User{
+				ID:       345,
+				Username: "superuser",
+				About:    "I love sport",
+			},
+			mockUserBehavior:   func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {},
+			mockImagesBehavior: func(r *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
+			expectedErrorMessage: "" +
+				"code=400, " +
+				"message=bad request, " +
+				"internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
 		},
 		{
-			name:         "BadRequest-Bind",
-			requestBody:  `NotJSON`,
-			userID:       345,
-			userModel:    models.User{},
-			mockBehavior: func(r *mock_domain.MockUsersUseCase, id uint64, user models.User) {},
-			expectedErrorMessage: "code=400, " +
+			name: "BadRequest-Bind",
+			requestBody: multipart.Form{
+				Value: map[string][]string{
+					"id":       {"345", "123124"},
+					"username": {"superuser"},
+					"about":    {"I love sport"},
+				},
+			},
+			userID:             345,
+			inputUser:          models.User{},
+			mockUserBehavior:   func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {},
+			mockImagesBehavior: func(r *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
+			expectedErrorMessage: "" +
+				"code=400, " +
 				"message=bad request, " +
 				"internal=code=400, " +
-				"message=Syntax error: offset=1, " +
-				"error=invalid character 'N' looking for beginning of value, " +
-				"internal=invalid character 'N' looking for beginning of value",
+				"message=strconv.ParseUint: parsing \"�\": invalid syntax, internal=strconv.ParseUint: parsing \"�\": invalid syntax",
 		},
 		{
-			name:        "ErrUpdate",
-			requestBody: `{"id":345,"username":"superuser","first_name":"Vasya","last_name":"Pupkin","about":"I love sport"}`,
-			userID:      345,
-			userModel: models.User{
-				ID:        345,
-				Username:  "superuser",
-				FirstName: "Vasya",
-				LastName:  "Pupkin",
-				About:     "I love sport",
+			name: "ErrUpdate",
+			requestBody: multipart.Form{
+				Value: map[string][]string{
+					"id":       {"345"},
+					"username": {"superuser"},
+					"about":    {"I love sport"},
+				},
 			},
-			mockBehavior: func(r *mock_domain.MockUsersUseCase, id uint64, user models.User) {
-				r.EXPECT().Update(user).Return(nil, domain.ErrUpdate)
+			userID: 345,
+			inputUser: models.User{
+				ID:       345,
+				Username: "superuser",
+				About:    "I love sport",
 			},
-			expectedErrorMessage: "code=500, message=failed to update item",
+			mockUserBehavior: func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {
+				r.EXPECT().Update(user, user.ID).Return(domain.ErrUpdate)
+			},
+			mockImagesBehavior: func(r *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
+				file, err := images.GetFileFromContext(c)
+				assert.NoError(t, err)
+				r.EXPECT().CreateImage(file, bucket)
+			},
+			expectedErrorMessage: "code=500, message=failed to update item, internal=failed to update item",
 		},
 	}
 
@@ -173,31 +215,59 @@ func TestHandler_PutUser(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			user := mock_domain.NewMockUsersUseCase(ctrl)
-			auth := mock_domain.NewMockAuthUseCase(ctrl)
-			test.mockBehavior(user, test.userModel.ID, test.userModel)
+			user := mockDomain.NewMockUsersUseCase(ctrl)
+			auth := mockDomain.NewMockAuthUseCase(ctrl)
+			image := mockDomain.NewMockImageUseCase(ctrl)
 
-			handler := NewHandler(user, auth)
+			test.mockUserBehavior(user, test.inputUser.ID, test.inputUser)
+
+			handler := NewHandler(user, auth, image)
 
 			e := echo.New()
-			req := httptest.NewRequest(http.MethodPut, "https://127.0.0.1/api/v1/users/", strings.NewReader(test.requestBody))
+			body := new(bytes.Buffer)
+			writer := multipart.NewWriter(body)
+
+			if test.name == "BadRequest-Bind" {
+				err := writer.WriteField("id", string(rune(-1)))
+				assert.NoError(t, err)
+			} else {
+				err := writer.WriteField("id", strconv.FormatUint(test.inputUser.ID, 10))
+				assert.NoError(t, err)
+			}
+
+			formFile, err := writer.CreateFormFile("file", "../../../test/test.txt")
+			assert.NoError(t, err)
+
+			sample, err := os.Open("../../../test/test.txt")
+			assert.NoError(t, err)
+
+			_, err = io.Copy(formFile, sample)
+			assert.NoError(t, err)
+
+			err = writer.WriteField("username", test.inputUser.Username)
+			assert.NoError(t, err)
+
+			err = writer.WriteField("about", test.inputUser.About)
+			assert.NoError(t, err)
+
+			err = writer.Close()
+			assert.NoError(t, err)
+
+			req := httptest.NewRequest(http.MethodPut, "https://127.0.0.1/api/v1/users/", body)
 			rec := httptest.NewRecorder()
-			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("Content-Type", writer.FormDataContentType())
 
 			c := e.NewContext(req, rec)
 			c.SetPath("https://127.0.0.1/api/v1/users/:id")
 			c.SetParamNames("id")
 			c.SetParamValues(strconv.FormatInt(int64(test.userID), 10))
+			c.Set("bucket", "avatar")
 
-			err := handler.PutUser(c)
+			test.mockImagesBehavior(image, "avatar", c)
+			err = handler.PutUser(c)
 			if err != nil {
 				assert.Equal(t, test.expectedErrorMessage, err.Error())
 			}
-
-			body, err := ioutil.ReadAll(rec.Body)
-			require.NoError(t, err)
-
-			assert.Equal(t, test.expectedResponseBody, strings.Trim(string(body), "\n"))
 		})
 	}
 }

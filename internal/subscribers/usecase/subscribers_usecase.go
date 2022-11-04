@@ -2,6 +2,7 @@ package subscribers
 
 import (
 	"errors"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 )
@@ -18,16 +19,17 @@ func New(s domain.SubscribersRepository, u domain.UsersRepository) domain.Subscr
 	}
 }
 
-func (u *usecase) GetSubscribers(authorID uint64) ([]*models.User, error) {
+func (u *usecase) GetSubscribers(authorID uint64) ([]models.User, error) {
 	s, err := u.subscribersRepo.GetSubscribers(authorID)
 	if err != nil {
 		return nil, err
 	}
+
 	if len(s) == 0 {
 		return nil, errors.New("no subscribers")
 	}
 
-	var subs []*models.User
+	var subs []models.User
 
 	for _, userID := range s {
 		// Notion: if there is an error while getting user, skip it
@@ -52,7 +54,7 @@ func (u usecase) IsSubscriber(userID, authorID uint64) (bool, error) {
 		return false, err
 	}
 
-	if !models.Contains[*models.User](s, userID) {
+	if !models.Contains[models.User](s, userID) {
 		return false, errors.New("user is not a subscriber")
 	}
 

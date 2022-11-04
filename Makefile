@@ -1,11 +1,11 @@
-PROJECT_PATH = ./cmd/api/main.go
+MAIN_PATH = ./cmd/api/main.go
 MOCKS_DESTINATION = internal/mocks
 INTERNAL_PATH = internal
-ACTIVE_PACKAGES = $(shell go list ./... | grep -v "/mocks/")
+ACTIVE_PACKAGES = $(shell go list ./... | grep -v "/mocks/" | tr '\n' ',')
 
 .PHONY: test
 test: ## Run all the tests
-	go test $(ACTIVE_PACKAGES) -coverprofile=c.out
+	go test -coverpkg=$(ACTIVE_PACKAGES) -coverprofile=c.out ./...
 
 .PHONY: cover_out
 cover_out: test ## Run all the tests and opens the coverage report
@@ -20,7 +20,12 @@ ci: lint test ## Run all the tests and code checks
 
 .PHONY: local_build
 local_build: ## Build locally
-	go build ${PROJECT_PATH}
+	go build -o bin/ ${MAIN_PATH}
+
+.PHONY: docs
+docs: ## Make swagger docs
+	swag fmt
+	swag init --parseDependency --parseInternal -g cmd/api/main.go
 
 .PHONY: mocks
 mocks: ## Generate mocks
@@ -31,12 +36,24 @@ mocks: ## Generate mocks
 	@mockgen -source=internal/domain/users.go -destination=$(MOCKS_DESTINATION)/domain/users.go
 	@mockgen -source=internal/domain/subscribers.go -destination=$(MOCKS_DESTINATION)/domain/subscribers.go
 	@mockgen -source=internal/domain/subscriptions.go -destination=$(MOCKS_DESTINATION)/domain/subscriptions.go
+	@mockgen -source=internal/domain/images.go -destination=$(MOCKS_DESTINATION)/domain/images.go
 	@mockgen -source=internal/domain/repository.go -destination=$(MOCKS_DESTINATION)/domain/repository.go
+
+.PHONY: lint
+lint: ## Make linters
+	@golangci-lint run -c configs/.golangci.yaml
 
 .PHONY: clean
 clean: ## Remove temporary files
 	rm -f main
 	go clean
+
+.PHONY: dev
+dev: ## Start containers
+	# Clearing all stopped containers
+	docker container prune -f
+    # UP backend docker compose
+	docker-compose -f deployments/docker-compose.yaml up -d
 
 .PHONY: help
 help:

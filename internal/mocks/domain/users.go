@@ -49,12 +49,11 @@ func (mr *MockUsersUseCaseMockRecorder) CheckIDAndPassword(id, password interfac
 }
 
 // Create mocks base method.
-func (m *MockUsersUseCase) Create(user models.User) (*models.User, error) {
+func (m *MockUsersUseCase) Create(user models.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", user)
-	ret0, _ := ret[0].(*models.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Create indicates an expected call of Create.
@@ -106,10 +105,10 @@ func (mr *MockUsersUseCaseMockRecorder) DeleteByUsername(username interface{}) *
 }
 
 // GetByEmail mocks base method.
-func (m *MockUsersUseCase) GetByEmail(email string) (*models.User, error) {
+func (m *MockUsersUseCase) GetByEmail(email string) (models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByEmail", email)
-	ret0, _ := ret[0].(*models.User)
+	ret0, _ := ret[0].(models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -121,10 +120,10 @@ func (mr *MockUsersUseCaseMockRecorder) GetByEmail(email interface{}) *gomock.Ca
 }
 
 // GetByID mocks base method.
-func (m *MockUsersUseCase) GetByID(id uint64) (*models.User, error) {
+func (m *MockUsersUseCase) GetByID(id uint64) (models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByID", id)
-	ret0, _ := ret[0].(*models.User)
+	ret0, _ := ret[0].(models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -136,10 +135,10 @@ func (mr *MockUsersUseCaseMockRecorder) GetByID(id interface{}) *gomock.Call {
 }
 
 // GetBySessionID mocks base method.
-func (m *MockUsersUseCase) GetBySessionID(sessionID string) (*models.User, error) {
+func (m *MockUsersUseCase) GetBySessionID(sessionID string) (models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBySessionID", sessionID)
-	ret0, _ := ret[0].(*models.User)
+	ret0, _ := ret[0].(models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -151,10 +150,10 @@ func (mr *MockUsersUseCaseMockRecorder) GetBySessionID(sessionID interface{}) *g
 }
 
 // GetByUsername mocks base method.
-func (m *MockUsersUseCase) GetByUsername(username string) (*models.User, error) {
+func (m *MockUsersUseCase) GetByUsername(username string) (models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByUsername", username)
-	ret0, _ := ret[0].(*models.User)
+	ret0, _ := ret[0].(models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -166,10 +165,10 @@ func (mr *MockUsersUseCaseMockRecorder) GetByUsername(username interface{}) *gom
 }
 
 // GetUserByPostID mocks base method.
-func (m *MockUsersUseCase) GetUserByPostID(postID uint64) (*models.User, error) {
+func (m *MockUsersUseCase) GetUserByPostID(postID uint64) (models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserByPostID", postID)
-	ret0, _ := ret[0].(*models.User)
+	ret0, _ := ret[0].(models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -195,16 +194,15 @@ func (mr *MockUsersUseCaseMockRecorder) IsExistUsernameAndEmail(username, email 
 }
 
 // Update mocks base method.
-func (m *MockUsersUseCase) Update(user models.User) (*models.User, error) {
+func (m *MockUsersUseCase) Update(user models.User, id uint64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", user)
-	ret0, _ := ret[0].(*models.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "Update", user, id)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockUsersUseCaseMockRecorder) Update(user interface{}) *gomock.Call {
+func (mr *MockUsersUseCaseMockRecorder) Update(user, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsersUseCase)(nil).Update), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsersUseCase)(nil).Update), user, id)
 }

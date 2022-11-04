@@ -94,7 +94,7 @@ func (mr *MockAuthUseCaseMockRecorder) Logout(sessionID interface{}) *gomock.Cal
 }
 
 // SignUp mocks base method.
-func (m *MockAuthUseCase) SignUp(user *models.User) (string, error) {
+func (m *MockAuthUseCase) SignUp(user models.User) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SignUp", user)
 	ret0, _ := ret[0].(string)

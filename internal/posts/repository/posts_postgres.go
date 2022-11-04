@@ -10,11 +10,12 @@ type Postgres struct {
 	DB *sqlx.DB
 }
 
-func NewPostgres(URL string) (*Postgres, error) {
-	db, err := sqlx.Open("postgres", URL)
+func NewPostgres(url string) (*Postgres, error) {
+	db, err := sqlx.Open("postgres", url)
 	if err != nil {
 		return nil, err
 	}
+
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
@@ -22,32 +23,42 @@ func NewPostgres(URL string) (*Postgres, error) {
 	return &Postgres{DB: db}, nil
 }
 
-func (r *Postgres) Close() error {
+func (r Postgres) Close() error {
 	if err := r.DB.Close(); err != nil {
 		return err
 	}
+
 	return nil
 }
 
-func (r *Postgres) GetAllByUserID(userID uint64) ([]*models.Post, error) {
-	var posts []*models.Post
-	if err := r.DB.Select(&posts, "SELECT * FROM posts WHERE user_id=$1;", userID); err != nil {
+func (r Postgres) GetAllByUserID(userID uint64) ([]models.Post, error) {
+	var posts []models.Post
+	if err := r.DB.Select(
+		&posts,
+		"SELECT * FROM posts WHERE user_id=$1;",
+		userID,
+	); err != nil {
 		return nil, err
 	}
 
 	return posts, nil
 }
 
-func (r *Postgres) GetPostByID(postID uint64) (*models.Post, error) {
+func (r Postgres) GetPostByID(postID uint64) (models.Post, error) {
 	var post models.Post
-	if err := r.DB.Get(&post, "SELECT * FROM posts WHERE post_id=$1;", postID); err != nil {
-		return nil, err
+	if err := r.DB.Get(
+		&post,
+		"SELECT * FROM posts WHERE post_id=$1;",
+		postID,
+	); err != nil {
+		return models.Post{}, err
 	}
-	return &post, nil
+
+	return post, nil
 }
 
-func (r *Postgres) Create(post models.Post) (*models.Post, error) {
-	err := r.DB.QueryRowx(
+func (r Postgres) Create(post models.Post) error {
+	return r.DB.QueryRowx(
 		`
 		INSERT INTO posts (user_id, img, title, text) 
 		VALUES ($1, $2, $3, $4) RETURNING post_id;`,
@@ -55,14 +66,10 @@ func (r *Postgres) Create(post models.Post) (*models.Post, error) {
 		post.Img,
 		post.Title,
 		post.Text,
-	).Scan(&post.ID)
-	if err != nil {
-		return nil, err
-	}
-	return &post, nil
+	).Err()
 }
 
-func (r *Postgres) Update(post models.Post) (*models.Post, error) {
+func (r Postgres) Update(post models.Post) error {
 	_, err := r.DB.NamedExec(
 		`
                 UPDATE posts
@@ -71,17 +78,16 @@ func (r *Postgres) Update(post models.Post) (*models.Post, error) {
                     text=:text,
                     img=:img
                 WHERE post_id = :post_id`, &post)
-	if err != nil {
-		return nil, err
-	}
-	return &post, err
+
+	return err
 }
 
-func (r *Postgres) DeleteByID(postID uint64) error {
-	_, err := r.DB.Query("DELETE FROM posts WHERE post_id=$1;", postID)
+func (r Postgres) DeleteByID(postID uint64) error {
+	_, err := r.DB.Exec("DELETE FROM posts WHERE post_id=$1;", postID)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

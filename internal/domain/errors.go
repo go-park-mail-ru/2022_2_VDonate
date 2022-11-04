@@ -15,7 +15,6 @@ var (
 	ErrResponse  = errors.New("failed to response")
 	ErrNotFound  = errors.New("failed to find item")
 	ErrNoContent = errors.New("no content was found")
-	ErrConflict = errors.New("conflict")
 
 	ErrAuth       = errors.New("failed to authenticate")
 	ErrNoSession  = errors.New("no existing session")
@@ -29,4 +28,10 @@ var (
 
 var (
 	ErrNoLikes = errors.New("no likes were found")
+	ErrBucketNotExists         = errors.New("bucket doesn't exist")
+	ErrFileOpen                = errors.New("failed to open file")
+	ErrUsernameExist           = errors.New("username exists")
+	ErrEmailExist              = errors.New("email exists")
+	ErrUsernameOrEmailNotExist = errors.New("username or email not exists")
+	ErrPasswordsNotEqual       = errors.New("passwords not the same")
 )

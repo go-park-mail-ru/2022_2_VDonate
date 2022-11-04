@@ -1,40 +1,61 @@
 package httpSubscriptions
 
 import (
+	"fmt"
+	"net/http"
+	"strconv"
+
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"strconv"
 )
 
 type Handler struct {
 	subscriptionsUsecase domain.SubscriptionsUseCase
 	userUsecase          domain.UsersUseCase
+	imageUsecase         domain.ImageUseCase
 }
 
-func NewHandler(s domain.SubscriptionsUseCase, u domain.UsersUseCase) *Handler {
+func NewHandler(s domain.SubscriptionsUseCase, u domain.UsersUseCase, i domain.ImageUseCase) *Handler {
 	return &Handler{
 		subscriptionsUsecase: s,
 		userUsecase:          u,
+		imageUsecase:         i,
 	}
 }
 
+// GetSubscriptions godoc
+// @Summary     Get user's subscriptions
+// @Description Get user's subscriptions by Cookie
+// @ID          get_subscriptions
+// @Tags        subscriptions
+// @Produce     json
+// @Success     200 {object} []models.Subscription "Successfully received subscriptions"
+// @Failure     400 {object} echo.HTTPError        "Bad request"
+// @Failure     401 {object} echo.HTTPError        "No session"
+// @Failure     403 {object} echo.HTTPError        "You are not supposed to make this requests"
+// @Failure     500 {object} echo.HTTPError        "Internal error"
+// @Security    ApiKeyAuth
+// @Router      /subscriptions [get]
 func (h Handler) GetSubscriptions(c echo.Context) error {
 	cookie, err := httpAuth.GetCookie(c)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
+
 	user, err := h.userUsecase.GetBySessionID(cookie.Value)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
+
 	s, err := h.subscriptionsUsecase.GetSubscriptionsByUserID(user.ID)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
+
 	if len(s) == 0 {
 		return c.JSON(http.StatusOK, struct{}{})
 	}
@@ -47,79 +68,184 @@ func (h Handler) GetAuthorSubscriptions(c echo.Context) error {
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
+
 	author, err := h.userUsecase.GetBySessionID(cookie.Value)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
-	s, err := h.subscriptionsUsecase.GetAuthorSubscriptionsByAuthorID(author.ID)
+
+	s, err := h.subscriptionsUsecase.GetSubscriptionsByAuthorID(author.ID)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
+
 	if len(s) == 0 {
 		return c.JSON(http.StatusOK, struct{}{})
+	}
+
+	for i, subscription := range s {
+		if s[i].Img, err = h.imageUsecase.GetImage(fmt.Sprint(c.Get("bucket")), subscription.Img); err != nil {
+			return errorHandling.WrapEcho(domain.ErrInternal, err)
+		}
 	}
 
 	return c.JSON(http.StatusOK, s)
 }
 
+// GetAuthorSubscription godoc
+// @Summary     Get user's subscription
+// @Description Get user's subscription by id
+// @ID          get_subscription
+// @Tags        subscriptions
+// @Produce     json
+// @Param       id  path     integer             true "Subscription ID"
+// @Success     200 {object} models.Subscription "Successfully received subscription"
+// @Failure     400 {object} echo.HTTPError      "Bad request"
+// @Failure     401 {object} echo.HTTPError      "No session"
+// @Failure     403 {object} echo.HTTPError      "You are not supposed to make this requests"
+// @Failure     404 {object} echo.HTTPError      "Subscription not found"
+// @Failure     500 {object} echo.HTTPError      "Internal error"
+// @Security    ApiKeyAuth
+// @Router      /subscriptions/{id} [get]
 func (h Handler) GetAuthorSubscription(c echo.Context) error {
 	subID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
-	s, err := h.subscriptionsUsecase.GetAuthorSubscriptionByID(subID)
+
+	s, err := h.subscriptionsUsecase.GetSubscriptionsByID(subID)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
+	}
+
+	if s.Img, err = h.imageUsecase.GetImage(fmt.Sprint(c.Get("bucket")), s.Img); err != nil {
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
 	return c.JSON(http.StatusOK, s)
 }
 
+// CreateAuthorSubscription godoc
+// @Summary     Create subscription
+// @Description Create subscription by user's Cookie
+// @ID          create_subscription
+// @Tags        subscriptions
+// @Produce     json
+// @Accept      mpfd
+// @Param       data formData models.AuthorSubscriptionMpfd true  "POST request of all information about `User`"
+// @Param       file formData file                          false "Upload image"
+// @Success     200  {object} models.ResponseImage          "Successfully created subscription"
+// @Failure     400  {object} echo.HTTPError                "Bad request"
+// @Failure     401  {object} echo.HTTPError                "No session"
+// @Failure     403  {object} echo.HTTPError                "You are not supposed to make this requests"
+// @Failure     404  {object} echo.HTTPError                "Subscription not found"
+// @Failure     500  {object} echo.HTTPError                "Internal error"
+// @Security    ApiKeyAuth
+// @Router      /subscriptions [post]
 func (h Handler) CreateAuthorSubscription(c echo.Context) error {
 	cookie, err := httpAuth.GetCookie(c)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
+
 	author, err := h.userUsecase.GetBySessionID(cookie.Value)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+	}
+
+	file, err := images.GetFileFromContext(c)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
 	var s models.AuthorSubscription
 	if err := c.Bind(&s); err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
-	s.AuthorID = author.ID
-	newS, err := h.subscriptionsUsecase.AddAuthorSubscription(s)
-	if err != nil {
+
+	if s.Img, err = h.imageUsecase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
 		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 
-	return c.JSON(http.StatusOK, newS)
+	if err = h.subscriptionsUsecase.CreateSubscription(s, author.ID); err != nil {
+		return errorHandling.WrapEcho(domain.ErrCreate, err)
+	}
+
+	return c.JSON(http.StatusOK, models.ResponseImage{
+		ImgPath: s.Img,
+	})
 }
 
+// UpdateAuthorSubscription godoc
+// @Summary     Update subscription
+// @Description Update subscription by subscription id
+// @ID          update_subscription
+// @Tags        subscriptions
+// @Produce     json
+// @Accept      mpfd
+// @Param       id   path     integer                       true  "Subscription ID"
+// @Param       data formData models.AuthorSubscriptionMpfd true  "POST request of all information about `User`"
+// @Param       file formData file                          false "Upload image"
+// @Success     200  {object} models.ResponseImage          "Successfully updated subscription"
+// @Failure     400  {object} echo.HTTPError                "Bad request"
+// @Failure     401  {object} echo.HTTPError                "No session"
+// @Failure     403  {object} echo.HTTPError                "You are not supposed to make this requests"
+// @Failure     500  {object} echo.HTTPError                "Internal / update error"
+// @Security    ApiKeyAuth
+// @Router      /subscriptions/{id} [put]
 func (h Handler) UpdateAuthorSubscription(c echo.Context) error {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	subID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
-	}
-	var s models.AuthorSubscription
-	if err := c.Bind(&s); err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	s.ID = id
-	subscription, err := h.subscriptionsUsecase.UpdateAuthorSubscription(s)
+	file, err := images.GetFileFromContext(c)
 	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	var s models.AuthorSubscription
+
+	if err = c.Bind(&s); err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	if s.Img, err = h.imageUsecase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
+		return errorHandling.WrapEcho(domain.ErrCreate, err)
+	}
+
+	if err = h.subscriptionsUsecase.UpdateSubscription(s, subID); err != nil {
 		return errorHandling.WrapEcho(domain.ErrUpdate, err)
 	}
 
-	return c.JSON(http.StatusOK, subscription)
+	return c.JSON(http.StatusOK, models.ResponseImage{
+		ImgPath: s.Img,
+	})
 }
 
+// DeleteAuthorSubscription godoc
+// @Summary     Delete subscription
+// @Description Delete subscription by subscription id
+// @ID          delete_subscription
+// @Tags        subscriptions
+// @Produce     json
+// @Accept      mpfd
+// @Param       id  path     integer            true "Subscription ID"
+// @Success     200 {object} models.EmptyStruct "Successfully updated subscription"
+// @Failure     400 {object} echo.HTTPError     "Bad request"
+// @Failure     401 {object} echo.HTTPError     "No session"
+// @Failure     403 {object} echo.HTTPError     "You are not supposed to make this requests"
+// @Failure     500 {object} echo.HTTPError     "Internal / delete error"
+// @Security    ApiKeyAuth
+// @Router      /subscriptions/{id} [delete]
 func (h Handler) DeleteAuthorSubscription(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
-	if err := h.subscriptionsUsecase.DeleteAuthorSubscription(id); err != nil {
-		return errorHandling.WrapEcho(domain.ErrDelete, err)
+
+	if err = h.subscriptionsUsecase.DeleteSubscription(id); err != nil {
+		return utils.WrapEchoError(domain.ErrDelete, err)
 	}
 
 	return c.JSON(http.StatusOK, struct{}{})

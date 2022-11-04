@@ -2,9 +2,9 @@ package auth
 
 import (
 	"errors"
-	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"testing"
 
+	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
@@ -24,7 +24,7 @@ func TestUsecase_Auth(t *testing.T) {
 			name:      "OK",
 			sessionID: "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
 			mockBehaviourDelete: func(r *mockDomain.MockAuthRepository, cookie string) {
-				r.EXPECT().GetBySessionID(cookie).Return(&models.Cookie{
+				r.EXPECT().GetBySessionID(cookie).Return(models.Cookie{
 					Value:  "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
 					UserID: 22,
 				}, nil)
@@ -35,7 +35,7 @@ func TestUsecase_Auth(t *testing.T) {
 			name:      "NotFound",
 			sessionID: "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
 			mockBehaviourDelete: func(r *mockDomain.MockAuthRepository, cookie string) {
-				r.EXPECT().GetBySessionID(cookie).Return(&models.Cookie{}, errors.New("user not found"))
+				r.EXPECT().GetBySessionID(cookie).Return(models.Cookie{}, errors.New("user not found"))
 			},
 			response:      false,
 			responseError: errors.New("user not found"),
@@ -109,17 +109,17 @@ func TestUsecase_IsSameSession(t *testing.T) {
 
 	tests := []struct {
 		name             string
-		userId           uint64
+		userID           uint64
 		sessionID        string
 		mockBehaviourGet mockBehaviourGet
 		response         bool
 	}{
 		{
 			name:      "OK",
-			userId:    22,
+			userID:    22,
 			sessionID: "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
 			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, cookie string) {
-				r.EXPECT().GetBySessionID(cookie).Return(&models.User{
+				r.EXPECT().GetBySessionID(cookie).Return(models.User{
 					ID: 22,
 				}, nil)
 			},
@@ -138,7 +138,7 @@ func TestUsecase_IsSameSession(t *testing.T) {
 			test.mockBehaviourGet(userMock, test.sessionID)
 
 			usecase := New(authMock, userMock)
-			isSame := usecase.IsSameSession(test.sessionID, test.userId)
+			isSame := usecase.IsSameSession(test.sessionID, test.userID)
 
 			require.Equal(t, test.response, isSame)
 		})
