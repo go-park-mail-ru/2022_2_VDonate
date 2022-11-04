@@ -51,6 +51,7 @@ func (s *Server) init() {
 	s.makeHandlers()
 	s.makeRouter()
 	s.makeCORS()
+	s.makeCSRF()
 }
 
 func (s *Server) Start() error {
@@ -157,6 +158,10 @@ func (s *Server) makeRouter() {
 
 func (s *Server) makeCORS() {
 	s.Echo.Use(NewCORS())
+}
+
+func (s *Server) makeCSRF() {
+	s.Echo.Use(NewCSRF())
 }
 
 func (s *Server) makeMiddlewares() {

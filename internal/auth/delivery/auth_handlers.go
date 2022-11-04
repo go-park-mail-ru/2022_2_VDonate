@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	cookieName = "session_id"
+	cookieName   = "session_id"
 )
 
 var deleteExpire = map[string]int{

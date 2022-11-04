@@ -1,11 +1,12 @@
 package authMiddlewares
 
 import (
+	"strconv"
+
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/labstack/echo/v4"
-	"strconv"
 )
 
 type Middlewares struct {
