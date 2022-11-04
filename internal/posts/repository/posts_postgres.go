@@ -118,6 +118,6 @@ func (r Postgres) CreateLike(userID, postID uint64) error {
 }
 
 func (r Postgres) DeleteLikeByID(userID, postID uint64) error {
-	_, err := r.DB.Query("DELETE FROM likes WHERE user_id=$1 AND post_id=$2;", userID, postID)
+	_, err := r.DB.Exec("DELETE FROM likes WHERE user_id=$1 AND post_id=$2;", userID, postID)
 	return err
 }

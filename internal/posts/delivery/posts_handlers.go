@@ -5,11 +5,12 @@ import (
 	"net/http"
 	"strconv"
 
+	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
+
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 	"github.com/labstack/echo/v4"
 )
 
@@ -125,7 +126,7 @@ func (h *Handler) DeletePost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
-	return c.JSON(http.StatusOK, struct{}{})
+	return c.JSON(http.StatusOK, models.EmptyStruct{})
 }
 
 // PutPost godoc
@@ -149,12 +150,12 @@ func (h *Handler) DeletePost(c echo.Context) error {
 func (h *Handler) PutPost(c echo.Context) error {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		return utils.WrapEchoError(domain.ErrBadRequest, err)
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
 	file, err := images.GetFileFromContext(c)
 	if err != nil {
-		return utils.WrapEchoError(domain.ErrBadRequest, err)
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
 	var prevPost models.Post
@@ -211,7 +212,7 @@ func (h *Handler) CreatePost(c echo.Context) error {
 
 	file, err := images.GetFileFromContext(c)
 	if err != nil {
-		return utils.WrapEchoError(domain.ErrBadRequest, err)
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
 	var post models.Post
@@ -221,11 +222,11 @@ func (h *Handler) CreatePost(c echo.Context) error {
 	}
 
 	if post.Img, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
-		return utils.WrapEchoError(domain.ErrCreate, err)
+		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 
 	if err = h.postsUseCase.Create(post, user.ID); err != nil {
-		return utils.WrapEchoError(domain.ErrCreate, err)
+		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 
 	tmpURL, err := h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), post.Img)

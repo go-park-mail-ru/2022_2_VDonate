@@ -4,13 +4,12 @@ import (
 	"net/http"
 	"time"
 
+	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	httpUsers "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"time"
 )
 
 const (
@@ -149,7 +148,7 @@ func (h Handler) Logout(c echo.Context) error {
 	)
 	c.SetCookie(MakeHTTPCookie(session))
 
-	return c.JSON(http.StatusOK, struct{}{})
+	return c.JSON(http.StatusOK, models.EmptyStruct{})
 }
 
 // SignUp godoc

@@ -6,17 +6,16 @@ import (
 	"net/http"
 	"strconv"
 
+	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 	"github.com/labstack/echo/v4"
 )
 
 type Handler struct {
 	sessionUseCase domain.AuthUseCase
-	subscriptions  domain.SubscriptionsUseCase
-	subscribers    domain.SubscribersUseCase
 	userUseCase    domain.UsersUseCase
 	imageUseCase   domain.ImageUseCase
 }
@@ -59,7 +58,7 @@ func (h *Handler) GetUser(c echo.Context) error {
 	}
 
 	if user.Avatar, err = h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), user.Avatar); err != nil {
-		return utils.WrapEchoError(domain.ErrInternal, err)
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
 	return UserResponse(c, user)
@@ -90,7 +89,7 @@ func (h *Handler) PutUser(c echo.Context) error {
 
 	file, err := images.GetFileFromContext(c)
 	if err != nil && !errors.Is(err, http.ErrMissingFile) {
-		return utils.WrapEchoError(domain.ErrBadRequest, err)
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
 	var updateUser models.User
@@ -101,12 +100,12 @@ func (h *Handler) PutUser(c echo.Context) error {
 
 	if file != nil {
 		if updateUser.Avatar, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
-			return utils.WrapEchoError(domain.ErrCreate, err)
+			return errorHandling.WrapEcho(domain.ErrCreate, err)
 		}
 	}
 
 	if err = h.userUseCase.Update(updateUser, id); err != nil {
-		return utils.WrapEchoError(domain.ErrUpdate, err)
+		return errorHandling.WrapEcho(domain.ErrUpdate, err)
 	}
 
 	return c.JSON(http.StatusOK, struct{}{})

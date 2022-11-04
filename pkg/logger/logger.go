@@ -7,7 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
+	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	"github.com/sirupsen/logrus"

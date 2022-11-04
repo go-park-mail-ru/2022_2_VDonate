@@ -23,6 +23,25 @@ func NewPostgres(url string) (*Postgres, error) {
 	return &Postgres{DB: db}, nil
 }
 
+func (p *Postgres) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscription, error) {
+	var s []models.AuthorSubscription
+	if err := p.DB.Select(&s, `
+		SELECT author_subscriptions.id,
+		       author_subscriptions.author_id,
+		       author_subscriptions.title,
+		       author_subscriptions.tier,
+		       author_subscriptions.text,
+		       author_subscriptions.price
+		FROM subscriptions JOIN author_subscriptions on author_subscriptions.id = subscriptions.subscription_id
+		WHERE subscriber_id = $1`,
+		userID,
+	); err != nil {
+		return nil, err
+	}
+
+	return s, nil
+}
+
 func (p Postgres) GetSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error) {
 	var s []models.AuthorSubscription
 	if err := p.DB.Select(&s, `
@@ -37,7 +56,7 @@ func (p Postgres) GetSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSu
 	return s, nil
 }
 
-func (p Postgres) GetSubscriptionsByID(id uint64) (models.AuthorSubscription, error) {
+func (p Postgres) GetSubscriptionByID(id uint64) (models.AuthorSubscription, error) {
 	var s models.AuthorSubscription
 	if err := p.DB.Get(&s, `
 		SELECT * 
@@ -53,11 +72,12 @@ func (p Postgres) GetSubscriptionsByID(id uint64) (models.AuthorSubscription, er
 
 func (p Postgres) AddSubscription(sub models.AuthorSubscription) error {
 	return p.DB.QueryRowx(`
-		INSERT INTO author_subscriptions (author_id, img, tier, text, price) 
+		INSERT INTO author_subscriptions (author_id, img, title, tier, text, price) 
 		VALUES ($1, $2, $3, $4, $5) 
 		RETURNING id`,
 		sub.AuthorID,
 		sub.Img,
+		sub.Title,
 		sub.Tier,
 		sub.Text,
 		sub.Price,
@@ -71,6 +91,7 @@ func (p Postgres) UpdateSubscription(sub models.AuthorSubscription) error {
 		SET author_id=:author_id,
 		    img=:img,
 		    tier=:tier,
+		    title=:title,
 		    text=:text,
 		    price=:price
 		WHERE id = :id`, sub)

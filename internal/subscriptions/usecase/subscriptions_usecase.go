@@ -1,8 +1,6 @@
 package subscriptions
 
 import (
-	"errors"
-
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jinzhu/copier"
@@ -18,20 +16,15 @@ func New(s domain.SubscriptionsRepository) domain.SubscriptionsUseCase {
 	}
 }
 
-func (u *usecase) GetSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error) {
-	s, err := u.subRepo.GetSubscriptionsByAuthorID(authorID)
+func (u *usecase) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscription, error) {
+	s, err := u.subRepo.GetSubscriptionsByUserID(userID)
 	if err != nil {
 		return nil, err
 	}
-
-	if len(s) == 0 {
-		return nil, errors.New("no subscriptions")
-	}
-
 	return s, nil
 }
 
-func (u *usecase) GetAuthorSubscriptionsByAuthorID(authorID uint64) ([]*models.AuthorSubscription, error) {
+func (u *usecase) GetAuthorSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error) {
 	s, err := u.subRepo.GetSubscriptionsByAuthorID(authorID)
 	if err != nil {
 		return nil, err
@@ -40,8 +33,8 @@ func (u *usecase) GetAuthorSubscriptionsByAuthorID(authorID uint64) ([]*models.A
 	return s, nil
 }
 
-func (u *usecase) GetAuthorSubscriptionByID(ID uint64) (models.AuthorSubscription, error) {
-	s, err := u.subRepo.GetSubscriptionsByID(ID)
+func (u *usecase) GetAuthorSubscriptionByID(id uint64) (models.AuthorSubscription, error) {
+	s, err := u.subRepo.GetSubscriptionByID(id)
 	if err != nil {
 		return models.AuthorSubscription{}, err
 	}
@@ -54,7 +47,7 @@ func (u *usecase) AddAuthorSubscription(sub models.AuthorSubscription, id uint64
 }
 
 func (u *usecase) UpdateAuthorSubscription(sub models.AuthorSubscription, id uint64) error {
-	updateSub, err := u.GetAuthorSubscriptionByID(sub.ID)
+	updateSub, err := u.GetAuthorSubscriptionByID(id)
 	if err != nil {
 		return err
 	}
@@ -66,6 +59,6 @@ func (u *usecase) UpdateAuthorSubscription(sub models.AuthorSubscription, id uin
 	return u.subRepo.UpdateSubscription(updateSub)
 }
 
-func (u *usecase) DeleteSubscription(subID uint64) error {
+func (u *usecase) DeleteAuthorSubscription(subID uint64) error {
 	return u.subRepo.DeleteSubscription(subID)
 }

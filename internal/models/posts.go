@@ -9,8 +9,8 @@ type Post struct {
 }
 
 type Like struct {
-	UserID        uint64 `json:"user_id" db:"user_id"`
-	PostID        uint64 `json:"post_id" db:"post_id"`
+	UserID uint64 `json:"user_id" db:"user_id"`
+	PostID uint64 `json:"post_id" db:"post_id"`
 }
 
 func (p Post) GetID() uint64 {

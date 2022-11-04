@@ -206,7 +206,14 @@ func (s *Server) makeCORS() {
 }
 
 func (s *Server) makeCSRF() {
-	s.Echo.Use(NewCSRF())
+	s.Echo.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		Skipper:      middleware.DefaultBasicAuthConfig.Skipper,
+		TokenLength:  s.Config.CSRF.TokenLength,
+		TokenLookup:  "header:" + echo.HeaderXCSRFToken,
+		ContextKey:   s.Config.CSRF.ContextKey,
+		CookieName:   s.Config.CSRF.ContextName,
+		CookieMaxAge: s.Config.CSRF.MaxAge,
+	}))
 }
 
 func (s *Server) makeMiddlewares() {

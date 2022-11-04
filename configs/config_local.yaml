@@ -33,6 +33,12 @@ cors:
                    "Content-length",
   ]
 
+csrf:
+  token_length: 32
+  context_key: csrf
+  context_name: csrf_token
+  max_age: 86400
+
 s3:
   endpoint: localhost:9000
   access_key_id: admin

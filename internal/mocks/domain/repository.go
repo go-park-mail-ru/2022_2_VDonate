@@ -422,6 +422,21 @@ func (mr *MockSubscriptionsRepositoryMockRecorder) DeleteSubscription(subID inte
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSubscription", reflect.TypeOf((*MockSubscriptionsRepository)(nil).DeleteSubscription), subID)
 }
 
+// GetSubscriptionByID mocks base method.
+func (m *MockSubscriptionsRepository) GetSubscriptionByID(ID uint64) (models.AuthorSubscription, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscriptionByID", ID)
+	ret0, _ := ret[0].(models.AuthorSubscription)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubscriptionByID indicates an expected call of GetSubscriptionByID.
+func (mr *MockSubscriptionsRepositoryMockRecorder) GetSubscriptionByID(ID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionByID", reflect.TypeOf((*MockSubscriptionsRepository)(nil).GetSubscriptionByID), ID)
+}
+
 // GetSubscriptionsByAuthorID mocks base method.
 func (m *MockSubscriptionsRepository) GetSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error) {
 	m.ctrl.T.Helper()
@@ -437,26 +452,11 @@ func (mr *MockSubscriptionsRepositoryMockRecorder) GetSubscriptionsByAuthorID(au
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionsByAuthorID", reflect.TypeOf((*MockSubscriptionsRepository)(nil).GetSubscriptionsByAuthorID), authorID)
 }
 
-// GetSubscriptionsByID mocks base method.
-func (m *MockSubscriptionsRepository) GetSubscriptionsByID(ID uint64) (models.AuthorSubscription, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetSubscriptionsByID", ID)
-	ret0, _ := ret[0].(models.AuthorSubscription)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetSubscriptionsByID indicates an expected call of GetSubscriptionsByID.
-func (mr *MockSubscriptionsRepositoryMockRecorder) GetSubscriptionsByID(ID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionsByID", reflect.TypeOf((*MockSubscriptionsRepository)(nil).GetSubscriptionsByID), ID)
-}
-
 // GetSubscriptionsByUserID mocks base method.
-func (m *MockSubscriptionsRepository) GetSubscriptionsByUserID(userID uint64) ([]*models.AuthorSubscription, error) {
+func (m *MockSubscriptionsRepository) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscription, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetSubscriptionsByUserID", userID)
-	ret0, _ := ret[0].([]*models.AuthorSubscription)
+	ret0, _ := ret[0].([]models.AuthorSubscription)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

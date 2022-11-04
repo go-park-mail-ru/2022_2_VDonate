@@ -5,11 +5,12 @@ import (
 	"net/http"
 	"strconv"
 
+	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
+
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 	"github.com/labstack/echo/v4"
 )
 
@@ -28,9 +29,9 @@ func NewHandler(s domain.SubscriptionsUseCase, u domain.UsersUseCase, i domain.I
 }
 
 // GetSubscriptions godoc
-// @Summary     Get user's subscriptions
-// @Description Get user's subscriptions by Cookie
-// @ID          get_subscriptions
+// @Summary     Get User subscriptions
+// @Description Get User subscriptions by Cookie
+// @ID          get_user_subscriptions
 // @Tags        subscriptions
 // @Produce     json
 // @Success     200 {object} []models.Subscription "Successfully received subscriptions"
@@ -63,6 +64,19 @@ func (h Handler) GetSubscriptions(c echo.Context) error {
 	return c.JSON(http.StatusOK, s)
 }
 
+// GetAuthorSubscriptions godoc
+// @Summary     Get Author subscriptions
+// @Description Get Author subscriptions by Cookie
+// @ID          get_author_subscriptions
+// @Tags        subscriptions
+// @Produce     json
+// @Success     200 {object} []models.Subscription "Successfully received subscriptions"
+// @Failure     400 {object} echo.HTTPError        "Bad request"
+// @Failure     401 {object} echo.HTTPError        "No session"
+// @Failure     403 {object} echo.HTTPError        "You are not supposed to make this requests"
+// @Failure     500 {object} echo.HTTPError        "Internal error"
+// @Security    ApiKeyAuth
+// @Router      /author/subscriptions [get]
 func (h Handler) GetAuthorSubscriptions(c echo.Context) error {
 	cookie, err := httpAuth.GetCookie(c)
 	if err != nil {
@@ -74,7 +88,7 @@ func (h Handler) GetAuthorSubscriptions(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
 
-	s, err := h.subscriptionsUsecase.GetSubscriptionsByAuthorID(author.ID)
+	s, err := h.subscriptionsUsecase.GetAuthorSubscriptionsByAuthorID(author.ID)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
@@ -93,9 +107,9 @@ func (h Handler) GetAuthorSubscriptions(c echo.Context) error {
 }
 
 // GetAuthorSubscription godoc
-// @Summary     Get user's subscription
-// @Description Get user's subscription by id
-// @ID          get_subscription
+// @Summary     Get Author subscription
+// @Description Get Author subscription by id
+// @ID          get_author_subscription
 // @Tags        subscriptions
 // @Produce     json
 // @Param       id  path     integer             true "Subscription ID"
@@ -106,14 +120,14 @@ func (h Handler) GetAuthorSubscriptions(c echo.Context) error {
 // @Failure     404 {object} echo.HTTPError      "Subscription not found"
 // @Failure     500 {object} echo.HTTPError      "Internal error"
 // @Security    ApiKeyAuth
-// @Router      /subscriptions/{id} [get]
+// @Router      /author/subscriptions/{id} [get]
 func (h Handler) GetAuthorSubscription(c echo.Context) error {
 	subID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	s, err := h.subscriptionsUsecase.GetSubscriptionsByID(subID)
+	s, err := h.subscriptionsUsecase.GetAuthorSubscriptionByID(subID)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
@@ -126,9 +140,9 @@ func (h Handler) GetAuthorSubscription(c echo.Context) error {
 }
 
 // CreateAuthorSubscription godoc
-// @Summary     Create subscription
-// @Description Create subscription by user's Cookie
-// @ID          create_subscription
+// @Summary     Create Author subscription
+// @Description Create Author subscription by user's Cookie
+// @ID          create_author_subscription
 // @Tags        subscriptions
 // @Produce     json
 // @Accept      mpfd
@@ -141,7 +155,7 @@ func (h Handler) GetAuthorSubscription(c echo.Context) error {
 // @Failure     404  {object} echo.HTTPError                "Subscription not found"
 // @Failure     500  {object} echo.HTTPError                "Internal error"
 // @Security    ApiKeyAuth
-// @Router      /subscriptions [post]
+// @Router      /author/subscriptions [post]
 func (h Handler) CreateAuthorSubscription(c echo.Context) error {
 	cookie, err := httpAuth.GetCookie(c)
 	if err != nil {
@@ -159,7 +173,7 @@ func (h Handler) CreateAuthorSubscription(c echo.Context) error {
 	}
 
 	var s models.AuthorSubscription
-	if err := c.Bind(&s); err != nil {
+	if err = c.Bind(&s); err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
@@ -167,7 +181,7 @@ func (h Handler) CreateAuthorSubscription(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 
-	if err = h.subscriptionsUsecase.CreateSubscription(s, author.ID); err != nil {
+	if err = h.subscriptionsUsecase.AddAuthorSubscription(s, author.ID); err != nil {
 		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 
@@ -177,9 +191,9 @@ func (h Handler) CreateAuthorSubscription(c echo.Context) error {
 }
 
 // UpdateAuthorSubscription godoc
-// @Summary     Update subscription
-// @Description Update subscription by subscription id
-// @ID          update_subscription
+// @Summary     Update Author subscription
+// @Description Update Author subscription by subscription id
+// @ID          update_author_subscription
 // @Tags        subscriptions
 // @Produce     json
 // @Accept      mpfd
@@ -192,7 +206,7 @@ func (h Handler) CreateAuthorSubscription(c echo.Context) error {
 // @Failure     403  {object} echo.HTTPError                "You are not supposed to make this requests"
 // @Failure     500  {object} echo.HTTPError                "Internal / update error"
 // @Security    ApiKeyAuth
-// @Router      /subscriptions/{id} [put]
+// @Router      /author/subscriptions/{id} [put]
 func (h Handler) UpdateAuthorSubscription(c echo.Context) error {
 	subID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -214,7 +228,7 @@ func (h Handler) UpdateAuthorSubscription(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 
-	if err = h.subscriptionsUsecase.UpdateSubscription(s, subID); err != nil {
+	if err = h.subscriptionsUsecase.UpdateAuthorSubscription(s, subID); err != nil {
 		return errorHandling.WrapEcho(domain.ErrUpdate, err)
 	}
 
@@ -224,9 +238,9 @@ func (h Handler) UpdateAuthorSubscription(c echo.Context) error {
 }
 
 // DeleteAuthorSubscription godoc
-// @Summary     Delete subscription
-// @Description Delete subscription by subscription id
-// @ID          delete_subscription
+// @Summary     Delete Author subscription
+// @Description Delete Author subscription by subscription id
+// @ID          delete_author_subscription
 // @Tags        subscriptions
 // @Produce     json
 // @Accept      mpfd
@@ -237,15 +251,15 @@ func (h Handler) UpdateAuthorSubscription(c echo.Context) error {
 // @Failure     403 {object} echo.HTTPError     "You are not supposed to make this requests"
 // @Failure     500 {object} echo.HTTPError     "Internal / delete error"
 // @Security    ApiKeyAuth
-// @Router      /subscriptions/{id} [delete]
+// @Router      /author/subscriptions/{id} [delete]
 func (h Handler) DeleteAuthorSubscription(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	if err = h.subscriptionsUsecase.DeleteSubscription(id); err != nil {
-		return utils.WrapEchoError(domain.ErrDelete, err)
+	if err = h.subscriptionsUsecase.DeleteAuthorSubscription(id); err != nil {
+		return errorHandling.WrapEcho(domain.ErrDelete, err)
 	}
 
 	return c.JSON(http.StatusOK, struct{}{})

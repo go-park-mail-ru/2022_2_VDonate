@@ -26,6 +26,11 @@ const (
 	useSSL          = false
 
 	allowCredentials = true
+
+	tokenLength = 32
+	contextKey  = "csrf"
+	contextName = "csrf_token"
+	csrfMaxAge  = 86400
 )
 
 var (
@@ -77,6 +82,13 @@ type Config struct {
 		AllowCredentials bool     `yaml:"allow_credentials"`
 		AllowOrigins     []string `yaml:"allow_origins"`
 	} `yaml:"cors"`
+
+	CSRF struct {
+		TokenLength uint8  `yaml:"token_length"`
+		ContextKey  string `yaml:"context_key"`
+		ContextName string `yaml:"context_name"`
+		MaxAge      int    `yaml:"max_age"`
+	} `yaml:"csrf"`
 
 	S3 struct {
 		Endpoint        string            `yaml:"endpoint"`
@@ -139,6 +151,18 @@ func New() *Config {
 			AllowHeaders:     allowHeaders,
 			AllowCredentials: allowCredentials,
 			AllowOrigins:     allowOrigins,
+		},
+
+		CSRF: struct {
+			TokenLength uint8  `yaml:"token_length"`
+			ContextKey  string `yaml:"context_key"`
+			ContextName string `yaml:"context_name"`
+			MaxAge      int    `yaml:"max_age"`
+		}{
+			TokenLength: tokenLength,
+			ContextKey:  contextKey,
+			ContextName: contextName,
+			MaxAge:      csrfMaxAge,
 		},
 
 		S3: struct {

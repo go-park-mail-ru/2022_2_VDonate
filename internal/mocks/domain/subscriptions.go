@@ -35,18 +35,17 @@ func (m *MockSubscriptionsUseCase) EXPECT() *MockSubscriptionsUseCaseMockRecorde
 }
 
 // AddAuthorSubscription mocks base method.
-func (m *MockSubscriptionsUseCase) AddAuthorSubscription(sub models.AuthorSubscription) (*models.AuthorSubscription, error) {
+func (m *MockSubscriptionsUseCase) AddAuthorSubscription(sub models.AuthorSubscription, id uint64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddAuthorSubscription", sub)
-	ret0, _ := ret[0].(*models.AuthorSubscription)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "AddAuthorSubscription", sub, id)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // AddAuthorSubscription indicates an expected call of AddAuthorSubscription.
-func (mr *MockSubscriptionsUseCaseMockRecorder) AddAuthorSubscription(sub interface{}) *gomock.Call {
+func (mr *MockSubscriptionsUseCaseMockRecorder) AddAuthorSubscription(sub, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAuthorSubscription", reflect.TypeOf((*MockSubscriptionsUseCase)(nil).AddAuthorSubscription), sub)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAuthorSubscription", reflect.TypeOf((*MockSubscriptionsUseCase)(nil).AddAuthorSubscription), sub, id)
 }
 
 // DeleteAuthorSubscription mocks base method.
@@ -64,10 +63,10 @@ func (mr *MockSubscriptionsUseCaseMockRecorder) DeleteAuthorSubscription(subID i
 }
 
 // GetAuthorSubscriptionByID mocks base method.
-func (m *MockSubscriptionsUseCase) GetAuthorSubscriptionByID(ID uint64) (*models.AuthorSubscription, error) {
+func (m *MockSubscriptionsUseCase) GetAuthorSubscriptionByID(ID uint64) (models.AuthorSubscription, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAuthorSubscriptionByID", ID)
-	ret0, _ := ret[0].(*models.AuthorSubscription)
+	ret0, _ := ret[0].(models.AuthorSubscription)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -79,10 +78,10 @@ func (mr *MockSubscriptionsUseCaseMockRecorder) GetAuthorSubscriptionByID(ID int
 }
 
 // GetAuthorSubscriptionsByAuthorID mocks base method.
-func (m *MockSubscriptionsUseCase) GetAuthorSubscriptionsByAuthorID(authorID uint64) ([]*models.AuthorSubscription, error) {
+func (m *MockSubscriptionsUseCase) GetAuthorSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAuthorSubscriptionsByAuthorID", authorID)
-	ret0, _ := ret[0].([]*models.AuthorSubscription)
+	ret0, _ := ret[0].([]models.AuthorSubscription)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -94,10 +93,10 @@ func (mr *MockSubscriptionsUseCaseMockRecorder) GetAuthorSubscriptionsByAuthorID
 }
 
 // GetSubscriptionsByUserID mocks base method.
-func (m *MockSubscriptionsUseCase) GetSubscriptionsByUserID(userID uint64) ([]*models.AuthorSubscription, error) {
+func (m *MockSubscriptionsUseCase) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscription, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetSubscriptionsByUserID", userID)
-	ret0, _ := ret[0].([]*models.AuthorSubscription)
+	ret0, _ := ret[0].([]models.AuthorSubscription)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -109,16 +108,15 @@ func (mr *MockSubscriptionsUseCaseMockRecorder) GetSubscriptionsByUserID(userID 
 }
 
 // UpdateAuthorSubscription mocks base method.
-func (m *MockSubscriptionsUseCase) UpdateAuthorSubscription(sub models.AuthorSubscription) (*models.AuthorSubscription, error) {
+func (m *MockSubscriptionsUseCase) UpdateAuthorSubscription(sub models.AuthorSubscription, id uint64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateAuthorSubscription", sub)
-	ret0, _ := ret[0].(*models.AuthorSubscription)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "UpdateAuthorSubscription", sub, id)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // UpdateAuthorSubscription indicates an expected call of UpdateAuthorSubscription.
-func (mr *MockSubscriptionsUseCaseMockRecorder) UpdateAuthorSubscription(sub interface{}) *gomock.Call {
+func (mr *MockSubscriptionsUseCaseMockRecorder) UpdateAuthorSubscription(sub, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAuthorSubscription", reflect.TypeOf((*MockSubscriptionsUseCase)(nil).UpdateAuthorSubscription), sub)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAuthorSubscription", reflect.TypeOf((*MockSubscriptionsUseCase)(nil).UpdateAuthorSubscription), sub, id)
 }

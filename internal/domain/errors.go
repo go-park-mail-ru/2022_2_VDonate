@@ -3,6 +3,7 @@ package domain
 import "errors"
 
 var (
+	ErrConflict                = errors.New("conflict")
 	ErrBadRequest              = errors.New("bad request")
 	ErrUserOrEmailAlreadyExist = errors.New("username of email is already exist")
 	ErrInvalidLoginOrPassword  = errors.New("invalid login or password")
@@ -27,7 +28,7 @@ var (
 )
 
 var (
-	ErrNoLikes = errors.New("no likes were found")
+	ErrNoLikes                 = errors.New("no likes were found")
 	ErrBucketNotExists         = errors.New("bucket doesn't exist")
 	ErrFileOpen                = errors.New("failed to open file")
 	ErrUsernameExist           = errors.New("username exists")

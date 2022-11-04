@@ -146,6 +146,246 @@ paths:
       summary: User authentication request
       tags:
       - auth
+  /author/subscriptions:
+    get:
+      description: Get Author subscriptions by Cookie
+      operationId: get_author_subscriptions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully received subscriptions
+          schema:
+            items:
+              $ref: '#/definitions/models.Subscription'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: You are not supposed to make this requests
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Author subscriptions
+      tags:
+      - subscriptions
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create Author subscription by user's Cookie
+      operationId: create_author_subscription
+      parameters:
+      - example: 2999
+        in: formData
+        name: price
+        required: true
+        type: integer
+      - example: some text
+        in: formData
+        name: text
+        required: true
+        type: string
+      - example: 15
+        in: formData
+        name: tier
+        required: true
+        type: integer
+      - example: some title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Upload image
+        in: formData
+        name: file
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created subscription
+          schema:
+            $ref: '#/definitions/models.ResponseImage'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: You are not supposed to make this requests
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Subscription not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Author subscription
+      tags:
+      - subscriptions
+  /author/subscriptions/{id}:
+    delete:
+      consumes:
+      - multipart/form-data
+      description: Delete Author subscription by subscription id
+      operationId: delete_author_subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated subscription
+          schema:
+            $ref: '#/definitions/models.EmptyStruct'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: You are not supposed to make this requests
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal / delete error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Author subscription
+      tags:
+      - subscriptions
+    get:
+      description: Get Author subscription by id
+      operationId: get_author_subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully received subscription
+          schema:
+            $ref: '#/definitions/models.Subscription'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: You are not supposed to make this requests
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Subscription not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Author subscription
+      tags:
+      - subscriptions
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update Author subscription by subscription id
+      operationId: update_author_subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - example: 2999
+        in: formData
+        name: price
+        required: true
+        type: integer
+      - example: some text
+        in: formData
+        name: text
+        required: true
+        type: string
+      - example: 15
+        in: formData
+        name: tier
+        required: true
+        type: integer
+      - example: some title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Upload image
+        in: formData
+        name: file
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated subscription
+          schema:
+            $ref: '#/definitions/models.ResponseImage'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: You are not supposed to make this requests
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal / update error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Author subscription
+      tags:
+      - subscriptions
   /login:
     post:
       consumes:
@@ -536,8 +776,8 @@ paths:
       - subscribers
   /subscriptions:
     get:
-      description: Get user's subscriptions by Cookie
-      operationId: get_subscriptions
+      description: Get User subscriptions by Cookie
+      operationId: get_user_subscriptions
       produces:
       - application/json
       responses:
@@ -565,213 +805,7 @@ paths:
             $ref: '#/definitions/echo.HTTPError'
       security:
       - ApiKeyAuth: []
-      summary: Get user's subscriptions
-      tags:
-      - subscriptions
-    post:
-      consumes:
-      - multipart/form-data
-      description: Create subscription by user's Cookie
-      operationId: create_subscription
-      parameters:
-      - example: 2999
-        in: formData
-        name: price
-        required: true
-        type: integer
-      - example: some text
-        in: formData
-        name: text
-        required: true
-        type: string
-      - example: 15
-        in: formData
-        name: tier
-        required: true
-        type: integer
-      - example: some title
-        in: formData
-        name: title
-        required: true
-        type: string
-      - description: Upload image
-        in: formData
-        name: file
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully created subscription
-          schema:
-            $ref: '#/definitions/models.ResponseImage'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: No session
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "403":
-          description: You are not supposed to make this requests
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Subscription not found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Create subscription
-      tags:
-      - subscriptions
-  /subscriptions/{id}:
-    delete:
-      consumes:
-      - multipart/form-data
-      description: Delete subscription by subscription id
-      operationId: delete_subscription
-      parameters:
-      - description: Subscription ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully updated subscription
-          schema:
-            $ref: '#/definitions/models.EmptyStruct'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: No session
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "403":
-          description: You are not supposed to make this requests
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal / delete error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Delete subscription
-      tags:
-      - subscriptions
-    get:
-      description: Get user's subscription by id
-      operationId: get_subscription
-      parameters:
-      - description: Subscription ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully received subscription
-          schema:
-            $ref: '#/definitions/models.Subscription'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: No session
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "403":
-          description: You are not supposed to make this requests
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Subscription not found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Get user's subscription
-      tags:
-      - subscriptions
-    put:
-      consumes:
-      - multipart/form-data
-      description: Update subscription by subscription id
-      operationId: update_subscription
-      parameters:
-      - description: Subscription ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - example: 2999
-        in: formData
-        name: price
-        required: true
-        type: integer
-      - example: some text
-        in: formData
-        name: text
-        required: true
-        type: string
-      - example: 15
-        in: formData
-        name: tier
-        required: true
-        type: integer
-      - example: some title
-        in: formData
-        name: title
-        required: true
-        type: string
-      - description: Upload image
-        in: formData
-        name: file
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully updated subscription
-          schema:
-            $ref: '#/definitions/models.ResponseImage'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: No session
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "403":
-          description: You are not supposed to make this requests
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal / update error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Update subscription
+      summary: Get User subscriptions
       tags:
       - subscriptions
   /users:
