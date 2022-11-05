@@ -47,3 +47,9 @@ type UsersRepository interface {
 	DeleteByID(id uint64) error
 	Close() error
 }
+
+type DonatesRepository interface {
+	SendDonate(donate models.Donate) (models.Donate, error)
+	GetDonatesByUserID(userID uint64) ([]models.Donate, error)
+	GetDonateByID(donateID uint64) (models.Donate, error)
+}

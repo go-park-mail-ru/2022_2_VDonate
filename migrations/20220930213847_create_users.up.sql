@@ -38,3 +38,10 @@ CREATE TABLE IF NOT EXISTS subscriptions (
                                              subscriber_id bigserial not null references users(id),
                                              subscription_id bigserial not null references author_subscriptions(id)
 );
+
+CREATE TABLE IF NOT EXISTS donates (
+    id bigserial NOT NULL PRIMARY KEY,
+    author_id bigserial not null references users(id),
+    user_id bigserial not null references users(id),
+    price bigserial not null
+);
