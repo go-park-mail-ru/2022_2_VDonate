@@ -34,6 +34,10 @@ type AuthUser struct {
 	Password string `json:"password" validate:"required" example:"*****"`
 }
 
+type UserID struct {
+	ID uint64 `json:"id" validate:"required" example:"12"`
+}
+
 type Author struct {
 	Username string `json:"username" validate:"required" example:"admin"`
 	Email    string `json:"email" validate:"required" example:"admin@mail.ru"`

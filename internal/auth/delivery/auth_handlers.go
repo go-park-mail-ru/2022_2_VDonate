@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	httpUsers "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery"
 	"github.com/labstack/echo/v4"
 )
 
@@ -68,9 +67,9 @@ func NewHandler(authUseCase domain.AuthUseCase, usersUseCase domain.UsersUseCase
 // @ID          auth
 // @Tags        auth
 // @Produce     json
-// @Success     200 {object} models.EmptyStruct "Session was successfully found"
-// @Failure     401 {object} echo.HTTPError     "User is unauthorized"
-// @Failure     404 {object} echo.HTTPError     "User was not found"
+// @Success     200 {object} models.UserID  "Session was successfully found"
+// @Failure     401 {object} echo.HTTPError "User is unauthorized"
+// @Failure     404 {object} echo.HTTPError "User was not found"
 // @Router      /auth [get]
 func (h Handler) Auth(c echo.Context) error {
 	cookie, err := GetCookie(c)
@@ -83,7 +82,14 @@ func (h Handler) Auth(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrAuth, err)
 	}
 
-	return c.JSON(http.StatusOK, models.EmptyStruct{})
+	user, err := h.usersUseCase.GetBySessionID(cookie.Value)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNotFound, err)
+	}
+
+	return c.JSON(http.StatusOK, models.UserID{
+		ID: user.ID,
+	})
 }
 
 // Login godoc
@@ -94,7 +100,7 @@ func (h Handler) Auth(c echo.Context) error {
 // @Accept      json
 // @Produce     json
 // @Param       authData body     models.AuthUser true "username and password"
-// @Success     200      {object} models.Author   "Session was successfully found"
+// @Success     200      {object} models.UserID   "Session was successfully found"
 // @Failure     400      {object} echo.HTTPError  "Wrong login or password or bad data was received"
 // @Failure     404      {object} echo.HTTPError  "User was not found"
 // @Router      /login [post]
@@ -116,7 +122,9 @@ func (h Handler) Login(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
 
-	return httpUsers.UserResponse(c, user)
+	return c.JSON(http.StatusOK, models.UserID{
+		ID: user.ID,
+	})
 }
 
 // Logout godoc
@@ -158,12 +166,11 @@ func (h Handler) Logout(c echo.Context) error {
 // @Tags        users
 // @Accept      mpfd
 // @Produce     json
-// @Param       data formData models.UserMpfd    true  "POST request of all information about `User`"
-// @Param       file formData file               false "Upload avatar"
-// @Success     200  {object} models.EmptyStruct "User was successfully created"
-// @Failure     400  {object} echo.HTTPError     "Bad request"
-// @Failure     409  {object} echo.HTTPError     "Username or email is already exists"
-// @Failure     500  {object} echo.HTTPError     "Internal error"
+// @Param       data formData models.UserMpfd true "POST request of all information about `User`"
+// @Success     200  {object} models.UserID   "User was successfully created"
+// @Failure     400  {object} echo.HTTPError  "Bad request"
+// @Failure     409  {object} echo.HTTPError  "Username or email is already exists"
+// @Failure     500  {object} echo.HTTPError  "Internal error"
 // @Router      /users [post]
 func (h Handler) SignUp(c echo.Context) error {
 	var newUser models.User
@@ -179,5 +186,12 @@ func (h Handler) SignUp(c echo.Context) error {
 
 	c.SetCookie(makeHTTPCookieFromValue(sessionID))
 
-	return c.JSON(http.StatusOK, models.EmptyStruct{})
+	user, err := h.usersUseCase.GetBySessionID(sessionID)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNotFound, err)
+	}
+
+	return c.JSON(http.StatusOK, models.UserID{
+		ID: user.ID,
+	})
 }

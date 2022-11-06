@@ -10,13 +10,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// @title   VDonate API
-// @version 1.0
+// @title       VDonate API
+// @version     1.0
+// @description ## API of donation web service by VDonate team
+// @description ### Some useful links:
+// @description - ### [Backend](https://github.com/go-park-mail-ru/2022_2_VDonate)
+// @description - ### [Frontend](https://github.com/go-park-mail-ru/2022_2_VDonate)
 // @description
-//	  ## API of donation web service by VDonate team
-//    ### Some useful links:
-//    - ### [VDonate repository](https://github.com/go-park-mail-ru/2022_2_VDonate)
-//    - ### [Trello](https://trello.com/b/BZHoJsHP/vdonate)
+// @description    - ### [Trello](https://trello.com/b/BZHoJsHP/vdonate)
 // @termsOfService http://swagger.io/terms/
 
 // @contact.name  VDonate Support

@@ -35,7 +35,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Session was successfully found",
                         "schema": {
-                            "$ref": "#/definitions/models.EmptyStruct"
+                            "$ref": "#/definitions/models.UserID"
                         }
                     },
                     "401": {
@@ -60,7 +60,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Get Author subscriptions by Cookie",
+                "description": "Get Author subscriptions by author ID",
                 "produces": [
                     "application/json"
                 ],
@@ -69,6 +69,15 @@ const docTemplate = `{
                 ],
                 "summary": "Get Author subscriptions",
                 "operationId": "get_author_subscriptions",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Author ID",
+                        "name": "author_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successfully received subscriptions",
@@ -461,7 +470,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Session was successfully found",
                         "schema": {
-                            "$ref": "#/definitions/models.Author"
+                            "$ref": "#/definitions/models.UserID"
                         }
                     },
                     "400": {
@@ -525,9 +534,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Get posts with provided filters",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1115,19 +1121,13 @@ const docTemplate = `{
                         "name": "username",
                         "in": "formData",
                         "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "Upload avatar",
-                        "name": "file",
-                        "in": "formData"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "User was successfully created",
                         "schema": {
-                            "$ref": "#/definitions/models.EmptyStruct"
+                            "$ref": "#/definitions/models.UserID"
                         }
                     },
                     "400": {
@@ -1489,6 +1489,18 @@ const docTemplate = `{
                     "example": "admin"
                 }
             }
+        },
+        "models.UserID": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 12
+                }
+            }
         }
     },
     "securityDefinitions": {
@@ -1508,7 +1520,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "VDonate API",
-	Description:      "",
+	Description:      "## API of donation web service by VDonate team\n### Some useful links:\n- ### [Backend](https://github.com/go-park-mail-ru/2022_2_VDonate)\n- ### [Frontend](https://github.com/go-park-mail-ru/2022_2_VDonate)\n\n- ### [Trello](https://trello.com/b/BZHoJsHP/vdonate)",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

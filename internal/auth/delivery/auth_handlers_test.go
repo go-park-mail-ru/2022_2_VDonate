@@ -10,6 +10,9 @@ import (
 	"testing"
 
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
+
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
@@ -20,11 +23,15 @@ import (
 func TestHandler_SignUp(t *testing.T) {
 	type mockBehavior func(r *mockDomain.MockAuthUseCase, user models.User)
 
+	type mockBehaviorUser func(r *mockDomain.MockUsersUseCase, sessionID string)
+
 	tests := []struct {
 		name                 string
 		inputBody            string
 		inputUser            models.User
+		sessionID            string
 		mockBehavior         mockBehavior
+		mockBehaviorUser     mockBehaviorUser
 		expectedStatusCode   int
 		expectedResponseBody string
 	}{
@@ -36,11 +43,15 @@ func TestHandler_SignUp(t *testing.T) {
 				Password: "qwerty",
 				Email:    "ex@example.com",
 			},
+			sessionID: "dsapfapspasf",
 			mockBehavior: func(r *mockDomain.MockAuthUseCase, user models.User) {
 				r.EXPECT().SignUp(user).Return("dsapfapspasf", nil)
 			},
+			mockBehaviorUser: func(r *mockDomain.MockUsersUseCase, sessionID string) {
+				r.EXPECT().GetBySessionID(sessionID).Return(models.User{ID: 12}, nil)
+			},
 			expectedStatusCode:   200,
-			expectedResponseBody: `{}`,
+			expectedResponseBody: `{"id":12}`,
 		},
 		{
 			name:      "IncorrectUser",
@@ -49,6 +60,7 @@ func TestHandler_SignUp(t *testing.T) {
 			mockBehavior: func(r *mockDomain.MockAuthUseCase, user models.User) {
 				r.EXPECT().SignUp(user).Return("", errors.New("empty user"))
 			},
+			mockBehaviorUser:     func(r *mockDomain.MockUsersUseCase, sessionID string) {},
 			expectedStatusCode:   500,
 			expectedResponseBody: `{"message":"server error"}`,
 		},
@@ -57,6 +69,7 @@ func TestHandler_SignUp(t *testing.T) {
 			inputBody:            `mdaosmdop[23eomqwd`,
 			inputUser:            models.User{},
 			mockBehavior:         func(r *mockDomain.MockAuthUseCase, user models.User) {},
+			mockBehaviorUser:     func(r *mockDomain.MockUsersUseCase, sessionID string) {},
 			expectedStatusCode:   400,
 			expectedResponseBody: `{"message":"Syntax error: offset=1, error=invalid character 'm' looking for beginning of value"}`,
 		},
@@ -70,6 +83,7 @@ func TestHandler_SignUp(t *testing.T) {
 			repo := mockDomain.NewMockAuthUseCase(cntx)
 			user := mockDomain.NewMockUsersUseCase(cntx)
 			test.mockBehavior(repo, test.inputUser)
+			test.mockBehaviorUser(user, test.sessionID)
 
 			handler := NewHandler(repo, user)
 
@@ -92,7 +106,7 @@ func TestHandler_SignUp(t *testing.T) {
 func TestHandler_Login(t *testing.T) {
 	type mockBehaviorLogin func(r *mockDomain.MockAuthUseCase, user models.AuthUser)
 
-	type mockBehaviorUser func(r *mockDomain.MockUsersUseCase, sessionId string)
+	type mockBehaviorUser func(r *mockDomain.MockUsersUseCase, sessionID string)
 
 	tests := []struct {
 		name                 string
@@ -115,8 +129,8 @@ func TestHandler_Login(t *testing.T) {
 			mockBehaviorLogin: func(r *mockDomain.MockAuthUseCase, user models.AuthUser) {
 				r.EXPECT().Login(user.Username, user.Password).Return("jadbdsap324na4sa-4523sdnasodnoasdsna", nil)
 			},
-			mockBehaviorUser: func(r *mockDomain.MockUsersUseCase, sessionId string) {
-				r.EXPECT().GetBySessionID(sessionId).Return(models.User{
+			mockBehaviorUser: func(r *mockDomain.MockUsersUseCase, sessionID string) {
+				r.EXPECT().GetBySessionID(sessionID).Return(models.User{
 					ID:       10,
 					Email:    "john@email.com",
 					Username: "username",
@@ -124,7 +138,7 @@ func TestHandler_Login(t *testing.T) {
 				}, nil)
 			},
 			expectedStatusCode:   200,
-			expectedResponseBody: `{"username":"username","email":"john@email.com","is_author":false}`,
+			expectedResponseBody: `{"id":10}`,
 		},
 		{
 			name:      "NoExistingSession-1",
@@ -137,7 +151,7 @@ func TestHandler_Login(t *testing.T) {
 			mockBehaviorLogin: func(r *mockDomain.MockAuthUseCase, user models.AuthUser) {
 				r.EXPECT().Login(user.Username, user.Password).Return("", errors.New(""))
 			},
-			mockBehaviorUser:     func(r *mockDomain.MockUsersUseCase, sessionId string) {},
+			mockBehaviorUser:     func(r *mockDomain.MockUsersUseCase, sessionID string) {},
 			expectedStatusCode:   401,
 			expectedResponseBody: `{"message":"no existing session"}`,
 		},
@@ -152,8 +166,8 @@ func TestHandler_Login(t *testing.T) {
 			mockBehaviorLogin: func(r *mockDomain.MockAuthUseCase, user models.AuthUser) {
 				r.EXPECT().Login(user.Username, user.Password).Return("jadbdsap324na4sa-4523sdnasodnoasdsna", nil)
 			},
-			mockBehaviorUser: func(r *mockDomain.MockUsersUseCase, sessionId string) {
-				r.EXPECT().GetBySessionID(sessionId).Return(models.User{}, errors.New("no user"))
+			mockBehaviorUser: func(r *mockDomain.MockUsersUseCase, sessionID string) {
+				r.EXPECT().GetBySessionID(sessionID).Return(models.User{}, errors.New("no user"))
 			},
 			expectedStatusCode:   404,
 			expectedResponseBody: `{"message":"failed to find item"}`,
@@ -163,7 +177,7 @@ func TestHandler_Login(t *testing.T) {
 			inputBody:            `ksda[k[askd[aksd[a`,
 			inputUser:            models.AuthUser{},
 			mockBehaviorLogin:    func(r *mockDomain.MockAuthUseCase, user models.AuthUser) {},
-			mockBehaviorUser:     func(r *mockDomain.MockUsersUseCase, sessionId string) {},
+			mockBehaviorUser:     func(r *mockDomain.MockUsersUseCase, sessionID string) {},
 			expectedStatusCode:   400,
 			expectedResponseBody: `{"message":"Syntax error: offset=1, error=invalid character 'k' looking for beginning of value"}`,
 		},
@@ -199,12 +213,15 @@ func TestHandler_Login(t *testing.T) {
 }
 
 func TestHandler_Auth(t *testing.T) {
-	type mockBehaviorAuth func(r *mockDomain.MockAuthUseCase, sessionId string)
+	type mockBehaviorAuth func(r *mockDomain.MockAuthUseCase, sessionID string)
+
+	type mockBehaviorUser func(r *mockDomain.MockUsersUseCase, sessionID string)
 
 	tests := []struct {
 		name                 string
 		cookie               string
 		mockBehaviorAuth     mockBehaviorAuth
+		mockBehaviorUser     mockBehaviorUser
 		expectedErrorMessage string
 		expectedResponseBody string
 	}{
@@ -214,12 +231,16 @@ func TestHandler_Auth(t *testing.T) {
 			mockBehaviorAuth: func(r *mockDomain.MockAuthUseCase, sessionID string) {
 				r.EXPECT().Auth(sessionID).Return(true, nil)
 			},
-			expectedResponseBody: `{"username":"username","email":"ex@example.com","is_author":false}`,
+			mockBehaviorUser: func(r *mockDomain.MockUsersUseCase, sessionID string) {
+				r.EXPECT().GetBySessionID(sessionID).Return(models.User{ID: 12}, nil)
+			},
+			expectedResponseBody: `{"id":12}`,
 		},
 		{
 			name:                 "NoExistingSession-1",
 			cookie:               "",
 			mockBehaviorAuth:     func(r *mockDomain.MockAuthUseCase, sessionID string) {},
+			mockBehaviorUser:     func(r *mockDomain.MockUsersUseCase, sessionID string) {},
 			expectedErrorMessage: "code=401, message=no existing session, internal=http: named cookie not present",
 		},
 		{
@@ -228,6 +249,7 @@ func TestHandler_Auth(t *testing.T) {
 			mockBehaviorAuth: func(r *mockDomain.MockAuthUseCase, sessionID string) {
 				r.EXPECT().Auth(sessionID).Return(false, nil)
 			},
+			mockBehaviorUser:     func(r *mockDomain.MockUsersUseCase, sessionID string) {},
 			expectedErrorMessage: "code=401, message=failed to authenticate",
 		},
 		{
@@ -235,6 +257,9 @@ func TestHandler_Auth(t *testing.T) {
 			cookie: "nadojads-dasasondfno312nnsandjo12",
 			mockBehaviorAuth: func(r *mockDomain.MockAuthUseCase, sessionID string) {
 				r.EXPECT().Auth(sessionID).Return(true, nil)
+			},
+			mockBehaviorUser: func(r *mockDomain.MockUsersUseCase, sessionID string) {
+				r.EXPECT().GetBySessionID(sessionID).Return(models.User{}, domain.ErrNoSession)
 			},
 			expectedErrorMessage: "code=404, message=failed to find item, internal=no existing session",
 		},
@@ -249,6 +274,7 @@ func TestHandler_Auth(t *testing.T) {
 			user := mockDomain.NewMockUsersUseCase(cntx)
 
 			test.mockBehaviorAuth(repo, test.cookie)
+			test.mockBehaviorUser(user, test.cookie)
 
 			handler := NewHandler(repo, user)
 
@@ -271,7 +297,7 @@ func TestHandler_Auth(t *testing.T) {
 }
 
 func TestHandler_Logout(t *testing.T) {
-	type mockBehaviorAuth func(r *mockDomain.MockAuthUseCase, sessionId string)
+	type mockBehaviorAuth func(r *mockDomain.MockAuthUseCase, sessionID string)
 
 	tests := []struct {
 		name                 string

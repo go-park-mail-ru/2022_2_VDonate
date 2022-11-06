@@ -2,6 +2,7 @@ package httpPosts
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -24,8 +25,6 @@ import (
 func TestHandler_GetPosts(t *testing.T) {
 	type mockBehaviorGet func(s mockDomain.MockPostsUseCase, userID uint64)
 
-	type mockBehaviorUser func(s mockDomain.MockUsersUseCase, cookie string)
-
 	type mockBehaviorImage func(s mockDomain.MockImageUseCase, bucket, filename string)
 
 	tests := []struct {
@@ -34,7 +33,6 @@ func TestHandler_GetPosts(t *testing.T) {
 		userID               int
 		cookie               string
 		mockBehaviorGet      mockBehaviorGet
-		mockBehaviorUser     mockBehaviorUser
 		mockBehaviorImage    mockBehaviorImage
 		expectedRequestBody  string
 		expectedErrorMessage string
@@ -45,11 +43,6 @@ func TestHandler_GetPosts(t *testing.T) {
 			userID: 123,
 			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {
 				s.EXPECT().GetImage(bucket, filename).Return("", nil)
-			},
-			mockBehaviorUser: func(s mockDomain.MockUsersUseCase, cookie string) {
-				s.EXPECT().GetBySessionID(cookie).Return(models.User{
-					ID: 123,
-				}, nil)
 			},
 			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
 				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{
@@ -66,11 +59,6 @@ func TestHandler_GetPosts(t *testing.T) {
 		{
 			name:   "ServerError",
 			userID: 123,
-			mockBehaviorUser: func(s mockDomain.MockUsersUseCase, cookie string) {
-				s.EXPECT().GetBySessionID(cookie).Return(models.User{
-					ID: 123,
-				}, nil)
-			},
 			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
 				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{}, domain.ErrNotFound)
 			},
@@ -78,14 +66,11 @@ func TestHandler_GetPosts(t *testing.T) {
 			expectedErrorMessage: "code=404, message=failed to find item, internal=failed to find item",
 		},
 		{
-			name:   "BadId",
-			userID: -1,
-			mockBehaviorUser: func(s mockDomain.MockUsersUseCase, cookie string) {
-				s.EXPECT().GetBySessionID(cookie).Return(models.User{}, domain.ErrBadSession)
-			},
+			name:                 "BadId",
+			userID:               -1,
 			mockBehaviorGet:      func(s mockDomain.MockPostsUseCase, userID uint64) {},
 			mockBehaviorImage:    func(s mockDomain.MockImageUseCase, bucket, filename string) {},
-			expectedErrorMessage: "code=400, message=bad session, internal=bad session",
+			expectedErrorMessage: "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
 		},
 	}
 
@@ -98,7 +83,6 @@ func TestHandler_GetPosts(t *testing.T) {
 			users := mockDomain.NewMockUsersUseCase(ctrl)
 			image := mockDomain.NewMockImageUseCase(ctrl)
 
-			test.mockBehaviorUser(*users, test.cookie)
 			test.mockBehaviorGet(*post, uint64(test.userID))
 			test.mockBehaviorImage(*image, "image", "path/to/img")
 
@@ -107,6 +91,9 @@ func TestHandler_GetPosts(t *testing.T) {
 			e := echo.New()
 			req := httptest.NewRequest(http.MethodGet, "https://127.0.0.1/api/v1/posts", nil)
 			req.Header.Add("Cookie", "session_id="+test.cookie)
+			v := req.URL.Query()
+			v.Add("user_id", fmt.Sprint(test.userID))
+			req.URL.RawQuery = v.Encode()
 			rec := httptest.NewRecorder()
 
 			c := e.NewContext(req, rec)

@@ -33,7 +33,6 @@ func NewHandler(p domain.PostsUseCase, u domain.UsersUseCase, i domain.ImageUseC
 // @Description Get posts with provided filters
 // @ID          get_posts
 // @Tags        posts
-// @Accept      json
 // @Produce     json
 // @Param       user_id query    integer        true "User ID"
 // @Success     200     {object} []models.Post  "Posts were successfully received"
@@ -44,17 +43,12 @@ func NewHandler(p domain.PostsUseCase, u domain.UsersUseCase, i domain.ImageUseC
 // @Security    ApiKeyAuth
 // @Router      /posts [get]
 func (h *Handler) GetPosts(c echo.Context) error {
-	cookie, err := httpAuth.GetCookie(c)
+	userID, err := strconv.ParseUint(c.QueryParam("user_id"), 10, 64)
 	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	user, err := h.usersUseCase.GetBySessionID(cookie.Value)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrBadSession, err)
-	}
-
-	allPosts, err := h.postsUseCase.GetPostsByUserID(user.ID)
+	allPosts, err := h.postsUseCase.GetPostsByUserID(userID)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}

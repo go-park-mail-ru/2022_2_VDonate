@@ -139,11 +139,26 @@ definitions:
     - password
     - username
     type: object
+  models.UserID:
+    properties:
+      id:
+        example: 12
+        type: integer
+    required:
+    - id
+    type: object
 host: vdonate.ml:8080
 info:
   contact:
     email: zeronethunter2001@gmail.com
     name: VDonate Support
+  description: |-
+    ## API of donation web service by VDonate team
+    ### Some useful links:
+    - ### [Backend](https://github.com/go-park-mail-ru/2022_2_VDonate)
+    - ### [Frontend](https://github.com/go-park-mail-ru/2022_2_VDonate)
+
+    - ### [Trello](https://trello.com/b/BZHoJsHP/vdonate)
   termsOfService: http://swagger.io/terms/
   title: VDonate API
   version: "1.0"
@@ -158,7 +173,7 @@ paths:
         "200":
           description: Session was successfully found
           schema:
-            $ref: '#/definitions/models.EmptyStruct'
+            $ref: '#/definitions/models.UserID'
         "401":
           description: User is unauthorized
           schema:
@@ -172,8 +187,14 @@ paths:
       - auth
   /author/subscriptions:
     get:
-      description: Get Author subscriptions by Cookie
+      description: Get Author subscriptions by author ID
       operationId: get_author_subscriptions
+      parameters:
+      - description: Author ID
+        in: query
+        name: author_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -439,7 +460,7 @@ paths:
         "200":
           description: Session was successfully found
           schema:
-            $ref: '#/definitions/models.Author'
+            $ref: '#/definitions/models.UserID'
         "400":
           description: Wrong login or password or bad data was received
           schema:
@@ -477,8 +498,6 @@ paths:
       - auth
   /posts:
     get:
-      consumes:
-      - application/json
       description: Get posts with provided filters
       operationId: get_posts
       parameters:
@@ -864,17 +883,13 @@ paths:
         name: username
         required: true
         type: string
-      - description: Upload avatar
-        in: formData
-        name: file
-        type: file
       produces:
       - application/json
       responses:
         "200":
           description: User was successfully created
           schema:
-            $ref: '#/definitions/models.EmptyStruct'
+            $ref: '#/definitions/models.UserID'
         "400":
           description: Bad request
           schema:

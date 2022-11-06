@@ -72,35 +72,31 @@ func (h Handler) GetSubscriptions(c echo.Context) error {
 
 // GetAuthorSubscriptions godoc
 // @Summary     Get Author subscriptions
-// @Description Get Author subscriptions by Cookie
+// @Description Get Author subscriptions by author ID
 // @ID          get_author_subscriptions
 // @Tags        subscriptions
 // @Produce     json
-// @Success     200 {object} []models.AuthorSubscriptionMpfd "Successfully received subscriptions"
-// @Failure     400 {object} echo.HTTPError                  "Bad request"
-// @Failure     401 {object} echo.HTTPError                  "No session"
-// @Failure     403 {object} echo.HTTPError                  "You are not supposed to make this requests"
-// @Failure     500 {object} echo.HTTPError                  "Internal error"
+// @Param       author_id query    integer                         true "Author ID"
+// @Success     200       {object} []models.AuthorSubscriptionMpfd "Successfully received subscriptions"
+// @Failure     400       {object} echo.HTTPError                  "Bad request"
+// @Failure     401       {object} echo.HTTPError                  "No session"
+// @Failure     403       {object} echo.HTTPError                  "You are not supposed to make this requests"
+// @Failure     500       {object} echo.HTTPError                  "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /author/subscriptions [get]
 func (h Handler) GetAuthorSubscriptions(c echo.Context) error {
-	cookie, err := httpAuth.GetCookie(c)
+	authorID, err := strconv.ParseUint(c.QueryParam("author_id"), 10, 64)
 	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	author, err := h.userUsecase.GetBySessionID(cookie.Value)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrNotFound, err)
-	}
-
-	s, err := h.subscriptionsUsecase.GetAuthorSubscriptionsByAuthorID(author.ID)
+	s, err := h.subscriptionsUsecase.GetAuthorSubscriptionsByAuthorID(authorID)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
 
 	if len(s) == 0 {
-		return c.JSON(http.StatusOK, struct{}{})
+		return c.JSON(http.StatusOK, models.EmptyStruct{})
 	}
 
 	for i, subscription := range s {
