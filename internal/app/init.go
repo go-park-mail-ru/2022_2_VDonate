@@ -1,6 +1,8 @@
 package app
 
 import (
+	"net/http"
+
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	authMiddlewares "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/middlewares"
 	sessionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
@@ -49,24 +51,32 @@ type Server struct {
 	authMiddleware *authMiddlewares.Middlewares
 }
 
-func (s *Server) init() {
+func (s *Server) init() error {
 	s.makeEchoLogger()
-	s.makeUseCase(s.Config.DB.URL)
+	if err := s.makeUseCase(s.Config.DB.URL); err != nil {
+		return err
+	}
 	s.makeMiddlewares()
 	s.makeHandlers()
 	s.makeRouter()
 	s.makeCORS()
 	s.makeCSRF()
+
+	return nil
 }
 
 func (s *Server) Start() error {
-	s.init()
+	if err := s.init(); err != nil {
+		return err
+	}
 
 	return s.Echo.Start(s.Config.Server.Host + ":" + s.Config.Server.Port)
 }
 
 func (s *Server) StartTLS() error {
-	s.init()
+	if err := s.init(); err != nil {
+		return err
+	}
 	return s.Echo.StartTLS(
 		s.Config.Server.Host+":"+s.Config.Server.Port,
 		s.Config.Server.CertPath,
@@ -74,27 +84,27 @@ func (s *Server) StartTLS() error {
 	)
 }
 
-func (s *Server) makeUseCase(url string) {
+func (s *Server) makeUseCase(url string) error {
 	//-------------------------repo-------------------------//
 	sessionRepo, err := sessionsRepository.NewPostgres(url)
 	if err != nil {
-		s.Echo.Logger.Error(err)
+		return err
 	}
 	userRepo, err := userRepository.NewPostgres(url)
 	if err != nil {
-		s.Echo.Logger.Error(err)
+		return err
 	}
 	postsRepo, err := postsRepository.NewPostgres(url)
 	if err != nil {
-		s.Echo.Logger.Error(err)
+		return err
 	}
 	subscriptionsRepo, err := subscriptionsRepository.NewPostgres(url)
 	if err != nil {
-		s.Echo.Logger.Error(err)
+		return err
 	}
 	subscribersRepo, err := subscribersRepository.NewPostgres(url)
 	if err != nil {
-		s.Echo.Logger.Error(err)
+		return err
 	}
 	imagesRepo, err := imagesRepository.New(
 		s.Config.S3.Endpoint,
@@ -104,7 +114,7 @@ func (s *Server) makeUseCase(url string) {
 		s.Config.S3.Buckets,
 	)
 	if err != nil {
-		s.Echo.Logger.Error(err)
+		return err
 	}
 
 	//-----------------------sessions-----------------------//
@@ -124,12 +134,14 @@ func (s *Server) makeUseCase(url string) {
 
 	//------------------------images------------------------//
 	s.ImagesService = images.New(imagesRepo)
+
+	return nil
 }
 
 func (s *Server) makeHandlers() {
 	s.authHandler = httpAuth.NewHandler(s.AuthService, s.UserService)
 	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService, s.ImagesService)
-	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService, s.ImagesService)
+	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService, s.ImagesService, s.SubscriptionService, s.SubscribersService)
 	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionService, s.UserService, s.ImagesService)
 	s.subscribersHandler = httpsubscribers.NewHandler(s.SubscribersService, s.UserService)
 }
@@ -207,12 +219,14 @@ func (s *Server) makeCORS() {
 
 func (s *Server) makeCSRF() {
 	s.Echo.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		Skipper:      middleware.DefaultBasicAuthConfig.Skipper,
-		TokenLength:  s.Config.CSRF.TokenLength,
-		TokenLookup:  "header:" + echo.HeaderXCSRFToken,
-		ContextKey:   s.Config.CSRF.ContextKey,
-		CookieName:   s.Config.CSRF.ContextName,
-		CookieMaxAge: s.Config.CSRF.MaxAge,
+		TokenLength:    s.Config.CSRF.TokenLength,
+		TokenLookup:    "header:" + echo.HeaderXCSRFToken,
+		ContextKey:     s.Config.CSRF.ContextKey,
+		CookieName:     s.Config.CSRF.ContextName,
+		CookieMaxAge:   s.Config.CSRF.MaxAge,
+		CookiePath:     "/",
+		CookieSameSite: http.SameSiteNoneMode,
+		CookieDomain:   "localhost",
 	}))
 }
 
