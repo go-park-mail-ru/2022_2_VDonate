@@ -1,12 +1,18 @@
 package httpSubscriptions
 
 import (
+	"bytes"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"strconv"
 	"strings"
 	"testing"
+
+	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 
@@ -221,14 +227,390 @@ func TestHandler_GetAuthorSubscription(t *testing.T) {
 	}
 }
 
-func TestHandler_GetAuthorSubscriptions(t *testing.T) {
-}
-
 func TestHandler_CreateAuthorSubscription(t *testing.T) {
+	type mockGetBySessionID func(u *mockDomain.MockUsersUseCase, sessionID string)
+	type mockCreateImage func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context)
+	type mockAddAuthorSubscription func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64)
+
+	tests := []struct {
+		name                      string
+		authorID                  int
+		sessionID                 string
+		subscription              models.AuthorSubscription
+		mockGetBySessionID        mockGetBySessionID
+		mockCreateImage           mockCreateImage
+		mockAddAuthorSubscription mockAddAuthorSubscription
+		expectedErrorMessage      string
+	}{
+		{
+			name:      "OK",
+			authorID:  10,
+			sessionID: "some cookie",
+			subscription: models.AuthorSubscription{
+				Img: "../../../test/test.txt",
+			},
+			mockGetBySessionID: func(u *mockDomain.MockUsersUseCase, sessionID string) {
+				u.EXPECT().GetBySessionID(sessionID).Return(models.User{
+					ID: 10,
+				}, nil)
+			},
+			mockCreateImage: func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
+				file, err := images.GetFileFromContext(c)
+				assert.NoError(t, err)
+				u.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
+			},
+			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {
+				u.EXPECT().AddAuthorSubscription(s, authorID).Return(nil)
+			},
+		},
+		{
+			name:      "NoSession-Cookie",
+			authorID:  10,
+			sessionID: "",
+			subscription: models.AuthorSubscription{
+				Img: "../../../test/test.txt",
+			},
+			mockGetBySessionID:        func(u *mockDomain.MockUsersUseCase, sessionID string) {},
+			mockCreateImage:           func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
+			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {},
+			expectedErrorMessage:      "code=401, message=no existing session, internal=http: named cookie not present",
+		},
+		{
+			name:      "NoSession-User",
+			authorID:  10,
+			sessionID: "some cookie",
+			subscription: models.AuthorSubscription{
+				Img: "../../../test/test.txt",
+			},
+			mockGetBySessionID: func(u *mockDomain.MockUsersUseCase, sessionID string) {
+				u.EXPECT().GetBySessionID(sessionID).Return(models.User{}, domain.ErrNoSession)
+			},
+			mockCreateImage:           func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
+			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {},
+			expectedErrorMessage:      "code=401, message=no existing session, internal=no existing session",
+		},
+		{
+			name:      "BadRequest-File",
+			authorID:  10,
+			sessionID: "some cookie",
+			subscription: models.AuthorSubscription{
+				Img: "../../../test/test.txt",
+			},
+			mockGetBySessionID: func(u *mockDomain.MockUsersUseCase, sessionID string) {
+				u.EXPECT().GetBySessionID(sessionID).Return(models.User{
+					ID: 10,
+				}, nil)
+			},
+			mockCreateImage:           func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
+			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {},
+			expectedErrorMessage:      "code=400, message=bad request, internal=http: no such file",
+		},
+		{
+			name:      "BadRequest-Bind",
+			authorID:  10,
+			sessionID: "some cookie",
+			subscription: models.AuthorSubscription{
+				Img: "../../../test/test.txt",
+			},
+			mockGetBySessionID: func(u *mockDomain.MockUsersUseCase, sessionID string) {
+				u.EXPECT().GetBySessionID(sessionID).Return(models.User{
+					ID: 10,
+				}, nil)
+			},
+			mockCreateImage:           func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
+			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {},
+			expectedErrorMessage: "code=400, " +
+				"message=bad request, " +
+				"internal=code=400, " +
+				"message=strconv.ParseUint: parsing \"�\": invalid syntax, internal=strconv.ParseUint: parsing \"�\": invalid syntax",
+		},
+		{
+			name:      "ErrCreate-Image",
+			authorID:  10,
+			sessionID: "some cookie",
+			subscription: models.AuthorSubscription{
+				Img: "../../../test/test.txt",
+			},
+			mockGetBySessionID: func(u *mockDomain.MockUsersUseCase, sessionID string) {
+				u.EXPECT().GetBySessionID(sessionID).Return(models.User{
+					ID: 10,
+				}, nil)
+			},
+			mockCreateImage: func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
+				file, err := images.GetFileFromContext(c)
+				assert.NoError(t, err)
+				u.EXPECT().CreateImage(file, bucket).Return("", domain.ErrCreate)
+			},
+			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {},
+			expectedErrorMessage:      "code=500, message=failed to create item, internal=failed to create item",
+		},
+		{
+			name:      "ErrCreate-Subscription",
+			authorID:  10,
+			sessionID: "some cookie",
+			subscription: models.AuthorSubscription{
+				Img: "../../../test/test.txt",
+			},
+			mockGetBySessionID: func(u *mockDomain.MockUsersUseCase, sessionID string) {
+				u.EXPECT().GetBySessionID(sessionID).Return(models.User{
+					ID: 10,
+				}, nil)
+			},
+			mockCreateImage: func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
+				file, err := images.GetFileFromContext(c)
+				assert.NoError(t, err)
+				u.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
+			},
+			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {
+				u.EXPECT().AddAuthorSubscription(s, authorID).Return(domain.ErrCreate)
+			},
+			expectedErrorMessage: "code=500, message=failed to create item, internal=failed to create item",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			subscription := mockDomain.NewMockSubscriptionsUseCase(ctrl)
+			user := mockDomain.NewMockUsersUseCase(ctrl)
+			image := mockDomain.NewMockImageUseCase(ctrl)
+
+			test.mockGetBySessionID(user, test.sessionID)
+			test.mockAddAuthorSubscription(subscription, test.subscription, uint64(test.authorID))
+
+			handler := NewHandler(subscription, user, image)
+
+			e := echo.New()
+			body := new(bytes.Buffer)
+			writer := multipart.NewWriter(body)
+
+			var formFile io.Writer
+
+			var err error
+
+			if test.name != "BadRequest-File" {
+				formFile, err = writer.CreateFormFile("file", "../../../test/test.txt")
+				assert.NoError(t, err)
+
+				sample, err := os.Open("../../../test/test.txt")
+				assert.NoError(t, err)
+
+				_, err = io.Copy(formFile, sample)
+				assert.NoError(t, err)
+			}
+
+			err = writer.WriteField("img", test.subscription.Img)
+			assert.NoError(t, err)
+
+			err = writer.WriteField("text", test.subscription.Text)
+			assert.NoError(t, err)
+
+			err = writer.WriteField("title", test.subscription.Title)
+			assert.NoError(t, err)
+
+			err = writer.WriteField("tier", strconv.FormatUint(test.subscription.Tier, 10))
+			assert.NoError(t, err)
+
+			if test.name == "BadRequest-Bind" {
+				err = writer.WriteField("price", string(rune(-1)))
+				assert.NoError(t, err)
+			} else {
+				err = writer.WriteField("price", strconv.FormatUint(test.subscription.Price, 10))
+				assert.NoError(t, err)
+			}
+
+			err = writer.Close()
+			assert.NoError(t, err)
+
+			req := httptest.NewRequest(http.MethodPost, "https://127.0.0.1/api/v1/posts/", body)
+			if test.name != "NoSession-Cookie" {
+				req.AddCookie(&http.Cookie{
+					Name:  "session_id",
+					Value: test.sessionID,
+				})
+			}
+
+			rec := httptest.NewRecorder()
+			req.Header.Set("Content-Type", writer.FormDataContentType())
+
+			c := e.NewContext(req, rec)
+			c.SetPath("https://127.0.0.1/api/v1/posts/:post_id")
+			c.Set("bucket", "image")
+
+			test.mockCreateImage(image, "image", c)
+
+			if err = handler.CreateAuthorSubscription(c); err != nil {
+				assert.Equal(t, test.expectedErrorMessage, err.Error())
+			}
+		})
+	}
 }
 
 func TestHandler_UpdateAuthorSubscription(t *testing.T) {
-}
+	type mockCreateImage func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context)
+	type mockUpdateAuthor func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, subID uint64)
 
-func TestHandler_DeleteAuthorSubscription(t *testing.T) {
+	tests := []struct {
+		name                 string
+		subID                int
+		subscription         models.AuthorSubscription
+		mockCreateImage      mockCreateImage
+		mockUpdateAuthor     mockUpdateAuthor
+		expectedErrorMessage string
+	}{
+		{
+			name:  "OK",
+			subID: 10,
+			subscription: models.AuthorSubscription{
+				Img: "../../../test/test.txt",
+			},
+			mockCreateImage: func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
+				file, err := images.GetFileFromContext(c)
+				assert.NoError(t, err)
+				u.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
+			},
+			mockUpdateAuthor: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, subID uint64) {
+				u.EXPECT().UpdateAuthorSubscription(s, subID).Return(nil)
+			},
+		},
+		{
+			name:  "BadRequest-ID",
+			subID: -1,
+			subscription: models.AuthorSubscription{
+				Img: "../../../test/test.txt",
+			},
+			mockCreateImage:      func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
+			mockUpdateAuthor:     func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, subID uint64) {},
+			expectedErrorMessage: "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
+		},
+		{
+			name:  "BadRequest-File",
+			subID: 10,
+			subscription: models.AuthorSubscription{
+				Img: "../../../test/test.txt",
+			},
+			mockCreateImage:      func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
+			mockUpdateAuthor:     func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, subID uint64) {},
+			expectedErrorMessage: "code=400, message=bad request, internal=http: no such file",
+		},
+		{
+			name:  "BadRequest-Bind",
+			subID: 10,
+			subscription: models.AuthorSubscription{
+				Img: "../../../test/test.txt",
+			},
+			mockCreateImage:  func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
+			mockUpdateAuthor: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, subID uint64) {},
+			expectedErrorMessage: "code=400, " +
+				"message=bad request, " +
+				"internal=code=400, " +
+				"message=strconv.ParseUint: parsing \"�\": invalid syntax, internal=strconv.ParseUint: parsing \"�\": invalid syntax",
+		},
+		{
+			name:  "ErrCreate-Image",
+			subID: 10,
+			subscription: models.AuthorSubscription{
+				Img: "../../../test/test.txt",
+			},
+			mockCreateImage: func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
+				file, err := images.GetFileFromContext(c)
+				assert.NoError(t, err)
+				u.EXPECT().CreateImage(file, bucket).Return("", domain.ErrCreate)
+			},
+			mockUpdateAuthor:     func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, subID uint64) {},
+			expectedErrorMessage: "code=500, message=failed to create item, internal=failed to create item",
+		},
+		{
+			name:  "ErrUpdate-Subscription",
+			subID: 10,
+			subscription: models.AuthorSubscription{
+				Img: "../../../test/test.txt",
+			},
+			mockCreateImage: func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
+				file, err := images.GetFileFromContext(c)
+				assert.NoError(t, err)
+				u.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
+			},
+			mockUpdateAuthor: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, subID uint64) {
+				u.EXPECT().UpdateAuthorSubscription(s, subID).Return(domain.ErrUpdate)
+			},
+			expectedErrorMessage: "code=500, message=failed to update item, internal=failed to update item",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			subscription := mockDomain.NewMockSubscriptionsUseCase(ctrl)
+			user := mockDomain.NewMockUsersUseCase(ctrl)
+			image := mockDomain.NewMockImageUseCase(ctrl)
+
+			test.mockUpdateAuthor(subscription, test.subscription, uint64(test.subID))
+
+			handler := NewHandler(subscription, user, image)
+
+			e := echo.New()
+			body := new(bytes.Buffer)
+			writer := multipart.NewWriter(body)
+
+			var formFile io.Writer
+
+			var err error
+
+			if test.name != "BadRequest-File" {
+				formFile, err = writer.CreateFormFile("file", "../../../test/test.txt")
+				assert.NoError(t, err)
+
+				sample, err := os.Open("../../../test/test.txt")
+				assert.NoError(t, err)
+
+				_, err = io.Copy(formFile, sample)
+				assert.NoError(t, err)
+			}
+
+			err = writer.WriteField("img", test.subscription.Img)
+			assert.NoError(t, err)
+
+			err = writer.WriteField("text", test.subscription.Text)
+			assert.NoError(t, err)
+
+			err = writer.WriteField("title", test.subscription.Title)
+			assert.NoError(t, err)
+
+			err = writer.WriteField("tier", strconv.FormatUint(test.subscription.Tier, 10))
+			assert.NoError(t, err)
+
+			if test.name == "BadRequest-Bind" {
+				err = writer.WriteField("price", string(rune(-1)))
+				assert.NoError(t, err)
+			} else {
+				err = writer.WriteField("price", strconv.FormatUint(test.subscription.Price, 10))
+				assert.NoError(t, err)
+			}
+
+			err = writer.Close()
+			assert.NoError(t, err)
+
+			req := httptest.NewRequest(http.MethodPost, "https://127.0.0.1/api/v1/posts/", body)
+
+			rec := httptest.NewRecorder()
+			req.Header.Set("Content-Type", writer.FormDataContentType())
+
+			c := e.NewContext(req, rec)
+			c.SetPath("https://127.0.0.1/api/v1/posts/:post_id")
+			c.Set("bucket", "image")
+			c.SetParamNames("id")
+			c.SetParamValues(fmt.Sprint(test.subID))
+
+			test.mockCreateImage(image, "image", c)
+
+			if err = handler.UpdateAuthorSubscription(c); err != nil {
+				assert.Equal(t, test.expectedErrorMessage, err.Error())
+			}
+		})
+	}
 }

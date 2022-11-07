@@ -18,6 +18,8 @@ type UserMpfd struct {
 	Username string `json:"username" db:"username" form:"username" validate:"required" example:"admin"`
 	Password string `json:"password" db:"password" form:"password" validate:"required" example:"*****"`
 	Email    string `json:"email" db:"email" form:"email" validate:"required" example:"admin@mail.ru"`
+	IsAuthor bool   `json:"isAuthor" db:"is_author" form:"isAuthor" validate:"required" example:"true"`
+	About    string `json:"about" db:"about" form:"about" validate:"required" example:"It's me Mario'"`
 }
 
 type AuthorSubscriptionMpfd struct {
