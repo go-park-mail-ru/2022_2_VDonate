@@ -10,7 +10,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
+        "termsOfService": "https://swagger.io/terms/",
         "contact": {
             "name": "VDonate Support",
             "email": "zeronethunter2001@gmail.com"
@@ -899,9 +899,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Subscribe user to author with paid subscription",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -912,12 +909,12 @@ const docTemplate = `{
                 "operationId": "create_subscriber",
                 "parameters": [
                     {
-                        "description": "Subscription info with required UserID, AuthorID and Subscription ID",
+                        "description": "Subscription info with required AuthorID and Subscription ID",
                         "name": "Subscription",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Subscription"
+                            "$ref": "#/definitions/models.SubscriptionMpfd"
                         }
                     }
                 ],
@@ -967,7 +964,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Subscription"
+                            "$ref": "#/definitions/models.SubscriptionMpfd"
                         }
                     }
                 ],
@@ -1470,6 +1467,23 @@ const docTemplate = `{
                 "subscriberID": {
                     "type": "integer",
                     "example": 2
+                }
+            }
+        },
+        "models.SubscriptionMpfd": {
+            "type": "object",
+            "required": [
+                "authorID",
+                "authorSubscriptionID"
+            ],
+            "properties": {
+                "authorID": {
+                    "type": "integer",
+                    "example": 12
+                },
+                "authorSubscriptionID": {
+                    "type": "integer",
+                    "example": 13
                 }
             }
         },

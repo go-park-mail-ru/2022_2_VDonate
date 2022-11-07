@@ -3,7 +3,7 @@
     "info": {
         "description": "## API of donation web service by VDonate team\n### Some useful links:\n- ### [Backend](https://github.com/go-park-mail-ru/2022_2_VDonate)\n- ### [Frontend](https://github.com/go-park-mail-ru/2022_2_VDonate)\n\n- ### [Trello](https://trello.com/b/BZHoJsHP/vdonate)",
         "title": "VDonate API",
-        "termsOfService": "http://swagger.io/terms/",
+        "termsOfService": "https://swagger.io/terms/",
         "contact": {
             "name": "VDonate Support",
             "email": "zeronethunter2001@gmail.com"
@@ -892,9 +892,6 @@
                     }
                 ],
                 "description": "Subscribe user to author with paid subscription",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -905,12 +902,12 @@
                 "operationId": "create_subscriber",
                 "parameters": [
                     {
-                        "description": "Subscription info with required UserID, AuthorID and Subscription ID",
+                        "description": "Subscription info with required AuthorID and Subscription ID",
                         "name": "Subscription",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Subscription"
+                            "$ref": "#/definitions/models.SubscriptionMpfd"
                         }
                     }
                 ],
@@ -960,7 +957,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Subscription"
+                            "$ref": "#/definitions/models.SubscriptionMpfd"
                         }
                     }
                 ],
@@ -1463,6 +1460,23 @@
                 "subscriberID": {
                     "type": "integer",
                     "example": 2
+                }
+            }
+        },
+        "models.SubscriptionMpfd": {
+            "type": "object",
+            "required": [
+                "authorID",
+                "authorSubscriptionID"
+            ],
+            "properties": {
+                "authorID": {
+                    "type": "integer",
+                    "example": 12
+                },
+                "authorSubscriptionID": {
+                    "type": "integer",
+                    "example": 13
                 }
             }
         },

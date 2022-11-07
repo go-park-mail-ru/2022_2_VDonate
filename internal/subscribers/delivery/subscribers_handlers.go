@@ -61,12 +61,11 @@ func (h Handler) GetSubscribers(c echo.Context) error {
 // @Description Subscribe user to author with paid subscription
 // @ID          create_subscriber
 // @Tags        subscribers
-// @Accept      json
 // @Produce     json
-// @Param       Subscription body     models.Subscription true "Subscription info with required UserID, AuthorID and Subscription ID"
-// @Success     200          {object} models.Subscription "Successfully subscribed"
-// @Failure     400          {object} echo.HTTPError      "Bad request"
-// @Failure     500          {object} echo.HTTPError      "Not created"
+// @Param       Subscription body     models.SubscriptionMpfd true "Subscription info with required AuthorID and Subscription ID"
+// @Success     200          {object} models.Subscription     "Successfully subscribed"
+// @Failure     400          {object} echo.HTTPError          "Bad request"
+// @Failure     500          {object} echo.HTTPError          "Not created"
 // @Security    ApiKeyAuth
 // @Router      /subscribers [post]
 func (h Handler) CreateSubscriber(c echo.Context) error {
@@ -99,10 +98,10 @@ func (h Handler) CreateSubscriber(c echo.Context) error {
 // @Tags        subscribers
 // @Accept      json
 // @Produce     json
-// @Param       Subscription body     models.Subscription true "Subscription info with required UserID, AuthorID and Subscription ID"
-// @Success     200          {object} models.EmptyStruct  "Subscriber was successfully unsubscribed"
-// @Failure     400          {object} echo.HTTPError      "Bad request"
-// @Failure     500          {object} echo.HTTPError      "Not deleted"
+// @Param       Subscription body     models.SubscriptionMpfd true "Subscription info with required UserID, AuthorID and Subscription ID"
+// @Success     200          {object} models.EmptyStruct      "Subscriber was successfully unsubscribed"
+// @Failure     400          {object} echo.HTTPError          "Bad request"
+// @Failure     500          {object} echo.HTTPError          "Not deleted"
 // @Security    ApiKeyAuth
 // @Router      /subscribers [delete]
 func (h Handler) DeleteSubscriber(c echo.Context) error {

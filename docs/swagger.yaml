@@ -121,6 +121,18 @@ definitions:
     - authorSubscriptionID
     - subscriberID
     type: object
+  models.SubscriptionMpfd:
+    properties:
+      authorID:
+        example: 12
+        type: integer
+      authorSubscriptionID:
+        example: 13
+        type: integer
+    required:
+    - authorID
+    - authorSubscriptionID
+    type: object
   models.User:
     properties:
       about:
@@ -192,7 +204,7 @@ info:
     - ### [Frontend](https://github.com/go-park-mail-ru/2022_2_VDonate)
 
     - ### [Trello](https://trello.com/b/BZHoJsHP/vdonate)
-  termsOfService: http://swagger.io/terms/
+  termsOfService: https://swagger.io/terms/
   title: VDonate API
   version: "1.0"
 paths:
@@ -780,7 +792,7 @@ paths:
         name: Subscription
         required: true
         schema:
-          $ref: '#/definitions/models.Subscription'
+          $ref: '#/definitions/models.SubscriptionMpfd'
       produces:
       - application/json
       responses:
@@ -802,18 +814,15 @@ paths:
       tags:
       - subscribers
     post:
-      consumes:
-      - application/json
       description: Subscribe user to author with paid subscription
       operationId: create_subscriber
       parameters:
-      - description: Subscription info with required UserID, AuthorID and Subscription
-          ID
+      - description: Subscription info with required AuthorID and Subscription ID
         in: body
         name: Subscription
         required: true
         schema:
-          $ref: '#/definitions/models.Subscription'
+          $ref: '#/definitions/models.SubscriptionMpfd'
       produces:
       - application/json
       responses:

@@ -30,3 +30,8 @@ type AuthorSubscriptionMpfd struct {
 
 	Author Author `json:"author" form:"author" validate:"required"`
 }
+
+type SubscriptionMpfd struct {
+	AuthorID             uint64 `json:"authorID" validate:"required" example:"12"`
+	AuthorSubscriptionID uint64 `json:"authorSubscriptionID" validate:"required" example:"13"`
+}
