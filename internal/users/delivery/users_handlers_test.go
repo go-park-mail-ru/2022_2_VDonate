@@ -25,13 +25,19 @@ func TestHadler_GetUser(t *testing.T) {
 
 	type mockImageBehavior func(r *mockDomain.MockImageUseCase, bucket, filename string)
 
+	type mockSubscribersBehavior func(r *mockDomain.MockSubscribersUseCase, userID uint64)
+
+	type mockSubscriptionsBehavior func(r *mockDomain.MockSubscriptionsUseCase, userID uint64)
+
 	tests := []struct {
-		name                 string
-		redirectID           int
-		mockUserBehavior     mockUserBehavior
-		mockImageBehavior    mockImageBehavior
-		expectedResponseBody string
-		expectedErrorMessage string
+		name                      string
+		redirectID                int
+		mockUserBehavior          mockUserBehavior
+		mockImageBehavior         mockImageBehavior
+		mockSubscriptionsBehavior mockSubscriptionsBehavior
+		mockSubscribersBehavior   mockSubscribersBehavior
+		expectedResponseBody      string
+		expectedErrorMessage      string
 	}{
 		{
 			name:       "OK",
@@ -48,14 +54,26 @@ func TestHadler_GetUser(t *testing.T) {
 			mockImageBehavior: func(r *mockDomain.MockImageUseCase, bucket, filename string) {
 				r.EXPECT().GetImage(bucket, filename).Return("", nil)
 			},
-			expectedResponseBody: `{"username":"themilchenko","email":"example@ex.com","is_author":false}`,
+			mockSubscriptionsBehavior: func(r *mockDomain.MockSubscriptionsUseCase, userID uint64) {
+				r.EXPECT().GetSubscriptionsByUserID(userID).Return([]models.AuthorSubscription{
+					{AuthorID: 25},
+				}, nil)
+			},
+			mockSubscribersBehavior: func(r *mockDomain.MockSubscribersUseCase, userID uint64) {
+				r.EXPECT().GetSubscribers(userID).Return([]models.User{
+					{ID: 24},
+				}, nil)
+			},
+			expectedResponseBody: "{\"username\":\"themilchenko\",\"email\":\"example@ex.com\",\"isAuthor\":false,\"countSubscribers\":1}",
 		},
 		{
-			name:                 "BadID",
-			redirectID:           -1,
-			mockUserBehavior:     func(r *mockDomain.MockUsersUseCase, id uint64) {},
-			mockImageBehavior:    func(r *mockDomain.MockImageUseCase, bucket, filename string) {},
-			expectedErrorMessage: "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
+			name:                      "BadID",
+			redirectID:                -1,
+			mockUserBehavior:          func(r *mockDomain.MockUsersUseCase, id uint64) {},
+			mockImageBehavior:         func(r *mockDomain.MockImageUseCase, bucket, filename string) {},
+			mockSubscriptionsBehavior: func(r *mockDomain.MockSubscriptionsUseCase, userID uint64) {},
+			mockSubscribersBehavior:   func(r *mockDomain.MockSubscribersUseCase, userID uint64) {},
+			expectedErrorMessage:      "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
 		},
 		{
 			name:       "NotFound",
@@ -63,8 +81,10 @@ func TestHadler_GetUser(t *testing.T) {
 			mockUserBehavior: func(r *mockDomain.MockUsersUseCase, id uint64) {
 				r.EXPECT().GetByID(id).Return(models.User{}, domain.ErrNotFound)
 			},
-			mockImageBehavior:    func(r *mockDomain.MockImageUseCase, bucket, filename string) {},
-			expectedErrorMessage: "code=404, message=failed to find item, internal=failed to find item",
+			mockImageBehavior:         func(r *mockDomain.MockImageUseCase, bucket, filename string) {},
+			mockSubscriptionsBehavior: func(r *mockDomain.MockSubscriptionsUseCase, userID uint64) {},
+			mockSubscribersBehavior:   func(r *mockDomain.MockSubscribersUseCase, userID uint64) {},
+			expectedErrorMessage:      "code=404, message=failed to find item, internal=failed to find item",
 		},
 	}
 
@@ -76,11 +96,15 @@ func TestHadler_GetUser(t *testing.T) {
 			user := mockDomain.NewMockUsersUseCase(ctrl)
 			auth := mockDomain.NewMockAuthUseCase(ctrl)
 			image := mockDomain.NewMockImageUseCase(ctrl)
+			subscriber := mockDomain.NewMockSubscribersUseCase(ctrl)
+			subscription := mockDomain.NewMockSubscriptionsUseCase(ctrl)
 
 			test.mockUserBehavior(user, uint64(test.redirectID))
 			test.mockImageBehavior(image, "avatar", "filename")
+			test.mockSubscribersBehavior(subscriber, uint64(test.redirectID))
+			test.mockSubscriptionsBehavior(subscription, uint64(test.redirectID))
 
-			handler := NewHandler(user, auth, image)
+			handler := NewHandler(user, auth, image, subscription, subscriber)
 
 			e := echo.New()
 			req := httptest.NewRequest(http.MethodGet, "https://127.0.0.1/api/v1/users", nil)
@@ -218,10 +242,12 @@ func TestHandler_PutUser(t *testing.T) {
 			user := mockDomain.NewMockUsersUseCase(ctrl)
 			auth := mockDomain.NewMockAuthUseCase(ctrl)
 			image := mockDomain.NewMockImageUseCase(ctrl)
+			subscriber := mockDomain.NewMockSubscribersUseCase(ctrl)
+			subscription := mockDomain.NewMockSubscriptionsUseCase(ctrl)
 
 			test.mockUserBehavior(user, test.inputUser.ID, test.inputUser)
 
-			handler := NewHandler(user, auth, image)
+			handler := NewHandler(user, auth, image, subscription, subscriber)
 
 			e := echo.New()
 			body := new(bytes.Buffer)

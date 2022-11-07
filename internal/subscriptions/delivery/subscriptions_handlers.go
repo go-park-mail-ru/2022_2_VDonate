@@ -34,27 +34,23 @@ func NewHandler(s domain.SubscriptionsUseCase, u domain.UsersUseCase, i domain.I
 // @ID          get_user_subscriptions
 // @Tags        subscriptions
 // @Produce     json
-// @Success     200 {object} []models.AuthorSubscriptionMpfd "Successfully received subscriptions"
-// @Failure     400 {object} echo.HTTPError                  "Bad request"
-// @Failure     401 {object} echo.HTTPError                  "No session"
-// @Failure     403 {object} echo.HTTPError                  "You are not supposed to make this requests"
-// @Failure     500 {object} echo.HTTPError                  "Internal error"
+// @Param       user_id query    integer                         true "User ID"
+// @Success     200     {object} []models.AuthorSubscriptionMpfd "Successfully received subscriptions"
+// @Failure     400     {object} echo.HTTPError                  "Bad request"
+// @Failure     401     {object} echo.HTTPError                  "No session"
+// @Failure     403     {object} echo.HTTPError                  "You are not supposed to make this requests"
+// @Failure     500     {object} echo.HTTPError                  "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /subscriptions [get]
 func (h Handler) GetSubscriptions(c echo.Context) error {
-	cookie, err := httpAuth.GetCookie(c)
+	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 64)
 	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	user, err := h.userUsecase.GetBySessionID(cookie.Value)
+	s, err := h.subscriptionsUsecase.GetSubscriptionsByUserID(userID)
 	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrNotFound, err)
-	}
-
-	s, err := h.subscriptionsUsecase.GetSubscriptionsByUserID(user.ID)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrNotFound, err)
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
 	if len(s) == 0 {
@@ -65,6 +61,11 @@ func (h Handler) GetSubscriptions(c echo.Context) error {
 		if s[i].Img, err = h.imageUsecase.GetImage(fmt.Sprint(c.Get("bucket")), subscription.Img); err != nil {
 			return errorHandling.WrapEcho(domain.ErrInternal, err)
 		}
+		user, errGetUser := h.userUsecase.GetByID(userID)
+		if errGetUser != nil {
+			return errorHandling.WrapEcho(domain.ErrInternal, errGetUser)
+		}
+		s[i].Author = models.ToAuthor(user)
 	}
 
 	return c.JSON(http.StatusOK, s)

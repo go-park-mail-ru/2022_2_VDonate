@@ -134,11 +134,16 @@ const docTemplate = `{
                 "operationId": "create_author_subscription",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "example": 1,
+                        "name": "id",
+                        "in": "formData"
+                    },
+                    {
                         "type": "string",
-                        "example": "path/to/image",
+                        "example": "filename.jpeg",
                         "name": "img",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
                         "type": "integer",
@@ -306,11 +311,16 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "integer",
+                        "example": 1,
+                        "name": "id",
+                        "in": "formData"
+                    },
+                    {
                         "type": "string",
-                        "example": "path/to/image",
+                        "example": "filename.jpeg",
                         "name": "img",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
                         "type": "integer",
@@ -1049,6 +1059,15 @@ const docTemplate = `{
                 ],
                 "summary": "Get User subscriptions",
                 "operationId": "get_user_subscriptions",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successfully received subscriptions",
@@ -1090,7 +1109,7 @@ const docTemplate = `{
             "post": {
                 "description": "Request to server for ` + "`" + `User` + "`" + ` creation",
                 "consumes": [
-                    "multipart/form-data"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
@@ -1102,25 +1121,13 @@ const docTemplate = `{
                 "operationId": "signup",
                 "parameters": [
                     {
-                        "type": "string",
-                        "example": "admin@mail.ru",
-                        "name": "email",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "example": "*****",
-                        "name": "password",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "example": "admin",
-                        "name": "username",
-                        "in": "formData",
-                        "required": true
+                        "description": "POST request of all information about ` + "`" + `User` + "`" + `",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UserMpfd"
+                        }
                     }
                 ],
                 "responses": {
@@ -1326,7 +1333,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
-                "is_author",
+                "isAuthor",
                 "username"
             ],
             "properties": {
@@ -1338,11 +1345,19 @@ const docTemplate = `{
                     "type": "string",
                     "example": "filename.jpeg"
                 },
+                "countSubscribers": {
+                    "type": "integer",
+                    "example": 120
+                },
+                "countSubscriptions": {
+                    "type": "integer",
+                    "example": 25
+                },
                 "email": {
                     "type": "string",
                     "example": "admin@mail.ru"
                 },
-                "is_author": {
+                "isAuthor": {
                     "type": "boolean",
                     "example": true
                 },
@@ -1355,16 +1370,23 @@ const docTemplate = `{
         "models.AuthorSubscriptionMpfd": {
             "type": "object",
             "required": [
-                "img",
+                "author",
                 "price",
                 "text",
                 "tier",
                 "title"
             ],
             "properties": {
+                "author": {
+                    "$ref": "#/definitions/models.Author"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
                 "img": {
                     "type": "string",
-                    "example": "path/to/image"
+                    "example": "filename.jpeg"
                 },
                 "price": {
                     "type": "integer",
@@ -1395,13 +1417,13 @@ const docTemplate = `{
                 "title"
             ],
             "properties": {
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
                 "img": {
                     "type": "string",
                     "example": "path/to/image.jpeg"
+                },
+                "postID": {
+                    "type": "integer",
+                    "example": 1
                 },
                 "text": {
                     "type": "string",
@@ -1411,7 +1433,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "some title"
                 },
-                "user_id": {
+                "userID": {
                     "type": "integer",
                     "example": 1
                 }
@@ -1420,10 +1442,10 @@ const docTemplate = `{
         "models.ResponseImage": {
             "type": "object",
             "required": [
-                "img_path"
+                "imgPath"
             ],
             "properties": {
-                "img_path": {
+                "imgPath": {
                     "type": "string",
                     "example": "/path/to/image.jpeg"
                 }
@@ -1432,20 +1454,20 @@ const docTemplate = `{
         "models.Subscription": {
             "type": "object",
             "required": [
-                "author_id",
-                "author_subscription_id",
-                "subscriber_id"
+                "authorID",
+                "authorSubscriptionID",
+                "subscriberID"
             ],
             "properties": {
-                "author_id": {
+                "authorID": {
                     "type": "integer",
                     "example": 1
                 },
-                "author_subscription_id": {
+                "authorSubscriptionID": {
                     "type": "integer",
                     "example": 1
                 },
-                "subscriber_id": {
+                "subscriberID": {
                     "type": "integer",
                     "example": 2
                 }
@@ -1455,7 +1477,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
-                "is_author",
+                "isAuthor",
                 "password",
                 "username"
             ],
@@ -1468,6 +1490,14 @@ const docTemplate = `{
                     "type": "string",
                     "example": "filename.jpeg"
                 },
+                "countSubscribers": {
+                    "type": "integer",
+                    "example": 120
+                },
+                "countSubscriptions": {
+                    "type": "integer",
+                    "example": 25
+                },
                 "email": {
                     "type": "string",
                     "example": "admin@mail.ru"
@@ -1476,7 +1506,7 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
-                "is_author": {
+                "isAuthor": {
                     "type": "boolean",
                     "example": true
                 },
@@ -1499,6 +1529,28 @@ const docTemplate = `{
                 "id": {
                     "type": "integer",
                     "example": 12
+                }
+            }
+        },
+        "models.UserMpfd": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "admin@mail.ru"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "*****"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "admin"
                 }
             }
         }

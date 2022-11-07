@@ -24,10 +24,16 @@ definitions:
       avatar:
         example: filename.jpeg
         type: string
+      countSubscribers:
+        example: 120
+        type: integer
+      countSubscriptions:
+        example: 25
+        type: integer
       email:
         example: admin@mail.ru
         type: string
-      is_author:
+      isAuthor:
         example: true
         type: boolean
       username:
@@ -35,13 +41,18 @@ definitions:
         type: string
     required:
     - email
-    - is_author
+    - isAuthor
     - username
     type: object
   models.AuthorSubscriptionMpfd:
     properties:
+      author:
+        $ref: '#/definitions/models.Author'
+      id:
+        example: 1
+        type: integer
       img:
-        example: path/to/image
+        example: filename.jpeg
         type: string
       price:
         example: 2999
@@ -56,7 +67,7 @@ definitions:
         example: some title
         type: string
     required:
-    - img
+    - author
     - price
     - text
     - tier
@@ -66,19 +77,19 @@ definitions:
     type: object
   models.Post:
     properties:
-      id:
-        example: 1
-        type: integer
       img:
         example: path/to/image.jpeg
         type: string
+      postID:
+        example: 1
+        type: integer
       text:
         example: some text
         type: string
       title:
         example: some title
         type: string
-      user_id:
+      userID:
         example: 1
         type: integer
     required:
@@ -88,27 +99,27 @@ definitions:
     type: object
   models.ResponseImage:
     properties:
-      img_path:
+      imgPath:
         example: /path/to/image.jpeg
         type: string
     required:
-    - img_path
+    - imgPath
     type: object
   models.Subscription:
     properties:
-      author_id:
+      authorID:
         example: 1
         type: integer
-      author_subscription_id:
+      authorSubscriptionID:
         example: 1
         type: integer
-      subscriber_id:
+      subscriberID:
         example: 2
         type: integer
     required:
-    - author_id
-    - author_subscription_id
-    - subscriber_id
+    - authorID
+    - authorSubscriptionID
+    - subscriberID
     type: object
   models.User:
     properties:
@@ -118,13 +129,19 @@ definitions:
       avatar:
         example: filename.jpeg
         type: string
+      countSubscribers:
+        example: 120
+        type: integer
+      countSubscriptions:
+        example: 25
+        type: integer
       email:
         example: admin@mail.ru
         type: string
       id:
         example: 1
         type: integer
-      is_author:
+      isAuthor:
         example: true
         type: boolean
       password:
@@ -135,7 +152,7 @@ definitions:
         type: string
     required:
     - email
-    - is_author
+    - isAuthor
     - password
     - username
     type: object
@@ -146,6 +163,22 @@ definitions:
         type: integer
     required:
     - id
+    type: object
+  models.UserMpfd:
+    properties:
+      email:
+        example: admin@mail.ru
+        type: string
+      password:
+        example: '*****'
+        type: string
+      username:
+        example: admin
+        type: string
+    required:
+    - email
+    - password
+    - username
     type: object
 host: vdonate.ml:8080
 info:
@@ -231,10 +264,13 @@ paths:
       description: Create Author subscription by user's Cookie
       operationId: create_author_subscription
       parameters:
-      - example: path/to/image
+      - example: 1
+        in: formData
+        name: id
+        type: integer
+      - example: filename.jpeg
         in: formData
         name: img
-        required: true
         type: string
       - example: 2999
         in: formData
@@ -384,10 +420,13 @@ paths:
         name: id
         required: true
         type: integer
-      - example: path/to/image
+      - example: 1
+        in: formData
+        name: id
+        type: integer
+      - example: filename.jpeg
         in: formData
         name: img
-        required: true
         type: string
       - example: 2999
         in: formData
@@ -831,6 +870,12 @@ paths:
     get:
       description: Get User subscriptions by Cookie
       operationId: get_user_subscriptions
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -864,25 +909,16 @@ paths:
   /users:
     post:
       consumes:
-      - multipart/form-data
+      - application/json
       description: Request to server for `User` creation
       operationId: signup
       parameters:
-      - example: admin@mail.ru
-        in: formData
-        name: email
+      - description: POST request of all information about `User`
+        in: body
+        name: data
         required: true
-        type: string
-      - example: '*****'
-        in: formData
-        name: password
-        required: true
-        type: string
-      - example: admin
-        in: formData
-        name: username
-        required: true
-        type: string
+        schema:
+          $ref: '#/definitions/models.UserMpfd'
       produces:
       - application/json
       responses:

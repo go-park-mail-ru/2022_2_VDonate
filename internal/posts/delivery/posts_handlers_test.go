@@ -54,7 +54,7 @@ func TestHandler_GetPosts(t *testing.T) {
 					},
 				}, nil)
 			},
-			expectedRequestBody: `[{"id":0,"user_id":123,"img":"","title":"Look at this!!!","text":"Some text about my work"}]`,
+			expectedRequestBody: `[{"postID":0,"userID":123,"img":"","title":"Look at this!!!","text":"Some text about my work"}]`,
 		},
 		{
 			name:   "ServerError",
@@ -140,7 +140,7 @@ func TestHangler_GetPost(t *testing.T) {
 			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {
 				s.EXPECT().GetImage(bucket, filename).Return("", nil)
 			},
-			expectedRequestBody: `{"id":0,"user_id":0,"img":"","title":"Look at this!!!","text":"Some text about my work"}`,
+			expectedRequestBody: `{"postID":0,"userID":0,"img":"","title":"Look at this!!!","text":"Some text about my work"}`,
 		},
 		{
 			name:   "NotFound",
@@ -172,7 +172,7 @@ func TestHangler_GetPost(t *testing.T) {
 			rec := httptest.NewRecorder()
 
 			c := e.NewContext(req, rec)
-			c.SetPath("https://127.0.0.1/api/v1/:id")
+			c.SetPath("https://127.0.0.1/api/v1/:postID")
 			c.SetParamNames("id")
 			c.SetParamValues(strconv.FormatInt(int64(test.postID), 10))
 			c.Set("bucket", "image")
@@ -326,10 +326,10 @@ func TestHandler_CreatePosts(t *testing.T) {
 			writer := multipart.NewWriter(body)
 
 			if test.name == "ErrBind" {
-				err := writer.WriteField("user_id", string(rune(-1)))
+				err := writer.WriteField("userID", string(rune(-1)))
 				assert.NoError(t, err)
 			} else {
-				err := writer.WriteField("user_id", strconv.FormatUint(test.inputPost.UserID, 10))
+				err := writer.WriteField("userID", strconv.FormatUint(test.inputPost.UserID, 10))
 				assert.NoError(t, err)
 			}
 
@@ -362,8 +362,8 @@ func TestHandler_CreatePosts(t *testing.T) {
 			}
 
 			c := e.NewContext(req, rec)
-			c.SetPath("https://127.0.0.1/api/v1/posts/:id")
-			c.SetParamNames("id")
+			c.SetPath("https://127.0.0.1/api/v1/posts/:postID")
+			c.SetParamNames("postID")
 			c.SetParamValues(strconv.FormatInt(int64(test.userID), 10))
 			c.Set("bucket", "image")
 

@@ -46,7 +46,7 @@ type SubscriptionsRepository interface {
 }
 
 type UsersRepository interface {
-	Create(user models.User) error
+	Create(user models.User) (uint64, error)
 	GetByUsername(username string) (models.User, error)
 	GetByID(id uint64) (models.User, error)
 	GetByEmail(email string) (models.User, error)

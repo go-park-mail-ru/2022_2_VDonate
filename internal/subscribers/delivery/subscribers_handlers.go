@@ -1,16 +1,16 @@
 package httpsubscribers
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
+
+	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/labstack/echo/v4"
 )
 
@@ -50,7 +50,7 @@ func (h Handler) GetSubscribers(c echo.Context) error {
 	}
 
 	if len(s) == 0 {
-		return c.JSON(http.StatusOK, struct{}{})
+		return c.JSON(http.StatusOK, models.EmptyStruct{})
 	}
 
 	return c.JSON(http.StatusOK, s)
@@ -70,16 +70,22 @@ func (h Handler) GetSubscribers(c echo.Context) error {
 // @Security    ApiKeyAuth
 // @Router      /subscribers [post]
 func (h Handler) CreateSubscriber(c echo.Context) error {
-	var s models.Subscription
-	if err := c.Bind(&s); err != nil {
+	cookie, err := httpAuth.GetCookie(c)
+	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
-	if utils.Empty(s.SubscriberID, s.AuthorID, s.AuthorSubscriptionID) {
-		return errorHandling.WrapEcho(domain.ErrBadRequest, errors.New("some fields are empty"))
+
+	u, err := h.userUsecase.GetBySessionID(cookie.Value)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
 
-	err := h.subscribersUsecase.Subscribe(s)
-	if err != nil {
+	var s models.Subscription
+	if err = c.Bind(&s); err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	if err = h.subscribersUsecase.Subscribe(s, u.ID); err != nil {
 		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 
@@ -100,18 +106,24 @@ func (h Handler) CreateSubscriber(c echo.Context) error {
 // @Security    ApiKeyAuth
 // @Router      /subscribers [delete]
 func (h Handler) DeleteSubscriber(c echo.Context) error {
-	var s models.Subscription
-	if err := c.Bind(&s); err != nil {
+	cookie, err := httpAuth.GetCookie(c)
+	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
-	if utils.Empty(s.SubscriberID, s.AuthorID, s.AuthorSubscriptionID) {
-		return errorHandling.WrapEcho(domain.ErrBadRequest, errors.New("some fields are empty"))
+
+	u, err := h.userUsecase.GetBySessionID(cookie.Value)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
 
-	err := h.subscribersUsecase.Unsubscribe(s.SubscriberID, s.AuthorID)
-	if err != nil {
+	var s models.Subscription
+	if err = c.Bind(&s); err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	if err = h.subscribersUsecase.Unsubscribe(u.ID, s.AuthorID); err != nil {
 		return errorHandling.WrapEcho(domain.ErrDelete, err)
 	}
 
-	return c.JSON(http.StatusOK, struct{}{})
+	return c.JSON(http.StatusOK, models.EmptyStruct{})
 }

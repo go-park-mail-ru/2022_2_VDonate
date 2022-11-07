@@ -49,7 +49,7 @@ func TestPostPostgres_Create(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			test.mockBehaviour(test.user, test.id)
 
-			err := r.Create(test.user)
+			_, err := r.Create(test.user)
 			if test.responseError {
 				assert.Error(t, err)
 			} else {

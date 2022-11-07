@@ -15,20 +15,26 @@ import (
 )
 
 type Handler struct {
-	sessionUseCase domain.AuthUseCase
-	userUseCase    domain.UsersUseCase
-	imageUseCase   domain.ImageUseCase
+	sessionUseCase       domain.AuthUseCase
+	userUseCase          domain.UsersUseCase
+	imageUseCase         domain.ImageUseCase
+	subscriptionsUseCase domain.SubscriptionsUseCase
+	subscribersUseCase   domain.SubscribersUseCase
 }
 
 func NewHandler(
 	userUseCase domain.UsersUseCase,
 	sessionUseCase domain.AuthUseCase,
 	imageUseCase domain.ImageUseCase,
+	subscriptionsUseCase domain.SubscriptionsUseCase,
+	subscribersUseCase domain.SubscribersUseCase,
 ) *Handler {
 	return &Handler{
-		userUseCase:    userUseCase,
-		sessionUseCase: sessionUseCase,
-		imageUseCase:   imageUseCase,
+		userUseCase:          userUseCase,
+		sessionUseCase:       sessionUseCase,
+		imageUseCase:         imageUseCase,
+		subscriptionsUseCase: subscriptionsUseCase,
+		subscribersUseCase:   subscribersUseCase,
 	}
 }
 
@@ -60,6 +66,20 @@ func (h *Handler) GetUser(c echo.Context) error {
 	if user.Avatar, err = h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), user.Avatar); err != nil {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
+
+	var subscriptions []models.AuthorSubscription
+	var subscribers []models.User
+
+	if subscriptions, err = h.subscriptionsUseCase.GetSubscriptionsByUserID(user.ID); err != nil {
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
+	}
+
+	if subscribers, err = h.subscribersUseCase.GetSubscribers(user.ID); err != nil {
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
+	}
+
+	user.CountSubscriptions = uint64(len(subscriptions))
+	user.CountSubscribers = uint64(len(subscribers))
 
 	return UserResponse(c, user)
 }

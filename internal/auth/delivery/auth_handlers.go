@@ -164,9 +164,9 @@ func (h Handler) Logout(c echo.Context) error {
 // @Description Request to server for `User` creation
 // @ID          signup
 // @Tags        users
-// @Accept      mpfd
+// @Accept      json
 // @Produce     json
-// @Param       data formData models.UserMpfd true "POST request of all information about `User`"
+// @Param       data body     models.UserMpfd true "POST request of all information about `User`"
 // @Success     200  {object} models.UserID   "User was successfully created"
 // @Failure     400  {object} echo.HTTPError  "Bad request"
 // @Failure     409  {object} echo.HTTPError  "Username or email is already exists"
