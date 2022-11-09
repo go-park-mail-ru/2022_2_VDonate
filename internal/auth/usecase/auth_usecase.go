@@ -22,7 +22,11 @@ type usecase struct {
 }
 
 func New(authRepo domain.AuthRepository, usersRepo domain.UsersRepository) domain.AuthUseCase {
-	return &usecase{authRepo: authRepo, usersRepo: usersRepo, cookieCreator: createCookie}
+	return &usecase{
+		authRepo:      authRepo,
+		usersRepo:     usersRepo,
+		cookieCreator: createCookie,
+	}
 }
 
 func createCookie(id uint64) models.Cookie {
@@ -38,13 +42,16 @@ func (u *usecase) Login(login, password string) (string, error) {
 	if err != nil {
 		user, err = u.usersRepo.GetByEmail(login)
 		if err != nil {
-			return "", err
+			return "", domain.ErrUsernameOrEmailNotExist
 		}
 	}
+
 	matchPassword := utils.CheckHashPassword(password, user.Password)
+
 	if !matchPassword {
-		return "", errors.New("passwords not the same")
+		return "", domain.ErrPasswordsNotEqual
 	}
+
 	s, err := u.authRepo.CreateSession(u.cookieCreator(user.ID))
 	if err != nil {
 		return "", err
@@ -58,28 +65,33 @@ func (u *usecase) Auth(sessionID string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	return true, nil
 }
 
-func (u *usecase) SignUp(user *models.User) (string, error) {
+func (u *usecase) SignUp(user models.User) (string, error) {
 	_, err := u.usersRepo.GetByUsername(user.Username)
 	if err == nil {
-		return "", errors.New("username is already exist")
+		return "", domain.ErrUsernameExist
 	}
+
 	if _, err = u.usersRepo.GetByEmail(user.Email); err == nil {
-		return "", errors.New("email is already exist")
+		return "", domain.ErrEmailExist
 	}
-	user.Password, err = utils.HashPassword(user.Password)
-	if err != nil {
+
+	if user.Password, err = utils.HashPassword(user.Password); err != nil {
 		return "", errors.New("cannot hash password")
 	}
-	if user, err = u.usersRepo.Create(user); err != nil {
+
+	if err = u.usersRepo.Create(user); err != nil {
 		return "", err
 	}
+
 	s, err := u.authRepo.CreateSession(u.cookieCreator(user.ID))
 	if err != nil {
 		return "", err
 	}
+
 	return s.Value, nil
 }
 
@@ -87,6 +99,7 @@ func (u *usecase) Logout(sessionID string) (bool, error) {
 	if err := u.authRepo.DeleteBySessionID(sessionID); err != nil {
 		return false, err
 	}
+
 	return true, nil
 }
 
@@ -95,5 +108,6 @@ func (u *usecase) IsSameSession(sessionID string, userID uint64) bool {
 	if err != nil {
 		return false
 	}
+
 	return user.ID == userID
 }

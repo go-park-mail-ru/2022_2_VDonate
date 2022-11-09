@@ -1,16 +1,13 @@
 package models
 
 type User struct {
-	ID        uint64 `json:"id" db:"id"`
-	Username  string `json:"username" db:"username"`
-	FirstName string `json:"first_name,omitempty" db:"first_name"`
-	LastName  string `json:"last_name,omitempty" db:"last_name"`
-	Email     string `json:"email" db:"email"`
-	Avatar    string `json:"avatar,omitempty" db:"avatar"`
-	Password  string `json:"password" db:"password"`
-	Phone     string `json:"phone,omitempty" db:"phone"`
-	IsAuthor  bool   `json:"is_author" db:"is_author"`
-	About     string `json:"about,omitempty" db:"about"`
+	ID       uint64 `json:"id" db:"id" form:"id" example:"1"`
+	Username string `json:"username" db:"username" form:"username" validate:"required" example:"admin"`
+	Email    string `json:"email" db:"email" form:"email" validate:"required" example:"admin@mail.ru"`
+	Avatar   string `json:"avatar,omitempty" db:"avatar" form:"avatar" example:"filename.jpeg"`
+	Password string `json:"password" db:"password" form:"password" validate:"required" example:"*****"`
+	IsAuthor bool   `json:"is_author" db:"is_author" form:"is_author" validate:"required" example:"true"`
+	About    string `json:"about,omitempty" db:"about" form:"about" example:"it's info about myself"`
 }
 
 func (u User) GetID() uint64 {
@@ -18,70 +15,59 @@ func (u User) GetID() uint64 {
 }
 
 type model interface {
-	*User | *Post
+	User | Post
 	GetID() uint64
 }
 
-func Contains[M model](slice []M, ID uint64) bool {
+func Contains[M model](slice []M, id uint64) bool {
 	for _, el := range slice {
-		if el.GetID() == ID {
+		if el.GetID() == id {
 			return true
 		}
 	}
+
 	return false
 }
 
 type AuthUser struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" validate:"required" example:"admin"`
+	Password string `json:"password" validate:"required" example:"*****"`
+}
+
+type UserID struct {
+	ID uint64 `json:"id" validate:"required" example:"12"`
 }
 
 type Author struct {
-	ID        uint64 `json:"id"`
-	Username  string `json:"username"`
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name,omitempty"`
-	Email     string `json:"email"`
-	Avatar    string `json:"avatar,omitempty"`
-	Phone     string `json:"phone,omitempty"`
-	IsAuthor  bool   `json:"is_author"`
-	About     string `json:"about,omitempty"`
+	Username string `json:"username" validate:"required" example:"admin"`
+	Email    string `json:"email" validate:"required" example:"admin@mail.ru"`
+	Avatar   string `json:"avatar,omitempty" example:"filename.jpeg"`
+	IsAuthor bool   `json:"is_author" validate:"required" example:"true"`
+	About    string `json:"about" example:"it's info about myself"`
 }
 
 type NotAuthor struct {
-	ID        uint64 `json:"id"`
-	Username  string `json:"username"`
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name,omitempty"`
-	Email     string `json:"email"`
-	Avatar    string `json:"avatar,omitempty"`
-	Phone     string `json:"phone,omitempty"`
-	IsAuthor  bool   `json:"is_author"`
+	Username string `json:"username" validate:"required" example:"admin"`
+	Email    string `json:"email" validate:"required" example:"admin@mail.ru"`
+	Avatar   string `json:"avatar,omitempty" example:"filename.jpeg"`
+	IsAuthor bool   `json:"is_author" validate:"required" example:"true"`
 }
 
-func ToAuthor(u *User) *Author {
-	return &Author{
-		ID:        u.ID,
-		Username:  u.Username,
-		FirstName: u.FirstName,
-		LastName:  u.LastName,
-		Email:     u.Email,
-		Avatar:    u.Avatar,
-		Phone:     u.Phone,
-		IsAuthor:  true,
-		About:     u.About,
+func ToAuthor(u User) Author {
+	return Author{
+		Username: u.Username,
+		Email:    u.Email,
+		Avatar:   u.Avatar,
+		IsAuthor: true,
+		About:    u.About,
 	}
 }
 
-func ToNonAuthor(u *User) *NotAuthor {
-	return &NotAuthor{
-		ID:        u.ID,
-		Username:  u.Username,
-		FirstName: u.FirstName,
-		LastName:  u.LastName,
-		Email:     u.Email,
-		Avatar:    u.Avatar,
-		Phone:     u.Phone,
-		IsAuthor:  false,
+func ToNonAuthor(u User) NotAuthor {
+	return NotAuthor{
+		Username: u.Username,
+		Email:    u.Email,
+		Avatar:   u.Avatar,
+		IsAuthor: false,
 	}
 }

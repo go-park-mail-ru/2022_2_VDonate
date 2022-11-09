@@ -2,21 +2,23 @@ package logger
 
 import (
 	"encoding/json"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
-	"github.com/sirupsen/logrus"
 	"io"
 	"strconv"
 	"sync"
 	"time"
+
+	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
+	"github.com/sirupsen/logrus"
 )
 
 type Logger struct {
 	Logrus *logrus.Logger
 }
 
-// New settings of logger
+// New settings of logger.
 func New() *Logger {
 	newLogger := Logger{Logrus: logrus.New()}
 	newLogger.SetFormatter(&logrus.JSONFormatter{
@@ -24,12 +26,13 @@ func New() *Logger {
 		DisableHTMLEscape: true,
 		PrettyPrint:       true,
 	})
-	newLogger.SetLevel(log.DEBUG)
 	return &newLogger
 }
 
-var lock sync.Mutex
-var SingleLogger *Logger
+var (
+	lock         sync.Mutex
+	SingleLogger *Logger
+)
 
 func GetInstance() *Logger {
 	lock.Lock()
@@ -39,6 +42,21 @@ func GetInstance() *Logger {
 		SingleLogger = New()
 	}
 	return SingleLogger
+}
+
+func ToLevel(level string) log.Lvl {
+	switch level {
+	case "debug":
+		return log.DEBUG
+	case "info":
+		return log.INFO
+	case "warn":
+		return log.WARN
+	case "error":
+		return log.ERROR
+	default:
+		return log.INFO
+	}
 }
 
 func toLogrusLevel(level log.Lvl) logrus.Level {
@@ -210,7 +228,7 @@ func Middleware() echo.MiddlewareFunc {
 
 			bytesIn := req.Header.Get(echo.HeaderContentLength)
 
-			message := utils.CutCodeFromError(err)
+			message := errorHandling.CutCode(err)
 
 			ctxLog := GetInstance().Logrus.WithFields(map[string]interface{}{
 				"remote_ip":     c.RealIP(),
@@ -230,7 +248,7 @@ func Middleware() echo.MiddlewareFunc {
 			if err != nil {
 				ctxLog.Error("ERROR REQUEST")
 
-				return nil
+				return err
 			}
 			ctxLog.Debug("REQUEST")
 
