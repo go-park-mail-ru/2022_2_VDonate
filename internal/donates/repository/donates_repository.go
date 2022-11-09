@@ -9,8 +9,8 @@ type Postgres struct {
 	DB *sqlx.DB
 }
 
-func NewPostgres(URL string) (*Postgres, error) {
-	db, err := sqlx.Open("postgres", URL)
+func NewPostgres(url string) (*Postgres, error) {
+	db, err := sqlx.Open("postgres", url)
 	if err != nil {
 		return nil, err
 	}

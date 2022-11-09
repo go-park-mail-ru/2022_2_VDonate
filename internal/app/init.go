@@ -41,11 +41,8 @@ type Server struct {
 	AuthService         domain.AuthUseCase
 	SubscriptionService domain.SubscriptionsUseCase
 	SubscribersService  domain.SubscribersUseCase
-<<<<<<< HEAD
 	DonatesService      domain.DonatesUseCase
-=======
 	ImagesService       domain.ImageUseCase
->>>>>>> dev
 
 	authHandler          *httpAuth.Handler
 	userHandler          *httpUsers.Handler
@@ -114,7 +111,7 @@ func (s *Server) makeUseCase(url string) {
 	if err != nil {
 		s.Echo.Logger.Error(err)
 	}
-	donatesRepo, err := donatesRepository.NewPostgres(URL)
+	donatesRepo, err := donatesRepository.NewPostgres(url)
 	if err != nil {
 		s.Echo.Logger.Error(err)
 	}
@@ -134,29 +131,21 @@ func (s *Server) makeUseCase(url string) {
 	//---------------------subscription---------------------//
 	s.SubscriptionService = subscriptions.New(subscriptionsRepo)
 
-<<<<<<< HEAD
 	//-----------------------donates------------------------//
 	s.DonatesService = donates.New(donatesRepo, userRepo)
-=======
+
 	//------------------------images------------------------//
 	s.ImagesService = images.New(imagesRepo)
->>>>>>> dev
 }
 
 func (s *Server) makeHandlers() {
 	s.authHandler = httpAuth.NewHandler(s.AuthService, s.UserService)
-<<<<<<< HEAD
-	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService)
-	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService)
-	s.subscriptionsHandler = httpSubscriptions.New(s.SubscriptionService, s.UserService)
-	s.subscribersHandler = httpsubscribers.New(s.SubscribersService, s.UserService)
+
 	s.donatesHandler = httpdonates.New(s.DonatesService, s.UserService)
-=======
 	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService, s.ImagesService)
 	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService, s.ImagesService)
 	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionService, s.UserService, s.ImagesService)
 	s.subscribersHandler = httpsubscribers.NewHandler(s.SubscribersService, s.UserService)
->>>>>>> dev
 }
 
 func (s *Server) makeEchoLogger() {

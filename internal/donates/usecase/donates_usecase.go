@@ -26,8 +26,8 @@ func (u usecase) SendDonate(userID, authorID, price uint64) (models.Donate, erro
 	return u.donatesRepo.SendDonate(donate)
 }
 
-func (u usecase) GetDonateByID(ID uint64) (models.Donate, error) {
-	return u.donatesRepo.GetDonateByID(ID)
+func (u usecase) GetDonateByID(id uint64) (models.Donate, error) {
+	return u.donatesRepo.GetDonateByID(id)
 }
 
 func (u usecase) GetDonatesByUserID(userID uint64) ([]models.Donate, error) {
