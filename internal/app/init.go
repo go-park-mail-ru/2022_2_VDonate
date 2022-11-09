@@ -7,6 +7,9 @@ import (
 	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	httpdonates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery"
+	donatesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/repository"
+	donates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/usecase"
 	imagesMiddleware "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/middlewares"
 	imagesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/repository"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
@@ -38,6 +41,7 @@ type Server struct {
 	AuthService         domain.AuthUseCase
 	SubscriptionService domain.SubscriptionsUseCase
 	SubscribersService  domain.SubscribersUseCase
+	DonatesService      domain.DonatesUseCase
 	ImagesService       domain.ImageUseCase
 
 	authHandler          *httpAuth.Handler
@@ -45,6 +49,7 @@ type Server struct {
 	postsHandler         *httpPosts.Handler
 	subscriptionsHandler *httpSubscriptions.Handler
 	subscribersHandler   *httpsubscribers.Handler
+	donatesHandler       *httpdonates.Handler
 
 	authMiddleware *authMiddlewares.Middlewares
 }
@@ -106,6 +111,10 @@ func (s *Server) makeUseCase(url string) {
 	if err != nil {
 		s.Echo.Logger.Error(err)
 	}
+	donatesRepo, err := donatesRepository.NewPostgres(url)
+	if err != nil {
+		s.Echo.Logger.Error(err)
+	}
 
 	//-----------------------sessions-----------------------//
 	s.AuthService = auth.New(sessionRepo, userRepo)
@@ -122,12 +131,17 @@ func (s *Server) makeUseCase(url string) {
 	//---------------------subscription---------------------//
 	s.SubscriptionService = subscriptions.New(subscriptionsRepo)
 
+	//-----------------------donates------------------------//
+	s.DonatesService = donates.New(donatesRepo, userRepo)
+
 	//------------------------images------------------------//
 	s.ImagesService = images.New(imagesRepo)
 }
 
 func (s *Server) makeHandlers() {
 	s.authHandler = httpAuth.NewHandler(s.AuthService, s.UserService)
+
+	s.donatesHandler = httpdonates.New(s.DonatesService, s.UserService)
 	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService, s.ImagesService)
 	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService, s.ImagesService)
 	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionService, s.UserService, s.ImagesService)
@@ -194,6 +208,13 @@ func (s *Server) makeRouter() {
 	subscriber.GET("/:author_id", s.subscribersHandler.GetSubscribers)
 	subscriber.POST("", s.subscribersHandler.CreateSubscriber)
 	subscriber.DELETE("", s.subscribersHandler.DeleteSubscriber)
+
+	donate := v1.Group("/donates")
+	donate.Use(s.authMiddleware.LoginRequired)
+
+	donate.GET("/:id", s.donatesHandler.GetDonate)
+	donate.GET("", s.donatesHandler.GetDonates)
+	donate.POST("", s.donatesHandler.CreateDonate)
 }
 
 func (s *Server) makeCORS() {
