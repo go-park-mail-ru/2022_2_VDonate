@@ -1280,7 +1280,7 @@ const docTemplate = `{
                     "200": {
                         "description": "User was successfully updated",
                         "schema": {
-                            "$ref": "#/definitions/models.EmptyStruct"
+                            "$ref": "#/definitions/models.ResponseImageUsers"
                         }
                     },
                     "400": {
@@ -1470,6 +1470,23 @@ const docTemplate = `{
                     "example": "/path/to/image.jpeg"
                 },
                 "subscriptionID": {
+                    "type": "integer",
+                    "example": 25
+                }
+            }
+        },
+        "models.ResponseImageUsers": {
+            "type": "object",
+            "required": [
+                "imgPath",
+                "userID"
+            ],
+            "properties": {
+                "imgPath": {
+                    "type": "string",
+                    "example": "/path/to/image.jpeg"
+                },
+                "userID": {
                     "type": "integer",
                     "example": 25
                 }
