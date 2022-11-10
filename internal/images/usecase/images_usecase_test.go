@@ -34,7 +34,7 @@ func TestUsecase_GetImage(t *testing.T) {
 				}, nil)
 			},
 			mockBehaviourGetPermImage: func(r *mockDomain.MockImagesRepository, bucket, filename string) {},
-			expectedResult:            "newURL",
+			expectedResult:            "https://wsrv.nl/?url=newURL",
 		},
 		{
 			name:     "Bad-image",
@@ -54,7 +54,7 @@ func TestUsecase_GetImage(t *testing.T) {
 			mockBehaviourGetPermImage: func(r *mockDomain.MockImagesRepository, bucket, filename string) {
 				r.EXPECT().GetPermanentImage(bucket, filename).Return("newURL", nil)
 			},
-			expectedResult: "newURL",
+			expectedResult: "https://wsrv.nl/?url=newURL",
 		},
 		{
 			name:                  "Bad-avatar",

@@ -48,7 +48,7 @@ func TestHadler_GetUser(t *testing.T) {
 					Username: "themilchenko",
 					Avatar:   "filename",
 					Email:    "example@ex.com",
-					IsAuthor: false,
+					IsAuthor: true,
 				}, nil)
 			},
 			mockImageBehavior: func(r *mockDomain.MockImageUseCase, bucket, filename string) {
@@ -64,7 +64,7 @@ func TestHadler_GetUser(t *testing.T) {
 					{ID: 24},
 				}, nil)
 			},
-			expectedResponseBody: "{\"username\":\"themilchenko\",\"email\":\"example@ex.com\",\"isAuthor\":false,\"countSubscribers\":1}",
+			expectedResponseBody: "{\"username\":\"themilchenko\",\"email\":\"example@ex.com\",\"avatar\":\"\",\"isAuthor\":true,\"about\":\"\",\"countSubscriptions\":1,\"countSubscribers\":1}",
 		},
 		{
 			name:                      "BadID",

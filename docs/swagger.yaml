@@ -48,9 +48,6 @@ definitions:
     properties:
       author:
         $ref: '#/definitions/models.Author'
-      id:
-        example: 1
-        type: integer
       img:
         example: filename.jpeg
         type: string
@@ -97,13 +94,29 @@ definitions:
     - text
     - title
     type: object
-  models.ResponseImage:
+  models.ResponseImagePosts:
     properties:
       imgPath:
         example: /path/to/image.jpeg
         type: string
+      postID:
+        example: 25
+        type: integer
     required:
     - imgPath
+    - postID
+    type: object
+  models.ResponseImageSubscription:
+    properties:
+      imgPath:
+        example: /path/to/image.jpeg
+        type: string
+      subscriptionID:
+        example: 25
+        type: integer
+    required:
+    - imgPath
+    - subscriptionID
     type: object
   models.Subscription:
     properties:
@@ -133,41 +146,6 @@ definitions:
     - authorID
     - authorSubscriptionID
     type: object
-  models.User:
-    properties:
-      about:
-        example: it's info about myself
-        type: string
-      avatar:
-        example: filename.jpeg
-        type: string
-      countSubscribers:
-        example: 120
-        type: integer
-      countSubscriptions:
-        example: 25
-        type: integer
-      email:
-        example: admin@mail.ru
-        type: string
-      id:
-        example: 1
-        type: integer
-      isAuthor:
-        example: true
-        type: boolean
-      password:
-        example: '*****'
-        type: string
-      username:
-        example: admin
-        type: string
-    required:
-    - email
-    - isAuthor
-    - password
-    - username
-    type: object
   models.UserID:
     properties:
       id:
@@ -178,9 +156,15 @@ definitions:
     type: object
   models.UserMpfd:
     properties:
+      about:
+        example: It's me Mario'
+        type: string
       email:
         example: admin@mail.ru
         type: string
+      isAuthor:
+        example: true
+        type: boolean
       password:
         example: '*****'
         type: string
@@ -188,7 +172,9 @@ definitions:
         example: admin
         type: string
     required:
+    - about
     - email
+    - isAuthor
     - password
     - username
     type: object
@@ -276,10 +262,6 @@ paths:
       description: Create Author subscription by user's Cookie
       operationId: create_author_subscription
       parameters:
-      - example: 1
-        in: formData
-        name: id
-        type: integer
       - example: filename.jpeg
         in: formData
         name: img
@@ -314,7 +296,7 @@ paths:
         "200":
           description: Successfully created subscription
           schema:
-            $ref: '#/definitions/models.ResponseImage'
+            $ref: '#/definitions/models.ResponseImageSubscription'
         "400":
           description: Bad request
           schema:
@@ -432,10 +414,6 @@ paths:
         name: id
         required: true
         type: integer
-      - example: 1
-        in: formData
-        name: id
-        type: integer
       - example: filename.jpeg
         in: formData
         name: img
@@ -470,7 +448,7 @@ paths:
         "200":
           description: Successfully updated subscription
           schema:
-            $ref: '#/definitions/models.ResponseImage'
+            $ref: '#/definitions/models.ResponseImageSubscription'
         "400":
           description: Bad request
           schema:
@@ -557,6 +535,11 @@ paths:
         name: user_id
         required: true
         type: integer
+      - description: 'filter to use to get posts. Filters: subscriptions'
+        in: query
+        name: filter
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -613,7 +596,7 @@ paths:
         "200":
           description: Post was successfully created
           schema:
-            $ref: '#/definitions/models.ResponseImage'
+            $ref: '#/definitions/models.ResponseImagePosts'
         "400":
           description: Bad request
           schema:
@@ -753,7 +736,7 @@ paths:
         "200":
           description: Post was successfully updated
           schema:
-            $ref: '#/definitions/models.ResponseImage'
+            $ref: '#/definitions/models.ResponseImagePosts'
         "400":
           description: Bad request
           schema:
@@ -999,11 +982,21 @@ paths:
         name: id
         required: true
         type: integer
+      - example: It's me Mario'
+        in: formData
+        name: about
+        required: true
+        type: string
       - example: admin@mail.ru
         in: formData
         name: email
         required: true
         type: string
+      - example: true
+        in: formData
+        name: isAuthor
+        required: true
+        type: boolean
       - example: '*****'
         in: formData
         name: password
@@ -1024,7 +1017,7 @@ paths:
         "200":
           description: User was successfully updated
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/models.EmptyStruct'
         "400":
           description: Bad request
           schema:

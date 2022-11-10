@@ -35,6 +35,7 @@ func NewHandler(p domain.PostsUseCase, u domain.UsersUseCase, i domain.ImageUseC
 // @Tags        posts
 // @Produce     json
 // @Param       user_id query    integer        true "User ID"
+// @Param       filter  query    string         true "filter to use to get posts. Filters: subscriptions"
 // @Success     200     {object} []models.Post  "Posts were successfully received"
 // @Failure     400     {object} echo.HTTPError "Bad request"
 // @Failure     401     {object} echo.HTTPError "No session provided"
@@ -43,15 +44,24 @@ func NewHandler(p domain.PostsUseCase, u domain.UsersUseCase, i domain.ImageUseC
 // @Security    ApiKeyAuth
 // @Router      /posts [get]
 func (h *Handler) GetPosts(c echo.Context) error {
+	var allPosts []models.Post
+
 	userID, err := strconv.ParseUint(c.QueryParam("user_id"), 10, 64)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	allPosts, err := h.postsUseCase.GetPostsByUserID(userID)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrNotFound, err)
+	filter := c.QueryParam("filter")
+	if len(filter) != 0 {
+		if allPosts, err = h.postsUseCase.GetPostsByFilter(filter, userID); err != nil {
+			return errorHandling.WrapEcho(domain.ErrNotFound, err)
+		}
+	} else {
+		if allPosts, err = h.postsUseCase.GetPostsByUserID(userID); err != nil {
+			return errorHandling.WrapEcho(domain.ErrNotFound, err)
+		}
 	}
+
 	if len(allPosts) == 0 {
 		return c.JSON(http.StatusOK, struct{}{})
 	}
@@ -130,15 +140,15 @@ func (h *Handler) DeletePost(c echo.Context) error {
 // @Tags        posts
 // @Accept      mpfd
 // @Produce     json
-// @Param       id   path     integer              true  "Post ID"
-// @Param       post formData models.PostMpfd      true  "New Post"
-// @Param       file formData file                 false "Uploaded file"
-// @Success     200  {object} models.ResponseImage "Post was successfully updated"
-// @Failure     400  {object} echo.HTTPError       "Bad request"
-// @Failure     401  {object} echo.HTTPError       "No session provided"
-// @Failure     403  {object} echo.HTTPError       "Not a creator of post"
-// @Failure     404  {object} echo.HTTPError       "Post not found"
-// @Failure     500  {object} echo.HTTPError       "Internal error / failed to create image"
+// @Param       id   path     integer                   true  "Post ID"
+// @Param       post formData models.PostMpfd           true  "New Post"
+// @Param       file formData file                      false "Uploaded file"
+// @Success     200  {object} models.ResponseImagePosts "Post was successfully updated"
+// @Failure     400  {object} echo.HTTPError            "Bad request"
+// @Failure     401  {object} echo.HTTPError            "No session provided"
+// @Failure     403  {object} echo.HTTPError            "Not a creator of post"
+// @Failure     404  {object} echo.HTTPError            "Post not found"
+// @Failure     500  {object} echo.HTTPError            "Internal error / failed to create image"
 // @Security    ApiKeyAuth
 // @Router      /posts/{id} [put]
 func (h *Handler) PutPost(c echo.Context) error {
@@ -158,8 +168,10 @@ func (h *Handler) PutPost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	if prevPost.Img, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
-		return errorHandling.WrapEcho(domain.ErrCreate, err)
+	if file != nil {
+		if prevPost.Img, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
+			return errorHandling.WrapEcho(domain.ErrCreate, err)
+		}
 	}
 
 	if err = h.postsUseCase.Update(prevPost, postID); err != nil {
@@ -171,7 +183,8 @@ func (h *Handler) PutPost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
-	return c.JSON(http.StatusOK, models.ResponseImage{
+	return c.JSON(http.StatusOK, models.ResponseImagePosts{
+		PostID:  postID,
 		ImgPath: tmpURL,
 	})
 }
@@ -185,12 +198,12 @@ func (h *Handler) PutPost(c echo.Context) error {
 // @Param       post formData models.PostMpfd true  "New Post"
 // @Param       file formData file            false "Uploaded file"
 // @Produce     json
-// @Success     200 {object} models.ResponseImage "Post was successfully created"
-// @Failure     400 {object} echo.HTTPError       "Bad request"
-// @Failure     401 {object} echo.HTTPError       "No session provided"
-// @Failure     403 {object} echo.HTTPError       "Not a creator of post"
-// @Failure     404 {object} echo.HTTPError       "Post not found"
-// @Failure     500 {object} echo.HTTPError       "Internal error / failed to create post"
+// @Success     200 {object} models.ResponseImagePosts "Post was successfully created"
+// @Failure     400 {object} echo.HTTPError            "Bad request"
+// @Failure     401 {object} echo.HTTPError            "No session provided"
+// @Failure     403 {object} echo.HTTPError            "Not a creator of post"
+// @Failure     404 {object} echo.HTTPError            "Post not found"
+// @Failure     500 {object} echo.HTTPError            "Internal error / failed to create post"
 // @Security    ApiKeyAuth
 // @Router      /posts [post]
 func (h *Handler) CreatePost(c echo.Context) error {
@@ -215,11 +228,14 @@ func (h *Handler) CreatePost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	if post.Img, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
-		return errorHandling.WrapEcho(domain.ErrCreate, err)
+	if file != nil {
+		if post.Img, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
+			return errorHandling.WrapEcho(domain.ErrCreate, err)
+		}
 	}
 
-	if err = h.postsUseCase.Create(post, user.ID); err != nil {
+	id, err := h.postsUseCase.Create(post, user.ID)
+	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 
@@ -228,7 +244,8 @@ func (h *Handler) CreatePost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
-	return c.JSON(http.StatusOK, models.ResponseImage{
+	return c.JSON(http.StatusOK, models.ResponseImagePosts{
+		PostID:  id,
 		ImgPath: tmpURL,
 	})
 }

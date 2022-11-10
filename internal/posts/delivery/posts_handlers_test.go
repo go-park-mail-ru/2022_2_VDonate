@@ -437,7 +437,7 @@ func TestHandler_PutPost(t *testing.T) {
 				s.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
 			},
 			mockBehaviorCreate: func(s *mockDomain.MockPostsUseCase, post models.Post) {
-				s.EXPECT().Create(post, post.UserID).Return(nil)
+				s.EXPECT().Create(post, post.UserID).Return(uint64(1), nil)
 			},
 			mockBehaviorGetImage: func(s *mockDomain.MockImageUseCase, bucket string) {
 				s.EXPECT().GetImage(bucket, "../../../test/test.txt").Return("", nil)
@@ -506,7 +506,7 @@ func TestHandler_PutPost(t *testing.T) {
 				s.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
 			},
 			mockBehaviorCreate: func(s *mockDomain.MockPostsUseCase, post models.Post) {
-				s.EXPECT().Create(post, post.UserID).Return(domain.ErrCreate)
+				s.EXPECT().Create(post, post.UserID).Return(uint64(0), domain.ErrCreate)
 			},
 			mockBehaviorGetImage: func(s *mockDomain.MockImageUseCase, bucket string) {},
 			expectedErrorMessage: "code=500, message=failed to create item, internal=failed to create item",

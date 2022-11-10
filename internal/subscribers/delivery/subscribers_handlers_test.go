@@ -172,7 +172,7 @@ func TestHandler_GetSubscribers(t *testing.T) {
 					{ID: 15, Email: "test@test.ru", Password: "*****", IsAuthor: false},
 				}, nil)
 			},
-			response: "[{\"id\":15,\"username\":\"\",\"email\":\"test@test.ru\",\"password\":\"*****\",\"isAuthor\":false,\"countSubscriptions\":0,\"countSubscribers\":0}]",
+			response: "[{\"id\":15,\"username\":\"\",\"email\":\"test@test.ru\",\"avatar\":\"\",\"password\":\"*****\",\"isAuthor\":false,\"about\":\"\",\"countSubscriptions\":0,\"countSubscribers\":0}]",
 		},
 		{
 			name:     "OK-Empty",

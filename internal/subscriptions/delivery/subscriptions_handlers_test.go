@@ -56,7 +56,7 @@ func TestHandler_GetSubscriptions(t *testing.T) {
 			mockBehaviorUserGet: func(u *mockDomain.MockUsersUseCase, userID uint64) {
 				u.EXPECT().GetByID(userID).Return(models.User{ID: 12}, nil)
 			},
-			expectedResponseBody: "[{\"id\":0,\"authorID\":0,\"img\":\"path/to/img\",\"tier\":0,\"title\":\"\",\"text\":\"\",\"price\":0,\"author\":{\"username\":\"\",\"email\":\"\",\"isAuthor\":true,\"about\":\"\",\"countSubscriptions\":0,\"countSubscribers\":0}}]",
+			expectedResponseBody: "[{\"id\":0,\"authorID\":0,\"img\":\"path/to/img\",\"tier\":0,\"title\":\"\",\"text\":\"\",\"price\":0,\"author\":{\"username\":\"\",\"email\":\"\",\"avatar\":\"\",\"isAuthor\":true,\"about\":\"\",\"countSubscriptions\":0,\"countSubscribers\":0}}]",
 		},
 		{
 			name:   "OK-Empty",
@@ -156,7 +156,7 @@ func TestHandler_GetAuthorSubscription(t *testing.T) {
 			mockBehaviorImage: func(u *mockDomain.MockImageUseCase, bucket, name string) {
 				u.EXPECT().GetImage(bucket, name).Return("path/to/img", nil)
 			},
-			expectedResponseBody: "{\"id\":0,\"authorID\":0,\"img\":\"path/to/img\",\"tier\":0,\"title\":\"\",\"text\":\"\",\"price\":0,\"author\":{\"username\":\"\",\"email\":\"\",\"isAuthor\":false,\"about\":\"\",\"countSubscriptions\":0,\"countSubscribers\":0}}",
+			expectedResponseBody: "{\"id\":0,\"authorID\":0,\"img\":\"path/to/img\",\"tier\":0,\"title\":\"\",\"text\":\"\",\"price\":0,\"author\":{\"username\":\"\",\"email\":\"\",\"avatar\":\"\",\"isAuthor\":false,\"about\":\"\",\"countSubscriptions\":0,\"countSubscribers\":0}}",
 		},
 		{
 			name:                      "ErrBadRequest",
@@ -260,7 +260,7 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 				u.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
 			},
 			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {
-				u.EXPECT().AddAuthorSubscription(s, authorID).Return(nil)
+				u.EXPECT().AddAuthorSubscription(s, authorID).Return(authorID, nil)
 			},
 		},
 		{
@@ -362,7 +362,7 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 				u.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
 			},
 			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {
-				u.EXPECT().AddAuthorSubscription(s, authorID).Return(domain.ErrCreate)
+				u.EXPECT().AddAuthorSubscription(s, authorID).Return(uint64(0), domain.ErrCreate)
 			},
 			expectedErrorMessage: "code=500, message=failed to create item, internal=failed to create item",
 		},

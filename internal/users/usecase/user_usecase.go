@@ -60,11 +60,11 @@ func (u *usecase) Update(user models.User, id uint64) error {
 		return err
 	}
 
-	if user.Password, err = u.hashCreator(user.Password); err != nil {
-		return err
+	if len(user.Password) != 0 {
+		if user.Password, err = u.hashCreator(user.Password); err != nil {
+			return err
+		}
 	}
-
-	updateUser.Avatar = user.Avatar
 
 	if err = copier.CopyWithOption(&updateUser, &user, copier.Option{IgnoreEmpty: true}); err != nil {
 		return err

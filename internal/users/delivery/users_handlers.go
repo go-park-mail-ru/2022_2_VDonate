@@ -74,8 +74,10 @@ func (h *Handler) GetUser(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
-	if subscribers, err = h.subscribersUseCase.GetSubscribers(user.ID); err != nil {
-		return errorHandling.WrapEcho(domain.ErrInternal, err)
+	if user.IsAuthor {
+		if subscribers, err = h.subscribersUseCase.GetSubscribers(user.ID); err != nil {
+			return errorHandling.WrapEcho(domain.ErrInternal, err)
+		}
 	}
 
 	user.CountSubscriptions = uint64(len(subscriptions))
@@ -92,13 +94,13 @@ func (h *Handler) GetUser(c echo.Context) error {
 // @Produce     json
 // @Param       id path integer true "User ID"
 // @Accept      mpfd
-// @Param       post formData models.UserMpfd true  "New Post"
-// @Param       file formData file            false "Uploaded file"
-// @Success     200  {object} models.User     "User was successfully updated"
-// @Failure     400  {object} echo.HTTPError  "Bad request"
-// @Failure     401  {object} echo.HTTPError  "No session provided"
-// @Failure     403  {object} echo.HTTPError  "Not a user"
-// @Failure     500  {object} echo.HTTPError  "Internal error / failed to create user"
+// @Param       post formData models.UserMpfd    true  "New Post"
+// @Param       file formData file               false "Uploaded file"
+// @Success     200  {object} models.EmptyStruct "User was successfully updated"
+// @Failure     400  {object} echo.HTTPError     "Bad request"
+// @Failure     401  {object} echo.HTTPError     "No session provided"
+// @Failure     403  {object} echo.HTTPError     "Not a user"
+// @Failure     500  {object} echo.HTTPError     "Internal error / failed to create user"
 // @Security    ApiKeyAuth
 // @Router      /users/{id} [put]
 func (h *Handler) PutUser(c echo.Context) error {
@@ -128,5 +130,5 @@ func (h *Handler) PutUser(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrUpdate, err)
 	}
 
-	return c.JSON(http.StatusOK, struct{}{})
+	return c.JSON(http.StatusOK, models.EmptyStruct{})
 }

@@ -23,11 +23,20 @@ func (u *usecase) GetPostsByUserID(id uint64) ([]models.Post, error) {
 	return r, nil
 }
 
+func (u *usecase) GetPostsByFilter(filter string, userID uint64) ([]models.Post, error) {
+	switch filter {
+	case "subscriptions":
+		return u.postsRepo.GetPostsBySubscriptions(userID)
+	default:
+		return nil, domain.ErrBadRequest
+	}
+}
+
 func (u *usecase) GetPostByID(postID uint64) (models.Post, error) {
 	return u.postsRepo.GetPostByID(postID)
 }
 
-func (u *usecase) Create(post models.Post, userID uint64) error {
+func (u *usecase) Create(post models.Post, userID uint64) (uint64, error) {
 	post.UserID = userID
 	return u.postsRepo.Create(post)
 }

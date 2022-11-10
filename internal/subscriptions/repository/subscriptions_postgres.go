@@ -70,18 +70,24 @@ func (p Postgres) GetSubscriptionByID(id uint64) (models.AuthorSubscription, err
 	return s, nil
 }
 
-func (p Postgres) AddSubscription(sub models.AuthorSubscription) error {
-	return p.DB.QueryRowx(`
-		INSERT INTO author_subscriptions (author_id, img, title, tier, text, price) 
-		VALUES ($1, $2, $3, $4, $5) 
-		RETURNING id`,
+func (p Postgres) AddSubscription(sub models.AuthorSubscription) (uint64, error) {
+	var id uint64
+	err := p.DB.QueryRowx(`
+			INSERT INTO author_subscriptions (author_id, img, title, tier, text, price) 
+			VALUES ($1, $2, $3, $4, $5) 
+			RETURNING id`,
 		sub.AuthorID,
 		sub.Img,
 		sub.Title,
 		sub.Tier,
 		sub.Text,
 		sub.Price,
-	).Err()
+	).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }
 
 func (p Postgres) UpdateSubscription(sub models.AuthorSubscription) error {

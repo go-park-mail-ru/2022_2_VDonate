@@ -149,14 +149,14 @@ func (h Handler) GetAuthorSubscription(c echo.Context) error {
 // @Tags        subscriptions
 // @Produce     json
 // @Accept      mpfd
-// @Param       data formData models.AuthorSubscriptionMpfd true  "POST request of all information about `User`"
-// @Param       file formData file                          false "Upload image"
-// @Success     200  {object} models.ResponseImage          "Successfully created subscription"
-// @Failure     400  {object} echo.HTTPError                "Bad request"
-// @Failure     401  {object} echo.HTTPError                "No session"
-// @Failure     403  {object} echo.HTTPError                "You are not supposed to make this requests"
-// @Failure     404  {object} echo.HTTPError                "Subscription not found"
-// @Failure     500  {object} echo.HTTPError                "Internal error"
+// @Param       data formData models.AuthorSubscriptionMpfd    true  "POST request of all information about `User`"
+// @Param       file formData file                             false "Upload image"
+// @Success     200  {object} models.ResponseImageSubscription "Successfully created subscription"
+// @Failure     400  {object} echo.HTTPError                   "Bad request"
+// @Failure     401  {object} echo.HTTPError                   "No session"
+// @Failure     403  {object} echo.HTTPError                   "You are not supposed to make this requests"
+// @Failure     404  {object} echo.HTTPError                   "Subscription not found"
+// @Failure     500  {object} echo.HTTPError                   "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /author/subscriptions [post]
 func (h Handler) CreateAuthorSubscription(c echo.Context) error {
@@ -180,16 +180,20 @@ func (h Handler) CreateAuthorSubscription(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	if s.Img, err = h.imageUsecase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
+	if file != nil {
+		if s.Img, err = h.imageUsecase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
+			return errorHandling.WrapEcho(domain.ErrCreate, err)
+		}
+	}
+
+	id, err := h.subscriptionsUsecase.AddAuthorSubscription(s, author.ID)
+	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 
-	if err = h.subscriptionsUsecase.AddAuthorSubscription(s, author.ID); err != nil {
-		return errorHandling.WrapEcho(domain.ErrCreate, err)
-	}
-
-	return c.JSON(http.StatusOK, models.ResponseImage{
-		ImgPath: s.Img,
+	return c.JSON(http.StatusOK, models.ResponseImageSubscription{
+		SubscriptionID: id,
+		ImgPath:        s.Img,
 	})
 }
 
@@ -200,14 +204,14 @@ func (h Handler) CreateAuthorSubscription(c echo.Context) error {
 // @Tags        subscriptions
 // @Produce     json
 // @Accept      mpfd
-// @Param       id   path     integer                       true  "Subscription ID"
-// @Param       data formData models.AuthorSubscriptionMpfd true  "POST request of all information about `User`"
-// @Param       file formData file                          false "Upload image"
-// @Success     200  {object} models.ResponseImage          "Successfully updated subscription"
-// @Failure     400  {object} echo.HTTPError                "Bad request"
-// @Failure     401  {object} echo.HTTPError                "No session"
-// @Failure     403  {object} echo.HTTPError                "You are not supposed to make this requests"
-// @Failure     500  {object} echo.HTTPError                "Internal / update error"
+// @Param       id   path     integer                          true  "Subscription ID"
+// @Param       data formData models.AuthorSubscriptionMpfd    true  "POST request of all information about `User`"
+// @Param       file formData file                             false "Upload image"
+// @Success     200  {object} models.ResponseImageSubscription "Successfully updated subscription"
+// @Failure     400  {object} echo.HTTPError                   "Bad request"
+// @Failure     401  {object} echo.HTTPError                   "No session"
+// @Failure     403  {object} echo.HTTPError                   "You are not supposed to make this requests"
+// @Failure     500  {object} echo.HTTPError                   "Internal / update error"
 // @Security    ApiKeyAuth
 // @Router      /author/subscriptions/{id} [put]
 func (h Handler) UpdateAuthorSubscription(c echo.Context) error {
@@ -227,16 +231,19 @@ func (h Handler) UpdateAuthorSubscription(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	if s.Img, err = h.imageUsecase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
-		return errorHandling.WrapEcho(domain.ErrCreate, err)
+	if file != nil {
+		if s.Img, err = h.imageUsecase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
+			return errorHandling.WrapEcho(domain.ErrCreate, err)
+		}
 	}
 
 	if err = h.subscriptionsUsecase.UpdateAuthorSubscription(s, subID); err != nil {
 		return errorHandling.WrapEcho(domain.ErrUpdate, err)
 	}
 
-	return c.JSON(http.StatusOK, models.ResponseImage{
-		ImgPath: s.Img,
+	return c.JSON(http.StatusOK, models.ResponseImageSubscription{
+		SubscriptionID: subID,
+		ImgPath:        s.Img,
 	})
 }
 

@@ -4,10 +4,10 @@ type User struct {
 	ID       uint64 `json:"id" db:"id" form:"id" example:"1"`
 	Username string `json:"username" db:"username" form:"username" validate:"required" example:"admin"`
 	Email    string `json:"email" db:"email" form:"email" validate:"required" example:"admin@mail.ru"`
-	Avatar   string `json:"avatar,omitempty" db:"avatar" form:"avatar" example:"filename.jpeg"`
+	Avatar   string `json:"avatar" db:"avatar" form:"avatar" example:"filename.jpeg"`
 	Password string `json:"password" db:"password" form:"password" validate:"required" example:"*****"`
 	IsAuthor bool   `json:"isAuthor" db:"is_author" form:"isAuthor" validate:"required" example:"true"`
-	About    string `json:"about,omitempty" db:"about" form:"about" example:"it's info about myself"`
+	About    string `json:"about" db:"about" form:"about" example:"it's info about myself"`
 
 	CountSubscriptions uint64 `json:"countSubscriptions" example:"25"`
 	CountSubscribers   uint64 `json:"countSubscribers" example:"120"`
@@ -29,7 +29,7 @@ type UserID struct {
 type Author struct {
 	Username string `json:"username" validate:"required" example:"admin"`
 	Email    string `json:"email" validate:"required" example:"admin@mail.ru"`
-	Avatar   string `json:"avatar,omitempty" example:"filename.jpeg"`
+	Avatar   string `json:"avatar" example:"filename.jpeg"`
 	IsAuthor bool   `json:"isAuthor" validate:"required" example:"true"`
 	About    string `json:"about" example:"it's info about myself"`
 
@@ -40,10 +40,10 @@ type Author struct {
 type NotAuthor struct {
 	Username string `json:"username" validate:"required" example:"admin"`
 	Email    string `json:"email" validate:"required" example:"admin@mail.ru"`
-	Avatar   string `json:"avatar,omitempty" example:"filename.jpeg"`
+	Avatar   string `json:"avatar" example:"filename.jpeg"`
 	IsAuthor bool   `json:"isAuthor" validate:"required" example:"true"`
 
-	CountSubscribers uint64 `json:"countSubscribers" example:"120"`
+	CountSubscriptions uint64 `json:"countSubscriptions" example:"120"`
 }
 
 func ToAuthor(u User) Author {
@@ -66,6 +66,6 @@ func ToNonAuthor(u User) NotAuthor {
 		Avatar:   u.Avatar,
 		IsAuthor: false,
 
-		CountSubscribers: u.CountSubscribers,
+		CountSubscriptions: u.CountSubscriptions,
 	}
 }

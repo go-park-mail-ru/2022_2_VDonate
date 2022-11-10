@@ -35,11 +35,12 @@ func (m *MockPostsUseCase) EXPECT() *MockPostsUseCaseMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockPostsUseCase) Create(post models.Post, userID uint64) error {
+func (m *MockPostsUseCase) Create(post models.Post, userID uint64) (uint64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", post, userID)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
@@ -105,6 +106,21 @@ func (m *MockPostsUseCase) GetPostByID(postID uint64) (models.Post, error) {
 func (mr *MockPostsUseCaseMockRecorder) GetPostByID(postID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostByID", reflect.TypeOf((*MockPostsUseCase)(nil).GetPostByID), postID)
+}
+
+// GetPostsByFilter mocks base method.
+func (m *MockPostsUseCase) GetPostsByFilter(filter string, userID uint64) ([]models.Post, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPostsByFilter", filter, userID)
+	ret0, _ := ret[0].([]models.Post)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPostsByFilter indicates an expected call of GetPostsByFilter.
+func (mr *MockPostsUseCaseMockRecorder) GetPostsByFilter(filter, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostsByFilter", reflect.TypeOf((*MockPostsUseCase)(nil).GetPostsByFilter), filter, userID)
 }
 
 // GetPostsByUserID mocks base method.
