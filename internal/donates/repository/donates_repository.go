@@ -40,10 +40,6 @@ func (p Postgres) GetDonatesByUserID(userID uint64) ([]models.Donate, error) {
 	if err := p.DB.Select(&donates, "SELECT * FROM donates WHERE user_id=$1;", userID); err != nil {
 		return nil, err
 	}
-	// err := p.DB.Get(&donates, `SELECT * FROM donates WHERE user_id=$1;`, userID)
-	// if err != nil {
-	// 	return []models.Donate{}, err
-	// }
 	return donates, nil
 }
 
