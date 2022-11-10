@@ -1,10 +1,9 @@
 package subscribers
 
 import (
-	"errors"
-
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 )
 
 type usecase struct {
@@ -26,7 +25,7 @@ func (u *usecase) GetSubscribers(authorID uint64) ([]models.User, error) {
 	}
 
 	if len(s) == 0 {
-		return nil, errors.New("no subscribers")
+		return []models.User{}, nil
 	}
 
 	var subs []models.User
@@ -40,23 +39,32 @@ func (u *usecase) GetSubscribers(authorID uint64) ([]models.User, error) {
 	return subs, nil
 }
 
-func (u *usecase) Subscribe(subscription models.Subscription) error {
+func (u *usecase) Subscribe(subscription models.Subscription, userID uint64) error {
+	subscription.SubscriberID = userID
+	if utils.Empty(subscription.SubscriberID, subscription.AuthorID, subscription.AuthorSubscriptionID) {
+		return domain.ErrBadRequest
+	}
 	return u.subscribersRepo.Subscribe(subscription)
 }
 
 func (u *usecase) Unsubscribe(userID, authorID uint64) error {
+	if userID == 0 || authorID == 0 {
+		return domain.ErrBadRequest
+	}
 	return u.subscribersRepo.Unsubscribe(userID, authorID)
 }
 
 func (u usecase) IsSubscriber(userID, authorID uint64) (bool, error) {
-	s, err := u.GetSubscribers(authorID)
+	s, err := u.subscribersRepo.GetSubscribers(authorID)
 	if err != nil {
 		return false, err
 	}
 
-	if !models.Contains[models.User](s, userID) {
-		return false, errors.New("user is not a subscriber")
+	for _, id := range s {
+		if id == userID {
+			return true, nil
+		}
 	}
 
-	return true, nil
+	return false, nil
 }

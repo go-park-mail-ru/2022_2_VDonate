@@ -57,8 +57,9 @@ func (r Postgres) GetPostByID(postID uint64) (models.Post, error) {
 	return post, nil
 }
 
-func (r Postgres) Create(post models.Post) error {
-	return r.DB.QueryRowx(
+func (r Postgres) Create(post models.Post) (uint64, error) {
+	var postID uint64
+	err := r.DB.QueryRowx(
 		`
 		INSERT INTO posts (user_id, img, title, text) 
 		VALUES ($1, $2, $3, $4) RETURNING post_id;`,
@@ -66,7 +67,12 @@ func (r Postgres) Create(post models.Post) error {
 		post.Img,
 		post.Title,
 		post.Text,
-	).Err()
+	).Scan(&postID)
+	if err != nil {
+		return 0, err
+	}
+
+	return postID, nil
 }
 
 func (r Postgres) Update(post models.Post) error {
@@ -80,6 +86,21 @@ func (r Postgres) Update(post models.Post) error {
                 WHERE post_id = :post_id`, &post)
 
 	return err
+}
+
+func (r Postgres) GetPostsBySubscriptions(userID uint64) ([]models.Post, error) {
+	var posts []models.Post
+	if err := r.DB.Select(&posts, `
+		SELECT p.post_id, p.user_id, p.img, p.title, p.text
+		FROM users
+		JOIN subscriptions s on s.subscriber_id = users.id
+		JOIN posts p on s.author_id = p.user_id
+		WHERE p.user_id=$1;
+	`, userID); err != nil {
+		return nil, err
+	}
+
+	return posts, nil
 }
 
 func (r Postgres) DeleteByID(postID uint64) error {

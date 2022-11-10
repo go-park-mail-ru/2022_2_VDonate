@@ -9,7 +9,7 @@ type SubscriptionsUseCase interface {
 
 	GetAuthorSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error)
 	GetAuthorSubscriptionByID(ID uint64) (models.AuthorSubscription, error)
-	AddAuthorSubscription(sub models.AuthorSubscription, id uint64) error
+	AddAuthorSubscription(sub models.AuthorSubscription, id uint64) (uint64, error)
 	UpdateAuthorSubscription(sub models.AuthorSubscription, id uint64) error
 	DeleteAuthorSubscription(subID uint64) error
 }

@@ -10,7 +10,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
+        "termsOfService": "https://swagger.io/terms/",
         "contact": {
             "name": "VDonate Support",
             "email": "zeronethunter2001@gmail.com"
@@ -135,10 +135,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "example": "path/to/image",
+                        "example": "filename.jpeg",
                         "name": "img",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
                         "type": "integer",
@@ -179,7 +178,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully created subscription",
                         "schema": {
-                            "$ref": "#/definitions/models.ResponseImage"
+                            "$ref": "#/definitions/models.ResponseImageSubscription"
                         }
                     },
                     "400": {
@@ -307,10 +306,9 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "example": "path/to/image",
+                        "example": "filename.jpeg",
                         "name": "img",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
                         "type": "integer",
@@ -351,7 +349,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully updated subscription",
                         "schema": {
-                            "$ref": "#/definitions/models.ResponseImage"
+                            "$ref": "#/definitions/models.ResponseImageSubscription"
                         }
                     },
                     "400": {
@@ -549,6 +547,13 @@ const docTemplate = `{
                         "name": "user_id",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "filter to use to get posts. Filters: subscriptions",
+                        "name": "filter",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -631,7 +636,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Post was successfully created",
                         "schema": {
-                            "$ref": "#/definitions/models.ResponseImage"
+                            "$ref": "#/definitions/models.ResponseImagePosts"
                         }
                     },
                     "400": {
@@ -779,7 +784,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Post was successfully updated",
                         "schema": {
-                            "$ref": "#/definitions/models.ResponseImage"
+                            "$ref": "#/definitions/models.ResponseImagePosts"
                         }
                     },
                     "400": {
@@ -889,9 +894,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Subscribe user to author with paid subscription",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -902,12 +904,12 @@ const docTemplate = `{
                 "operationId": "create_subscriber",
                 "parameters": [
                     {
-                        "description": "Subscription info with required UserID, AuthorID and Subscription ID",
+                        "description": "Subscription info with required AuthorID and Subscription ID",
                         "name": "Subscription",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Subscription"
+                            "$ref": "#/definitions/models.SubscriptionMpfd"
                         }
                     }
                 ],
@@ -957,7 +959,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Subscription"
+                            "$ref": "#/definitions/models.SubscriptionMpfd"
                         }
                     }
                 ],
@@ -1049,6 +1051,15 @@ const docTemplate = `{
                 ],
                 "summary": "Get User subscriptions",
                 "operationId": "get_user_subscriptions",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successfully received subscriptions",
@@ -1090,7 +1101,7 @@ const docTemplate = `{
             "post": {
                 "description": "Request to server for ` + "`" + `User` + "`" + ` creation",
                 "consumes": [
-                    "multipart/form-data"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
@@ -1102,25 +1113,13 @@ const docTemplate = `{
                 "operationId": "signup",
                 "parameters": [
                     {
-                        "type": "string",
-                        "example": "admin@mail.ru",
-                        "name": "email",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "example": "*****",
-                        "name": "password",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "example": "admin",
-                        "name": "username",
-                        "in": "formData",
-                        "required": true
+                        "description": "POST request of all information about ` + "`" + `User` + "`" + `",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UserMpfd"
+                        }
                     }
                 ],
                 "responses": {
@@ -1237,8 +1236,22 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "example": "It's me Mario'",
+                        "name": "about",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "example": "admin@mail.ru",
                         "name": "email",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "example": true,
+                        "name": "isAuthor",
                         "in": "formData",
                         "required": true
                     },
@@ -1267,7 +1280,7 @@ const docTemplate = `{
                     "200": {
                         "description": "User was successfully updated",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.EmptyStruct"
                         }
                     },
                     "400": {
@@ -1326,7 +1339,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
-                "is_author",
+                "isAuthor",
                 "username"
             ],
             "properties": {
@@ -1338,11 +1351,19 @@ const docTemplate = `{
                     "type": "string",
                     "example": "filename.jpeg"
                 },
+                "countSubscribers": {
+                    "type": "integer",
+                    "example": 120
+                },
+                "countSubscriptions": {
+                    "type": "integer",
+                    "example": 25
+                },
                 "email": {
                     "type": "string",
                     "example": "admin@mail.ru"
                 },
-                "is_author": {
+                "isAuthor": {
                     "type": "boolean",
                     "example": true
                 },
@@ -1355,16 +1376,19 @@ const docTemplate = `{
         "models.AuthorSubscriptionMpfd": {
             "type": "object",
             "required": [
-                "img",
+                "author",
                 "price",
                 "text",
                 "tier",
                 "title"
             ],
             "properties": {
+                "author": {
+                    "$ref": "#/definitions/models.Author"
+                },
                 "img": {
                     "type": "string",
-                    "example": "path/to/image"
+                    "example": "filename.jpeg"
                 },
                 "price": {
                     "type": "integer",
@@ -1395,13 +1419,13 @@ const docTemplate = `{
                 "title"
             ],
             "properties": {
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
                 "img": {
                     "type": "string",
                     "example": "path/to/image.jpeg"
+                },
+                "postID": {
+                    "type": "integer",
+                    "example": 1
                 },
                 "text": {
                     "type": "string",
@@ -1411,82 +1435,82 @@ const docTemplate = `{
                     "type": "string",
                     "example": "some title"
                 },
-                "user_id": {
+                "userID": {
                     "type": "integer",
                     "example": 1
                 }
             }
         },
-        "models.ResponseImage": {
+        "models.ResponseImagePosts": {
             "type": "object",
             "required": [
-                "img_path"
+                "imgPath",
+                "postID"
             ],
             "properties": {
-                "img_path": {
+                "imgPath": {
                     "type": "string",
                     "example": "/path/to/image.jpeg"
+                },
+                "postID": {
+                    "type": "integer",
+                    "example": 25
+                }
+            }
+        },
+        "models.ResponseImageSubscription": {
+            "type": "object",
+            "required": [
+                "imgPath",
+                "subscriptionID"
+            ],
+            "properties": {
+                "imgPath": {
+                    "type": "string",
+                    "example": "/path/to/image.jpeg"
+                },
+                "subscriptionID": {
+                    "type": "integer",
+                    "example": 25
                 }
             }
         },
         "models.Subscription": {
             "type": "object",
             "required": [
-                "author_id",
-                "author_subscription_id",
-                "subscriber_id"
+                "authorID",
+                "authorSubscriptionID",
+                "subscriberID"
             ],
             "properties": {
-                "author_id": {
+                "authorID": {
                     "type": "integer",
                     "example": 1
                 },
-                "author_subscription_id": {
+                "authorSubscriptionID": {
                     "type": "integer",
                     "example": 1
                 },
-                "subscriber_id": {
+                "subscriberID": {
                     "type": "integer",
                     "example": 2
                 }
             }
         },
-        "models.User": {
+        "models.SubscriptionMpfd": {
             "type": "object",
             "required": [
-                "email",
-                "is_author",
-                "password",
-                "username"
+                "authorID",
+                "authorSubscriptionID"
             ],
             "properties": {
-                "about": {
-                    "type": "string",
-                    "example": "it's info about myself"
-                },
-                "avatar": {
-                    "type": "string",
-                    "example": "filename.jpeg"
-                },
-                "email": {
-                    "type": "string",
-                    "example": "admin@mail.ru"
-                },
-                "id": {
+                "authorID": {
                     "type": "integer",
-                    "example": 1
+                    "example": 12
                 },
-                "is_author": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "password": {
-                    "type": "string",
-                    "example": "*****"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "admin"
+                "authorSubscriptionID": {
+                    "type": "integer",
+                    "example": 13
                 }
             }
         },
@@ -1499,6 +1523,38 @@ const docTemplate = `{
                 "id": {
                     "type": "integer",
                     "example": 12
+                }
+            }
+        },
+        "models.UserMpfd": {
+            "type": "object",
+            "required": [
+                "about",
+                "email",
+                "isAuthor",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "about": {
+                    "type": "string",
+                    "example": "It's me Mario'"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "admin@mail.ru"
+                },
+                "isAuthor": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "password": {
+                    "type": "string",
+                    "example": "*****"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "admin"
                 }
             }
         }

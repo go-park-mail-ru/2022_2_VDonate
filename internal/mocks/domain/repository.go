@@ -176,11 +176,12 @@ func (mr *MockPostsRepositoryMockRecorder) Close() *gomock.Call {
 }
 
 // Create mocks base method.
-func (m *MockPostsRepository) Create(post models.Post) error {
+func (m *MockPostsRepository) Create(post models.Post) (uint64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", post)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
@@ -291,6 +292,21 @@ func (mr *MockPostsRepositoryMockRecorder) GetPostByID(postID interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostByID", reflect.TypeOf((*MockPostsRepository)(nil).GetPostByID), postID)
 }
 
+// GetPostsBySubscriptions mocks base method.
+func (m *MockPostsRepository) GetPostsBySubscriptions(userID uint64) ([]models.Post, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPostsBySubscriptions", userID)
+	ret0, _ := ret[0].([]models.Post)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPostsBySubscriptions indicates an expected call of GetPostsBySubscriptions.
+func (mr *MockPostsRepositoryMockRecorder) GetPostsBySubscriptions(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostsBySubscriptions", reflect.TypeOf((*MockPostsRepository)(nil).GetPostsBySubscriptions), userID)
+}
+
 // Update mocks base method.
 func (m *MockPostsRepository) Update(post models.Post) error {
 	m.ctrl.T.Helper()
@@ -395,11 +411,12 @@ func (m *MockSubscriptionsRepository) EXPECT() *MockSubscriptionsRepositoryMockR
 }
 
 // AddSubscription mocks base method.
-func (m *MockSubscriptionsRepository) AddSubscription(sub models.AuthorSubscription) error {
+func (m *MockSubscriptionsRepository) AddSubscription(sub models.AuthorSubscription) (uint64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddSubscription", sub)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // AddSubscription indicates an expected call of AddSubscription.
@@ -519,11 +536,12 @@ func (mr *MockUsersRepositoryMockRecorder) Close() *gomock.Call {
 }
 
 // Create mocks base method.
-func (m *MockUsersRepository) Create(user models.User) error {
+func (m *MockUsersRepository) Create(user models.User) (uint64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", user)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.

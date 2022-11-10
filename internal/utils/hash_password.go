@@ -1,17 +1,17 @@
 package utils
 
 import (
+	"errors"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
-const cost = 14
-
 func HashPassword(password string) (string, error) {
 	if len(password) == 0 {
-		return "", nil
+		return "", errors.New("empty password")
 	}
 
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), cost)
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	return string(bytes), err
 }

@@ -18,7 +18,7 @@ import (
 // @description - ### [Frontend](https://github.com/go-park-mail-ru/2022_2_VDonate)
 // @description
 // @description    - ### [Trello](https://trello.com/b/BZHoJsHP/vdonate)
-// @termsOfService http://swagger.io/terms/
+// @termsOfService https://swagger.io/terms/
 
 // @contact.name  VDonate Support
 // @contact.email zeronethunter2001@gmail.com

@@ -24,10 +24,16 @@ definitions:
       avatar:
         example: filename.jpeg
         type: string
+      countSubscribers:
+        example: 120
+        type: integer
+      countSubscriptions:
+        example: 25
+        type: integer
       email:
         example: admin@mail.ru
         type: string
-      is_author:
+      isAuthor:
         example: true
         type: boolean
       username:
@@ -35,13 +41,15 @@ definitions:
         type: string
     required:
     - email
-    - is_author
+    - isAuthor
     - username
     type: object
   models.AuthorSubscriptionMpfd:
     properties:
+      author:
+        $ref: '#/definitions/models.Author'
       img:
-        example: path/to/image
+        example: filename.jpeg
         type: string
       price:
         example: 2999
@@ -56,7 +64,7 @@ definitions:
         example: some title
         type: string
     required:
-    - img
+    - author
     - price
     - text
     - tier
@@ -66,19 +74,19 @@ definitions:
     type: object
   models.Post:
     properties:
-      id:
-        example: 1
-        type: integer
       img:
         example: path/to/image.jpeg
         type: string
+      postID:
+        example: 1
+        type: integer
       text:
         example: some text
         type: string
       title:
         example: some title
         type: string
-      user_id:
+      userID:
         example: 1
         type: integer
     required:
@@ -86,45 +94,75 @@ definitions:
     - text
     - title
     type: object
-  models.ResponseImage:
+  models.ResponseImagePosts:
     properties:
-      img_path:
+      imgPath:
         example: /path/to/image.jpeg
         type: string
+      postID:
+        example: 25
+        type: integer
     required:
-    - img_path
+    - imgPath
+    - postID
+    type: object
+  models.ResponseImageSubscription:
+    properties:
+      imgPath:
+        example: /path/to/image.jpeg
+        type: string
+      subscriptionID:
+        example: 25
+        type: integer
+    required:
+    - imgPath
+    - subscriptionID
     type: object
   models.Subscription:
     properties:
-      author_id:
+      authorID:
         example: 1
         type: integer
-      author_subscription_id:
+      authorSubscriptionID:
         example: 1
         type: integer
-      subscriber_id:
+      subscriberID:
         example: 2
         type: integer
     required:
-    - author_id
-    - author_subscription_id
-    - subscriber_id
+    - authorID
+    - authorSubscriptionID
+    - subscriberID
     type: object
-  models.User:
+  models.SubscriptionMpfd:
+    properties:
+      authorID:
+        example: 12
+        type: integer
+      authorSubscriptionID:
+        example: 13
+        type: integer
+    required:
+    - authorID
+    - authorSubscriptionID
+    type: object
+  models.UserID:
+    properties:
+      id:
+        example: 12
+        type: integer
+    required:
+    - id
+    type: object
+  models.UserMpfd:
     properties:
       about:
-        example: it's info about myself
-        type: string
-      avatar:
-        example: filename.jpeg
+        example: It's me Mario'
         type: string
       email:
         example: admin@mail.ru
         type: string
-      id:
-        example: 1
-        type: integer
-      is_author:
+      isAuthor:
         example: true
         type: boolean
       password:
@@ -134,18 +172,11 @@ definitions:
         example: admin
         type: string
     required:
+    - about
     - email
-    - is_author
+    - isAuthor
     - password
     - username
-    type: object
-  models.UserID:
-    properties:
-      id:
-        example: 12
-        type: integer
-    required:
-    - id
     type: object
 host: vdonate.ml:8080
 info:
@@ -159,7 +190,7 @@ info:
     - ### [Frontend](https://github.com/go-park-mail-ru/2022_2_VDonate)
 
     - ### [Trello](https://trello.com/b/BZHoJsHP/vdonate)
-  termsOfService: http://swagger.io/terms/
+  termsOfService: https://swagger.io/terms/
   title: VDonate API
   version: "1.0"
 paths:
@@ -231,10 +262,9 @@ paths:
       description: Create Author subscription by user's Cookie
       operationId: create_author_subscription
       parameters:
-      - example: path/to/image
+      - example: filename.jpeg
         in: formData
         name: img
-        required: true
         type: string
       - example: 2999
         in: formData
@@ -266,7 +296,7 @@ paths:
         "200":
           description: Successfully created subscription
           schema:
-            $ref: '#/definitions/models.ResponseImage'
+            $ref: '#/definitions/models.ResponseImageSubscription'
         "400":
           description: Bad request
           schema:
@@ -384,10 +414,9 @@ paths:
         name: id
         required: true
         type: integer
-      - example: path/to/image
+      - example: filename.jpeg
         in: formData
         name: img
-        required: true
         type: string
       - example: 2999
         in: formData
@@ -419,7 +448,7 @@ paths:
         "200":
           description: Successfully updated subscription
           schema:
-            $ref: '#/definitions/models.ResponseImage'
+            $ref: '#/definitions/models.ResponseImageSubscription'
         "400":
           description: Bad request
           schema:
@@ -506,6 +535,11 @@ paths:
         name: user_id
         required: true
         type: integer
+      - description: 'filter to use to get posts. Filters: subscriptions'
+        in: query
+        name: filter
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -562,7 +596,7 @@ paths:
         "200":
           description: Post was successfully created
           schema:
-            $ref: '#/definitions/models.ResponseImage'
+            $ref: '#/definitions/models.ResponseImagePosts'
         "400":
           description: Bad request
           schema:
@@ -702,7 +736,7 @@ paths:
         "200":
           description: Post was successfully updated
           schema:
-            $ref: '#/definitions/models.ResponseImage'
+            $ref: '#/definitions/models.ResponseImagePosts'
         "400":
           description: Bad request
           schema:
@@ -741,7 +775,7 @@ paths:
         name: Subscription
         required: true
         schema:
-          $ref: '#/definitions/models.Subscription'
+          $ref: '#/definitions/models.SubscriptionMpfd'
       produces:
       - application/json
       responses:
@@ -763,18 +797,15 @@ paths:
       tags:
       - subscribers
     post:
-      consumes:
-      - application/json
       description: Subscribe user to author with paid subscription
       operationId: create_subscriber
       parameters:
-      - description: Subscription info with required UserID, AuthorID and Subscription
-          ID
+      - description: Subscription info with required AuthorID and Subscription ID
         in: body
         name: Subscription
         required: true
         schema:
-          $ref: '#/definitions/models.Subscription'
+          $ref: '#/definitions/models.SubscriptionMpfd'
       produces:
       - application/json
       responses:
@@ -831,6 +862,12 @@ paths:
     get:
       description: Get User subscriptions by Cookie
       operationId: get_user_subscriptions
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -864,25 +901,16 @@ paths:
   /users:
     post:
       consumes:
-      - multipart/form-data
+      - application/json
       description: Request to server for `User` creation
       operationId: signup
       parameters:
-      - example: admin@mail.ru
-        in: formData
-        name: email
+      - description: POST request of all information about `User`
+        in: body
+        name: data
         required: true
-        type: string
-      - example: '*****'
-        in: formData
-        name: password
-        required: true
-        type: string
-      - example: admin
-        in: formData
-        name: username
-        required: true
-        type: string
+        schema:
+          $ref: '#/definitions/models.UserMpfd'
       produces:
       - application/json
       responses:
@@ -954,11 +982,21 @@ paths:
         name: id
         required: true
         type: integer
+      - example: It's me Mario'
+        in: formData
+        name: about
+        required: true
+        type: string
       - example: admin@mail.ru
         in: formData
         name: email
         required: true
         type: string
+      - example: true
+        in: formData
+        name: isAuthor
+        required: true
+        type: boolean
       - example: '*****'
         in: formData
         name: password
@@ -979,7 +1017,7 @@ paths:
         "200":
           description: User was successfully updated
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/models.EmptyStruct'
         "400":
           description: Bad request
           schema:

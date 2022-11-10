@@ -28,11 +28,13 @@ func TestUsecase_Update(t *testing.T) {
 			inputUser: models.User{
 				ID:       200,
 				Username: "user",
+				Password: "abc",
 			},
 			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, userID uint64) {
 				r.EXPECT().GetByID(userID).Return(models.User{
 					ID:       200,
 					Username: "user",
+					Password: "abc",
 				}, nil)
 			},
 			mockBehaviourUpdate: func(r *mockDomain.MockUsersRepository, user models.User) {
@@ -44,6 +46,7 @@ func TestUsecase_Update(t *testing.T) {
 			inputUser: models.User{
 				ID:       200,
 				Username: "user",
+				Password: "abc",
 			},
 			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, userID uint64) {
 				r.EXPECT().GetByID(userID).Return(models.User{}, errors.New("not found"))
@@ -63,7 +66,15 @@ func TestUsecase_Update(t *testing.T) {
 			test.mockBehaviourGet(userMock, test.inputUser.ID)
 			test.mockBehaviourUpdate(userMock, test.inputUser)
 
-			usecase := New(userMock)
+			usecase := WithHashCreator(
+				userMock,
+				func(password string) (string, error) {
+					if len(password) == 0 {
+						return "", errors.New("empty password")
+					}
+					return password, nil
+				},
+			)
 
 			err := usecase.Update(test.inputUser, test.inputUser.ID)
 			if err != nil {

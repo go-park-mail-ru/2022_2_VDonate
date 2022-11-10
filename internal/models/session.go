@@ -6,6 +6,6 @@ import (
 
 type Cookie struct {
 	Value   string    `json:"value" db:"value"`
-	UserID  uint64    `json:"user_id" db:"user_id"`
+	UserID  uint64    `json:"userID" db:"user_id"`
 	Expires time.Time `json:"expire_date" db:"expire_date"`
 }

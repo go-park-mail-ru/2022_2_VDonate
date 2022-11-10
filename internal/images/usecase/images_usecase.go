@@ -35,9 +35,20 @@ func (u usecase) GetImage(bucket, name string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		return newURL.String(), err
+
+		u := "https://wsrv.nl/?url=" +
+			strings.ReplaceAll(strings.ReplaceAll(newURL.String(), "?", "%3F"), "&", "%26")
+
+		return u, err
 	case "avatar":
-		return u.ImageRepo.GetPermanentImage(bucket, name)
+		newURL, err := u.ImageRepo.GetPermanentImage(bucket, name)
+		if err != nil {
+			return "", err
+		}
+
+		newURL = "https://wsrv.nl/?url=" + newURL
+
+		return newURL, nil
 	default:
 		return "", errors.New("bad url")
 	}

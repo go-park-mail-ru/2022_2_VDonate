@@ -65,17 +65,17 @@ func (mr *MockSubscribersUseCaseMockRecorder) IsSubscriber(userID, authorID inte
 }
 
 // Subscribe mocks base method.
-func (m *MockSubscribersUseCase) Subscribe(subscription models.Subscription) error {
+func (m *MockSubscribersUseCase) Subscribe(subscription models.Subscription, userID uint64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Subscribe", subscription)
+	ret := m.ctrl.Call(m, "Subscribe", subscription, userID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Subscribe indicates an expected call of Subscribe.
-func (mr *MockSubscribersUseCaseMockRecorder) Subscribe(subscription interface{}) *gomock.Call {
+func (mr *MockSubscribersUseCaseMockRecorder) Subscribe(subscription, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockSubscribersUseCase)(nil).Subscribe), subscription)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockSubscribersUseCase)(nil).Subscribe), subscription, userID)
 }
 
 // Unsubscribe mocks base method.

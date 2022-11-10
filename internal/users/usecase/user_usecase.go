@@ -7,13 +7,26 @@ import (
 	"github.com/jinzhu/copier"
 )
 
+type hashCreator func(password string) (string, error)
+
 type usecase struct {
 	usersRepo domain.UsersRepository
+
+	hashCreator hashCreator
 }
 
 func New(usersRepo domain.UsersRepository) domain.UsersUseCase {
 	return &usecase{
 		usersRepo: usersRepo,
+
+		hashCreator: utils.HashPassword,
+	}
+}
+
+func WithHashCreator(usersRepo domain.UsersRepository, hashCreator hashCreator) domain.UsersUseCase {
+	return &usecase{
+		usersRepo:   usersRepo,
+		hashCreator: hashCreator,
 	}
 }
 
@@ -37,7 +50,7 @@ func (u *usecase) GetUserByPostID(postID uint64) (models.User, error) {
 	return u.usersRepo.GetUserByPostID(postID)
 }
 
-func (u *usecase) Create(user models.User) error {
+func (u *usecase) Create(user models.User) (uint64, error) {
 	return u.usersRepo.Create(user)
 }
 
@@ -47,11 +60,11 @@ func (u *usecase) Update(user models.User, id uint64) error {
 		return err
 	}
 
-	if user.Password, err = utils.HashPassword(user.Password); err != nil {
-		return err
+	if len(user.Password) != 0 {
+		if user.Password, err = u.hashCreator(user.Password); err != nil {
+			return err
+		}
 	}
-
-	updateUser.Avatar = user.Avatar
 
 	if err = copier.CopyWithOption(&updateUser, &user, copier.Option{IgnoreEmpty: true}); err != nil {
 		return err

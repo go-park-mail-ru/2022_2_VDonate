@@ -1,21 +1,5 @@
 version: "3.7"
 services:
-  app:
-    hostname: api
-    container_name: vdonate-api
-    image: zeronethunter/vdonate-api
-    ports:
-      - "8080:8080"
-    env_file:
-      - ../.env
-    depends_on:
-      - db
-      - s3storage
-    volumes:
-      - /etc/letsencrypt/live/vdonate.ml/fullchain.pem:/etc/letsencrypt/live/vdonate.ml/fullchain.pem
-      - /etc/letsencrypt/live/vdonate.ml/privkey.pem:/etc/letsencrypt/live/vdonate.ml/privkey.pem
-    networks:
-      - vdonate-network-api
   db:
     hostname: postgresql
     container_name: vdonate-db
@@ -34,9 +18,9 @@ services:
       - ../migrations/full_up.sql:/docker-entrypoint-initdb.d/init.sql
       - /var/lib/postgresql/data:/var/lib/postgresql/data
     networks:
-      - vdonate-network-api
+      - vdonate-network-test
   s3storage:
-    hostname: vdonate.ml
+    hostname: minio
     container_name: vdonate-cloud
     image: quay.io/minio/minio:RELEASE.2022-10-21T22-37-48Z
     command: server --console-address ":9090" /data
@@ -54,9 +38,9 @@ services:
       timeout: 5s
       retries: 3
     networks:
-      - vdonate-network-api
+      - vdonate-network-test
 networks:
-  vdonate-network-api:
-    name: "vdonate-network-api"
+  vdonate-network-test:
+    name: "vdonate-network-test"
     driver: bridge
     external: false

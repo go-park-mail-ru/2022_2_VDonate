@@ -49,11 +49,12 @@ func (mr *MockUsersUseCaseMockRecorder) CheckIDAndPassword(id, password interfac
 }
 
 // Create mocks base method.
-func (m *MockUsersUseCase) Create(user models.User) error {
+func (m *MockUsersUseCase) Create(user models.User) (uint64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", user)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.

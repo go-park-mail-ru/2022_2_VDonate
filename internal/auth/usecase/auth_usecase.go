@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"errors"
 	"time"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
@@ -10,7 +9,10 @@ import (
 	"github.com/google/uuid"
 )
 
-type cookieCreator func(id uint64) models.Cookie
+type (
+	cookieCreator func(id uint64) models.Cookie
+	hashCreator   func(password string) (string, error)
+)
 
 type usecase struct {
 	authRepo  domain.AuthRepository
@@ -19,6 +21,10 @@ type usecase struct {
 	// cookieCreator is func for creation cookie,
 	// so you can test random sessionID
 	cookieCreator cookieCreator
+
+	// hashCreator is func for creation hash from password,
+	// so you can test it
+	hashCreator hashCreator
 }
 
 func New(authRepo domain.AuthRepository, usersRepo domain.UsersRepository) domain.AuthUseCase {
@@ -26,6 +32,24 @@ func New(authRepo domain.AuthRepository, usersRepo domain.UsersRepository) domai
 		authRepo:      authRepo,
 		usersRepo:     usersRepo,
 		cookieCreator: createCookie,
+		hashCreator:   utils.HashPassword,
+	}
+}
+
+func WithCookieCreator(authRepo domain.AuthRepository, usersRepo domain.UsersRepository, cookieCreator cookieCreator) domain.AuthUseCase {
+	return &usecase{
+		authRepo:      authRepo,
+		usersRepo:     usersRepo,
+		cookieCreator: cookieCreator,
+	}
+}
+
+func WithCreators(authRepo domain.AuthRepository, usersRepo domain.UsersRepository, cookieCreator cookieCreator, hashCreator hashCreator) domain.AuthUseCase {
+	return &usecase{
+		authRepo:      authRepo,
+		usersRepo:     usersRepo,
+		cookieCreator: cookieCreator,
+		hashCreator:   hashCreator,
 	}
 }
 
@@ -79,11 +103,11 @@ func (u *usecase) SignUp(user models.User) (string, error) {
 		return "", domain.ErrEmailExist
 	}
 
-	if user.Password, err = utils.HashPassword(user.Password); err != nil {
-		return "", errors.New("cannot hash password")
+	if user.Password, err = u.hashCreator(user.Password); err != nil {
+		return "", domain.ErrInternal
 	}
 
-	if err = u.usersRepo.Create(user); err != nil {
+	if user.ID, err = u.usersRepo.Create(user); err != nil {
 		return "", err
 	}
 

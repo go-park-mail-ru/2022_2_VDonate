@@ -31,19 +31,24 @@ func (r Postgres) Close() error {
 	return nil
 }
 
-func (r Postgres) Create(user model.User) error {
-	return r.DB.QueryRowx(
+func (r Postgres) Create(user model.User) (uint64, error) {
+	var id uint64
+	err := r.DB.QueryRowx(
 		`
-		INSERT INTO users (username, avatar, email, password, is_author, about) 
-		VALUES ($1, $2, $3, $4, $5, $6) 
-		RETURNING id;`,
+			INSERT INTO users (username, avatar, email, password, is_author, about) 
+			VALUES ($1, $2, $3, $4, $5, $6) 
+			RETURNING id;`,
 		user.Username,
 		user.Avatar,
 		user.Email,
 		user.Password,
 		user.IsAuthor,
 		user.About,
-	).Err()
+	).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
 }
 
 func (r Postgres) GetByUsername(username string) (model.User, error) {
