@@ -58,6 +58,12 @@ type UsersRepository interface {
 	Close() error
 }
 
+type DonatesRepository interface {
+	SendDonate(donate models.Donate) (models.Donate, error)
+	GetDonatesByUserID(userID uint64) ([]models.Donate, error)
+	GetDonateByID(donateID uint64) (models.Donate, error)
+}
+
 type ImagesRepository interface {
 	CreateImage(image *multipart.FileHeader, bucket string) (string, error)
 	GetImage(bucket string, filename string) (*url.URL, error)
