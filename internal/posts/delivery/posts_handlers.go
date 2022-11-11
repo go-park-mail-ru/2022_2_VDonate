@@ -110,7 +110,16 @@ func (h *Handler) GetPost(c echo.Context) error {
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
-	post.IsLiked = h.postsUseCase.IsPostLiked(post.UserID, postID)
+
+	cookie, err := httpAuth.GetCookie(c)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+	}
+	user, err := h.usersUseCase.GetBySessionID(cookie.Value)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+	}
+	post.IsLiked = h.postsUseCase.IsPostLiked(user.ID, postID)
 
 	return c.JSON(http.StatusOK, post)
 }
