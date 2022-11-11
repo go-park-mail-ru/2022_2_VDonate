@@ -66,7 +66,7 @@ func (h *Handler) CreateDonate(c echo.Context) error {
 // @Description Get donate by id
 // @ID          get_donate
 // @Tags        donates
-// @Param       donate path integer true "Post ID"
+// @Param       id path integer true "Post ID"
 // @Produce     json
 // @Success     200 {object} models.Donate  "Donate was successfully create"
 // @Failure     400 {object} echo.HTTPError "Bad request"

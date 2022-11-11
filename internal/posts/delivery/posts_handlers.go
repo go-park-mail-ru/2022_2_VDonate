@@ -263,7 +263,7 @@ func (h *Handler) CreatePost(c echo.Context) error {
 // @Description Get all likes by post id
 // @ID          get_posts_likes
 // @Tags        posts
-// @Param       post path integer true "Post id"
+// @Param       id path integer true "Post id"
 // @Produce     json
 // @Success     200 {object} []models.Like  "Likes were successfully recieved"
 // @Failure     400 {object} echo.HTTPError "Bad request"
@@ -329,7 +329,7 @@ func (h *Handler) CreateLike(c echo.Context) error {
 // @Description Create like on post
 // @ID          create_like
 // @Tags        posts
-// @Param       post path integer true "Post id"
+// @Param       id path integer true "Post id"
 // @Produce     json
 // @Success     200 {object} integer        "Likes were successfully recieved"
 // @Failure     400 {object} echo.HTTPError "Bad request"

@@ -48,3 +48,10 @@ CREATE TABLE IF NOT EXISTS likes (
     post_id bigserial NOT NULL REFERENCES posts(post_id),
     primary key (user_id, post_id)
 );
+
+CREATE TABLE IF NOT EXISTS donates (
+    id bigserial NOT NULL PRIMARY KEY,
+    author_id bigserial not null references users(id),
+    user_id bigserial not null references users(id),
+    price bigserial not null
+);
