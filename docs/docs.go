@@ -1652,16 +1652,12 @@ const docTemplate = `{
         "models.AuthorSubscriptionMpfd": {
             "type": "object",
             "required": [
-                "author",
                 "price",
                 "text",
                 "tier",
                 "title"
             ],
             "properties": {
-                "author": {
-                    "$ref": "#/definitions/models.Author"
-                },
                 "img": {
                     "type": "string",
                     "example": "filename.jpeg"

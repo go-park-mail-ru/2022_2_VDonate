@@ -13,8 +13,7 @@ CREATE TABLE IF NOT EXISTS posts (
     user_id bigserial not null references users(id),
     img text not null,
     title varchar(128) not null,
-    text text not null,
-    unique (user_id, title)
+    text text not null
 );
 
 CREATE TABLE IF NOT EXISTS sessions (

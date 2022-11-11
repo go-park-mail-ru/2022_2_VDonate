@@ -65,6 +65,18 @@ func TestHandler_GetPosts(t *testing.T) {
 			expectedRequestBody: `[{"postID":0,"userID":123,"img":"","title":"Look at this!!!","text":"Some text about my work","likesNum":0}]`,
 		},
 		{
+			name:              "OK-Empty",
+			cookie:            "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
+			userID:            123,
+			postID:            0,
+			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {},
+			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
+				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{}, nil)
+			},
+			mockBehaviourPost:   func(s mockDomain.MockPostsUseCase, postID uint64) {},
+			expectedRequestBody: `{}`,
+		},
+		{
 			name:   "ServerError",
 			userID: 123,
 			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
@@ -81,6 +93,50 @@ func TestHandler_GetPosts(t *testing.T) {
 			mockBehaviorImage:    func(s mockDomain.MockImageUseCase, bucket, filename string) {},
 			mockBehaviourPost:    func(s mockDomain.MockPostsUseCase, postID uint64) {},
 			expectedErrorMessage: "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
+		},
+		{
+			name:   "ErrInternal-Likes",
+			cookie: "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
+			userID: 123,
+			postID: 0,
+			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {
+				s.EXPECT().GetImage(bucket, filename).Return("", nil)
+			},
+			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
+				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{
+					{
+						UserID: userID,
+						Img:    "path/to/img",
+						Title:  "Look at this!!!",
+						Text:   "Some text about my work",
+					},
+				}, nil)
+			},
+			mockBehaviourPost: func(s mockDomain.MockPostsUseCase, postID uint64) {
+				s.EXPECT().GetLikesNum(postID).Return(uint64(0), domain.ErrInternal)
+			},
+			expectedErrorMessage: "code=500, message=server error, internal=server error",
+		},
+		{
+			name:   "ErrInternal-Likes",
+			cookie: "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
+			userID: 123,
+			postID: 0,
+			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {
+				s.EXPECT().GetImage(bucket, filename).Return("", domain.ErrInternal)
+			},
+			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
+				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{
+					{
+						UserID: userID,
+						Img:    "path/to/img",
+						Title:  "Look at this!!!",
+						Text:   "Some text about my work",
+					},
+				}, nil)
+			},
+			mockBehaviourPost:    func(s mockDomain.MockPostsUseCase, postID uint64) {},
+			expectedErrorMessage: "code=500, message=server error, internal=server error",
 		},
 	}
 
@@ -120,6 +176,75 @@ func TestHandler_GetPosts(t *testing.T) {
 			require.NoError(t, err)
 
 			assert.Equal(t, test.expectedRequestBody, strings.Trim(string(body), "\n"))
+		})
+	}
+}
+
+func TestHandler_DeletePost(t *testing.T) {
+	type mockDelete func(u *mockDomain.MockPostsUseCase, postID uint64)
+
+	tests := []struct {
+		name                 string
+		postID               int
+		mockDelete           mockDelete
+		expectedRequestBody  string
+		expectedErrorMessage string
+	}{
+		{
+			name:   "OK",
+			postID: 10,
+			mockDelete: func(u *mockDomain.MockPostsUseCase, postID uint64) {
+				u.EXPECT().DeleteByID(postID).Return(nil)
+			},
+			expectedRequestBody: "{}",
+		},
+		{
+			name:                 "ErrBadRequest",
+			postID:               -1,
+			mockDelete:           func(u *mockDomain.MockPostsUseCase, postID uint64) {},
+			expectedErrorMessage: "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
+		},
+		{
+			name:   "ErrDelete",
+			postID: 10,
+			mockDelete: func(u *mockDomain.MockPostsUseCase, postID uint64) {
+				u.EXPECT().DeleteByID(postID).Return(domain.ErrDelete)
+			},
+			expectedErrorMessage: "code=500, message=server error, internal=failed to delete item",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			post := mockDomain.NewMockPostsUseCase(ctrl)
+			users := mockDomain.NewMockUsersUseCase(ctrl)
+			image := mockDomain.NewMockImageUseCase(ctrl)
+
+			test.mockDelete(post, uint64(test.postID))
+
+			handler := NewHandler(post, users, image)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, "https://127.0.0.1/api/v1/", nil)
+			rec := httptest.NewRecorder()
+
+			c := e.NewContext(req, rec)
+			c.SetPath("https://127.0.0.1/api/v1/:postID")
+			c.SetParamNames("id")
+			c.SetParamValues(strconv.FormatInt(int64(test.postID), 10))
+
+			err := handler.DeletePost(c)
+			if err != nil {
+				assert.Equal(t, test.expectedErrorMessage, err.Error())
+			} else {
+				body, err := io.ReadAll(rec.Body)
+				require.NoError(t, err)
+
+				assert.Equal(t, test.expectedRequestBody, strings.Trim(string(body), "\n"))
+			}
 		})
 	}
 }
@@ -259,19 +384,6 @@ func TestHandler_CreatePosts(t *testing.T) {
 			expectedErrorMessage: "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
 		},
 		{
-			name:   "BadRequest-File",
-			postID: 10,
-			inputPost: models.Post{
-				Title: "Title",
-				Img:   "../../../test/test.txt",
-				Text:  "Text",
-			},
-			mockBehaviorImage:    func(s *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
-			mockBehaviorPut:      func(s *mockDomain.MockPostsUseCase, post models.Post, postID uint64) {},
-			mockBehaviorGetImage: func(s *mockDomain.MockImageUseCase, name, bucket string) {},
-			expectedErrorMessage: "code=400, message=bad request, internal=http: no such file",
-		},
-		{
 			name:   "BadRequest-Bind",
 			postID: 10,
 			inputPost: models.Post{
@@ -371,18 +483,14 @@ func TestHandler_CreatePosts(t *testing.T) {
 
 			var formFile io.Writer
 
-			var err error
+			formFile, err := writer.CreateFormFile("file", "../../../test/test.txt")
+			assert.NoError(t, err)
 
-			if test.name != "BadRequest-File" {
-				formFile, err = writer.CreateFormFile("file", "../../../test/test.txt")
-				assert.NoError(t, err)
+			sample, err := os.Open("../../../test/test.txt")
+			assert.NoError(t, err)
 
-				sample, err := os.Open("../../../test/test.txt")
-				assert.NoError(t, err)
-
-				_, err = io.Copy(formFile, sample)
-				assert.NoError(t, err)
-			}
+			_, err = io.Copy(formFile, sample)
+			assert.NoError(t, err)
 
 			err = writer.WriteField("img", test.inputPost.Img)
 			assert.NoError(t, err)

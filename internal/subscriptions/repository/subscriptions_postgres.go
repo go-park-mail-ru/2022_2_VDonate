@@ -74,7 +74,7 @@ func (p Postgres) AddSubscription(sub models.AuthorSubscription) (uint64, error)
 	var id uint64
 	err := p.DB.QueryRowx(`
 			INSERT INTO author_subscriptions (author_id, img, title, tier, text, price) 
-			VALUES ($1, $2, $3, $4, $5) 
+			VALUES ($1, $2, $3, $4, $5, $6) 
 			RETURNING id`,
 		sub.AuthorID,
 		sub.Img,

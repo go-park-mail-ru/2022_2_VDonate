@@ -46,8 +46,6 @@ definitions:
     type: object
   models.AuthorSubscriptionMpfd:
     properties:
-      author:
-        $ref: '#/definitions/models.Author'
       img:
         example: filename.jpeg
         type: string
@@ -64,7 +62,6 @@ definitions:
         example: some title
         type: string
     required:
-    - author
     - price
     - text
     - tier

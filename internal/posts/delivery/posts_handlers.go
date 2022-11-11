@@ -72,7 +72,7 @@ func (h *Handler) GetPosts(c echo.Context) error {
 			return errorHandling.WrapEcho(domain.ErrInternal, err)
 		}
 		if allPosts[i].LikesNum, err = h.postsUseCase.GetLikesNum(post.ID); err != nil {
-			return errorHandling.WrapEcho(domain.ErrNotFound, err)
+			return errorHandling.WrapEcho(domain.ErrInternal, err)
 		}
 	}
 
@@ -166,16 +166,13 @@ func (h *Handler) PutPost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	file, err := images.GetFileFromContext(c)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
-	}
-
 	var prevPost models.Post
 
 	if err = c.Bind(&prevPost); err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
+
+	file, err := images.GetFileFromContext(c)
 
 	if file != nil && !errors.Is(err, http.ErrMissingFile) {
 		if prevPost.Img, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
@@ -226,17 +223,13 @@ func (h *Handler) CreatePost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
 
-	file, err := images.GetFileFromContext(c)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
-	}
-
 	var post models.Post
 
 	if err = c.Bind(&post); err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
+	file, err := images.GetFileFromContext(c)
 	if file != nil && !errors.Is(err, http.ErrMissingFile) {
 		if post.Img, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
@@ -325,7 +318,7 @@ func (h *Handler) CreateLike(c echo.Context) error {
 	return c.JSON(http.StatusOK, models.EmptyStruct{})
 }
 
-// CreateLike godoc
+// DeleteLike godoc
 // @Summary     Create like
 // @Description Create like on post
 // @ID          create_like

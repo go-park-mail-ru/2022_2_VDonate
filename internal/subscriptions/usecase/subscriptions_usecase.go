@@ -42,7 +42,7 @@ func (u *usecase) GetAuthorSubscriptionByID(id uint64) (models.AuthorSubscriptio
 }
 
 func (u *usecase) AddAuthorSubscription(sub models.AuthorSubscription, id uint64) (uint64, error) {
-	sub.ID = id
+	sub.AuthorID = id
 	return u.subRepo.AddSubscription(sub)
 }
 

@@ -14,6 +14,4 @@ type AuthorSubscription struct {
 	Title    string `json:"title" form:"title" db:"title" validate:"required" example:"some title"`
 	Text     string `json:"text" form:"text" db:"text" validate:"required" example:"some text"`
 	Price    uint64 `json:"price" form:"price" db:"price" validate:"required" example:"2999"`
-
-	Author Author `json:"author" form:"author" validate:"required"`
 }

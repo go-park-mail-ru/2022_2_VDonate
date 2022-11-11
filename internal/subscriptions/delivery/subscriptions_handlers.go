@@ -62,11 +62,6 @@ func (h Handler) GetSubscriptions(c echo.Context) error {
 		if s[i].Img, err = h.imageUsecase.GetImage(fmt.Sprint(c.Get("bucket")), subscription.Img); err != nil {
 			return errorHandling.WrapEcho(domain.ErrInternal, err)
 		}
-		user, errGetUser := h.userUsecase.GetByID(userID)
-		if errGetUser != nil {
-			return errorHandling.WrapEcho(domain.ErrInternal, errGetUser)
-		}
-		s[i].Author = models.ToAuthor(user)
 	}
 
 	return c.JSON(http.StatusOK, s)
@@ -170,16 +165,12 @@ func (h Handler) CreateAuthorSubscription(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
 
-	file, err := images.GetFileFromContext(c)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
-	}
-
 	var s models.AuthorSubscription
 	if err = c.Bind(&s); err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
+	file, err := images.GetFileFromContext(c)
 	if file != nil && !errors.Is(err, http.ErrMissingFile) {
 		if s.Img, err = h.imageUsecase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
@@ -229,17 +220,13 @@ func (h Handler) UpdateAuthorSubscription(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	file, err := images.GetFileFromContext(c)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
-	}
-
 	var s models.AuthorSubscription
 
 	if err = c.Bind(&s); err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
+	file, err := images.GetFileFromContext(c)
 	if file != nil && !errors.Is(err, http.ErrMissingFile) {
 		if s.Img, err = h.imageUsecase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
