@@ -28,7 +28,7 @@ func New(d domain.DonatesUseCase, u domain.UsersUseCase) *Handler {
 // @Summary     Create donate
 // @Description Send donate to author
 // @ID          create_donate
-// @Tags        posts
+// @Tags        donates
 // @Param       post body models.DonateMpfd true "Donate Fields"
 // @Produce     json
 // @Success     200 {object} models.Donate  "Donate was successfully created"
@@ -65,7 +65,7 @@ func (h *Handler) CreateDonate(c echo.Context) error {
 // @Summary     Get donate
 // @Description Get donate by id
 // @ID          get_donate
-// @Tags        posts
+// @Tags        donates
 // @Param       donate path integer true "Post ID"
 // @Produce     json
 // @Success     200 {object} models.Donate  "Donate was successfully create"
@@ -92,7 +92,7 @@ func (h *Handler) GetDonate(c echo.Context) error {
 // @Summary     Get donates
 // @Description Get donates of user
 // @ID          get_donates
-// @Tags        posts
+// @Tags        donates
 // @Produce     json
 // @Success     200 {object} []models.Donate "Donates were successfully recieved"
 // @Failure     400 {object} echo.HTTPError  "Bad request"
