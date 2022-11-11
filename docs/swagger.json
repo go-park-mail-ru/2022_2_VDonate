@@ -444,7 +444,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "posts"
+                    "donates"
                 ],
                 "summary": "Create donate",
                 "operationId": "create_donate",
@@ -505,7 +505,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "posts"
+                    "donates"
                 ],
                 "summary": "Get donate",
                 "operationId": "get_donate",
@@ -513,7 +513,7 @@
                     {
                         "type": "integer",
                         "description": "Post ID",
-                        "name": "donate",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -558,7 +558,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "posts"
+                    "donates"
                 ],
                 "summary": "Get donates",
                 "operationId": "get_donates",
@@ -1060,7 +1060,7 @@
                     {
                         "type": "integer",
                         "description": "Post id",
-                        "name": "post",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1120,7 +1120,7 @@
                     {
                         "type": "integer",
                         "description": "Post id",
-                        "name": "post",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }

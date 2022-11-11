@@ -451,7 +451,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "posts"
+                    "donates"
                 ],
                 "summary": "Create donate",
                 "operationId": "create_donate",
@@ -512,7 +512,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "posts"
+                    "donates"
                 ],
                 "summary": "Get donate",
                 "operationId": "get_donate",
@@ -520,7 +520,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Post ID",
-                        "name": "donate",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -565,7 +565,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "posts"
+                    "donates"
                 ],
                 "summary": "Get donates",
                 "operationId": "get_donates",
@@ -1067,7 +1067,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Post id",
-                        "name": "post",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1127,7 +1127,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Post id",
-                        "name": "post",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }

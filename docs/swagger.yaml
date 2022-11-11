@@ -559,7 +559,7 @@ paths:
       - ApiKeyAuth: []
       summary: Create donate
       tags:
-      - posts
+      - donates
   /donate/{id}:
     get:
       description: Get donate by id
@@ -567,7 +567,7 @@ paths:
       parameters:
       - description: Post ID
         in: path
-        name: donate
+        name: id
         required: true
         type: integer
       produces:
@@ -593,7 +593,7 @@ paths:
       - ApiKeyAuth: []
       summary: Get donate
       tags:
-      - posts
+      - donates
   /donates:
     get:
       description: Get donates of user
@@ -623,7 +623,7 @@ paths:
       - ApiKeyAuth: []
       summary: Get donates
       tags:
-      - posts
+      - donates
   /login:
     post:
       consumes:
@@ -923,7 +923,7 @@ paths:
       parameters:
       - description: Post id
         in: path
-        name: post
+        name: id
         required: true
         type: integer
       produces:
@@ -962,7 +962,7 @@ paths:
       parameters:
       - description: Post id
         in: path
-        name: post
+        name: id
         required: true
         type: integer
       produces:
