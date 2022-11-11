@@ -151,7 +151,7 @@ func (s *Server) makeUseCase(url string) error {
 func (s *Server) makeHandlers() {
 	s.authHandler = httpAuth.NewHandler(s.AuthService, s.UserService)
 
-	s.donatesHandler = httpdonates.New(s.DonatesService, s.UserService)
+	s.donatesHandler = httpdonates.NewHandler(s.DonatesService, s.UserService)
 	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService, s.ImagesService)
 	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService, s.ImagesService, s.SubscriptionService, s.SubscribersService)
 	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionService, s.UserService, s.ImagesService)

@@ -1,6 +1,7 @@
 package posts
 
 import (
+	"errors"
 	"testing"
 
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
@@ -69,6 +70,59 @@ func TestUsecase_GetPostsByUserID(t *testing.T) {
 			}
 
 			require.Equal(t, test.response, post)
+		})
+	}
+}
+
+func TestUsecase_GetLikesNum(t *testing.T) {
+	type mockBehaviourGetAllLikes func(s *mockDomain.MockPostsRepository, postID uint64)
+
+	tests := []struct {
+		name                        string
+		postID                      uint64
+		mockBehaviourGetAllLikes    mockBehaviourGetAllLikes
+		expectedResponse            uint64
+		expectedErrorMessage        string
+	}{
+		{
+			name:   "OK",
+			postID: 100,
+			mockBehaviourGetAllLikes: func(s *mockDomain.MockPostsRepository, postID uint64) {
+				s.EXPECT().GetAllLikesByPostID(postID).Return([]models.Like{
+					{
+						UserID: 12,
+						PostID: 100,
+					},
+				}, nil)
+			},
+			expectedResponse: 1,
+		},
+		{
+			name:   "ErrNotFound",
+			postID: 100,
+			mockBehaviourGetAllLikes: func(s *mockDomain.MockPostsRepository, postID uint64) {
+				s.EXPECT().GetAllLikesByPostID(postID).Return([]models.Like{}, errors.New("likes not found"))
+			},
+			expectedErrorMessage: "likes not found",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			postMockRepo := mockDomain.NewMockPostsRepository(ctrl)
+
+			test.mockBehaviourGetAllLikes(postMockRepo, test.postID)
+
+			usecase := New(postMockRepo)
+			post, err := usecase.GetLikesNum(test.postID)
+			if err != nil {
+				assert.Equal(t, test.expectedErrorMessage, err.Error())
+			}
+
+			require.Equal(t, test.expectedResponse, post)
 		})
 	}
 }

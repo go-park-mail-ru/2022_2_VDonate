@@ -340,7 +340,7 @@ func (h *Handler) CreateLike(c echo.Context) error {
 
 // DeleteLike godoc
 // @Summary     Delete like
-// @Description Create like on post
+// @Description Delete like on post
 // @ID          delete_like
 // @Tags        posts
 // @Param       id path integer true "Post id"
