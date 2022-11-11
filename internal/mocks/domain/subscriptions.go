@@ -93,21 +93,6 @@ func (mr *MockSubscriptionsUseCaseMockRecorder) GetAuthorSubscriptionsByAuthorID
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthorSubscriptionsByAuthorID", reflect.TypeOf((*MockSubscriptionsUseCase)(nil).GetAuthorSubscriptionsByAuthorID), authorID)
 }
 
-// GetPostsByFilter mocks base method.
-func (m *MockSubscriptionsUseCase) GetPostsByFilter(filter string, userID uint64) ([]models.Post, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPostsByFilter", filter, userID)
-	ret0, _ := ret[0].([]models.Post)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetPostsByFilter indicates an expected call of GetPostsByFilter.
-func (mr *MockSubscriptionsUseCaseMockRecorder) GetPostsByFilter(filter, userID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostsByFilter", reflect.TypeOf((*MockSubscriptionsUseCase)(nil).GetPostsByFilter), filter, userID)
-}
-
 // GetSubscriptionsByUserID mocks base method.
 func (m *MockSubscriptionsUseCase) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscription, error) {
 	m.ctrl.T.Helper()

@@ -13,4 +13,5 @@ type PostsUseCase interface {
 	GetLikeByUserAndPostID(userID, postID uint64) (models.Like, error)
 	LikePost(userID, postID uint64) error
 	UnlikePost(userID, postID uint64) error
+	GetLikesNum(postID uint64) (uint64, error)
 }

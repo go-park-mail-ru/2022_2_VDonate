@@ -70,6 +70,9 @@ func (h *Handler) GetPosts(c echo.Context) error {
 		if allPosts[i].Img, err = h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), post.Img); err != nil {
 			return errorHandling.WrapEcho(domain.ErrInternal, err)
 		}
+		if allPosts[i].LikesNum, err = h.postsUseCase.GetLikesNum(post.ID); err != nil {
+			return errorHandling.WrapEcho(domain.ErrNotFound, err)
+		}
 	}
 
 	return c.JSON(http.StatusOK, allPosts)
@@ -99,6 +102,11 @@ func (h *Handler) GetPost(c echo.Context) error {
 
 	if post.Img, err = h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), post.Img); err != nil {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
+	}
+
+	post.LikesNum, err = h.postsUseCase.GetLikesNum(postID)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
 
 	return c.JSON(http.StatusOK, post)
@@ -250,10 +258,24 @@ func (h *Handler) CreatePost(c echo.Context) error {
 	})
 }
 
+// GetLikes godoc
+// @Summary     Get likes
+// @Description Get all likes by post id
+// @ID          get_posts_likes
+// @Tags        posts
+// @Param       post path integer true "Post id"
+// @Produce     json
+// @Success     200 {object} []models.Like  "Likes were successfully recieved"
+// @Failure     400 {object} echo.HTTPError "Bad request"
+// @Failure     401 {object} echo.HTTPError "No session provided"
+// @Failure     404 {object} echo.HTTPError "Post not found"
+// @Failure     500 {object} echo.HTTPError "Internal error"
+// @Security    ApiKeyAuth
+// @Router      /posts/{id}/likes [get]
 func (h *Handler) GetLikes(c echo.Context) error {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		return err
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
 	allLikes, err := h.postsUseCase.GetLikesByPostID(postID)
@@ -266,6 +288,19 @@ func (h *Handler) GetLikes(c echo.Context) error {
 	return c.JSON(http.StatusOK, allLikes)
 }
 
+// CreateLike godoc
+// @Summary     Create like
+// @Description Create like on post
+// @ID          create_like
+// @Tags        posts
+// @Produce     json
+// @Success     200 {object} integer        "Likes were successfully create"
+// @Failure     400 {object} echo.HTTPError "Bad request"
+// @Failure     401 {object} echo.HTTPError "No session provided"
+// @Failure     404 {object} echo.HTTPError "Post not found"
+// @Failure     500 {object} echo.HTTPError "Internal error"
+// @Security    ApiKeyAuth
+// @Router      /posts/{id}/likes [post]
 func (h *Handler) CreateLike(c echo.Context) error {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -283,11 +318,26 @@ func (h *Handler) CreateLike(c echo.Context) error {
 
 	err = h.postsUseCase.LikePost(user.ID, postID)
 	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrConflict, err)
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
-	return c.JSON(http.StatusOK, struct{}{})
+
+	return c.JSON(http.StatusOK, models.EmptyStruct{})
 }
 
+// CreateLike godoc
+// @Summary     Create like
+// @Description Create like on post
+// @ID          create_like
+// @Tags        posts
+// @Param       post path integer true "Post id"
+// @Produce     json
+// @Success     200 {object} integer        "Likes were successfully recieved"
+// @Failure     400 {object} echo.HTTPError "Bad request"
+// @Failure     401 {object} echo.HTTPError "No session provided"
+// @Failure     404 {object} echo.HTTPError "Post not found"
+// @Failure     500 {object} echo.HTTPError "Internal error"
+// @Security    ApiKeyAuth
+// @Router      /posts/{id}/likes [post]
 func (h *Handler) DeleteLike(c echo.Context) error {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -304,8 +354,8 @@ func (h *Handler) DeleteLike(c echo.Context) error {
 	}
 
 	if err = h.postsUseCase.UnlikePost(user.ID, postID); err != nil {
-		return errorHandling.WrapEcho(domain.ErrInternal, err)
+		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
 
-	return c.JSON(http.StatusOK, struct{}{})
+	return c.JSON(http.StatusOK, models.EmptyStruct{})
 }

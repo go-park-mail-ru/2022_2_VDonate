@@ -93,6 +93,21 @@ func (mr *MockPostsUseCaseMockRecorder) GetLikesByPostID(postID interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLikesByPostID", reflect.TypeOf((*MockPostsUseCase)(nil).GetLikesByPostID), postID)
 }
 
+// GetLikesNum mocks base method.
+func (m *MockPostsUseCase) GetLikesNum(postID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLikesNum", postID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLikesNum indicates an expected call of GetLikesNum.
+func (mr *MockPostsUseCaseMockRecorder) GetLikesNum(postID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLikesNum", reflect.TypeOf((*MockPostsUseCase)(nil).GetLikesNum), postID)
+}
+
 // GetPostByID mocks base method.
 func (m *MockPostsUseCase) GetPostByID(postID uint64) (models.Post, error) {
 	m.ctrl.T.Helper()

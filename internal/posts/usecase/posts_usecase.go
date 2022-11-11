@@ -77,3 +77,11 @@ func (u *usecase) LikePost(userID, postID uint64) error {
 func (u *usecase) UnlikePost(userID, postID uint64) error {
 	return u.postsRepo.DeleteLikeByID(userID, postID)
 }
+
+func (u *usecase) GetLikesNum(postID uint64) (uint64, error) {
+	likes, err := u.GetLikesByPostID(postID)
+	if err != nil {
+		return 0, err
+	}
+	return uint64(len(likes)), nil
+}

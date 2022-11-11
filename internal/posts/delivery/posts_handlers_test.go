@@ -27,13 +27,17 @@ func TestHandler_GetPosts(t *testing.T) {
 
 	type mockBehaviorImage func(s mockDomain.MockImageUseCase, bucket, filename string)
 
+	type mockBehaviourPost func(s mockDomain.MockPostsUseCase, postID uint64)
+
 	tests := []struct {
 		name                 string
 		method               string
 		userID               int
+		postID               uint64
 		cookie               string
 		mockBehaviorGet      mockBehaviorGet
 		mockBehaviorImage    mockBehaviorImage
+		mockBehaviourPost    mockBehaviourPost
 		expectedRequestBody  string
 		expectedErrorMessage string
 	}{
@@ -41,6 +45,7 @@ func TestHandler_GetPosts(t *testing.T) {
 			name:   "OK",
 			cookie: "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
 			userID: 123,
+			postID: 0,
 			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {
 				s.EXPECT().GetImage(bucket, filename).Return("", nil)
 			},
@@ -54,7 +59,10 @@ func TestHandler_GetPosts(t *testing.T) {
 					},
 				}, nil)
 			},
-			expectedRequestBody: `[{"postID":0,"userID":123,"img":"","title":"Look at this!!!","text":"Some text about my work"}]`,
+			mockBehaviourPost: func(s mockDomain.MockPostsUseCase, postID uint64) {
+				s.EXPECT().GetLikesNum(postID).Return(uint64(0), nil)
+			},
+			expectedRequestBody: `[{"postID":0,"userID":123,"img":"","title":"Look at this!!!","text":"Some text about my work","likesNum":0}]`,
 		},
 		{
 			name:   "ServerError",
@@ -63,6 +71,7 @@ func TestHandler_GetPosts(t *testing.T) {
 				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{}, domain.ErrNotFound)
 			},
 			mockBehaviorImage:    func(s mockDomain.MockImageUseCase, bucket, filename string) {},
+			mockBehaviourPost:    func(s mockDomain.MockPostsUseCase, postID uint64) {},
 			expectedErrorMessage: "code=404, message=failed to find item, internal=failed to find item",
 		},
 		{
@@ -70,6 +79,7 @@ func TestHandler_GetPosts(t *testing.T) {
 			userID:               -1,
 			mockBehaviorGet:      func(s mockDomain.MockPostsUseCase, userID uint64) {},
 			mockBehaviorImage:    func(s mockDomain.MockImageUseCase, bucket, filename string) {},
+			mockBehaviourPost:    func(s mockDomain.MockPostsUseCase, postID uint64) {},
 			expectedErrorMessage: "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
 		},
 	}
@@ -85,6 +95,7 @@ func TestHandler_GetPosts(t *testing.T) {
 
 			test.mockBehaviorGet(*post, uint64(test.userID))
 			test.mockBehaviorImage(*image, "image", "path/to/img")
+			test.mockBehaviourPost(*post, test.postID)
 
 			handler := NewHandler(post, users, image)
 
@@ -118,12 +129,15 @@ func TestHangler_GetPost(t *testing.T) {
 
 	type mockBehaviorImage func(s mockDomain.MockImageUseCase, bucket, filename string)
 
+	type mockBehaviourPost func(s mockDomain.MockPostsUseCase, postID uint64)
+
 	tests := []struct {
 		name                 string
 		method               string
 		postID               int
 		mockBehaviorGet      mockBehaviorGet
 		mockBehaviorImage    mockBehaviorImage
+		mockBehaviourPost    mockBehaviourPost
 		expectedRequestBody  string
 		expectedErrorMessage string
 	}{
@@ -140,7 +154,10 @@ func TestHangler_GetPost(t *testing.T) {
 			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {
 				s.EXPECT().GetImage(bucket, filename).Return("", nil)
 			},
-			expectedRequestBody: `{"postID":0,"userID":0,"img":"","title":"Look at this!!!","text":"Some text about my work"}`,
+			mockBehaviourPost: func(s mockDomain.MockPostsUseCase, postID uint64) {
+				s.EXPECT().GetLikesNum(postID).Return(uint64(0), nil)
+			},
+			expectedRequestBody: `{"postID":0,"userID":0,"img":"","title":"Look at this!!!","text":"Some text about my work","likesNum":0}`,
 		},
 		{
 			name:   "NotFound",
@@ -149,6 +166,7 @@ func TestHangler_GetPost(t *testing.T) {
 				s.EXPECT().GetPostByID(postID).Return(models.Post{}, domain.ErrNotFound)
 			},
 			mockBehaviorImage:    func(s mockDomain.MockImageUseCase, bucket, filename string) {},
+			mockBehaviourPost:    func(s mockDomain.MockPostsUseCase, postID uint64) {},
 			expectedErrorMessage: "code=404, message=failed to find item, internal=failed to find item",
 		},
 	}
@@ -164,6 +182,7 @@ func TestHangler_GetPost(t *testing.T) {
 
 			test.mockBehaviorGet(*post, uint64(test.postID))
 			test.mockBehaviorImage(*image, "image", "path/to/img")
+			test.mockBehaviourPost(*post, uint64(test.postID))
 
 			handler := NewHandler(post, users, image)
 

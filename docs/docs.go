@@ -439,6 +439,167 @@ const docTemplate = `{
                 }
             }
         },
+        "/donate": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Send donate to author",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Create donate",
+                "operationId": "create_donate",
+                "parameters": [
+                    {
+                        "description": "Donate Fields",
+                        "name": "post",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DonateMpfd"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Donate was successfully created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Donate"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "No session provided",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Post not found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/donate/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get donate by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Get donate",
+                "operationId": "get_donate",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post ID",
+                        "name": "donate",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Donate was successfully create",
+                        "schema": {
+                            "$ref": "#/definitions/models.Donate"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "No session provided",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/donates": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get donates of user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Get donates",
+                "operationId": "get_donates",
+                "responses": {
+                    "200": {
+                        "description": "Donates were successfully recieved",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Donate"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "No session provided",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "Authorization of ` + "`" + `User` + "`" + `",
@@ -867,6 +1028,125 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Not a creator of post",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Post not found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id}/likes": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get all likes by post id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Get likes",
+                "operationId": "get_posts_likes",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post id",
+                        "name": "post",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Likes were successfully recieved",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Like"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "No session provided",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Post not found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create like on post",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Create like",
+                "operationId": "create_like",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post id",
+                        "name": "post",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Likes were successfully recieved",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "No session provided",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -1408,13 +1688,65 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Donate": {
+            "type": "object",
+            "properties": {
+                "authorId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.DonateMpfd": {
+            "type": "object",
+            "required": [
+                "authorID",
+                "price"
+            ],
+            "properties": {
+                "authorID": {
+                    "type": "integer",
+                    "example": 12
+                },
+                "price": {
+                    "type": "integer",
+                    "example": 3000
+                }
+            }
+        },
         "models.EmptyStruct": {
             "type": "object"
+        },
+        "models.Like": {
+            "type": "object",
+            "required": [
+                "postID",
+                "userID"
+            ],
+            "properties": {
+                "postID": {
+                    "type": "integer",
+                    "example": 222
+                },
+                "userID": {
+                    "type": "integer",
+                    "example": 100
+                }
+            }
         },
         "models.Post": {
             "type": "object",
             "required": [
                 "img",
+                "likesNum",
                 "text",
                 "title"
             ],
@@ -1422,6 +1754,10 @@ const docTemplate = `{
                 "img": {
                     "type": "string",
                     "example": "path/to/image.jpeg"
+                },
+                "likesNum": {
+                    "type": "integer",
+                    "example": 5
                 },
                 "postID": {
                     "type": "integer",

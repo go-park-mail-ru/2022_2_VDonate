@@ -653,6 +653,74 @@ func (mr *MockUsersRepositoryMockRecorder) Update(user interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsersRepository)(nil).Update), user)
 }
 
+// MockDonatesRepository is a mock of DonatesRepository interface.
+type MockDonatesRepository struct {
+	ctrl     *gomock.Controller
+	recorder *MockDonatesRepositoryMockRecorder
+}
+
+// MockDonatesRepositoryMockRecorder is the mock recorder for MockDonatesRepository.
+type MockDonatesRepositoryMockRecorder struct {
+	mock *MockDonatesRepository
+}
+
+// NewMockDonatesRepository creates a new mock instance.
+func NewMockDonatesRepository(ctrl *gomock.Controller) *MockDonatesRepository {
+	mock := &MockDonatesRepository{ctrl: ctrl}
+	mock.recorder = &MockDonatesRepositoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockDonatesRepository) EXPECT() *MockDonatesRepositoryMockRecorder {
+	return m.recorder
+}
+
+// GetDonateByID mocks base method.
+func (m *MockDonatesRepository) GetDonateByID(donateID uint64) (models.Donate, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDonateByID", donateID)
+	ret0, _ := ret[0].(models.Donate)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDonateByID indicates an expected call of GetDonateByID.
+func (mr *MockDonatesRepositoryMockRecorder) GetDonateByID(donateID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDonateByID", reflect.TypeOf((*MockDonatesRepository)(nil).GetDonateByID), donateID)
+}
+
+// GetDonatesByUserID mocks base method.
+func (m *MockDonatesRepository) GetDonatesByUserID(userID uint64) ([]models.Donate, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDonatesByUserID", userID)
+	ret0, _ := ret[0].([]models.Donate)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDonatesByUserID indicates an expected call of GetDonatesByUserID.
+func (mr *MockDonatesRepositoryMockRecorder) GetDonatesByUserID(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDonatesByUserID", reflect.TypeOf((*MockDonatesRepository)(nil).GetDonatesByUserID), userID)
+}
+
+// SendDonate mocks base method.
+func (m *MockDonatesRepository) SendDonate(donate models.Donate) (models.Donate, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendDonate", donate)
+	ret0, _ := ret[0].(models.Donate)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SendDonate indicates an expected call of SendDonate.
+func (mr *MockDonatesRepositoryMockRecorder) SendDonate(donate interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendDonate", reflect.TypeOf((*MockDonatesRepository)(nil).SendDonate), donate)
+}
+
 // MockImagesRepository is a mock of ImagesRepository interface.
 type MockImagesRepository struct {
 	ctrl     *gomock.Controller
