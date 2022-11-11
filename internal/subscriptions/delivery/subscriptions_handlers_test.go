@@ -99,14 +99,15 @@ func TestHandler_GetSubscriptions(t *testing.T) {
 
 			e := echo.New()
 			req := httptest.NewRequest(http.MethodGet, "https://127.0.0.1/api/v1/", nil)
+			val := req.URL.Query()
+			val.Add("user_id", fmt.Sprint(test.userID))
+			req.URL.RawQuery = val.Encode()
 
 			rec := httptest.NewRecorder()
 
 			c := e.NewContext(req, rec)
 			c.SetPath("https://127.0.0.1/api/v1")
 			c.Set("bucket", "image")
-			c.SetParamNames("user_id")
-			c.SetParamValues(fmt.Sprint(test.userID))
 
 			test.mockBehaviorSubscriptions(subscription, uint64(test.userID))
 			test.mockBehaviorImage(image, "image", "filename.jpg")
