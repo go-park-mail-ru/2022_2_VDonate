@@ -1,6 +1,7 @@
 package httpSubscriptions
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -84,7 +85,7 @@ func (h Handler) GetSubscriptions(c echo.Context) error {
 // @Failure     403       {object} echo.HTTPError                  "You are not supposed to make this requests"
 // @Failure     500       {object} echo.HTTPError                  "Internal error"
 // @Security    ApiKeyAuth
-// @Router      /author/subscriptions [get]
+// @Router      /subscriptions/author [get]
 func (h Handler) GetAuthorSubscriptions(c echo.Context) error {
 	authorID, err := strconv.ParseUint(c.QueryParam("author_id"), 10, 64)
 	if err != nil {
@@ -123,7 +124,7 @@ func (h Handler) GetAuthorSubscriptions(c echo.Context) error {
 // @Failure     404 {object} echo.HTTPError                "Subscription not found"
 // @Failure     500 {object} echo.HTTPError                "Internal error"
 // @Security    ApiKeyAuth
-// @Router      /author/subscriptions/{id} [get]
+// @Router      /subscriptions/author{id} [get]
 func (h Handler) GetAuthorSubscription(c echo.Context) error {
 	subID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -157,7 +158,7 @@ func (h Handler) GetAuthorSubscription(c echo.Context) error {
 // @Failure     403  {object} echo.HTTPError                   "You are not supposed to make this requests"
 // @Failure     500  {object} echo.HTTPError                   "Internal error"
 // @Security    ApiKeyAuth
-// @Router      /author/subscriptions [post]
+// @Router      /subscriptions/author [post]
 func (h Handler) CreateAuthorSubscription(c echo.Context) error {
 	cookie, err := httpAuth.GetCookie(c)
 	if err != nil {
@@ -179,7 +180,7 @@ func (h Handler) CreateAuthorSubscription(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	if file != nil {
+	if file != nil && !errors.Is(err, http.ErrMissingFile) {
 		if s.Img, err = h.imageUsecase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
 		}
@@ -221,7 +222,7 @@ func (h Handler) CreateAuthorSubscription(c echo.Context) error {
 // @Failure     403  {object} echo.HTTPError                   "You are not supposed to make this requests"
 // @Failure     500  {object} echo.HTTPError                   "Internal / update error"
 // @Security    ApiKeyAuth
-// @Router      /author/subscriptions/{id} [put]
+// @Router      /subscriptions/author/{id} [put]
 func (h Handler) UpdateAuthorSubscription(c echo.Context) error {
 	subID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -239,7 +240,7 @@ func (h Handler) UpdateAuthorSubscription(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	if file != nil {
+	if file != nil && !errors.Is(err, http.ErrMissingFile) {
 		if s.Img, err = h.imageUsecase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
 		}
@@ -269,7 +270,7 @@ func (h Handler) UpdateAuthorSubscription(c echo.Context) error {
 // @Failure     403 {object} echo.HTTPError     "You are not supposed to make this requests"
 // @Failure     500 {object} echo.HTTPError     "Internal / delete error"
 // @Security    ApiKeyAuth
-// @Router      /author/subscriptions/{id} [delete]
+// @Router      /subscriptions/author/{id} [delete]
 func (h Handler) DeleteAuthorSubscription(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

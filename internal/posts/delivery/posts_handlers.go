@@ -1,6 +1,7 @@
 package httpPosts
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -176,7 +177,7 @@ func (h *Handler) PutPost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	if file != nil {
+	if file != nil && !errors.Is(err, http.ErrMissingFile) {
 		if prevPost.Img, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
 		}
@@ -236,7 +237,7 @@ func (h *Handler) CreatePost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	if file != nil {
+	if file != nil && !errors.Is(err, http.ErrMissingFile) {
 		if post.Img, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
 		}
