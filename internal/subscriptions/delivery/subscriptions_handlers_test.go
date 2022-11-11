@@ -231,15 +231,18 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 	type mockGetBySessionID func(u *mockDomain.MockUsersUseCase, sessionID string)
 	type mockCreateImage func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context)
 	type mockAddAuthorSubscription func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64)
+	type mockGetAvatar func(u *mockDomain.MockImageUseCase, filename string)
 
 	tests := []struct {
 		name                      string
 		authorID                  int
 		sessionID                 string
 		subscription              models.AuthorSubscription
+		authorImg                 string
 		mockGetBySessionID        mockGetBySessionID
 		mockCreateImage           mockCreateImage
 		mockAddAuthorSubscription mockAddAuthorSubscription
+		mockGetAvatar             mockGetAvatar
 		expectedErrorMessage      string
 	}{
 		{
@@ -249,9 +252,11 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			subscription: models.AuthorSubscription{
 				Img: "../../../test/test.txt",
 			},
+			authorImg: "avatar",
 			mockGetBySessionID: func(u *mockDomain.MockUsersUseCase, sessionID string) {
 				u.EXPECT().GetBySessionID(sessionID).Return(models.User{
-					ID: 10,
+					ID:     10,
+					Avatar: "avatar",
 				}, nil)
 			},
 			mockCreateImage: func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
@@ -262,6 +267,9 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {
 				u.EXPECT().AddAuthorSubscription(s, authorID).Return(authorID, nil)
 			},
+			mockGetAvatar: func(u *mockDomain.MockImageUseCase, filename string) {
+				u.EXPECT().GetImage("avatar", filename).Return("../../../test/test.txt", nil)
+			},
 		},
 		{
 			name:      "NoSession-Cookie",
@@ -270,9 +278,11 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			subscription: models.AuthorSubscription{
 				Img: "../../../test/test.txt",
 			},
+			authorImg:                 "avatar",
 			mockGetBySessionID:        func(u *mockDomain.MockUsersUseCase, sessionID string) {},
 			mockCreateImage:           func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
 			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {},
+			mockGetAvatar:             func(u *mockDomain.MockImageUseCase, filename string) {},
 			expectedErrorMessage:      "code=401, message=no existing session, internal=http: named cookie not present",
 		},
 		{
@@ -282,11 +292,13 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			subscription: models.AuthorSubscription{
 				Img: "../../../test/test.txt",
 			},
+			authorImg: "avatar",
 			mockGetBySessionID: func(u *mockDomain.MockUsersUseCase, sessionID string) {
 				u.EXPECT().GetBySessionID(sessionID).Return(models.User{}, domain.ErrNoSession)
 			},
 			mockCreateImage:           func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
 			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {},
+			mockGetAvatar:             func(u *mockDomain.MockImageUseCase, filename string) {},
 			expectedErrorMessage:      "code=401, message=no existing session, internal=no existing session",
 		},
 		{
@@ -296,6 +308,7 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			subscription: models.AuthorSubscription{
 				Img: "../../../test/test.txt",
 			},
+			authorImg: "avatar",
 			mockGetBySessionID: func(u *mockDomain.MockUsersUseCase, sessionID string) {
 				u.EXPECT().GetBySessionID(sessionID).Return(models.User{
 					ID: 10,
@@ -303,6 +316,7 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			},
 			mockCreateImage:           func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
 			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {},
+			mockGetAvatar:             func(u *mockDomain.MockImageUseCase, filename string) {},
 			expectedErrorMessage:      "code=400, message=bad request, internal=http: no such file",
 		},
 		{
@@ -312,6 +326,7 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			subscription: models.AuthorSubscription{
 				Img: "../../../test/test.txt",
 			},
+			authorImg: "avatar",
 			mockGetBySessionID: func(u *mockDomain.MockUsersUseCase, sessionID string) {
 				u.EXPECT().GetBySessionID(sessionID).Return(models.User{
 					ID: 10,
@@ -319,6 +334,7 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			},
 			mockCreateImage:           func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
 			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {},
+			mockGetAvatar:             func(u *mockDomain.MockImageUseCase, filename string) {},
 			expectedErrorMessage: "code=400, " +
 				"message=bad request, " +
 				"internal=code=400, " +
@@ -331,6 +347,7 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			subscription: models.AuthorSubscription{
 				Img: "../../../test/test.txt",
 			},
+			authorImg: "avatar",
 			mockGetBySessionID: func(u *mockDomain.MockUsersUseCase, sessionID string) {
 				u.EXPECT().GetBySessionID(sessionID).Return(models.User{
 					ID: 10,
@@ -342,6 +359,7 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 				u.EXPECT().CreateImage(file, bucket).Return("", domain.ErrCreate)
 			},
 			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {},
+			mockGetAvatar:             func(u *mockDomain.MockImageUseCase, filename string) {},
 			expectedErrorMessage:      "code=500, message=failed to create item, internal=failed to create item",
 		},
 		{
@@ -351,6 +369,7 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			subscription: models.AuthorSubscription{
 				Img: "../../../test/test.txt",
 			},
+			authorImg: "avatar",
 			mockGetBySessionID: func(u *mockDomain.MockUsersUseCase, sessionID string) {
 				u.EXPECT().GetBySessionID(sessionID).Return(models.User{
 					ID: 10,
@@ -364,7 +383,35 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {
 				u.EXPECT().AddAuthorSubscription(s, authorID).Return(uint64(0), domain.ErrCreate)
 			},
+			mockGetAvatar:        func(u *mockDomain.MockImageUseCase, filename string) {},
 			expectedErrorMessage: "code=500, message=failed to create item, internal=failed to create item",
+		},
+		{
+			name:      "ErrInternal-GetImage",
+			authorID:  10,
+			sessionID: "some cookie",
+			subscription: models.AuthorSubscription{
+				Img: "../../../test/test.txt",
+			},
+			authorImg: "avatar",
+			mockGetBySessionID: func(u *mockDomain.MockUsersUseCase, sessionID string) {
+				u.EXPECT().GetBySessionID(sessionID).Return(models.User{
+					ID:     10,
+					Avatar: "avatar",
+				}, nil)
+			},
+			mockCreateImage: func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
+				file, err := images.GetFileFromContext(c)
+				assert.NoError(t, err)
+				u.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
+			},
+			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {
+				u.EXPECT().AddAuthorSubscription(s, authorID).Return(authorID, nil)
+			},
+			mockGetAvatar: func(u *mockDomain.MockImageUseCase, filename string) {
+				u.EXPECT().GetImage("avatar", filename).Return("", domain.ErrInternal)
+			},
+			expectedErrorMessage: "code=500, message=server error, internal=server error",
 		},
 	}
 
@@ -379,6 +426,7 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 
 			test.mockGetBySessionID(user, test.sessionID)
 			test.mockAddAuthorSubscription(subscription, test.subscription, uint64(test.authorID))
+			test.mockGetAvatar(image, test.authorImg)
 
 			handler := NewHandler(subscription, user, image)
 

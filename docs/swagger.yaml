@@ -147,6 +147,12 @@ definitions:
     type: object
   models.ResponseImageSubscription:
     properties:
+      authorImg:
+        example: path/to/author/img
+        type: string
+      authorName:
+        example: leo
+        type: string
       imgPath:
         example: /path/to/image.jpeg
         type: string
@@ -154,6 +160,8 @@ definitions:
         example: 25
         type: integer
     required:
+    - authorImg
+    - authorName
     - imgPath
     - subscriptionID
     type: object
@@ -358,10 +366,6 @@ paths:
             $ref: '#/definitions/echo.HTTPError'
         "403":
           description: You are not supposed to make this requests
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Subscription not found
           schema:
             $ref: '#/definitions/echo.HTTPError'
         "500":

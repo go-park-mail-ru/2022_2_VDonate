@@ -155,7 +155,6 @@ func (h Handler) GetAuthorSubscription(c echo.Context) error {
 // @Failure     400  {object} echo.HTTPError                   "Bad request"
 // @Failure     401  {object} echo.HTTPError                   "No session"
 // @Failure     403  {object} echo.HTTPError                   "You are not supposed to make this requests"
-// @Failure     404  {object} echo.HTTPError                   "Subscription not found"
 // @Failure     500  {object} echo.HTTPError                   "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /author/subscriptions [post]
@@ -191,9 +190,18 @@ func (h Handler) CreateAuthorSubscription(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 
+	var avatar string
+	if len(author.Avatar) != 0 {
+		if avatar, err = h.imageUsecase.GetImage("avatar", author.Avatar); err != nil {
+			return errorHandling.WrapEcho(domain.ErrInternal, err)
+		}
+	}
+
 	return c.JSON(http.StatusOK, models.ResponseImageSubscription{
 		SubscriptionID: id,
 		ImgPath:        s.Img,
+		AuthorName:     author.Username,
+		AuthorImg:      avatar,
 	})
 }
 

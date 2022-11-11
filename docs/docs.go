@@ -199,12 +199,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
-                    "404": {
-                        "description": "Subscription not found",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
                     "500": {
                         "description": "Internal error",
                         "schema": {
@@ -1797,10 +1791,20 @@ const docTemplate = `{
         "models.ResponseImageSubscription": {
             "type": "object",
             "required": [
+                "authorImg",
+                "authorName",
                 "imgPath",
                 "subscriptionID"
             ],
             "properties": {
+                "authorImg": {
+                    "type": "string",
+                    "example": "path/to/author/img"
+                },
+                "authorName": {
+                    "type": "string",
+                    "example": "leo"
+                },
                 "imgPath": {
                     "type": "string",
                     "example": "/path/to/image.jpeg"
