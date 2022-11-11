@@ -730,6 +730,54 @@
                 ],
                 "summary": "Create like",
                 "operationId": "create_like",
+                "responses": {
+                    "200": {
+                        "description": "Likes were successfully create",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "No session provided",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Post not found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create like on post",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Delete like",
+                "operationId": "delete_like",
                 "parameters": [
                     {
                         "type": "integer",
@@ -741,7 +789,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Likes were successfully recieved",
+                        "description": "Likes were successfully deleted",
                         "schema": {
                             "type": "integer"
                         }
@@ -1731,6 +1779,7 @@
             "type": "object",
             "required": [
                 "img",
+                "isLiked",
                 "likesNum",
                 "text",
                 "title"
@@ -1739,6 +1788,10 @@
                 "img": {
                     "type": "string",
                     "example": "path/to/image.jpeg"
+                },
+                "isLiked": {
+                    "type": "boolean",
+                    "example": true
                 },
                 "likesNum": {
                     "type": "integer",

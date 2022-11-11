@@ -44,7 +44,7 @@ func NewHandler(s domain.SubscriptionsUseCase, u domain.UsersUseCase, i domain.I
 // @Security    ApiKeyAuth
 // @Router      /subscriptions [get]
 func (h Handler) GetSubscriptions(c echo.Context) error {
-	userID, err := strconv.ParseUint(c.Param("user_id"), 10, 64)
+	userID, err := strconv.ParseUint(c.QueryParam("user_id"), 10, 64)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}

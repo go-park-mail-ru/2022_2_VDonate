@@ -109,6 +109,9 @@ definitions:
       img:
         example: path/to/image.jpeg
         type: string
+      isLiked:
+        example: true
+        type: boolean
       likesNum:
         example: 5
         type: integer
@@ -126,6 +129,7 @@ definitions:
         type: integer
     required:
     - img
+    - isLiked
     - likesNum
     - text
     - title
@@ -668,6 +672,43 @@ paths:
       tags:
       - posts
   /posts/{id}/likes:
+    delete:
+      description: Create like on post
+      operationId: delete_like
+      parameters:
+      - description: Post id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Likes were successfully deleted
+          schema:
+            type: integer
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete like
+      tags:
+      - posts
     get:
       description: Get all likes by post id
       operationId: get_posts_likes
@@ -710,17 +751,11 @@ paths:
     post:
       description: Create like on post
       operationId: create_like
-      parameters:
-      - description: Post id
-        in: path
-        name: id
-        required: true
-        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: Likes were successfully recieved
+          description: Likes were successfully create
           schema:
             type: integer
         "400":

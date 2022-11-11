@@ -3,7 +3,6 @@ package httpPosts
 import (
 	"bytes"
 	"errors"
-
 	"fmt"
 	"io"
 	"mime/multipart"
