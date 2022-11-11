@@ -85,3 +85,10 @@ func (u *usecase) GetLikesNum(postID uint64) (uint64, error) {
 	}
 	return uint64(len(likes)), nil
 }
+
+func (u *usecase) IsPostLiked(userID, postID uint64) bool {
+	if _, err := u.GetLikeByUserAndPostID(userID, postID); err != nil {
+		return false
+	}
+	return true
+}

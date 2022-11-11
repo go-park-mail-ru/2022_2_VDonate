@@ -153,6 +153,20 @@ func (mr *MockPostsUseCaseMockRecorder) GetPostsByUserID(id interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostsByUserID", reflect.TypeOf((*MockPostsUseCase)(nil).GetPostsByUserID), id)
 }
 
+// IsPostLiked mocks base method.
+func (m *MockPostsUseCase) IsPostLiked(userID, postID uint64) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsPostLiked", userID, postID)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsPostLiked indicates an expected call of IsPostLiked.
+func (mr *MockPostsUseCaseMockRecorder) IsPostLiked(userID, postID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsPostLiked", reflect.TypeOf((*MockPostsUseCase)(nil).IsPostLiked), userID, postID)
+}
+
 // LikePost mocks base method.
 func (m *MockPostsUseCase) LikePost(userID, postID uint64) error {
 	m.ctrl.T.Helper()

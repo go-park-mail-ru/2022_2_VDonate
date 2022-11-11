@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 
-	// "errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -31,16 +30,17 @@ func TestHandler_GetPosts(t *testing.T) {
 	type mockBehaviorImage func(s mockDomain.MockImageUseCase, bucket, filename string)
 
 	type mockBehaviourPost func(s mockDomain.MockPostsUseCase, postID uint64)
+	type mockBehaviourIsLike func(s mockDomain.MockPostsUseCase, userID, postID uint64)
 
 	tests := []struct {
 		name                 string
-		method               string
+		cookie               string
 		userID               int
 		postID               uint64
-		cookie               string
 		mockBehaviorGet      mockBehaviorGet
 		mockBehaviorImage    mockBehaviorImage
 		mockBehaviourPost    mockBehaviourPost
+		mockBehaviourIsLike  mockBehaviourIsLike
 		expectedRequestBody  string
 		expectedErrorMessage string
 	}{
@@ -65,7 +65,10 @@ func TestHandler_GetPosts(t *testing.T) {
 			mockBehaviourPost: func(s mockDomain.MockPostsUseCase, postID uint64) {
 				s.EXPECT().GetLikesNum(postID).Return(uint64(0), nil)
 			},
-			expectedRequestBody: `[{"postID":0,"userID":123,"img":"","title":"Look at this!!!","text":"Some text about my work","likesNum":0}]`,
+			mockBehaviourIsLike: func(s mockDomain.MockPostsUseCase, userID, postID uint64) {
+				s.EXPECT().IsPostLiked(userID, postID).Return(true)
+			},
+			expectedRequestBody: `[{"postID":0,"userID":123,"img":"","title":"Look at this!!!","text":"Some text about my work","likesNum":0,"isLiked":true}]`,
 		},
 		{
 			name:              "OK-Empty",
@@ -77,6 +80,7 @@ func TestHandler_GetPosts(t *testing.T) {
 				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{}, nil)
 			},
 			mockBehaviourPost:   func(s mockDomain.MockPostsUseCase, postID uint64) {},
+			mockBehaviourIsLike: func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},
 			expectedRequestBody: `{}`,
 		},
 		{
@@ -87,6 +91,7 @@ func TestHandler_GetPosts(t *testing.T) {
 			},
 			mockBehaviorImage:    func(s mockDomain.MockImageUseCase, bucket, filename string) {},
 			mockBehaviourPost:    func(s mockDomain.MockPostsUseCase, postID uint64) {},
+			mockBehaviourIsLike:  func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},
 			expectedErrorMessage: "code=404, message=failed to find item, internal=failed to find item",
 		},
 		{
@@ -95,6 +100,7 @@ func TestHandler_GetPosts(t *testing.T) {
 			mockBehaviorGet:      func(s mockDomain.MockPostsUseCase, userID uint64) {},
 			mockBehaviorImage:    func(s mockDomain.MockImageUseCase, bucket, filename string) {},
 			mockBehaviourPost:    func(s mockDomain.MockPostsUseCase, postID uint64) {},
+			mockBehaviourIsLike:  func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},
 			expectedErrorMessage: "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
 		},
 		{
@@ -118,6 +124,7 @@ func TestHandler_GetPosts(t *testing.T) {
 			mockBehaviourPost: func(s mockDomain.MockPostsUseCase, postID uint64) {
 				s.EXPECT().GetLikesNum(postID).Return(uint64(0), domain.ErrInternal)
 			},
+			mockBehaviourIsLike:  func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},
 			expectedErrorMessage: "code=500, message=server error, internal=server error",
 		},
 		{
@@ -139,6 +146,7 @@ func TestHandler_GetPosts(t *testing.T) {
 				}, nil)
 			},
 			mockBehaviourPost:    func(s mockDomain.MockPostsUseCase, postID uint64) {},
+			mockBehaviourIsLike:  func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},
 			expectedErrorMessage: "code=500, message=server error, internal=server error",
 		},
 	}
@@ -155,6 +163,7 @@ func TestHandler_GetPosts(t *testing.T) {
 			test.mockBehaviorGet(*post, uint64(test.userID))
 			test.mockBehaviorImage(*image, "image", "path/to/img")
 			test.mockBehaviourPost(*post, test.postID)
+			test.mockBehaviourIsLike(*post, uint64(test.userID), test.postID)
 
 			handler := NewHandler(post, users, image)
 
@@ -254,23 +263,25 @@ func TestHandler_DeletePost(t *testing.T) {
 
 func TestHangler_GetPost(t *testing.T) {
 	type mockBehaviorGet func(s mockDomain.MockPostsUseCase, userID uint64)
-
 	type mockBehaviorImage func(s mockDomain.MockImageUseCase, bucket, filename string)
-
 	type mockBehaviourPost func(s mockDomain.MockPostsUseCase, postID uint64)
+	type mockBehaviourIsLike func(s mockDomain.MockPostsUseCase, userID, postID uint64)
 
 	tests := []struct {
 		name                 string
 		method               string
 		postID               int
+		userID               uint64
 		mockBehaviorGet      mockBehaviorGet
 		mockBehaviorImage    mockBehaviorImage
 		mockBehaviourPost    mockBehaviourPost
+		mockBehaviourIsLike  mockBehaviourIsLike
 		expectedRequestBody  string
 		expectedErrorMessage string
 	}{
 		{
 			name:   "OK",
+			userID: 0,
 			postID: 123,
 			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, postID uint64) {
 				s.EXPECT().GetPostByID(postID).Return(models.Post{
@@ -285,7 +296,10 @@ func TestHangler_GetPost(t *testing.T) {
 			mockBehaviourPost: func(s mockDomain.MockPostsUseCase, postID uint64) {
 				s.EXPECT().GetLikesNum(postID).Return(uint64(0), nil)
 			},
-			expectedRequestBody: `{"postID":0,"userID":0,"img":"","title":"Look at this!!!","text":"Some text about my work","likesNum":0}`,
+			mockBehaviourIsLike: func(s mockDomain.MockPostsUseCase, userID, postID uint64) {
+				s.EXPECT().IsPostLiked(userID, postID).Return(false)
+			},
+			expectedRequestBody: `{"postID":0,"userID":0,"img":"","title":"Look at this!!!","text":"Some text about my work","likesNum":0,"isLiked":false}`,
 		},
 		{
 			name:   "NotFound",
@@ -295,6 +309,7 @@ func TestHangler_GetPost(t *testing.T) {
 			},
 			mockBehaviorImage:    func(s mockDomain.MockImageUseCase, bucket, filename string) {},
 			mockBehaviourPost:    func(s mockDomain.MockPostsUseCase, postID uint64) {},
+			mockBehaviourIsLike:  func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},
 			expectedErrorMessage: "code=404, message=failed to find item, internal=failed to find item",
 		},
 	}
@@ -311,6 +326,7 @@ func TestHangler_GetPost(t *testing.T) {
 			test.mockBehaviorGet(*post, uint64(test.postID))
 			test.mockBehaviorImage(*image, "image", "path/to/img")
 			test.mockBehaviourPost(*post, uint64(test.postID))
+			test.mockBehaviourIsLike(*post, test.userID, uint64(test.postID))
 
 			handler := NewHandler(post, users, image)
 
@@ -780,7 +796,7 @@ func TestHandler_GetLikes(t *testing.T) {
 			c := e.NewContext(req, rec)
 			c.SetPath("https://127.0.0.1/api/v1/posts/:id/likes")
 			c.SetParamNames("id")
-			c.SetParamValues(strconv.FormatInt(int64(test.postID), 10))
+			c.SetParamValues(strconv.FormatInt(test.postID, 10))
 
 			err := handler.GetLikes(c)
 			if err != nil {
@@ -806,7 +822,7 @@ func TestHandler_CreateLike(t *testing.T) {
 		userID               uint64
 		mockBehaviourUsers   mockBehaviourUsers
 		mockBehaviourLikes   mockBehaviourLikes
-		expectedResponse    string
+		expectedResponse     string
 		expectedErrorMessage string
 	}{
 		{
@@ -827,25 +843,25 @@ func TestHandler_CreateLike(t *testing.T) {
 			expectedResponse: `{}`,
 		},
 		{
-			name: "ErrNoSession-1",
+			name:   "ErrNoSession-1",
 			cookie: "JSAoPdaAsdasjdJNPdapoSAjdasakZcs",
 			userID: 1,
 			mockBehaviourUsers: func(s *mockDomain.MockUsersUseCase, sessionID string) {
 				s.EXPECT().GetBySessionID(sessionID).Return(models.User{}, errors.New("no session"))
 			},
-			mockBehaviourLikes: func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			mockBehaviourLikes:   func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
 			expectedErrorMessage: "code=401, message=no existing session, internal=no session",
 		},
 		{
-			name: "ErrNoSession-2",
-			cookie: "JSAoPdaAsdasjdJNPdapoSAjdasakZcs",
-			userID: 1,
-			mockBehaviourUsers: func(s *mockDomain.MockUsersUseCase, sessionID string) {},
-			mockBehaviourLikes: func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			name:                 "ErrNoSession-2",
+			cookie:               "JSAoPdaAsdasjdJNPdapoSAjdasakZcs",
+			userID:               1,
+			mockBehaviourUsers:   func(s *mockDomain.MockUsersUseCase, sessionID string) {},
+			mockBehaviourLikes:   func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
 			expectedErrorMessage: "code=401, message=no existing session, internal=http: named cookie not present",
 		},
 		{
-			name: "ErrLikeExist",
+			name:   "ErrLikeExist",
 			cookie: "JSAoPdaAsdasjdJNPdapoSAjdasakZcs",
 			userID: 2,
 			mockBehaviourUsers: func(s *mockDomain.MockUsersUseCase, sessionID string) {
@@ -861,10 +877,10 @@ func TestHandler_CreateLike(t *testing.T) {
 			expectedErrorMessage: "code=500, message=like alredy exist, internal=",
 		},
 		{
-			name: "ErrBadId",
-			postID: -1,
-			mockBehaviourUsers: func(s *mockDomain.MockUsersUseCase, sessionID string) {},
-			mockBehaviourLikes: func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			name:                 "ErrBadId",
+			postID:               -1,
+			mockBehaviourUsers:   func(s *mockDomain.MockUsersUseCase, sessionID string) {},
+			mockBehaviourLikes:   func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
 			expectedErrorMessage: `code=400, message=bad request, internal=strconv.ParseUint: parsing "-1": invalid syntax`,
 		},
 	}
@@ -893,7 +909,7 @@ func TestHandler_CreateLike(t *testing.T) {
 			c := e.NewContext(req, rec)
 			c.SetPath("https://127.0.0.1/api/v1/posts/:id/likes")
 			c.SetParamNames("id")
-			c.SetParamValues(strconv.FormatInt(int64(test.postID), 10))
+			c.SetParamValues(strconv.FormatInt(test.postID, 10))
 
 			err := handler.CreateLike(c)
 			if err != nil {

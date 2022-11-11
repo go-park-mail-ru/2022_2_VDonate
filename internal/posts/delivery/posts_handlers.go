@@ -74,6 +74,7 @@ func (h *Handler) GetPosts(c echo.Context) error {
 		if allPosts[i].LikesNum, err = h.postsUseCase.GetLikesNum(post.ID); err != nil {
 			return errorHandling.WrapEcho(domain.ErrInternal, err)
 		}
+		allPosts[i].IsLiked = h.postsUseCase.IsPostLiked(userID, post.ID)
 	}
 
 	return c.JSON(http.StatusOK, allPosts)
@@ -109,6 +110,7 @@ func (h *Handler) GetPost(c echo.Context) error {
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
+	post.IsLiked = h.postsUseCase.IsPostLiked(post.UserID, postID)
 
 	return c.JSON(http.StatusOK, post)
 }

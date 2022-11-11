@@ -14,4 +14,5 @@ type PostsUseCase interface {
 	LikePost(userID, postID uint64) error
 	UnlikePost(userID, postID uint64) error
 	GetLikesNum(postID uint64) (uint64, error)
+	IsPostLiked(userID, postID uint64) bool
 }
