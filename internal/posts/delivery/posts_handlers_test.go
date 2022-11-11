@@ -2,6 +2,9 @@ package httpPosts
 
 import (
 	"bytes"
+	"errors"
+
+	// "errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -706,6 +709,201 @@ func TestHandler_PutPost(t *testing.T) {
 			if err = handler.CreatePost(c); err != nil {
 				assert.Equal(t, test.expectedErrorMessage, err.Error())
 			}
+		})
+	}
+}
+
+func TestHandler_GetLikes(t *testing.T) {
+	type mockBehaviourLikes func(s *mockDomain.MockPostsUseCase, postID uint64)
+
+	tests := []struct {
+		name                 string
+		postID               int64
+		mockBehaviourLikes   mockBehaviourLikes
+		expectedResponse     string
+		expectedErrorMessage string
+	}{
+		{
+			name:   "OK-1",
+			postID: 23,
+			mockBehaviourLikes: func(s *mockDomain.MockPostsUseCase, postID uint64) {
+				s.EXPECT().GetLikesByPostID(postID).Return([]models.Like{
+					{
+						UserID: 12,
+						PostID: 23,
+					},
+				}, nil)
+			},
+			expectedResponse: `[{"userID":12,"postID":23}]`,
+		},
+		{
+			name:   "OK-2",
+			postID: 12,
+			mockBehaviourLikes: func(s *mockDomain.MockPostsUseCase, postID uint64) {
+				s.EXPECT().GetLikesByPostID(postID).Return([]models.Like{}, nil)
+			},
+			expectedResponse: "[]",
+		},
+		{
+			name:   "ErrNotFound",
+			postID: 100,
+			mockBehaviourLikes: func(s *mockDomain.MockPostsUseCase, postID uint64) {
+				s.EXPECT().GetLikesByPostID(postID).Return([]models.Like{}, errors.New(""))
+			},
+			expectedErrorMessage: `code=404, message=failed to find item, internal=`,
+		},
+		{
+			name:                 "BadRequest",
+			postID:               -1,
+			mockBehaviourLikes:   func(s *mockDomain.MockPostsUseCase, postID uint64) {},
+			expectedErrorMessage: `code=400, message=bad request, internal=strconv.ParseUint: parsing "-1": invalid syntax`,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			post := mockDomain.NewMockPostsUseCase(ctrl)
+			users := mockDomain.NewMockUsersUseCase(ctrl)
+			image := mockDomain.NewMockImageUseCase(ctrl)
+
+			test.mockBehaviourLikes(post, uint64(test.postID))
+
+			handler := NewHandler(post, users, image)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodPut, "https://127.0.0.1/api/v1/posts/:id/likes", nil)
+			rec := httptest.NewRecorder()
+
+			c := e.NewContext(req, rec)
+			c.SetPath("https://127.0.0.1/api/v1/posts/:id/likes")
+			c.SetParamNames("id")
+			c.SetParamValues(strconv.FormatInt(int64(test.postID), 10))
+
+			err := handler.GetLikes(c)
+			if err != nil {
+				assert.Equal(t, test.expectedErrorMessage, err.Error())
+			}
+
+			body, err := io.ReadAll(rec.Body)
+			require.NoError(t, err)
+
+			assert.Equal(t, test.expectedResponse, strings.Trim(string(body), "\n"))
+		})
+	}
+}
+
+func TestHandler_CreateLike(t *testing.T) {
+	type mockBehaviourLikes func(s *mockDomain.MockPostsUseCase, userID, postID uint64)
+	type mockBehaviourUsers func(s *mockDomain.MockUsersUseCase, sessionID string)
+
+	tests := []struct {
+		name                 string
+		cookie               string
+		postID               int64
+		userID               uint64
+		mockBehaviourUsers   mockBehaviourUsers
+		mockBehaviourLikes   mockBehaviourLikes
+		expectedResponse    string
+		expectedErrorMessage string
+	}{
+		{
+			name:   "OK",
+			cookie: "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
+			postID: 21,
+			userID: 2,
+			mockBehaviourUsers: func(s *mockDomain.MockUsersUseCase, sessionID string) {
+				s.EXPECT().GetBySessionID(sessionID).Return(models.User{
+					ID:       2,
+					Username: "a",
+					Email:    "a@a.ru",
+				}, nil)
+			},
+			mockBehaviourLikes: func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {
+				s.EXPECT().LikePost(userID, postID).Return(nil)
+			},
+			expectedResponse: `{}`,
+		},
+		{
+			name: "ErrNoSession-1",
+			cookie: "JSAoPdaAsdasjdJNPdapoSAjdasakZcs",
+			userID: 1,
+			mockBehaviourUsers: func(s *mockDomain.MockUsersUseCase, sessionID string) {
+				s.EXPECT().GetBySessionID(sessionID).Return(models.User{}, errors.New("no session"))
+			},
+			mockBehaviourLikes: func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			expectedErrorMessage: "code=401, message=no existing session, internal=no session",
+		},
+		{
+			name: "ErrNoSession-2",
+			cookie: "JSAoPdaAsdasjdJNPdapoSAjdasakZcs",
+			userID: 1,
+			mockBehaviourUsers: func(s *mockDomain.MockUsersUseCase, sessionID string) {},
+			mockBehaviourLikes: func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			expectedErrorMessage: "code=401, message=no existing session, internal=http: named cookie not present",
+		},
+		{
+			name: "ErrLikeExist",
+			cookie: "JSAoPdaAsdasjdJNPdapoSAjdasakZcs",
+			userID: 2,
+			mockBehaviourUsers: func(s *mockDomain.MockUsersUseCase, sessionID string) {
+				s.EXPECT().GetBySessionID(sessionID).Return(models.User{
+					ID:       2,
+					Username: "a",
+					Email:    "a@a.ru",
+				}, nil)
+			},
+			mockBehaviourLikes: func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {
+				s.EXPECT().LikePost(userID, postID).Return(errors.New(""))
+			},
+			expectedErrorMessage: "code=500, message=like alredy exist, internal=",
+		},
+		{
+			name: "ErrBadId",
+			postID: -1,
+			mockBehaviourUsers: func(s *mockDomain.MockUsersUseCase, sessionID string) {},
+			mockBehaviourLikes: func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			expectedErrorMessage: `code=400, message=bad request, internal=strconv.ParseUint: parsing "-1": invalid syntax`,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			post := mockDomain.NewMockPostsUseCase(ctrl)
+			users := mockDomain.NewMockUsersUseCase(ctrl)
+			image := mockDomain.NewMockImageUseCase(ctrl)
+
+			test.mockBehaviourUsers(users, test.cookie)
+			test.mockBehaviourLikes(post, test.userID, uint64(test.postID))
+
+			handler := NewHandler(post, users, image)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodPut, "https://127.0.0.1/api/v1/posts/:id/likes", nil)
+			if test.name != "ErrNoSession-2" {
+				req.Header.Add("Cookie", "session_id="+test.cookie)
+			}
+			rec := httptest.NewRecorder()
+
+			c := e.NewContext(req, rec)
+			c.SetPath("https://127.0.0.1/api/v1/posts/:id/likes")
+			c.SetParamNames("id")
+			c.SetParamValues(strconv.FormatInt(int64(test.postID), 10))
+
+			err := handler.CreateLike(c)
+			if err != nil {
+				assert.Equal(t, test.expectedErrorMessage, err.Error())
+			}
+
+			body, err := io.ReadAll(rec.Body)
+			require.NoError(t, err)
+
+			assert.Equal(t, test.expectedResponse, strings.Trim(string(body), "\n"))
 		})
 	}
 }

@@ -312,26 +312,26 @@ func (h *Handler) CreateLike(c echo.Context) error {
 
 	err = h.postsUseCase.LikePost(user.ID, postID)
 	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrInternal, err)
+		return errorHandling.WrapEcho(domain.ErrLikeExist, err)
 	}
 
 	return c.JSON(http.StatusOK, models.EmptyStruct{})
 }
 
 // DeleteLike godoc
-// @Summary     Create like
+// @Summary     Delete like
 // @Description Create like on post
-// @ID          create_like
+// @ID          delete_like
 // @Tags        posts
 // @Param       id path integer true "Post id"
 // @Produce     json
-// @Success     200 {object} integer        "Likes were successfully recieved"
+// @Success     200 {object} integer        "Likes were successfully deleted"
 // @Failure     400 {object} echo.HTTPError "Bad request"
 // @Failure     401 {object} echo.HTTPError "No session provided"
 // @Failure     404 {object} echo.HTTPError "Post not found"
 // @Failure     500 {object} echo.HTTPError "Internal error"
 // @Security    ApiKeyAuth
-// @Router      /posts/{id}/likes [post]
+// @Router      /posts/{id}/likes [delete]
 func (h *Handler) DeleteLike(c echo.Context) error {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

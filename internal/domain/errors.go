@@ -29,6 +29,7 @@ var (
 
 var (
 	ErrNoLikes                 = errors.New("no likes were found")
+	ErrLikeExist               = errors.New("like alredy exist")
 	ErrBucketNotExists         = errors.New("bucket doesn't exist")
 	ErrFileOpen                = errors.New("failed to open file")
 	ErrUsernameExist           = errors.New("username exists")
