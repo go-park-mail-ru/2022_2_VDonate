@@ -1010,21 +1010,21 @@ func TestHandler_DeleteLike(t *testing.T) {
 			mockBehaviourUsers: func(s *mockDomain.MockUsersUseCase, sessionID string) {
 				s.EXPECT().GetBySessionID(sessionID).Return(models.User{}, errors.New("no session"))
 			},
-			mockBehaviourLikes: func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			mockBehaviourLikes:   func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
 			expectedErrorMessage: "code=401, message=no existing session, internal=no session",
 		},
 		{
-			name:   "ErrNoSession-2",
-			cookie: "JSAoPdaAsdasjdJNPdapoSAjdasakZcs",
-			mockBehaviourUsers: func(s *mockDomain.MockUsersUseCase, sessionID string) {},
-			mockBehaviourLikes: func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			name:                 "ErrNoSession-2",
+			cookie:               "JSAoPdaAsdasjdJNPdapoSAjdasakZcs",
+			mockBehaviourUsers:   func(s *mockDomain.MockUsersUseCase, sessionID string) {},
+			mockBehaviourLikes:   func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
 			expectedErrorMessage: "code=401, message=no existing session, internal=http: named cookie not present",
 		},
 		{
-			name: "BadId",
-			postID: -1,
-			mockBehaviourUsers: func(s *mockDomain.MockUsersUseCase, sessionID string) {},
-			mockBehaviourLikes: func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			name:                 "BadId",
+			postID:               -1,
+			mockBehaviourUsers:   func(s *mockDomain.MockUsersUseCase, sessionID string) {},
+			mockBehaviourLikes:   func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
 			expectedErrorMessage: "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
 		},
 	}

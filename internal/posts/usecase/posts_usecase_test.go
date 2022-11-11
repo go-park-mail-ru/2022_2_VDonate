@@ -78,11 +78,11 @@ func TestUsecase_GetLikesNum(t *testing.T) {
 	type mockBehaviourGetAllLikes func(s *mockDomain.MockPostsRepository, postID uint64)
 
 	tests := []struct {
-		name                        string
-		postID                      uint64
-		mockBehaviourGetAllLikes    mockBehaviourGetAllLikes
-		expectedResponse            uint64
-		expectedErrorMessage        string
+		name                     string
+		postID                   uint64
+		mockBehaviourGetAllLikes mockBehaviourGetAllLikes
+		expectedResponse         uint64
+		expectedErrorMessage     string
 	}{
 		{
 			name:   "OK",
