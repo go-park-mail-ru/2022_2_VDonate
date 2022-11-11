@@ -67,6 +67,15 @@ func (h *Handler) GetPosts(c echo.Context) error {
 		return c.JSON(http.StatusOK, struct{}{})
 	}
 
+	cookie, err := httpAuth.GetCookie(c)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+	}
+	user, err := h.usersUseCase.GetBySessionID(cookie.Value)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+	}
+
 	for i, post := range allPosts {
 		if allPosts[i].Img, err = h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), post.Img); err != nil {
 			return errorHandling.WrapEcho(domain.ErrInternal, err)
@@ -74,7 +83,7 @@ func (h *Handler) GetPosts(c echo.Context) error {
 		if allPosts[i].LikesNum, err = h.postsUseCase.GetLikesNum(post.ID); err != nil {
 			return errorHandling.WrapEcho(domain.ErrInternal, err)
 		}
-		allPosts[i].IsLiked = h.postsUseCase.IsPostLiked(userID, post.ID)
+		allPosts[i].IsLiked = h.postsUseCase.IsPostLiked(user.ID, post.ID)
 	}
 
 	return c.JSON(http.StatusOK, allPosts)

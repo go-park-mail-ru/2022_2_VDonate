@@ -25,11 +25,10 @@ import (
 
 func TestHandler_GetPosts(t *testing.T) {
 	type mockBehaviorGet func(s mockDomain.MockPostsUseCase, userID uint64)
-
 	type mockBehaviorImage func(s mockDomain.MockImageUseCase, bucket, filename string)
-
 	type mockBehaviourPost func(s mockDomain.MockPostsUseCase, postID uint64)
 	type mockBehaviourIsLike func(s mockDomain.MockPostsUseCase, userID, postID uint64)
+	type mockBehaviorCookie func(s mockDomain.MockUsersUseCase, sessionID string)
 
 	tests := []struct {
 		name                 string
@@ -40,6 +39,7 @@ func TestHandler_GetPosts(t *testing.T) {
 		mockBehaviorImage    mockBehaviorImage
 		mockBehaviourPost    mockBehaviourPost
 		mockBehaviourIsLike  mockBehaviourIsLike
+		mockBehaviorCookie   mockBehaviorCookie
 		expectedRequestBody  string
 		expectedErrorMessage string
 	}{
@@ -67,6 +67,11 @@ func TestHandler_GetPosts(t *testing.T) {
 			mockBehaviourIsLike: func(s mockDomain.MockPostsUseCase, userID, postID uint64) {
 				s.EXPECT().IsPostLiked(userID, postID).Return(true)
 			},
+			mockBehaviorCookie: func(s mockDomain.MockUsersUseCase, sessionID string) {
+				s.EXPECT().GetBySessionID(sessionID).Return(models.User{
+					ID: 123,
+				}, nil)
+			},
 			expectedRequestBody: `[{"postID":0,"userID":123,"img":"","title":"Look at this!!!","text":"Some text about my work","likesNum":0,"isLiked":true}]`,
 		},
 		{
@@ -80,6 +85,7 @@ func TestHandler_GetPosts(t *testing.T) {
 			},
 			mockBehaviourPost:   func(s mockDomain.MockPostsUseCase, postID uint64) {},
 			mockBehaviourIsLike: func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			mockBehaviorCookie:  func(s mockDomain.MockUsersUseCase, sessionID string) {},
 			expectedRequestBody: `{}`,
 		},
 		{
@@ -91,6 +97,7 @@ func TestHandler_GetPosts(t *testing.T) {
 			mockBehaviorImage:    func(s mockDomain.MockImageUseCase, bucket, filename string) {},
 			mockBehaviourPost:    func(s mockDomain.MockPostsUseCase, postID uint64) {},
 			mockBehaviourIsLike:  func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			mockBehaviorCookie:   func(s mockDomain.MockUsersUseCase, sessionID string) {},
 			expectedErrorMessage: "code=404, message=failed to find item, internal=failed to find item",
 		},
 		{
@@ -100,6 +107,7 @@ func TestHandler_GetPosts(t *testing.T) {
 			mockBehaviorImage:    func(s mockDomain.MockImageUseCase, bucket, filename string) {},
 			mockBehaviourPost:    func(s mockDomain.MockPostsUseCase, postID uint64) {},
 			mockBehaviourIsLike:  func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			mockBehaviorCookie:   func(s mockDomain.MockUsersUseCase, sessionID string) {},
 			expectedErrorMessage: "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
 		},
 		{
@@ -123,7 +131,12 @@ func TestHandler_GetPosts(t *testing.T) {
 			mockBehaviourPost: func(s mockDomain.MockPostsUseCase, postID uint64) {
 				s.EXPECT().GetLikesNum(postID).Return(uint64(0), domain.ErrInternal)
 			},
-			mockBehaviourIsLike:  func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			mockBehaviourIsLike: func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			mockBehaviorCookie: func(s mockDomain.MockUsersUseCase, sessionID string) {
+				s.EXPECT().GetBySessionID(sessionID).Return(models.User{
+					ID: 123,
+				}, nil)
+			},
 			expectedErrorMessage: "code=500, message=server error, internal=server error",
 		},
 		{
@@ -144,8 +157,13 @@ func TestHandler_GetPosts(t *testing.T) {
 					},
 				}, nil)
 			},
-			mockBehaviourPost:    func(s mockDomain.MockPostsUseCase, postID uint64) {},
-			mockBehaviourIsLike:  func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			mockBehaviourPost:   func(s mockDomain.MockPostsUseCase, postID uint64) {},
+			mockBehaviourIsLike: func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			mockBehaviorCookie: func(s mockDomain.MockUsersUseCase, sessionID string) {
+				s.EXPECT().GetBySessionID(sessionID).Return(models.User{
+					ID: 123,
+				}, nil)
+			},
 			expectedErrorMessage: "code=500, message=server error, internal=server error",
 		},
 	}
@@ -163,6 +181,7 @@ func TestHandler_GetPosts(t *testing.T) {
 			test.mockBehaviorImage(*image, "image", "path/to/img")
 			test.mockBehaviourPost(*post, test.postID)
 			test.mockBehaviourIsLike(*post, uint64(test.userID), test.postID)
+			test.mockBehaviorCookie(*users, test.cookie)
 
 			handler := NewHandler(post, users, image)
 
