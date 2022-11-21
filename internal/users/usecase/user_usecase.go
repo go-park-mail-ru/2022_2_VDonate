@@ -54,23 +54,23 @@ func (u *usecase) Create(user models.User) (uint64, error) {
 	return u.usersRepo.Create(user)
 }
 
-func (u *usecase) Update(user models.User, id uint64) error {
+func (u *usecase) Update(user models.User, id uint64) (models.User, error) {
 	updateUser, err := u.GetByID(id)
 	if err != nil {
-		return err
+		return models.User{}, err
 	}
 
 	if len(user.Password) != 0 {
 		if user.Password, err = u.hashCreator(user.Password); err != nil {
-			return err
+			return models.User{}, err
 		}
 	}
 
 	if err = copier.CopyWithOption(&updateUser, &user, copier.Option{IgnoreEmpty: true}); err != nil {
-		return err
+		return models.User{}, err
 	}
 
-	return u.usersRepo.Update(updateUser)
+	return updateUser, u.usersRepo.Update(updateUser)
 }
 
 func (u *usecase) DeleteByID(id uint64) error {

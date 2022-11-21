@@ -7,8 +7,9 @@ type Post struct {
 	Title  string `json:"title" form:"title" db:"title" validate:"required" example:"some title"`
 	Text   string `json:"text" form:"text" db:"text" validate:"required" example:"some text"`
 
-	LikesNum uint64 `json:"likesNum" validate:"required" example:"5"`
-	IsLiked  bool   `json:"isLiked" validate:"required" example:"true"`
+	Author   ResponseImageUsers `json:"author" validate:"required"`
+	LikesNum uint64             `json:"likesNum" validate:"required" example:"5"`
+	IsLiked  bool               `json:"isLiked" validate:"required" example:"true"`
 }
 
 type Like struct {

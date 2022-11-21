@@ -131,7 +131,7 @@ func (s *Server) makeUseCase(url string) error {
 	s.UserService = users.New(userRepo)
 
 	//-------------------------post-------------------------//
-	s.PostsService = posts.New(postsRepo)
+	s.PostsService = posts.New(postsRepo, userRepo)
 
 	//----------------------subscriber----------------------//
 	s.SubscribersService = subscribers.New(subscribersRepo, userRepo)

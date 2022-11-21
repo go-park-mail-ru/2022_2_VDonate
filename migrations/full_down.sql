@@ -1,7 +1,8 @@
-DROP TABLE sessions;
-DROP TABLE posts;
-DROP TABLE author_subscriptions;
-DROP TABLE subscriptions;
-DROP TABLE donates;
-DROP TABLE likes;
-DROP TABLE users;
+DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS posts;
+DROP TABLE IF EXISTS author_subscriptions;
+DROP TABLE IF EXISTS subscriptions;
+DROP TABLE IF EXISTS donates;
+DROP TABLE IF EXISTS likes;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS user_info;

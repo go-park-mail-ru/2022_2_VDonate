@@ -8,10 +8,14 @@ import (
 
 type usecase struct {
 	postsRepo domain.PostsRepository
+	userRepo  domain.UsersRepository
 }
 
-func New(repo domain.PostsRepository) domain.PostsUseCase {
-	return &usecase{postsRepo: repo}
+func New(postsRepo domain.PostsRepository, userRepo domain.UsersRepository) domain.PostsUseCase {
+	return &usecase{
+		postsRepo: postsRepo,
+		userRepo:  userRepo,
+	}
 }
 
 func (u *usecase) GetPostsByUserID(id uint64) ([]models.Post, error) {
@@ -20,20 +24,59 @@ func (u *usecase) GetPostsByUserID(id uint64) ([]models.Post, error) {
 		return nil, err
 	}
 
+	for i, post := range r {
+		author, errGetAuthor := u.userRepo.GetByID(post.UserID)
+		if errGetAuthor != nil {
+			return nil, err
+		}
+		r[i].Author.UserID = author.ID
+		r[i].Author.Username = author.Username
+		r[i].Author.ImgPath = author.Avatar
+	}
+
 	return r, nil
 }
 
 func (u *usecase) GetPostsByFilter(filter string, userID uint64) ([]models.Post, error) {
 	switch filter {
 	case "subscriptions":
-		return u.postsRepo.GetPostsBySubscriptions(userID)
+		r, err := u.postsRepo.GetPostsBySubscriptions(userID)
+		if err != nil {
+			return nil, err
+		}
+
+		for i, post := range r {
+			author, errGetAuthor := u.userRepo.GetByID(post.UserID)
+			if errGetAuthor != nil {
+				return nil, err
+			}
+			r[i].Author.UserID = author.ID
+			r[i].Author.Username = author.Username
+			r[i].Author.ImgPath = author.Avatar
+		}
+
+		return r, nil
 	default:
 		return nil, domain.ErrBadRequest
 	}
 }
 
 func (u *usecase) GetPostByID(postID uint64) (models.Post, error) {
-	return u.postsRepo.GetPostByID(postID)
+	r, err := u.postsRepo.GetPostByID(postID)
+	if err != nil {
+		return models.Post{}, err
+	}
+
+	author, errGetAuthor := u.userRepo.GetByID(r.UserID)
+	if errGetAuthor != nil {
+		return models.Post{}, err
+	}
+
+	r.Author.UserID = author.ID
+	r.Author.Username = author.Username
+	r.Author.ImgPath = author.Avatar
+
+	return r, nil
 }
 
 func (u *usecase) Create(post models.Post, userID uint64) (uint64, error) {

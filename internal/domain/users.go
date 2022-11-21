@@ -9,7 +9,7 @@ type UsersUseCase interface {
 	GetBySessionID(sessionID string) (models.User, error)
 	GetUserByPostID(postID uint64) (models.User, error)
 	Create(user models.User) (uint64, error)
-	Update(user models.User, id uint64) error
+	Update(user models.User, id uint64) (models.User, error)
 	DeleteByID(id uint64) error
 	DeleteByUsername(username string) error
 	DeleteByEmail(email string) error

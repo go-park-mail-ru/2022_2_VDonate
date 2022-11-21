@@ -55,7 +55,7 @@ func (h Handler) GetSubscriptions(c echo.Context) error {
 	}
 
 	if len(s) == 0 {
-		return c.JSON(http.StatusOK, models.EmptyStruct{})
+		return c.JSON(http.StatusOK, make([]models.AuthorSubscription, 0))
 	}
 
 	for i, subscription := range s {
@@ -93,7 +93,7 @@ func (h Handler) GetAuthorSubscriptions(c echo.Context) error {
 	}
 
 	if len(s) == 0 {
-		return c.JSON(http.StatusOK, models.EmptyStruct{})
+		return c.JSON(http.StatusOK, make([]models.AuthorSubscription, 0))
 	}
 
 	for i, subscription := range s {

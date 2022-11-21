@@ -92,10 +92,9 @@ func (r Postgres) GetPostsBySubscriptions(userID uint64) ([]models.Post, error) 
 	var posts []models.Post
 	if err := r.DB.Select(&posts, `
 		SELECT p.post_id, p.user_id, p.img, p.title, p.text
-		FROM users
-		JOIN subscriptions s on s.subscriber_id = users.id
+		FROM subscriptions s
 		JOIN posts p on s.author_id = p.user_id
-		WHERE p.user_id=$1;
+		WHERE s.subscriber_id=$1;
 	`, userID); err != nil {
 		return nil, err
 	}

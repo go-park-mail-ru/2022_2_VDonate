@@ -126,12 +126,13 @@ func (h *Handler) PutUser(c echo.Context) error {
 		}
 	}
 
-	if err = h.userUseCase.Update(updateUser, id); err != nil {
+	if updateUser, err = h.userUseCase.Update(updateUser, id); err != nil {
 		return errorHandling.WrapEcho(domain.ErrUpdate, err)
 	}
 
 	return c.JSON(http.StatusOK, models.ResponseImageUsers{
-		UserID:  id,
-		ImgPath: updateUser.Avatar,
+		UserID:   id,
+		Username: updateUser.Username,
+		ImgPath:  updateUser.Avatar,
 	})
 }
