@@ -125,26 +125,26 @@ func (s *Server) makeUseCase(url string) error {
 		s.Echo.Logger.Error(err)
 	}
 
+	//------------------------images------------------------//
+	s.ImagesService = images.New(imagesRepo)
+
 	//-----------------------sessions-----------------------//
 	s.AuthService = auth.New(sessionRepo, userRepo)
 
 	//-------------------------user-------------------------//
-	s.UserService = users.New(userRepo)
+	s.UserService = users.New(userRepo, s.ImagesService)
 
 	//-------------------------post-------------------------//
-	s.PostsService = posts.New(postsRepo, userRepo)
+	s.PostsService = posts.New(postsRepo, userRepo, s.ImagesService)
 
 	//----------------------subscriber----------------------//
 	s.SubscribersService = subscribers.New(subscribersRepo, userRepo)
 
 	//---------------------subscription---------------------//
-	s.SubscriptionService = subscriptions.New(subscriptionsRepo)
+	s.SubscriptionService = subscriptions.New(subscriptionsRepo, userRepo, s.ImagesService)
 
 	//-----------------------donates------------------------//
 	s.DonatesService = donates.New(donatesRepo, userRepo)
-
-	//------------------------images------------------------//
-	s.ImagesService = images.New(imagesRepo)
 
 	return nil
 }

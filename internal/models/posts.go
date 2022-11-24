@@ -6,6 +6,7 @@ type Post struct {
 	Img    string `json:"img" form:"img" db:"img" validate:"required" example:"path/to/image.jpeg"`
 	Title  string `json:"title" form:"title" db:"title" validate:"required" example:"some title"`
 	Text   string `json:"text" form:"text" db:"text" validate:"required" example:"some text"`
+	Tier   uint64 `json:"tier" form:"tier" db:"tier" example:"5"`
 
 	Author   ResponseImageUsers `json:"author" validate:"required"`
 	LikesNum uint64             `json:"likesNum" validate:"required" example:"5"`

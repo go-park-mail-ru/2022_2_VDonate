@@ -53,26 +53,6 @@ func (h Handler) GetSubscriptions(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
-	if len(s) == 0 {
-		return c.JSON(http.StatusOK, make([]models.AuthorSubscription, 0))
-	}
-
-	for i, subscription := range s {
-		if s[i].Img, err = h.imageUsecase.GetImage(subscription.Img); err != nil {
-			return errorHandling.WrapEcho(domain.ErrInternal, err)
-		}
-
-		author, errAuthor := h.userUsecase.GetByID(subscription.AuthorID)
-		if errAuthor != nil {
-			return errorHandling.WrapEcho(domain.ErrInternal, errAuthor)
-		}
-
-		s[i].AuthorName = author.Username
-		if s[i].AuthorAvatar, err = h.imageUsecase.GetImage(author.Avatar); err != nil {
-			return errorHandling.WrapEcho(domain.ErrInternal, err)
-		}
-	}
-
 	return c.JSON(http.StatusOK, s)
 }
 
@@ -99,16 +79,6 @@ func (h Handler) GetAuthorSubscriptions(c echo.Context) error {
 	s, err := h.subscriptionsUsecase.GetAuthorSubscriptionsByAuthorID(authorID)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
-	}
-
-	if len(s) == 0 {
-		return c.JSON(http.StatusOK, make([]models.AuthorSubscription, 0))
-	}
-
-	for i, subscription := range s {
-		if s[i].Img, err = h.imageUsecase.GetImage(subscription.Img); err != nil {
-			return errorHandling.WrapEcho(domain.ErrInternal, err)
-		}
 	}
 
 	return c.JSON(http.StatusOK, s)
@@ -138,10 +108,6 @@ func (h Handler) GetAuthorSubscription(c echo.Context) error {
 	s, err := h.subscriptionsUsecase.GetAuthorSubscriptionByID(subID)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
-	}
-
-	if s.Img, err = h.imageUsecase.GetImage(s.Img); err != nil {
-		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
 	return c.JSON(http.StatusOK, s)

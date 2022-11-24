@@ -46,7 +46,8 @@ CREATE TABLE IF NOT EXISTS posts
     user_id bigserial     not null references users (id) on delete cascade,
     img     varchar(64)   not null,
     title   varchar(128)  not null,
-    text    varchar(2048) not null
+    text    varchar(2048) not null,
+    tier    int default 0
 );
 
 /*

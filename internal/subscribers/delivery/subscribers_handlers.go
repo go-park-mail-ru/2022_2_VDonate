@@ -49,10 +49,6 @@ func (h Handler) GetSubscribers(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
 
-	if len(s) == 0 {
-		return c.JSON(http.StatusOK, make([]models.User, 0))
-	}
-
 	return c.JSON(http.StatusOK, s)
 }
 

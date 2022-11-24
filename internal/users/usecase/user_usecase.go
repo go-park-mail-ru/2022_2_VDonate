@@ -10,44 +10,76 @@ import (
 type hashCreator func(password string) (string, error)
 
 type usecase struct {
-	usersRepo domain.UsersRepository
+	usersRepo  domain.UsersRepository
+	imgUseCase domain.ImageUseCase
 
 	hashCreator hashCreator
 }
 
-func New(usersRepo domain.UsersRepository) domain.UsersUseCase {
+func New(usersRepo domain.UsersRepository, imgUseCase domain.ImageUseCase) domain.UsersUseCase {
 	return &usecase{
-		usersRepo: usersRepo,
+		usersRepo:  usersRepo,
+		imgUseCase: imgUseCase,
 
 		hashCreator: utils.HashPassword,
 	}
 }
 
-func WithHashCreator(usersRepo domain.UsersRepository, hashCreator hashCreator) domain.UsersUseCase {
+func WithHashCreator(usersRepo domain.UsersRepository, imgUseCase domain.ImageUseCase, hashCreator hashCreator) domain.UsersUseCase {
 	return &usecase{
-		usersRepo:   usersRepo,
+		usersRepo:  usersRepo,
+		imgUseCase: imgUseCase,
+
 		hashCreator: hashCreator,
 	}
 }
 
 func (u *usecase) GetByID(id uint64) (models.User, error) {
-	return u.usersRepo.GetByID(id)
+	user, err := u.usersRepo.GetByID(id)
+	if err != nil {
+		return models.User{}, err
+	}
+	if user.Avatar, err = u.imgUseCase.GetImage(user.Avatar); err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
 }
 
 func (u *usecase) GetByUsername(username string) (models.User, error) {
-	return u.usersRepo.GetByUsername(username)
+	user, err := u.usersRepo.GetByUsername(username)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
 }
 
 func (u *usecase) GetByEmail(email string) (models.User, error) {
-	return u.usersRepo.GetByEmail(email)
+	user, err := u.usersRepo.GetByEmail(email)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
 }
 
 func (u *usecase) GetBySessionID(sessionID string) (models.User, error) {
-	return u.usersRepo.GetBySessionID(sessionID)
+	user, err := u.usersRepo.GetBySessionID(sessionID)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
 }
 
 func (u *usecase) GetUserByPostID(postID uint64) (models.User, error) {
-	return u.usersRepo.GetUserByPostID(postID)
+	user, err := u.usersRepo.GetUserByPostID(postID)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
 }
 
 func (u *usecase) Create(user models.User) (uint64, error) {

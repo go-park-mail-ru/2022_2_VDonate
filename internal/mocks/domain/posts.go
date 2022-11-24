@@ -109,18 +109,18 @@ func (mr *MockPostsUseCaseMockRecorder) GetLikesNum(postID interface{}) *gomock.
 }
 
 // GetPostByID mocks base method.
-func (m *MockPostsUseCase) GetPostByID(postID uint64) (models.Post, error) {
+func (m *MockPostsUseCase) GetPostByID(postID, userID uint64) (models.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPostByID", postID)
+	ret := m.ctrl.Call(m, "GetPostByID", postID, userID)
 	ret0, _ := ret[0].(models.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetPostByID indicates an expected call of GetPostByID.
-func (mr *MockPostsUseCaseMockRecorder) GetPostByID(postID interface{}) *gomock.Call {
+func (mr *MockPostsUseCaseMockRecorder) GetPostByID(postID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostByID", reflect.TypeOf((*MockPostsUseCase)(nil).GetPostByID), postID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostByID", reflect.TypeOf((*MockPostsUseCase)(nil).GetPostByID), postID, userID)
 }
 
 // GetPostsByFilter mocks base method.
@@ -136,21 +136,6 @@ func (m *MockPostsUseCase) GetPostsByFilter(filter string, userID uint64) ([]mod
 func (mr *MockPostsUseCaseMockRecorder) GetPostsByFilter(filter, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostsByFilter", reflect.TypeOf((*MockPostsUseCase)(nil).GetPostsByFilter), filter, userID)
-}
-
-// GetPostsByUserID mocks base method.
-func (m *MockPostsUseCase) GetPostsByUserID(id uint64) ([]models.Post, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPostsByUserID", id)
-	ret0, _ := ret[0].([]models.Post)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetPostsByUserID indicates an expected call of GetPostsByUserID.
-func (mr *MockPostsUseCaseMockRecorder) GetPostsByUserID(id interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostsByUserID", reflect.TypeOf((*MockPostsUseCase)(nil).GetPostsByUserID), id)
 }
 
 // IsPostLiked mocks base method.

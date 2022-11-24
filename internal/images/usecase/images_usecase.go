@@ -20,7 +20,11 @@ func New(imageRepo domain.ImagesRepository) domain.ImageUseCase {
 }
 
 func (u usecase) CreateImage(image *multipart.FileHeader) (string, error) {
-	image.Filename = uuid.New().String() + image.Filename[strings.IndexByte(image.Filename, '.'):]
+	idx := strings.IndexByte(image.Filename, '.')
+	if idx == -1 {
+		return "", domain.ErrBadRequest
+	}
+	image.Filename = uuid.New().String() + image.Filename[idx:]
 	return u.ImageRepo.CreateImage(image)
 }
 
