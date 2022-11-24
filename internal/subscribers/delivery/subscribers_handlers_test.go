@@ -180,7 +180,7 @@ func TestHandler_GetSubscribers(t *testing.T) {
 			mockSubscribe: func(u *mock_domain.MockSubscribersUseCase, id uint64) {
 				u.EXPECT().GetSubscribers(id).Return([]models.User{}, nil)
 			},
-			response: "{}",
+			response: "[]",
 		},
 
 		{

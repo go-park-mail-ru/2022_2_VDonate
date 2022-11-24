@@ -44,6 +44,41 @@ definitions:
     - isAuthor
     - username
     type: object
+  models.AuthorSubscription:
+    properties:
+      authorAvatar:
+        example: path/to/img
+        type: string
+      authorID:
+        example: 1
+        type: integer
+      authorName:
+        example: leo
+        type: string
+      id:
+        example: 1
+        type: integer
+      img:
+        example: filename.jpeg
+        type: string
+      price:
+        example: 2999
+        type: integer
+      text:
+        example: some text
+        type: string
+      tier:
+        example: 15
+        type: integer
+      title:
+        example: some title
+        type: string
+    required:
+    - price
+    - text
+    - tier
+    - title
+    type: object
   models.AuthorSubscriptionMpfd:
     properties:
       img:
@@ -106,6 +141,8 @@ definitions:
     type: object
   models.Post:
     properties:
+      author:
+        $ref: '#/definitions/models.ResponseImageUsers'
       img:
         example: path/to/image.jpeg
         type: string
@@ -128,6 +165,7 @@ definitions:
         example: 1
         type: integer
     required:
+    - author
     - img
     - isLiked
     - likesNum
@@ -174,9 +212,13 @@ definitions:
       userID:
         example: 25
         type: integer
+      username:
+        example: leo
+        type: string
     required:
     - imgPath
     - userID
+    - username
     type: object
   models.Subscription:
     properties:
@@ -892,7 +934,7 @@ paths:
           description: Successfully received subscriptions
           schema:
             items:
-              $ref: '#/definitions/models.AuthorSubscriptionMpfd'
+              $ref: '#/definitions/models.AuthorSubscription'
             type: array
         "400":
           description: Bad request

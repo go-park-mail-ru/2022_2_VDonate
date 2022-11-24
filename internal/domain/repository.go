@@ -2,7 +2,6 @@ package domain
 
 import (
 	"mime/multipart"
-	"net/url"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 )
@@ -65,7 +64,6 @@ type DonatesRepository interface {
 }
 
 type ImagesRepository interface {
-	CreateImage(image *multipart.FileHeader, bucket string) (string, error)
-	GetImage(bucket string, filename string) (*url.URL, error)
-	GetPermanentImage(bucket string, filename string) (string, error)
+	CreateImage(image *multipart.FileHeader) (string, error)
+	GetPermanentImage(filename string) (string, error)
 }

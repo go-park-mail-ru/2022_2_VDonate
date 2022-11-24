@@ -49,7 +49,7 @@ func TestHandler_GetSubscriptions(t *testing.T) {
 				}, nil)
 			},
 			mockBehaviorImage: func(u *mockDomain.MockImageUseCase, bucket, name string) {
-				u.EXPECT().GetImage(bucket, name).Return("path/to/img", nil)
+				u.EXPECT().GetImage(name).Return("path/to/img", nil)
 			},
 			expectedResponseBody: "[{\"id\":0,\"authorID\":0,\"img\":\"path/to/img\",\"tier\":0,\"title\":\"\",\"text\":\"\",\"price\":0}]",
 		},
@@ -60,7 +60,7 @@ func TestHandler_GetSubscriptions(t *testing.T) {
 				u.EXPECT().GetSubscriptionsByUserID(userID).Return([]models.AuthorSubscription{}, nil)
 			},
 			mockBehaviorImage:    func(u *mockDomain.MockImageUseCase, bucket, name string) {},
-			expectedResponseBody: "{}",
+			expectedResponseBody: "[]",
 		},
 		{
 			name:   "ErrInternal-subscriptions",
@@ -80,7 +80,7 @@ func TestHandler_GetSubscriptions(t *testing.T) {
 				}, nil)
 			},
 			mockBehaviorImage: func(u *mockDomain.MockImageUseCase, bucket, name string) {
-				u.EXPECT().GetImage(bucket, name).Return("", domain.ErrInternal)
+				u.EXPECT().GetImage(name).Return("", domain.ErrInternal)
 			},
 			expectedErrorMessage: "code=500, message=server error, internal=server error",
 		},
@@ -146,7 +146,7 @@ func TestHandler_GetAuthorSubscriptions(t *testing.T) {
 				}, nil)
 			},
 			mockBehaviorImage: func(u *mockDomain.MockImageUseCase, bucket, name string) {
-				u.EXPECT().GetImage(bucket, name).Return("path/to/img", nil)
+				u.EXPECT().GetImage(name).Return("path/to/img", nil)
 			},
 			expectedResponseBody: "[{\"id\":0,\"authorID\":0,\"img\":\"path/to/img\",\"tier\":0,\"title\":\"\",\"text\":\"\",\"price\":0}]",
 		},
@@ -175,7 +175,7 @@ func TestHandler_GetAuthorSubscriptions(t *testing.T) {
 				}, nil)
 			},
 			mockBehaviorImage: func(u *mockDomain.MockImageUseCase, bucket, name string) {
-				u.EXPECT().GetImage(bucket, name).Return("", domain.ErrInternal)
+				u.EXPECT().GetImage(name).Return("", domain.ErrInternal)
 			},
 			expectedErrorMessage: "code=500, message=server error, internal=server error",
 		},
@@ -241,7 +241,7 @@ func TestHandler_GetAuthorSubscription(t *testing.T) {
 				}, nil)
 			},
 			mockBehaviorImage: func(u *mockDomain.MockImageUseCase, bucket, name string) {
-				u.EXPECT().GetImage(bucket, name).Return("path/to/img", nil)
+				u.EXPECT().GetImage(name).Return("path/to/img", nil)
 			},
 			expectedResponseBody: "{\"id\":0,\"authorID\":0,\"img\":\"path/to/img\",\"tier\":0,\"title\":\"\",\"text\":\"\",\"price\":0}",
 		},
@@ -270,7 +270,7 @@ func TestHandler_GetAuthorSubscription(t *testing.T) {
 				}, nil)
 			},
 			mockBehaviorImage: func(u *mockDomain.MockImageUseCase, bucket, name string) {
-				u.EXPECT().GetImage(bucket, name).Return("", domain.ErrInternal)
+				u.EXPECT().GetImage(name).Return("", domain.ErrInternal)
 			},
 			expectedErrorMessage: "code=500, message=server error, internal=server error",
 		},
@@ -349,13 +349,13 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			mockCreateImage: func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
 				assert.NoError(t, err)
-				u.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
+				u.EXPECT().CreateImage(file).Return("../../../test/test.txt", nil)
 			},
 			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {
 				u.EXPECT().AddAuthorSubscription(s, authorID).Return(authorID, nil)
 			},
 			mockGetAvatar: func(u *mockDomain.MockImageUseCase, filename string) {
-				u.EXPECT().GetImage("avatar", filename).Return("../../../test/test.txt", nil)
+				u.EXPECT().GetImage(filename).Return("../../../test/test.txt", nil)
 			},
 		},
 		{
@@ -425,7 +425,7 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			mockCreateImage: func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
 				assert.NoError(t, err)
-				u.EXPECT().CreateImage(file, bucket).Return("", domain.ErrCreate)
+				u.EXPECT().CreateImage(file).Return("", domain.ErrCreate)
 			},
 			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {},
 			mockGetAvatar:             func(u *mockDomain.MockImageUseCase, filename string) {},
@@ -447,7 +447,7 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			mockCreateImage: func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
 				assert.NoError(t, err)
-				u.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
+				u.EXPECT().CreateImage(file).Return("../../../test/test.txt", nil)
 			},
 			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {
 				u.EXPECT().AddAuthorSubscription(s, authorID).Return(uint64(0), domain.ErrCreate)
@@ -472,13 +472,13 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			mockCreateImage: func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
 				assert.NoError(t, err)
-				u.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
+				u.EXPECT().CreateImage(file).Return("../../../test/test.txt", nil)
 			},
 			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {
 				u.EXPECT().AddAuthorSubscription(s, authorID).Return(authorID, nil)
 			},
 			mockGetAvatar: func(u *mockDomain.MockImageUseCase, filename string) {
-				u.EXPECT().GetImage("avatar", filename).Return("", domain.ErrInternal)
+				u.EXPECT().GetImage(filename).Return("", domain.ErrInternal)
 			},
 			expectedErrorMessage: "code=500, message=server error, internal=server error",
 		},
@@ -584,7 +584,7 @@ func TestHandler_UpdateAuthorSubscription(t *testing.T) {
 			mockCreateImage: func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
 				assert.NoError(t, err)
-				u.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
+				u.EXPECT().CreateImage(file).Return("../../../test/test.txt", nil)
 			},
 			mockUpdateAuthor: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, subID uint64) {
 				u.EXPECT().UpdateAuthorSubscription(s, subID).Return(nil)
@@ -622,7 +622,7 @@ func TestHandler_UpdateAuthorSubscription(t *testing.T) {
 			mockCreateImage: func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
 				assert.NoError(t, err)
-				u.EXPECT().CreateImage(file, bucket).Return("", domain.ErrCreate)
+				u.EXPECT().CreateImage(file).Return("", domain.ErrCreate)
 			},
 			mockUpdateAuthor:     func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, subID uint64) {},
 			expectedErrorMessage: "code=500, message=failed to create item, internal=failed to create item",
@@ -636,7 +636,7 @@ func TestHandler_UpdateAuthorSubscription(t *testing.T) {
 			mockCreateImage: func(u *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
 				assert.NoError(t, err)
-				u.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
+				u.EXPECT().CreateImage(file).Return("../../../test/test.txt", nil)
 			},
 			mockUpdateAuthor: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, subID uint64) {
 				u.EXPECT().UpdateAuthorSubscription(s, subID).Return(domain.ErrUpdate)

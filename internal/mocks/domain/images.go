@@ -35,31 +35,31 @@ func (m *MockImageUseCase) EXPECT() *MockImageUseCaseMockRecorder {
 }
 
 // CreateImage mocks base method.
-func (m *MockImageUseCase) CreateImage(image *multipart.FileHeader, bucket string) (string, error) {
+func (m *MockImageUseCase) CreateImage(image *multipart.FileHeader) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateImage", image, bucket)
+	ret := m.ctrl.Call(m, "CreateImage", image)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateImage indicates an expected call of CreateImage.
-func (mr *MockImageUseCaseMockRecorder) CreateImage(image, bucket interface{}) *gomock.Call {
+func (mr *MockImageUseCaseMockRecorder) CreateImage(image interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateImage", reflect.TypeOf((*MockImageUseCase)(nil).CreateImage), image, bucket)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateImage", reflect.TypeOf((*MockImageUseCase)(nil).CreateImage), image)
 }
 
 // GetImage mocks base method.
-func (m *MockImageUseCase) GetImage(bucket, name string) (string, error) {
+func (m *MockImageUseCase) GetImage(filename string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetImage", bucket, name)
+	ret := m.ctrl.Call(m, "GetImage", filename)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetImage indicates an expected call of GetImage.
-func (mr *MockImageUseCaseMockRecorder) GetImage(bucket, name interface{}) *gomock.Call {
+func (mr *MockImageUseCaseMockRecorder) GetImage(filename interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImage", reflect.TypeOf((*MockImageUseCase)(nil).GetImage), bucket, name)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImage", reflect.TypeOf((*MockImageUseCase)(nil).GetImage), filename)
 }

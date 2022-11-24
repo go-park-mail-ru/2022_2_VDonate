@@ -2,7 +2,6 @@ package httpPosts
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -70,7 +69,7 @@ func (h *Handler) GetPosts(c echo.Context) error {
 			return errorHandling.WrapEcho(domain.ErrNoSession, err)
 		}
 
-		if user, errU = h.usersUseCase.GetBySessionID(cookie.Value); err != nil {
+		if user, errU = h.usersUseCase.GetBySessionID(cookie.Value); errU != nil {
 			return errorHandling.WrapEcho(domain.ErrNoSession, errU)
 		}
 		if allPosts, err = h.postsUseCase.GetPostsByFilter(filter, user.ID); err != nil {
@@ -85,10 +84,10 @@ func (h *Handler) GetPosts(c echo.Context) error {
 	}
 
 	for i, post := range allPosts {
-		if allPosts[i].Img, err = h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), post.Img); err != nil {
+		if allPosts[i].Img, err = h.imageUseCase.GetImage(post.Img); err != nil {
 			return errorHandling.WrapEcho(domain.ErrInternal, err)
 		}
-		if allPosts[i].Author.ImgPath, err = h.imageUseCase.GetImage("avatar", post.Author.ImgPath); err != nil {
+		if allPosts[i].Author.ImgPath, err = h.imageUseCase.GetImage(post.Author.ImgPath); err != nil {
 			return errorHandling.WrapEcho(domain.ErrInternal, err)
 		}
 		if allPosts[i].LikesNum, err = h.postsUseCase.GetLikesNum(post.ID); err != nil {
@@ -126,11 +125,11 @@ func (h *Handler) GetPost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
 
-	if post.Img, err = h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), post.Img); err != nil {
+	if post.Img, err = h.imageUseCase.GetImage(post.Img); err != nil {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
-	if post.Author.ImgPath, err = h.imageUseCase.GetImage("avatar", post.Author.ImgPath); err != nil {
+	if post.Author.ImgPath, err = h.imageUseCase.GetImage(post.Author.ImgPath); err != nil {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
@@ -215,7 +214,7 @@ func (h *Handler) PutPost(c echo.Context) error {
 	file, err := images.GetFileFromContext(c)
 
 	if file != nil && !errors.Is(err, http.ErrMissingFile) {
-		if prevPost.Img, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
+		if prevPost.Img, err = h.imageUseCase.CreateImage(file); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
 		}
 	}
@@ -224,7 +223,7 @@ func (h *Handler) PutPost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrUpdate, err)
 	}
 
-	tmpURL, err := h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), prevPost.Img)
+	tmpURL, err := h.imageUseCase.GetImage(prevPost.Img)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
@@ -271,7 +270,7 @@ func (h *Handler) CreatePost(c echo.Context) error {
 
 	file, err := images.GetFileFromContext(c)
 	if file != nil && !errors.Is(err, http.ErrMissingFile) {
-		if post.Img, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
+		if post.Img, err = h.imageUseCase.CreateImage(file); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
 		}
 	}
@@ -281,7 +280,7 @@ func (h *Handler) CreatePost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 
-	tmpURL, err := h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), post.Img)
+	tmpURL, err := h.imageUseCase.GetImage(post.Img)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}

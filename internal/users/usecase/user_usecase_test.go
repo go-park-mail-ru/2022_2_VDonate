@@ -76,7 +76,7 @@ func TestUsecase_Update(t *testing.T) {
 				},
 			)
 
-			err := usecase.Update(test.inputUser, test.inputUser.ID)
+			_, err := usecase.Update(test.inputUser, test.inputUser.ID)
 			if err != nil {
 				require.EqualError(t, err, test.responseError)
 			}

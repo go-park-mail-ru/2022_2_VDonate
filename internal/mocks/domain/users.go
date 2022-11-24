@@ -195,11 +195,12 @@ func (mr *MockUsersUseCaseMockRecorder) IsExistUsernameAndEmail(username, email 
 }
 
 // Update mocks base method.
-func (m *MockUsersUseCase) Update(user models.User, id uint64) error {
+func (m *MockUsersUseCase) Update(user models.User, id uint64) (models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", user, id)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Update indicates an expected call of Update.

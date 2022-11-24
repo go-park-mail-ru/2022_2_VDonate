@@ -34,6 +34,9 @@ func (r Postgres) Close() error {
 func (r Postgres) Create(user model.User) (uint64, error) {
 	var id uint64
 	tx, err := r.DB.Begin()
+	if err != nil {
+		return 0, err
+	}
 
 	if err = tx.QueryRow(
 		`
@@ -46,7 +49,7 @@ func (r Postgres) Create(user model.User) (uint64, error) {
 		return 0, err
 	}
 
-	if err = tx.QueryRow(
+	if _, err = tx.Exec(
 		`
 			INSERT INTO user_info (user_id, avatar, password, is_author, about) 
 			VALUES ($1, $2, $3, $4, $5);`,
@@ -55,7 +58,7 @@ func (r Postgres) Create(user model.User) (uint64, error) {
 		user.Password,
 		user.IsAuthor,
 		user.About,
-	).Err(); err != nil {
+	); err != nil {
 		if errTx := tx.Rollback(); errTx != nil {
 			return 0, errTx
 		}
@@ -63,9 +66,6 @@ func (r Postgres) Create(user model.User) (uint64, error) {
 	}
 
 	if err = tx.Commit(); err != nil {
-		if errTx := tx.Rollback(); errTx != nil {
-			return 0, errTx
-		}
 		return 0, err
 	}
 
@@ -207,6 +207,9 @@ func (r Postgres) GetUserByPostID(postID uint64) (model.User, error) {
 
 func (r Postgres) Update(user model.User) error {
 	tx, err := r.DB.Begin()
+	if err != nil {
+		return err
+	}
 
 	if _, err = tx.Exec(
 		`
@@ -244,18 +247,14 @@ func (r Postgres) Update(user model.User) error {
 		return err
 	}
 
-	if err = tx.Commit(); err != nil {
-		if errTx := tx.Rollback(); errTx != nil {
-			return errTx
-		}
-		return err
-	}
-
-	return nil
+	return tx.Commit()
 }
 
 func (r Postgres) DeleteByID(id uint64) error {
 	tx, err := r.DB.Begin()
+	if err != nil {
+		return err
+	}
 	if _, err = tx.Exec(`
 		DELETE FROM users WHERE id=$1;`,
 		id,
@@ -276,12 +275,5 @@ func (r Postgres) DeleteByID(id uint64) error {
 		return err
 	}
 
-	if err = tx.Commit(); err != nil {
-		if errTx := tx.Rollback(); errTx != nil {
-			return errTx
-		}
-		return err
-	}
-
-	return nil
+	return tx.Commit()
 }

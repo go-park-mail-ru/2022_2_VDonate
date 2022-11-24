@@ -2,7 +2,6 @@ package httpUsers
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -63,7 +62,7 @@ func (h *Handler) GetUser(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
 
-	if user.Avatar, err = h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), user.Avatar); err != nil {
+	if user.Avatar, err = h.imageUseCase.GetImage(user.Avatar); err != nil {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
@@ -121,13 +120,17 @@ func (h *Handler) PutUser(c echo.Context) error {
 	}
 
 	if file != nil {
-		if updateUser.Avatar, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
+		if updateUser.Avatar, err = h.imageUseCase.CreateImage(file); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
 		}
 	}
 
 	if updateUser, err = h.userUseCase.Update(updateUser, id); err != nil {
 		return errorHandling.WrapEcho(domain.ErrUpdate, err)
+	}
+
+	if updateUser.Avatar, err = h.imageUseCase.GetImage(updateUser.Avatar); err != nil {
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
 	return c.JSON(http.StatusOK, models.ResponseImageUsers{

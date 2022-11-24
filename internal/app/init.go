@@ -10,7 +10,6 @@ import (
 	httpdonates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery"
 	donatesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/repository"
 	donates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/usecase"
-	imagesMiddleware "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/middlewares"
 	imagesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/repository"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	httpPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery"
@@ -114,7 +113,9 @@ func (s *Server) makeUseCase(url string) error {
 		s.Config.S3.AccessKeyID,
 		s.Config.S3.SecretAccessKey,
 		s.Config.S3.UseSSL,
-		s.Config.S3.Buckets,
+		s.Config.S3.Buckets.SymbolsToHash,
+		s.Config.S3.Buckets.Policy,
+		s.Config.S3.Buckets.Expire,
 	)
 	if err != nil {
 		return err
@@ -172,8 +173,6 @@ func (s *Server) makeRouter() {
 	s.Echo.Use(logger.Middleware())
 	s.Echo.Use(middleware.Secure())
 	v1 := s.Echo.Group("/api/v1")
-
-	v1.Use(imagesMiddleware.BucketManager)
 
 	v1.POST("/login", s.authHandler.Login)
 	v1.GET("/auth", s.authHandler.Auth)

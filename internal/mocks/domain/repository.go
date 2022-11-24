@@ -6,7 +6,6 @@ package mock_domain
 
 import (
 	multipart "mime/multipart"
-	url "net/url"
 	reflect "reflect"
 
 	models "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
@@ -745,46 +744,31 @@ func (m *MockImagesRepository) EXPECT() *MockImagesRepositoryMockRecorder {
 }
 
 // CreateImage mocks base method.
-func (m *MockImagesRepository) CreateImage(image *multipart.FileHeader, bucket string) (string, error) {
+func (m *MockImagesRepository) CreateImage(image *multipart.FileHeader) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateImage", image, bucket)
+	ret := m.ctrl.Call(m, "CreateImage", image)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateImage indicates an expected call of CreateImage.
-func (mr *MockImagesRepositoryMockRecorder) CreateImage(image, bucket interface{}) *gomock.Call {
+func (mr *MockImagesRepositoryMockRecorder) CreateImage(image interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateImage", reflect.TypeOf((*MockImagesRepository)(nil).CreateImage), image, bucket)
-}
-
-// GetImage mocks base method.
-func (m *MockImagesRepository) GetImage(bucket, filename string) (*url.URL, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetImage", bucket, filename)
-	ret0, _ := ret[0].(*url.URL)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetImage indicates an expected call of GetImage.
-func (mr *MockImagesRepositoryMockRecorder) GetImage(bucket, filename interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImage", reflect.TypeOf((*MockImagesRepository)(nil).GetImage), bucket, filename)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateImage", reflect.TypeOf((*MockImagesRepository)(nil).CreateImage), image)
 }
 
 // GetPermanentImage mocks base method.
-func (m *MockImagesRepository) GetPermanentImage(bucket, filename string) (string, error) {
+func (m *MockImagesRepository) GetPermanentImage(filename string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPermanentImage", bucket, filename)
+	ret := m.ctrl.Call(m, "GetPermanentImage", filename)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetPermanentImage indicates an expected call of GetPermanentImage.
-func (mr *MockImagesRepositoryMockRecorder) GetPermanentImage(bucket, filename interface{}) *gomock.Call {
+func (mr *MockImagesRepositoryMockRecorder) GetPermanentImage(filename interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPermanentImage", reflect.TypeOf((*MockImagesRepository)(nil).GetPermanentImage), bucket, filename)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPermanentImage", reflect.TypeOf((*MockImagesRepository)(nil).GetPermanentImage), filename)
 }

@@ -49,7 +49,7 @@ func TestHandler_GetPosts(t *testing.T) {
 			userID: 123,
 			postID: 0,
 			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {
-				s.EXPECT().GetImage(bucket, filename).Return("", nil)
+				s.EXPECT().GetImage(filename).Return("", nil)
 			},
 			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
 				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{
@@ -116,7 +116,7 @@ func TestHandler_GetPosts(t *testing.T) {
 			userID: 123,
 			postID: 0,
 			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {
-				s.EXPECT().GetImage(bucket, filename).Return("", nil)
+				s.EXPECT().GetImage(filename).Return("", nil)
 			},
 			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
 				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{
@@ -145,7 +145,7 @@ func TestHandler_GetPosts(t *testing.T) {
 			userID: 123,
 			postID: 0,
 			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {
-				s.EXPECT().GetImage(bucket, filename).Return("", domain.ErrInternal)
+				s.EXPECT().GetImage(filename).Return("", domain.ErrInternal)
 			},
 			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
 				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{
@@ -312,7 +312,7 @@ func TestHangler_GetPost(t *testing.T) {
 				}, nil)
 			},
 			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {
-				s.EXPECT().GetImage(bucket, filename).Return("", nil)
+				s.EXPECT().GetImage(filename).Return("", nil)
 			},
 			mockBehaviourPost: func(s mockDomain.MockPostsUseCase, postID uint64) {
 				s.EXPECT().GetLikesNum(postID).Return(uint64(0), nil)
@@ -410,13 +410,13 @@ func TestHandler_CreatePosts(t *testing.T) {
 			mockBehaviorImage: func(s *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
 				assert.NoError(t, err)
-				s.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
+				s.EXPECT().CreateImage(file).Return("../../../test/test.txt", nil)
 			},
 			mockBehaviorPut: func(s *mockDomain.MockPostsUseCase, post models.Post, postID uint64) {
 				s.EXPECT().Update(post, postID).Return(nil)
 			},
 			mockBehaviorGetImage: func(s *mockDomain.MockImageUseCase, name, bucket string) {
-				s.EXPECT().GetImage(bucket, name).Return("path/to/img", nil)
+				s.EXPECT().GetImage(name).Return("path/to/img", nil)
 			},
 		},
 		{
@@ -456,7 +456,7 @@ func TestHandler_CreatePosts(t *testing.T) {
 			mockBehaviorImage: func(s *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
 				assert.NoError(t, err)
-				s.EXPECT().CreateImage(file, bucket).Return("", domain.ErrCreate)
+				s.EXPECT().CreateImage(file).Return("", domain.ErrCreate)
 			},
 			mockBehaviorPut:      func(s *mockDomain.MockPostsUseCase, post models.Post, postID uint64) {},
 			mockBehaviorGetImage: func(s *mockDomain.MockImageUseCase, name, bucket string) {},
@@ -473,7 +473,7 @@ func TestHandler_CreatePosts(t *testing.T) {
 			mockBehaviorImage: func(s *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
 				assert.NoError(t, err)
-				s.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
+				s.EXPECT().CreateImage(file).Return("../../../test/test.txt", nil)
 			},
 			mockBehaviorPut: func(s *mockDomain.MockPostsUseCase, post models.Post, postID uint64) {
 				s.EXPECT().Update(post, postID).Return(domain.ErrUpdate)
@@ -492,13 +492,13 @@ func TestHandler_CreatePosts(t *testing.T) {
 			mockBehaviorImage: func(s *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
 				assert.NoError(t, err)
-				s.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
+				s.EXPECT().CreateImage(file).Return("../../../test/test.txt", nil)
 			},
 			mockBehaviorPut: func(s *mockDomain.MockPostsUseCase, post models.Post, postID uint64) {
 				s.EXPECT().Update(post, postID).Return(nil)
 			},
 			mockBehaviorGetImage: func(s *mockDomain.MockImageUseCase, name, bucket string) {
-				s.EXPECT().GetImage(bucket, name).Return("", domain.ErrInternal)
+				s.EXPECT().GetImage(name).Return("", domain.ErrInternal)
 			},
 			expectedErrorMessage: "code=500, message=server error, internal=server error",
 		},
@@ -610,13 +610,13 @@ func TestHandler_PutPost(t *testing.T) {
 			mockBehaviorImage: func(s *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
 				assert.NoError(t, err)
-				s.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
+				s.EXPECT().CreateImage(file).Return("../../../test/test.txt", nil)
 			},
 			mockBehaviorCreate: func(s *mockDomain.MockPostsUseCase, post models.Post) {
 				s.EXPECT().Create(post, post.UserID).Return(uint64(1), nil)
 			},
 			mockBehaviorGetImage: func(s *mockDomain.MockImageUseCase, bucket string) {
-				s.EXPECT().GetImage(bucket, "../../../test/test.txt").Return("", nil)
+				s.EXPECT().GetImage("../../../test/test.txt").Return("", nil)
 			},
 		},
 		{
@@ -679,7 +679,7 @@ func TestHandler_PutPost(t *testing.T) {
 			mockBehaviorImage: func(s *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
 				assert.NoError(t, err)
-				s.EXPECT().CreateImage(file, bucket).Return("../../../test/test.txt", nil)
+				s.EXPECT().CreateImage(file).Return("../../../test/test.txt", nil)
 			},
 			mockBehaviorCreate: func(s *mockDomain.MockPostsUseCase, post models.Post) {
 				s.EXPECT().Create(post, post.UserID).Return(uint64(0), domain.ErrCreate)

@@ -59,10 +59,11 @@ func TestUsecase_GetPostsByUserID(t *testing.T) {
 			defer ctrl.Finish()
 
 			postMock := mockDomain.NewMockPostsRepository(ctrl)
+			userMock := mockDomain.NewMockUsersRepository(ctrl)
 
 			test.mockBehaviour(postMock, test.userID)
 
-			usecase := New(postMock)
+			usecase := New(postMock, userMock)
 			post, err := usecase.GetPostsByUserID(test.userID)
 			if err != nil {
 				assert.Equal(t, test.responseErrorMessage, err.Error())

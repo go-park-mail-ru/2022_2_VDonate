@@ -16,25 +16,26 @@ deploy:
 
 cors:
   allow_methods: [
-                   "POST",
-                   "GET",
-                   "DELETE",
-                   "PUT",
+    "POST",
+    "GET",
+    "DELETE",
+    "PUT",
   ]
   allow_origins: [
-                   "https://vdonate.ml",
-                   "http://localhost:8080",
-                   "https://localhost:8080",
-                   "http://localhost:4200",
+    "https://vdonate.ml",
+    "http://localhost:8080",
+    "https://localhost:8080",
+    "http://localhost:4200",
   ]
   allow_credentials: true
   allow_headers: [
-                   "Content-Type",
-                   "Content-length",
-                   "X-CSRF-Token",
+    "Content-Type",
+    "Content-length",
+    "X-CSRF-Token",
   ]
 
 csrf:
+  status: false
   token_length: 32
   context_key: csrf
   context_name: csrf_token
@@ -46,7 +47,9 @@ s3:
   secret_access_key: secretkey
   use_ssl: false
   buckets:
-    # Declare polices of buckets here
-    "image": ""
-    "avatar": >-
-      {"Version": "2012-10-17","Statement": [{"Action": ["s3:GetObject"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::avatar/*"],"Sid": ""}]}
+    # Declare policy of buckets, where $(bucket) is name of your bucket
+    policy: >-
+      {"Version": "2012-10-17","Statement": [{"Action": ["s3:GetObject"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::$(bucket)/*"],"Sid": ""}]}
+    symbols_to_hash: 1
+    # count of minutes
+    expire: 60
