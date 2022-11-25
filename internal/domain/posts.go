@@ -18,5 +18,6 @@ type PostsUseCase interface {
 	CreateTags(tagNames []string, postID uint64) error
 	GetTagsByPostID(postID uint64) ([]models.Tag, error)
 	DeleteTagDeps(postID uint64) error
+	UpdateTags(tagNames []string, postID uint64) error
 	ConvertTagsToStrSlice(tags []models.Tag) []string
 }

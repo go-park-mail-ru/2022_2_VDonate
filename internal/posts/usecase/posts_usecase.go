@@ -4,6 +4,7 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jinzhu/copier"
+	"golang.org/x/exp/slices"
 )
 
 type usecase struct {
@@ -114,7 +115,6 @@ func (u *usecase) Create(post models.Post, userID uint64) (uint64, error) {
 	return post.ID, nil
 }
 
-// TODO: Add update on tags
 func (u *usecase) Update(post models.Post, postID uint64) error {
 	updatePost, err := u.GetPostByID(postID)
 	if err != nil {
@@ -123,6 +123,10 @@ func (u *usecase) Update(post models.Post, postID uint64) error {
 
 	if err = copier.CopyWithOption(&updatePost, &post, copier.Option{IgnoreEmpty: true}); err != nil {
 		return err
+	}
+
+	if err = u.UpdateTags(post.Tags, postID); err != nil {
+		return nil
 	}
 
 	return u.postsRepo.Update(updatePost)
@@ -216,6 +220,39 @@ func (u usecase) DeleteTagDeps(postID uint64) error {
 			return err
 		}
 	}
+	return nil
+}
+
+func (u usecase) UpdateTags(tagNames []string, postID uint64) error {
+	postTags, err := u.GetTagsByPostID(postID)
+	if err != nil {
+		return err
+	}
+	copyToTags := u.ConvertTagsToStrSlice(postTags)
+
+	for _, tagName := range tagNames {
+		if slices.Contains(copyToTags, tagName) {
+			index := slices.Index(copyToTags, tagName)
+			copyToTags = append(copyToTags[:index], copyToTags[index+1:]...)
+			continue
+		}
+		if err = u.CreateTags(append(make([]string, 0), tagName), postID); err != nil {
+			return err
+		}
+	}
+
+	for _, tagName := range copyToTags {
+		idx := slices.IndexFunc(postTags, func(t models.Tag) bool { return t.TagName == tagName })
+		tagDep := models.TagDep{
+			PostID: postID,
+			TagID:  postTags[idx].ID,
+		}
+		err = u.postsRepo.DeleteDepTag(tagDep)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

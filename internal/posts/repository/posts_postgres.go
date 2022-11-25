@@ -153,7 +153,7 @@ func (r Postgres) CreateDepTag(postID, tagID uint64) error {
 }
 
 func (r Postgres) DeleteDepTag(tagDep models.TagDep) error {
-	_, err := r.DB.Exec("DELETE FROM likes WHERE post_id=$1 AND tag_id=$2;", tagDep.PostID, tagDep.TagID)
+	_, err := r.DB.Exec("DELETE FROM post_tags WHERE post_id=$1 AND tag_id=$2;", tagDep.PostID, tagDep.TagID)
 	return err
 }
 

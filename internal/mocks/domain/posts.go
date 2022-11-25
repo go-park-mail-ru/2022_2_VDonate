@@ -265,3 +265,17 @@ func (mr *MockPostsUseCaseMockRecorder) Update(post, postID interface{}) *gomock
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockPostsUseCase)(nil).Update), post, postID)
 }
+
+// UpdateTags mocks base method.
+func (m *MockPostsUseCase) UpdateTags(tagNames []string, postID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateTags", tagNames, postID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateTags indicates an expected call of UpdateTags.
+func (mr *MockPostsUseCaseMockRecorder) UpdateTags(tagNames, postID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTags", reflect.TypeOf((*MockPostsUseCase)(nil).UpdateTags), tagNames, postID)
+}
