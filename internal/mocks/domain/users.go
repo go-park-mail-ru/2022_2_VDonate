@@ -105,6 +105,21 @@ func (mr *MockUsersUseCaseMockRecorder) DeleteByUsername(username interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByUsername", reflect.TypeOf((*MockUsersUseCase)(nil).DeleteByUsername), username)
 }
 
+// FindAuthors mocks base method.
+func (m *MockUsersUseCase) FindAuthors(keyword string) ([]models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindAuthors", keyword)
+	ret0, _ := ret[0].([]models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindAuthors indicates an expected call of FindAuthors.
+func (mr *MockUsersUseCaseMockRecorder) FindAuthors(keyword interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAuthors", reflect.TypeOf((*MockUsersUseCase)(nil).FindAuthors), keyword)
+}
+
 // GetByEmail mocks base method.
 func (m *MockUsersUseCase) GetByEmail(email string) (models.User, error) {
 	m.ctrl.T.Helper()

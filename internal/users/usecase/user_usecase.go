@@ -1,6 +1,10 @@
 package users
 
 import (
+	"database/sql"
+	"errors"
+	"strings"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
@@ -113,4 +117,21 @@ func (u *usecase) IsExistUsernameAndEmail(username, email string) bool {
 	}
 
 	return false
+}
+
+func (u usecase) FindAuthors(keyword string) ([]models.User, error) {
+	parsedWords := strings.Split(keyword, " ")
+	resAuthors := make([]models.User, 0)
+	for _, word := range parsedWords {
+		author, err := u.usersRepo.GetAuthorByUsername(word)
+		if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return resAuthors, err
+		}
+		if errors.Is(err, sql.ErrNoRows) {
+			continue
+		}
+		resAuthors = append(resAuthors, author)
+	}
+
+	return resAuthors, nil
 }

@@ -15,4 +15,5 @@ type UsersUseCase interface {
 	DeleteByEmail(email string) error
 	CheckIDAndPassword(id uint64, password string) bool
 	IsExistUsernameAndEmail(username, email string) bool
+	FindAuthors(keyword string) ([]models.User, error)
 }
