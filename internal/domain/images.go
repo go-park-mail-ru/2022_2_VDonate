@@ -5,6 +5,6 @@ import (
 )
 
 type ImageUseCase interface {
-	CreateImage(image *multipart.FileHeader) (string, error)
+	CreateOrUpdateImage(image *multipart.FileHeader, oldFilename string) (string, error)
 	GetImage(filename string) (string, error)
 }

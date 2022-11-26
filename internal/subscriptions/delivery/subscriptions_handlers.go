@@ -147,7 +147,7 @@ func (h Handler) CreateAuthorSubscription(c echo.Context) error {
 
 	file, err := images.GetFileFromContext(c)
 	if file != nil && !errors.Is(err, http.ErrMissingFile) {
-		if s.Img, err = h.imageUsecase.CreateImage(file); err != nil {
+		if s.Img, err = h.imageUsecase.CreateOrUpdateImage(file, ""); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
 		}
 	}
@@ -200,7 +200,7 @@ func (h Handler) UpdateAuthorSubscription(c echo.Context) error {
 
 	file, err := images.GetFileFromContext(c)
 	if file != nil && !errors.Is(err, http.ErrMissingFile) {
-		if s.Img, err = h.imageUsecase.CreateImage(file); err != nil {
+		if s.Img, err = h.imageUsecase.CreateOrUpdateImage(file, s.Img); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
 		}
 	}

@@ -1,6 +1,8 @@
 package postsRepository
 
 import (
+	"time"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -31,12 +33,12 @@ func (r Postgres) Close() error {
 	return nil
 }
 
-func (r Postgres) GetAllByUserID(userID uint64) ([]models.Post, error) {
+func (r Postgres) GetAllByUserID(authorID uint64) ([]models.Post, error) {
 	var posts []models.Post
 	if err := r.DB.Select(
 		&posts,
 		"SELECT * FROM posts WHERE user_id=$1;",
-		userID,
+		authorID,
 	); err != nil {
 		return nil, err
 	}
@@ -61,12 +63,14 @@ func (r Postgres) Create(post models.Post) (uint64, error) {
 	var postID uint64
 	err := r.DB.QueryRowx(
 		`
-		INSERT INTO posts (user_id, img, title, text) 
-		VALUES ($1, $2, $3, $4) RETURNING post_id;`,
+		INSERT INTO posts (user_id, img, title, text, tier, date_created) 
+		VALUES ($1, $2, $3, $4, $5, $6) RETURNING post_id;`,
 		post.UserID,
 		post.Img,
 		post.Title,
 		post.Text,
+		post.Tier,
+		time.Now(),
 	).Scan(&postID)
 	if err != nil {
 		return 0, err
@@ -82,7 +86,8 @@ func (r Postgres) Update(post models.Post) error {
                 SET user_id=:user_id,
                     title=:title,
                     text=:text,
-                    img=:img
+                    img=:img,
+                    tier=:tier
                 WHERE post_id = :post_id`, &post)
 
 	return err
@@ -91,10 +96,11 @@ func (r Postgres) Update(post models.Post) error {
 func (r Postgres) GetPostsBySubscriptions(userID uint64) ([]models.Post, error) {
 	var posts []models.Post
 	if err := r.DB.Select(&posts, `
-		SELECT p.post_id, p.user_id, p.img, p.title, p.text
+		SELECT p.post_id, p.user_id, p.img, p.title, p.text, p.tier, p.date_created
 		FROM subscriptions s
 		JOIN posts p on s.author_id = p.user_id
-		WHERE s.subscriber_id=$1;
+		JOIN author_subscriptions "as" on "as".id = s.subscription_id
+		WHERE s.subscriber_id=$1 AND "as".tier >= p.tier;
 	`, userID); err != nil {
 		return nil, err
 	}

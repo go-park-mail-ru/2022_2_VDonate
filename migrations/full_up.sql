@@ -42,12 +42,13 @@ CREATE TABLE IF NOT EXISTS user_info
 */
 CREATE TABLE IF NOT EXISTS posts
 (
-    post_id bigserial     not null primary key,
-    user_id bigserial     not null references users (id) on delete cascade,
-    img     varchar(64)   not null,
-    title   varchar(128)  not null,
-    text    varchar(2048) not null,
-    tier    int default 0
+    post_id      bigserial     not null primary key,
+    user_id      bigserial     not null references users (id) on delete cascade,
+    img          varchar(64)   not null,
+    title        varchar(128)  not null,
+    text         varchar(2048) not null,
+    date_created date          not null,
+    tier         int default 0
 );
 
 /*
@@ -86,7 +87,7 @@ CREATE TABLE IF NOT EXISTS subscriptions
     author_id       bigserial not null references users (id) on delete cascade,
     subscriber_id   bigserial not null references users (id) on delete cascade,
     subscription_id bigserial not null references author_subscriptions (id) on delete restrict,
-    primary key (author_id, subscription_id, subscriber_id)
+    primary key (author_id, subscriber_id)
 );
 
 /*

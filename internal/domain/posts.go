@@ -4,7 +4,7 @@ import "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 
 type PostsUseCase interface {
 	GetPostByID(postID, userID uint64) (models.Post, error)
-	GetPostsByFilter(filter string, userID uint64) ([]models.Post, error)
+	GetPostsByFilter(userID, authorID uint64) ([]models.Post, error)
 	Create(post models.Post, userID uint64) (uint64, error)
 	Update(post models.Post, postID uint64) error
 	DeleteByID(postID uint64) error

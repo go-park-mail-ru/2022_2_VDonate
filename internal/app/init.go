@@ -1,6 +1,8 @@
 package app
 
 import (
+	"net/http"
+
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	authMiddlewares "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/middlewares"
 	sessionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
@@ -62,7 +64,9 @@ func (s *Server) init() error {
 	s.makeHandlers()
 	s.makeRouter()
 	s.makeCORS()
-	// s.makeCSRF()
+	if s.Config.CSRF.Status {
+		s.makeCSRF()
+	}
 
 	return nil
 }
@@ -135,7 +139,7 @@ func (s *Server) makeUseCase(url string) error {
 	s.UserService = users.New(userRepo, s.ImagesService)
 
 	//-------------------------post-------------------------//
-	s.PostsService = posts.New(postsRepo, userRepo, s.ImagesService)
+	s.PostsService = posts.New(postsRepo, userRepo, s.ImagesService, subscriptionsRepo)
 
 	//----------------------subscriber----------------------//
 	s.SubscribersService = subscribers.New(subscribersRepo, userRepo)
@@ -235,17 +239,17 @@ func (s *Server) makeCORS() {
 	}))
 }
 
-// func (s *Server) makeCSRF() {
-// 	s.Echo.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-// 		TokenLength:    s.Config.CSRF.TokenLength,
-// 		TokenLookup:    "header:" + echo.HeaderXCSRFToken,
-// 		ContextKey:     s.Config.CSRF.ContextKey,
-// 		CookieName:     s.Config.CSRF.ContextName,
-// 		CookieMaxAge:   s.Config.CSRF.MaxAge,
-// 		CookiePath:     "/",
-// 		CookieSameSite: http.SameSiteNoneMode,
-// 	}))
-// }
+func (s *Server) makeCSRF() {
+	s.Echo.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		TokenLength:    s.Config.CSRF.TokenLength,
+		TokenLookup:    "header:" + echo.HeaderXCSRFToken,
+		ContextKey:     s.Config.CSRF.ContextKey,
+		CookieName:     s.Config.CSRF.ContextName,
+		CookieMaxAge:   s.Config.CSRF.MaxAge,
+		CookiePath:     "/",
+		CookieSameSite: http.SameSiteNoneMode,
+	}))
+}
 
 func (s *Server) makeMiddlewares() {
 	s.authMiddleware = authMiddlewares.New(s.AuthService, s.UserService, s.PostsService)

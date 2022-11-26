@@ -34,19 +34,19 @@ func (m *MockImageUseCase) EXPECT() *MockImageUseCaseMockRecorder {
 	return m.recorder
 }
 
-// CreateImage mocks base method.
-func (m *MockImageUseCase) CreateImage(image *multipart.FileHeader) (string, error) {
+// CreateOrUpdateImage mocks base method.
+func (m *MockImageUseCase) CreateOrUpdateImage(image *multipart.FileHeader, oldFilename string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateImage", image)
+	ret := m.ctrl.Call(m, "CreateOrUpdateImage", image, oldFilename)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CreateImage indicates an expected call of CreateImage.
-func (mr *MockImageUseCaseMockRecorder) CreateImage(image interface{}) *gomock.Call {
+// CreateOrUpdateImage indicates an expected call of CreateOrUpdateImage.
+func (mr *MockImageUseCaseMockRecorder) CreateOrUpdateImage(image, oldFilename interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateImage", reflect.TypeOf((*MockImageUseCase)(nil).CreateImage), image)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrUpdateImage", reflect.TypeOf((*MockImageUseCase)(nil).CreateOrUpdateImage), image, oldFilename)
 }
 
 // GetImage mocks base method.

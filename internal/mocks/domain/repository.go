@@ -232,18 +232,18 @@ func (mr *MockPostsRepositoryMockRecorder) DeleteLikeByID(userID, postID interfa
 }
 
 // GetAllByUserID mocks base method.
-func (m *MockPostsRepository) GetAllByUserID(userID uint64) ([]models.Post, error) {
+func (m *MockPostsRepository) GetAllByUserID(authorID uint64) ([]models.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllByUserID", userID)
+	ret := m.ctrl.Call(m, "GetAllByUserID", authorID)
 	ret0, _ := ret[0].([]models.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAllByUserID indicates an expected call of GetAllByUserID.
-func (mr *MockPostsRepositoryMockRecorder) GetAllByUserID(userID interface{}) *gomock.Call {
+func (mr *MockPostsRepositoryMockRecorder) GetAllByUserID(authorID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllByUserID", reflect.TypeOf((*MockPostsRepository)(nil).GetAllByUserID), userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllByUserID", reflect.TypeOf((*MockPostsRepository)(nil).GetAllByUserID), authorID)
 }
 
 // GetAllLikesByPostID mocks base method.
@@ -451,6 +451,21 @@ func (m *MockSubscriptionsRepository) GetSubscriptionByID(ID uint64) (models.Aut
 func (mr *MockSubscriptionsRepositoryMockRecorder) GetSubscriptionByID(ID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionByID", reflect.TypeOf((*MockSubscriptionsRepository)(nil).GetSubscriptionByID), ID)
+}
+
+// GetSubscriptionByUserAndAuthorID mocks base method.
+func (m *MockSubscriptionsRepository) GetSubscriptionByUserAndAuthorID(userID, authorID uint64) (models.AuthorSubscription, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscriptionByUserAndAuthorID", userID, authorID)
+	ret0, _ := ret[0].(models.AuthorSubscription)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubscriptionByUserAndAuthorID indicates an expected call of GetSubscriptionByUserAndAuthorID.
+func (mr *MockSubscriptionsRepositoryMockRecorder) GetSubscriptionByUserAndAuthorID(userID, authorID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionByUserAndAuthorID", reflect.TypeOf((*MockSubscriptionsRepository)(nil).GetSubscriptionByUserAndAuthorID), userID, authorID)
 }
 
 // GetSubscriptionsByAuthorID mocks base method.
@@ -743,19 +758,19 @@ func (m *MockImagesRepository) EXPECT() *MockImagesRepositoryMockRecorder {
 	return m.recorder
 }
 
-// CreateImage mocks base method.
-func (m *MockImagesRepository) CreateImage(image *multipart.FileHeader) (string, error) {
+// CreateOrUpdateImage mocks base method.
+func (m *MockImagesRepository) CreateOrUpdateImage(image *multipart.FileHeader, oldFilename string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateImage", image)
+	ret := m.ctrl.Call(m, "CreateOrUpdateImage", image, oldFilename)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CreateImage indicates an expected call of CreateImage.
-func (mr *MockImagesRepositoryMockRecorder) CreateImage(image interface{}) *gomock.Call {
+// CreateOrUpdateImage indicates an expected call of CreateOrUpdateImage.
+func (mr *MockImagesRepositoryMockRecorder) CreateOrUpdateImage(image, oldFilename interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateImage", reflect.TypeOf((*MockImagesRepository)(nil).CreateImage), image)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrUpdateImage", reflect.TypeOf((*MockImagesRepository)(nil).CreateOrUpdateImage), image, oldFilename)
 }
 
 // GetPermanentImage mocks base method.

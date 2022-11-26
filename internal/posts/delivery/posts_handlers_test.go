@@ -51,16 +51,16 @@ func TestHandler_GetPosts(t *testing.T) {
 			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {
 				s.EXPECT().GetImage(filename).Return("", nil)
 			},
-			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
-				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{
-					{
-						UserID: userID,
-						Img:    "path/to/img",
-						Title:  "Look at this!!!",
-						Text:   "Some text about my work",
-					},
-				}, nil)
-			},
+			// mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
+			// 	s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{
+			// 		{
+			// 			UserID: userID,
+			// 			Img:    "path/to/img",
+			// 			Title:  "Look at this!!!",
+			// 			Text:   "Some text about my work",
+			// 		},
+			// 	}, nil)
+			// },
 			mockBehaviourPost: func(s mockDomain.MockPostsUseCase, postID uint64) {
 				s.EXPECT().GetLikesNum(postID).Return(uint64(0), nil)
 			},
@@ -80,9 +80,9 @@ func TestHandler_GetPosts(t *testing.T) {
 			userID:            123,
 			postID:            0,
 			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {},
-			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
-				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{}, nil)
-			},
+			// mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
+			// 	s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{}, nil)
+			// },
 			mockBehaviourPost:   func(s mockDomain.MockPostsUseCase, postID uint64) {},
 			mockBehaviourIsLike: func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},
 			mockBehaviorCookie:  func(s mockDomain.MockUsersUseCase, sessionID string) {},
@@ -91,9 +91,9 @@ func TestHandler_GetPosts(t *testing.T) {
 		{
 			name:   "ServerError",
 			userID: 123,
-			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
-				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{}, domain.ErrNotFound)
-			},
+			// mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
+			// 	s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{}, domain.ErrNotFound)
+			// },
 			mockBehaviorImage:    func(s mockDomain.MockImageUseCase, bucket, filename string) {},
 			mockBehaviourPost:    func(s mockDomain.MockPostsUseCase, postID uint64) {},
 			mockBehaviourIsLike:  func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},
@@ -118,16 +118,16 @@ func TestHandler_GetPosts(t *testing.T) {
 			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {
 				s.EXPECT().GetImage(filename).Return("", nil)
 			},
-			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
-				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{
-					{
-						UserID: userID,
-						Img:    "path/to/img",
-						Title:  "Look at this!!!",
-						Text:   "Some text about my work",
-					},
-				}, nil)
-			},
+			// mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
+			// 	s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{
+			// 		{
+			// 			UserID: userID,
+			// 			Img:    "path/to/img",
+			// 			Title:  "Look at this!!!",
+			// 			Text:   "Some text about my work",
+			// 		},
+			// 	}, nil)
+			// },
 			mockBehaviourPost: func(s mockDomain.MockPostsUseCase, postID uint64) {
 				s.EXPECT().GetLikesNum(postID).Return(uint64(0), domain.ErrInternal)
 			},
@@ -147,16 +147,16 @@ func TestHandler_GetPosts(t *testing.T) {
 			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {
 				s.EXPECT().GetImage(filename).Return("", domain.ErrInternal)
 			},
-			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
-				s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{
-					{
-						UserID: userID,
-						Img:    "path/to/img",
-						Title:  "Look at this!!!",
-						Text:   "Some text about my work",
-					},
-				}, nil)
-			},
+			// mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID uint64) {
+			// 	s.EXPECT().GetPostsByUserID(userID).Return([]models.Post{
+			// 		{
+			// 			UserID: userID,
+			// 			Img:    "path/to/img",
+			// 			Title:  "Look at this!!!",
+			// 			Text:   "Some text about my work",
+			// 		},
+			// 	}, nil)
+			// },
 			mockBehaviourPost:   func(s mockDomain.MockPostsUseCase, postID uint64) {},
 			mockBehaviourIsLike: func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},
 			mockBehaviorCookie: func(s mockDomain.MockUsersUseCase, sessionID string) {
@@ -304,13 +304,7 @@ func TestHangler_GetPost(t *testing.T) {
 			name:   "OK",
 			userID: 0,
 			postID: 123,
-			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, postID uint64) {
-				s.EXPECT().GetPostByID(postID).Return(models.Post{
-					Img:   "path/to/img",
-					Title: "Look at this!!!",
-					Text:  "Some text about my work",
-				}, nil)
-			},
+
 			mockBehaviorImage: func(s mockDomain.MockImageUseCase, bucket, filename string) {
 				s.EXPECT().GetImage(filename).Return("", nil)
 			},
@@ -331,9 +325,7 @@ func TestHangler_GetPost(t *testing.T) {
 		{
 			name:   "NotFound",
 			postID: 123,
-			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, postID uint64) {
-				s.EXPECT().GetPostByID(postID).Return(models.Post{}, domain.ErrNotFound)
-			},
+
 			mockBehaviorImage:    func(s mockDomain.MockImageUseCase, bucket, filename string) {},
 			mockBehaviourPost:    func(s mockDomain.MockPostsUseCase, postID uint64) {},
 			mockBehaviourIsLike:  func(s mockDomain.MockPostsUseCase, userID, postID uint64) {},

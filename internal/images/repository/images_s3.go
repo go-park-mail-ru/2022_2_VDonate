@@ -66,12 +66,12 @@ func New(endpoint, accessKeyID, secretAccessKey string, secure bool, sth int, p 
 	}, nil
 }
 
-func (s S3) CreateImage(image *multipart.FileHeader) (string, error) {
-	idx := strings.Index(image.Filename, ".")
-	if idx == -1 {
-		return "", errors.New("bad url")
+func (s S3) CreateOrUpdateImage(image *multipart.FileHeader, oldFilename string) (string, error) {
+	idxNew := strings.Index(image.Filename, ".")
+	if idxNew == -1 {
+		return "", domain.ErrBadRequest
 	}
-	bucket := utils.GetMD5OfNumLast(image.Filename[:idx], s.symbolsToHash)
+	bucket := utils.GetMD5OfNumLast(image.Filename[:idxNew], s.symbolsToHash)
 
 	if err := makeBucket(s.client, bucket, s.policy); err != nil {
 		return "", err
@@ -80,6 +80,18 @@ func (s S3) CreateImage(image *multipart.FileHeader) (string, error) {
 	file, err := image.Open()
 	if err != nil {
 		return "", domain.ErrFileOpen
+	}
+
+	if len(oldFilename) != 0 {
+		idxOld := strings.Index(oldFilename, ".")
+		if idxOld == -1 {
+			return "", domain.ErrInternal
+		}
+
+		oldBucket := utils.GetMD5OfNumLast(oldFilename[:idxOld], s.symbolsToHash)
+		if err = s.client.RemoveObject(oldBucket, oldFilename); err != nil {
+			return "", err
+		}
 	}
 
 	_, err = s.client.PutObject(

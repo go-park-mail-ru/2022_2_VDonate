@@ -49,6 +49,9 @@ func (m Middlewares) PostSameSessionByID(next echo.HandlerFunc) echo.HandlerFunc
 		}
 
 		user, err := m.usersUseCase.GetBySessionID(cookie.Value)
+		if err != nil {
+			return errorHandling.WrapEcho(domain.ErrNoSession, err)
+		}
 
 		postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 		if err != nil {
