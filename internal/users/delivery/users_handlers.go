@@ -157,21 +157,20 @@ func (h *Handler) PutUser(c echo.Context) error {
 // @Security    ApiKeyAuth
 // @Router      /search [get]
 func (h Handler) GetAuthors(c echo.Context) error {
-	keyword := c.QueryParam("keyword") 
+	keyword := c.QueryParam("keyword")
 
 	authors, err := h.userUseCase.FindAuthors(keyword)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
-	for _, author := range authors {
-		subscribers, err := h.subscribersUseCase.GetSubscribers(author.ID)
-		if err != nil {
-			return errorHandling.WrapEcho(domain.ErrInternal, err)
+	for index, author := range authors {
+		subscribers, errSubscribers := h.subscribersUseCase.GetSubscribers(author.ID)
+		if errSubscribers != nil {
+			return errorHandling.WrapEcho(domain.ErrInternal, errSubscribers)
 		}
-		author.CountSubscribers = uint64(len(subscribers))
+		authors[index].CountSubscribers = uint64(len(subscribers))
 	}
 
 	return AuthorsResponse(c, authors)
 }
-

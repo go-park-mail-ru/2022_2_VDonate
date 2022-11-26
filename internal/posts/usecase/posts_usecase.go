@@ -126,7 +126,7 @@ func (u *usecase) Update(post models.Post, postID uint64) error {
 	}
 
 	if err = u.UpdateTags(post.Tags, postID); err != nil {
-		return nil
+		return err
 	}
 
 	return u.postsRepo.Update(updatePost)
