@@ -63,7 +63,7 @@ func (s *Server) init() error {
 	s.makeHandlers()
 	s.makeRouter()
 	s.makeCORS()
-	if s.Config.CSRF.Status {
+	if s.Config.CSRF.Enabled {
 		s.makeCSRF()
 	}
 

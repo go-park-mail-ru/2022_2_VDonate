@@ -35,7 +35,7 @@ cors:
   ]
 
 csrf:
-  status: false
+  enabled: false
   token_length: 32
   context_key: csrf
   context_name: csrf_token
