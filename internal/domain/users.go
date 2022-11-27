@@ -1,0 +1,18 @@
+package domain
+
+import "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+
+type UsersUseCase interface {
+	GetByUsername(username string) (models.User, error)
+	GetByEmail(email string) (models.User, error)
+	GetByID(id uint64) (models.User, error)
+	GetBySessionID(sessionID string) (models.User, error)
+	GetUserByPostID(postID uint64) (models.User, error)
+	Create(user models.User) (uint64, error)
+	Update(user models.User, id uint64) error
+	DeleteByID(id uint64) error
+	DeleteByUsername(username string) error
+	DeleteByEmail(email string) error
+	CheckIDAndPassword(id uint64, password string) bool
+	IsExistUsernameAndEmail(username, email string) bool
+}

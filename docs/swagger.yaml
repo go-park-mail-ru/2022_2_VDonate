@@ -1,0 +1,1316 @@
+basePath: /api/v1
+definitions:
+  echo.HTTPError:
+    properties:
+      message: {}
+    type: object
+  models.AuthUser:
+    properties:
+      password:
+        example: '*****'
+        type: string
+      username:
+        example: admin
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.Author:
+    properties:
+      about:
+        example: it's info about myself
+        type: string
+      avatar:
+        example: filename.jpeg
+        type: string
+      countSubscribers:
+        example: 120
+        type: integer
+      countSubscriptions:
+        example: 25
+        type: integer
+      email:
+        example: admin@mail.ru
+        type: string
+      isAuthor:
+        example: true
+        type: boolean
+      username:
+        example: admin
+        type: string
+    required:
+    - email
+    - isAuthor
+    - username
+    type: object
+  models.AuthorSubscriptionMpfd:
+    properties:
+      img:
+        example: filename.jpeg
+        type: string
+      price:
+        example: 2999
+        type: integer
+      text:
+        example: some text
+        type: string
+      tier:
+        example: 15
+        type: integer
+      title:
+        example: some title
+        type: string
+    required:
+    - price
+    - text
+    - tier
+    - title
+    type: object
+  models.Donate:
+    properties:
+      authorId:
+        type: integer
+      id:
+        type: integer
+      price:
+        type: integer
+      userId:
+        type: integer
+    type: object
+  models.DonateMpfd:
+    properties:
+      authorID:
+        example: 12
+        type: integer
+      price:
+        example: 3000
+        type: integer
+    required:
+    - authorID
+    - price
+    type: object
+  models.EmptyStruct:
+    type: object
+  models.Like:
+    properties:
+      postID:
+        example: 222
+        type: integer
+      userID:
+        example: 100
+        type: integer
+    required:
+    - postID
+    - userID
+    type: object
+  models.Post:
+    properties:
+      img:
+        example: path/to/image.jpeg
+        type: string
+      isLiked:
+        example: true
+        type: boolean
+      likesNum:
+        example: 5
+        type: integer
+      postID:
+        example: 1
+        type: integer
+      text:
+        example: some text
+        type: string
+      title:
+        example: some title
+        type: string
+      userID:
+        example: 1
+        type: integer
+    required:
+    - img
+    - isLiked
+    - likesNum
+    - text
+    - title
+    type: object
+  models.ResponseImagePosts:
+    properties:
+      imgPath:
+        example: /path/to/image.jpeg
+        type: string
+      postID:
+        example: 25
+        type: integer
+    required:
+    - imgPath
+    - postID
+    type: object
+  models.ResponseImageSubscription:
+    properties:
+      authorImg:
+        example: path/to/author/img
+        type: string
+      authorName:
+        example: leo
+        type: string
+      imgPath:
+        example: /path/to/image.jpeg
+        type: string
+      subscriptionID:
+        example: 25
+        type: integer
+    required:
+    - authorImg
+    - authorName
+    - imgPath
+    - subscriptionID
+    type: object
+  models.ResponseImageUsers:
+    properties:
+      imgPath:
+        example: /path/to/image.jpeg
+        type: string
+      userID:
+        example: 25
+        type: integer
+    required:
+    - imgPath
+    - userID
+    type: object
+  models.Subscription:
+    properties:
+      authorID:
+        example: 1
+        type: integer
+      authorSubscriptionID:
+        example: 1
+        type: integer
+      subscriberID:
+        example: 2
+        type: integer
+    required:
+    - authorID
+    - authorSubscriptionID
+    - subscriberID
+    type: object
+  models.SubscriptionMpfd:
+    properties:
+      authorID:
+        example: 12
+        type: integer
+      authorSubscriptionID:
+        example: 13
+        type: integer
+    required:
+    - authorID
+    - authorSubscriptionID
+    type: object
+  models.UserID:
+    properties:
+      id:
+        example: 12
+        type: integer
+    required:
+    - id
+    type: object
+  models.UserMpfd:
+    properties:
+      about:
+        example: It's me Mario'
+        type: string
+      email:
+        example: admin@mail.ru
+        type: string
+      isAuthor:
+        example: true
+        type: boolean
+      password:
+        example: '*****'
+        type: string
+      username:
+        example: admin
+        type: string
+    required:
+    - about
+    - email
+    - isAuthor
+    - password
+    - username
+    type: object
+host: vdonate.ml:8080
+info:
+  contact:
+    email: zeronethunter2001@gmail.com
+    name: VDonate Support
+  description: |-
+    ## API of donation web service by VDonate team
+    ### Some useful links:
+    - ### [Backend](https://github.com/go-park-mail-ru/2022_2_VDonate)
+    - ### [Frontend](https://github.com/go-park-mail-ru/2022_2_VDonate)
+
+    - ### [Trello](https://trello.com/b/BZHoJsHP/vdonate)
+  termsOfService: https://swagger.io/terms/
+  title: VDonate API
+  version: "1.0"
+paths:
+  /auth:
+    get:
+      description: Check authentication of `User` by cookies
+      operationId: auth
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Session was successfully found
+          schema:
+            $ref: '#/definitions/models.UserID'
+        "401":
+          description: User is unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: User was not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User authentication request
+      tags:
+      - auth
+  /donate:
+    post:
+      description: Send donate to author
+      operationId: create_donate
+      parameters:
+      - description: Donate Fields
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/models.DonateMpfd'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Donate was successfully created
+          schema:
+            $ref: '#/definitions/models.Donate'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create donate
+      tags:
+      - donates
+  /donate/{id}:
+    get:
+      description: Get donate by id
+      operationId: get_donate
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Donate was successfully create
+          schema:
+            $ref: '#/definitions/models.Donate'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get donate
+      tags:
+      - donates
+  /donates:
+    get:
+      description: Get donates of user
+      operationId: get_donates
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Donates were successfully recieved
+          schema:
+            items:
+              $ref: '#/definitions/models.Donate'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get donates
+      tags:
+      - donates
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authorization of `User`
+      operationId: login
+      parameters:
+      - description: username and password
+        in: body
+        name: authData
+        required: true
+        schema:
+          $ref: '#/definitions/models.AuthUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Session was successfully found
+          schema:
+            $ref: '#/definitions/models.UserID'
+        "400":
+          description: Wrong login or password or bad data was received
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: User was not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User login request
+      tags:
+      - auth
+  /logout:
+    delete:
+      description: Get request for user logout
+      operationId: logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logout
+          schema:
+            $ref: '#/definitions/models.EmptyStruct'
+        "400":
+          description: Bad session / request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: User logout
+      tags:
+      - auth
+  /posts:
+    get:
+      description: Get posts with provided filters
+      operationId: get_posts
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      - description: 'filter to use to get posts. Filters: subscriptions'
+        in: query
+        name: filter
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Posts were successfully received
+          schema:
+            items:
+              $ref: '#/definitions/models.Post'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get posts
+      tags:
+      - posts
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create post by user cookie
+      operationId: create_post
+      parameters:
+      - example: some text
+        in: formData
+        name: text
+        required: true
+        type: string
+      - example: some title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Uploaded file
+        in: formData
+        name: file
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Post was successfully created
+          schema:
+            $ref: '#/definitions/models.ResponseImagePosts'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Not a creator of post
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error / failed to create post
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create post
+      tags:
+      - posts
+  /posts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete post by post id
+      operationId: delete_post
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Post was successfully deleted
+          schema:
+            $ref: '#/definitions/models.EmptyStruct'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Not a creator of post
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete post
+      tags:
+      - posts
+    get:
+      consumes:
+      - application/json
+      description: Get single post by post id
+      operationId: get_post
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Post was successfully received
+          schema:
+            $ref: '#/definitions/models.Post'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get single post
+      tags:
+      - posts
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update post by post id
+      operationId: update_post
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - example: some text
+        in: formData
+        name: text
+        required: true
+        type: string
+      - example: some title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Uploaded file
+        in: formData
+        name: file
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Post was successfully updated
+          schema:
+            $ref: '#/definitions/models.ResponseImagePosts'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Not a creator of post
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error / failed to create image
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update post
+      tags:
+      - posts
+  /posts/{id}/likes:
+    delete:
+      description: Create like on post
+      operationId: delete_like
+      parameters:
+      - description: Post id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Likes were successfully deleted
+          schema:
+            type: integer
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete like
+      tags:
+      - posts
+    get:
+      description: Get all likes by post id
+      operationId: get_posts_likes
+      parameters:
+      - description: Post id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Likes were successfully recieved
+          schema:
+            items:
+              $ref: '#/definitions/models.Like'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get likes
+      tags:
+      - posts
+    post:
+      description: Create like on post
+      operationId: create_like
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Likes were successfully create
+          schema:
+            type: integer
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create like
+      tags:
+      - posts
+  /subscribers:
+    delete:
+      consumes:
+      - application/json
+      description: Unsubscribe user from author
+      operationId: delete_subscriber
+      parameters:
+      - description: Subscription info with required UserID, AuthorID and Subscription
+          ID
+        in: body
+        name: Subscription
+        required: true
+        schema:
+          $ref: '#/definitions/models.SubscriptionMpfd'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Subscriber was successfully unsubscribed
+          schema:
+            $ref: '#/definitions/models.EmptyStruct'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Not deleted
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Unsubscribe
+      tags:
+      - subscribers
+    post:
+      description: Subscribe user to author with paid subscription
+      operationId: create_subscriber
+      parameters:
+      - description: Subscription info with required AuthorID and Subscription ID
+        in: body
+        name: Subscription
+        required: true
+        schema:
+          $ref: '#/definitions/models.SubscriptionMpfd'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully subscribed
+          schema:
+            $ref: '#/definitions/models.Subscription'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Not created
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Subscribe
+      tags:
+      - subscribers
+  /subscribers/{author_id}:
+    get:
+      description: Request to server for subscriptions of requested `Author`
+      operationId: get_subscribers
+      parameters:
+      - description: Author ID
+        in: path
+        name: author_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get list of author subscribers
+          schema:
+            items:
+              $ref: '#/definitions/models.Author'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Returns subscribers by author ID
+      tags:
+      - subscribers
+  /subscriptions:
+    get:
+      description: Get User subscriptions by Cookie
+      operationId: get_user_subscriptions
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully received subscriptions
+          schema:
+            items:
+              $ref: '#/definitions/models.AuthorSubscriptionMpfd'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: You are not supposed to make this requests
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get User subscriptions
+      tags:
+      - subscriptions
+  /subscriptions/author:
+    get:
+      description: Get Author subscriptions by author ID
+      operationId: get_author_subscriptions
+      parameters:
+      - description: Author ID
+        in: query
+        name: author_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully received subscriptions
+          schema:
+            items:
+              $ref: '#/definitions/models.AuthorSubscriptionMpfd'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: You are not supposed to make this requests
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Author subscriptions
+      tags:
+      - subscriptions
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create Author subscription by user's Cookie
+      operationId: create_author_subscription
+      parameters:
+      - example: filename.jpeg
+        in: formData
+        name: img
+        type: string
+      - example: 2999
+        in: formData
+        name: price
+        required: true
+        type: integer
+      - example: some text
+        in: formData
+        name: text
+        required: true
+        type: string
+      - example: 15
+        in: formData
+        name: tier
+        required: true
+        type: integer
+      - example: some title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Upload image
+        in: formData
+        name: file
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created subscription
+          schema:
+            $ref: '#/definitions/models.ResponseImageSubscription'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: You are not supposed to make this requests
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Author subscription
+      tags:
+      - subscriptions
+  /subscriptions/author/{id}:
+    delete:
+      consumes:
+      - multipart/form-data
+      description: Delete Author subscription by subscription id
+      operationId: delete_author_subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated subscription
+          schema:
+            $ref: '#/definitions/models.EmptyStruct'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: You are not supposed to make this requests
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal / delete error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Author subscription
+      tags:
+      - subscriptions
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update Author subscription by subscription id
+      operationId: update_author_subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - example: filename.jpeg
+        in: formData
+        name: img
+        type: string
+      - example: 2999
+        in: formData
+        name: price
+        required: true
+        type: integer
+      - example: some text
+        in: formData
+        name: text
+        required: true
+        type: string
+      - example: 15
+        in: formData
+        name: tier
+        required: true
+        type: integer
+      - example: some title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Upload image
+        in: formData
+        name: file
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated subscription
+          schema:
+            $ref: '#/definitions/models.ResponseImageSubscription'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: You are not supposed to make this requests
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal / update error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Author subscription
+      tags:
+      - subscriptions
+  /subscriptions/author{id}:
+    get:
+      description: Get Author subscription by id
+      operationId: get_author_subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully received subscription
+          schema:
+            $ref: '#/definitions/models.AuthorSubscriptionMpfd'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: You are not supposed to make this requests
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Subscription not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Author subscription
+      tags:
+      - subscriptions
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Request to server for `User` creation
+      operationId: signup
+      parameters:
+      - description: POST request of all information about `User`
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserMpfd'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User was successfully created
+          schema:
+            $ref: '#/definitions/models.UserID'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "409":
+          description: Username or email is already exists
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Creates a User
+      tags:
+      - users
+  /users/{id}:
+    get:
+      description: Get a User information from server
+      operationId: get_user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User was successfully received
+          schema:
+            $ref: '#/definitions/models.Author'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a User
+      tags:
+      - users
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update user by user id
+      operationId: update_user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - example: It's me Mario'
+        in: formData
+        name: about
+        required: true
+        type: string
+      - example: admin@mail.ru
+        in: formData
+        name: email
+        required: true
+        type: string
+      - example: true
+        in: formData
+        name: isAuthor
+        required: true
+        type: boolean
+      - example: '*****'
+        in: formData
+        name: password
+        required: true
+        type: string
+      - example: admin
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Uploaded file
+        in: formData
+        name: file
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User was successfully updated
+          schema:
+            $ref: '#/definitions/models.ResponseImageUsers'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Not a user
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error / failed to create user
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update user
+      tags:
+      - users
+securityDefinitions:
+  ApiKeyAuth:
+    description: Authorization via Cookie
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -6,17 +6,16 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/zhashkevych/go-sqlxmock"
+	sqlmock "github.com/zhashkevych/go-sqlxmock"
 )
 
 func TestPostPostgres_Create(t *testing.T) {
 	db, mock, err := sqlmock.Newx()
 	assert.NoError(t, err)
-	defer db.Close()
 
 	r := &Postgres{DB: db}
+
 	require.NoError(t, err)
-	db = r.DB
 
 	type MockBehaviour func(user models.User, id uint64)
 
@@ -30,16 +29,16 @@ func TestPostPostgres_Create(t *testing.T) {
 		{
 			name: "Ok",
 			user: models.User{
-				Username:  "user",
-				Email:     "user@ex.com",
-				Password:  "Qwerty",
-				IsAuthor:  false,
+				Username: "user",
+				Email:    "user@ex.com",
+				Password: "Qwerty",
+				IsAuthor: false,
 			},
 			id: 2,
 			mockBehaviour: func(user models.User, id uint64) {
 				rows := sqlmock.NewRows([]string{"id"}).AddRow(id)
 				mock.ExpectQuery("INSERT INTO users").
-					WithArgs(user.Username, user.FirstName, user.LastName, user.Avatar, user.Email, user.Password, user.IsAuthor, user.About).
+					WithArgs(user.Username, user.Avatar, user.Email, user.Password, user.IsAuthor, user.About).
 					WillReturnRows(rows)
 				mock.ExpectCommit()
 			},
@@ -50,12 +49,11 @@ func TestPostPostgres_Create(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			test.mockBehaviour(test.user, test.id)
 
-			got, err := r.Create(&test.user)
+			_, err := r.Create(test.user)
 			if test.responseError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, test.id, got.ID)
 			}
 		})
 	}

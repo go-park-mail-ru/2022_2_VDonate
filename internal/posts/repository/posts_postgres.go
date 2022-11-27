@@ -10,11 +10,12 @@ type Postgres struct {
 	DB *sqlx.DB
 }
 
-func NewPostgres(URL string) (*Postgres, error) {
-	db, err := sqlx.Open("postgres", URL)
+func NewPostgres(url string) (*Postgres, error) {
+	db, err := sqlx.Open("postgres", url)
 	if err != nil {
 		return nil, err
 	}
+
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
@@ -22,39 +23,42 @@ func NewPostgres(URL string) (*Postgres, error) {
 	return &Postgres{DB: db}, nil
 }
 
-func (r *Postgres) Close() error {
+func (r Postgres) Close() error {
 	if err := r.DB.Close(); err != nil {
 		return err
 	}
+
 	return nil
 }
 
-func (r *Postgres) GetAllByUserID(userID uint64) ([]*models.PostDB, error) {
-	var posts []*models.PostDB
-	if err := r.DB.Select(&posts, "SELECT * FROM posts WHERE user_id=$1;", userID); err != nil {
+func (r Postgres) GetAllByUserID(userID uint64) ([]models.Post, error) {
+	var posts []models.Post
+	if err := r.DB.Select(
+		&posts,
+		"SELECT * FROM posts WHERE user_id=$1;",
+		userID,
+	); err != nil {
 		return nil, err
 	}
 
 	return posts, nil
 }
 
-func (r *Postgres) GetPostByUserID(userID, postID uint64) (*models.PostDB, error) {
-	var post models.PostDB
-	if err := r.DB.Get(&post, "SELECT * FROM posts WHERE user_id=$1 AND post_id=$2;", userID, postID); err != nil {
-		return nil, err
+func (r Postgres) GetPostByID(postID uint64) (models.Post, error) {
+	var post models.Post
+	if err := r.DB.Get(
+		&post,
+		"SELECT * FROM posts WHERE post_id=$1;",
+		postID,
+	); err != nil {
+		return models.Post{}, err
 	}
-	return &post, nil
+
+	return post, nil
 }
 
-func (r *Postgres) GetPostByID(postID uint64) (*models.PostDB, error) {
-	var post models.PostDB
-	if err := r.DB.Get(&post, "SELECT * FROM posts WHERE post_id=$1;", postID); err != nil {
-		return nil, err
-	}
-	return &post, nil
-}
-
-func (r *Postgres) Create(post *models.PostDB) (*models.PostDB, error) {
+func (r Postgres) Create(post models.Post) (uint64, error) {
+	var postID uint64
 	err := r.DB.QueryRowx(
 		`
 		INSERT INTO posts (user_id, img, title, text) 
@@ -63,17 +67,78 @@ func (r *Postgres) Create(post *models.PostDB) (*models.PostDB, error) {
 		post.Img,
 		post.Title,
 		post.Text,
-	).Scan(&post.ID)
+	).Scan(&postID)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
-	return post, nil
+
+	return postID, nil
 }
 
-func (r *Postgres) DeleteInUserByID(userID, postID uint64) error {
-	_, err := r.DB.Query("DELETE FROM posts WHERE user_id=? AND post_id=$1;", userID, postID)
+func (r Postgres) Update(post models.Post) error {
+	_, err := r.DB.NamedExec(
+		`
+                UPDATE posts
+                SET user_id=:user_id,
+                    title=:title,
+                    text=:text,
+                    img=:img
+                WHERE post_id = :post_id`, &post)
+
+	return err
+}
+
+func (r Postgres) GetPostsBySubscriptions(userID uint64) ([]models.Post, error) {
+	var posts []models.Post
+	if err := r.DB.Select(&posts, `
+		SELECT p.post_id, p.user_id, p.img, p.title, p.text
+		FROM users
+		JOIN subscriptions s on s.subscriber_id = users.id
+		JOIN posts p on s.author_id = p.user_id
+		WHERE p.user_id=$1;
+	`, userID); err != nil {
+		return nil, err
+	}
+
+	return posts, nil
+}
+
+func (r Postgres) DeleteByID(postID uint64) error {
+	_, err := r.DB.Exec("DELETE FROM posts WHERE post_id=$1;", postID)
 	if err != nil {
 		return err
 	}
+
 	return nil
+}
+
+func (r Postgres) GetLikeByUserAndPostID(userID, postID uint64) (models.Like, error) {
+	var like models.Like
+	if err := r.DB.Get(&like, "SELECT * FROM likes WHERE user_id=$1 AND post_id=$2;", userID, postID); err != nil {
+		return models.Like{}, err
+	}
+	return like, nil
+}
+
+func (r Postgres) GetAllLikesByPostID(postID uint64) ([]models.Like, error) {
+	var likes []models.Like
+	if err := r.DB.Select(&likes, "SELECT * FROM likes WHERE post_id=$1;", postID); err != nil {
+		return nil, err
+	}
+	return likes, nil
+}
+
+func (r Postgres) CreateLike(userID, postID uint64) error {
+	return r.DB.QueryRowx(
+		`
+		INSERT INTO likes (user_id, post_id)
+		VALUES ($1, $2);`,
+		userID,
+		postID,
+	).Err()
+}
+
+func (r Postgres) DeleteLikeByID(userID, postID uint64) error {
+	_, err := r.DB.Exec("DELETE FROM likes WHERE user_id=$1 AND post_id=$2;", userID, postID)
+	return err
 }

@@ -1,0 +1,46 @@
+version: "3.7"
+services:
+  db:
+    hostname: postgresql
+    container_name: vdonate-db
+    image: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ubuntu -d dev" ]
+      interval: 2s
+      timeout: 1s
+      retries: 5
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - ../.env
+    volumes:
+      - ../migrations/full_up.sql:/docker-entrypoint-initdb.d/init.sql
+      - /var/lib/postgresql/data:/var/lib/postgresql/data
+    networks:
+      - vdonate-network-test
+  s3storage:
+    hostname: minio
+    container_name: vdonate-cloud
+    image: quay.io/minio/minio:RELEASE.2022-10-21T22-37-48Z
+    command: server --console-address ":9090" /data
+    volumes:
+      - ~/minio/data:/data
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9090:9090"
+    env_file:
+      - ../.env
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - vdonate-network-test
+networks:
+  vdonate-network-test:
+    name: "vdonate-network-test"
+    driver: bridge
+    external: false
