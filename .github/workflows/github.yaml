@@ -42,9 +42,9 @@ jobs:
       - name: Testing
         run: make cover_out
       - name: Go Coverage Badge
-          uses: tj-actions/coverage-badge-go@v2
-          with:
-            filename: c.out
+        uses: tj-actions/coverage-badge-go@v2
+        with:
+          filename: c.out
       - name: Verify Changed files
         uses: tj-actions/verify-changed-files@v12
         id: verify-changed-files
