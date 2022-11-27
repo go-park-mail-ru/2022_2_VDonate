@@ -41,6 +41,11 @@ func (u usecase) GetImage(filename string) (string, error) {
 	return "https://wsrv.nl/?url=" + strings.ReplaceAll(newURL, "vdonate.ml", "95.163.209.195"), nil
 }
 
+func (u usecase) GetBlurredImage(filename string) (string, error) {
+	filename = "blur_" + filename
+	return u.GetImage(filename)
+}
+
 func GetFileFromContext(c echo.Context) (*multipart.FileHeader, error) {
 	return c.FormFile("file")
 }

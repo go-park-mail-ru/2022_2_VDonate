@@ -1,12 +1,17 @@
 package imagesRepository
 
 import (
+	"bytes"
 	"errors"
+	"image"
+	"image/jpeg"
+	"image/png"
 	"mime/multipart"
 	"net/url"
 	"strings"
 	"time"
 
+	"github.com/esimov/stackblur-go"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
@@ -66,18 +71,18 @@ func New(endpoint, accessKeyID, secretAccessKey string, secure bool, sth int, p 
 	}, nil
 }
 
-func (s S3) CreateOrUpdateImage(image *multipart.FileHeader, oldFilename string) (string, error) {
-	idxNew := strings.Index(image.Filename, ".")
+func (s S3) CreateOrUpdateImage(img *multipart.FileHeader, oldFilename string) (string, error) {
+	idxNew := strings.Index(img.Filename, ".")
 	if idxNew == -1 {
 		return "", domain.ErrBadRequest
 	}
-	bucket := utils.GetMD5OfNumLast(image.Filename[:idxNew], s.symbolsToHash)
+	bucket := utils.GetMD5OfNumLast(img.Filename[:idxNew], s.symbolsToHash)
 
 	if err := makeBucket(s.client, bucket, s.policy); err != nil {
 		return "", err
 	}
 
-	file, err := image.Open()
+	file, err := img.Open()
 	if err != nil {
 		return "", domain.ErrFileOpen
 	}
@@ -94,15 +99,51 @@ func (s S3) CreateOrUpdateImage(image *multipart.FileHeader, oldFilename string)
 		}
 	}
 
+	if _, err = s.client.PutObject(
+		bucket,
+		img.Filename,
+		file,
+		img.Size,
+		minio.PutObjectOptions{ContentType: img.Header.Get("Content-Type")},
+	); err != nil {
+		return "", err
+	}
+
+	if _, err = file.Seek(0, 0); err != nil {
+		return "", err
+	}
+
+	blurImage, format, err := image.Decode(file)
+	if err != nil {
+		return "", err
+	}
+
+	blurImageNRGBA, _ := stackblur.Process(blurImage, 500)
+
+	blurFile := new(bytes.Buffer)
+
+	switch format {
+	case "jpeg":
+		if err = jpeg.Encode(blurFile, blurImageNRGBA.SubImage(blurImageNRGBA.Rect), &jpeg.Options{Quality: 100}); err != nil {
+			return "", err
+		}
+	case "png":
+		if err = png.Encode(blurFile, blurImageNRGBA.SubImage(blurImageNRGBA.Rect)); err != nil {
+			return "", err
+		}
+	default:
+		return "", errors.New("unknown format")
+	}
+
 	_, err = s.client.PutObject(
 		bucket,
-		image.Filename,
-		file,
-		image.Size,
-		minio.PutObjectOptions{ContentType: image.Header.Get("Content-Type")},
+		"blur_"+img.Filename,
+		blurFile,
+		int64(blurFile.Len()),
+		minio.PutObjectOptions{ContentType: img.Header.Get("Content-Type")},
 	)
 
-	return image.Filename, err
+	return img.Filename, err
 }
 
 func (s S3) GetPermanentImage(filename string) (string, error) {

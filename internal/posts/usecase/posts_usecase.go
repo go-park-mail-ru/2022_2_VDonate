@@ -66,7 +66,9 @@ func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error
 				return nil, err
 			}
 		} else {
-			r[i].Img = ""
+			if r[i].Img, err = u.imgUseCase.GetBlurredImage(post.Img); err != nil {
+				return nil, err
+			}
 		}
 
 		author, errGetAuthor := u.userRepo.GetByID(post.UserID)
