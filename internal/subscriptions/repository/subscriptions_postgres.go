@@ -23,7 +23,7 @@ func NewPostgres(url string) (*Postgres, error) {
 	return &Postgres{DB: db}, nil
 }
 
-func (p *Postgres) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscription, error) {
+func (p Postgres) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscription, error) {
 	var s []models.AuthorSubscription
 	if err := p.DB.Select(&s, `
 		SELECT author_subscriptions.id,

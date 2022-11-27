@@ -63,7 +63,9 @@ func (s *Server) init() error {
 	s.makeHandlers()
 	s.makeRouter()
 	s.makeCORS()
-	// s.makeCSRF()
+	if s.Config.CSRF.Status {
+		s.makeCSRF()
+	}
 
 	return nil
 }
@@ -236,17 +238,16 @@ func (s *Server) makeCORS() {
 	}))
 }
 
-// func (s *Server) makeCSRF() {
-// 	s.Echo.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-// 		TokenLength:    s.Config.CSRF.TokenLength,
-// 		TokenLookup:    "header:" + echo.HeaderXCSRFToken,
-// 		ContextKey:     s.Config.CSRF.ContextKey,
-// 		CookieName:     s.Config.CSRF.ContextName,
-// 		CookieMaxAge:   s.Config.CSRF.MaxAge,
-// 		CookiePath:     "/",
-// 		CookieSameSite: http.SameSiteNoneMode,
-// 	}))
-// }
+func (s *Server) makeCSRF() {
+	s.Echo.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		TokenLength:  s.Config.CSRF.TokenLength,
+		TokenLookup:  "header:" + echo.HeaderXCSRFToken,
+		ContextKey:   s.Config.CSRF.ContextKey,
+		CookieName:   s.Config.CSRF.ContextName,
+		CookieMaxAge: s.Config.CSRF.MaxAge,
+		CookiePath:   "/",
+	}))
+}
 
 func (s *Server) makeMiddlewares() {
 	s.authMiddleware = authMiddlewares.New(s.AuthService, s.UserService, s.PostsService)

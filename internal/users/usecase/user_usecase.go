@@ -30,31 +30,31 @@ func WithHashCreator(usersRepo domain.UsersRepository, hashCreator hashCreator) 
 	}
 }
 
-func (u *usecase) GetByID(id uint64) (models.User, error) {
+func (u usecase) GetByID(id uint64) (models.User, error) {
 	return u.usersRepo.GetByID(id)
 }
 
-func (u *usecase) GetByUsername(username string) (models.User, error) {
+func (u usecase) GetByUsername(username string) (models.User, error) {
 	return u.usersRepo.GetByUsername(username)
 }
 
-func (u *usecase) GetByEmail(email string) (models.User, error) {
+func (u usecase) GetByEmail(email string) (models.User, error) {
 	return u.usersRepo.GetByEmail(email)
 }
 
-func (u *usecase) GetBySessionID(sessionID string) (models.User, error) {
+func (u usecase) GetBySessionID(sessionID string) (models.User, error) {
 	return u.usersRepo.GetBySessionID(sessionID)
 }
 
-func (u *usecase) GetUserByPostID(postID uint64) (models.User, error) {
+func (u usecase) GetUserByPostID(postID uint64) (models.User, error) {
 	return u.usersRepo.GetUserByPostID(postID)
 }
 
-func (u *usecase) Create(user models.User) (uint64, error) {
+func (u usecase) Create(user models.User) (uint64, error) {
 	return u.usersRepo.Create(user)
 }
 
-func (u *usecase) Update(user models.User, id uint64) error {
+func (u usecase) Update(user models.User, id uint64) error {
 	updateUser, err := u.GetByID(id)
 	if err != nil {
 		return err
@@ -73,11 +73,11 @@ func (u *usecase) Update(user models.User, id uint64) error {
 	return u.usersRepo.Update(updateUser)
 }
 
-func (u *usecase) DeleteByID(id uint64) error {
+func (u usecase) DeleteByID(id uint64) error {
 	return u.usersRepo.DeleteByID(id)
 }
 
-func (u *usecase) DeleteByUsername(username string) error {
+func (u usecase) DeleteByUsername(username string) error {
 	user, err := u.GetByUsername(username)
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ func (u *usecase) DeleteByUsername(username string) error {
 	return u.DeleteByID(user.ID)
 }
 
-func (u *usecase) DeleteByEmail(email string) error {
+func (u usecase) DeleteByEmail(email string) error {
 	user, err := u.GetByEmail(email)
 	if err != nil {
 		return err
@@ -95,7 +95,7 @@ func (u *usecase) DeleteByEmail(email string) error {
 	return u.DeleteByID(user.ID)
 }
 
-func (u *usecase) CheckIDAndPassword(id uint64, password string) bool {
+func (u usecase) CheckIDAndPassword(id uint64, password string) bool {
 	user, err := u.GetByID(id)
 	if err != nil {
 		return false
@@ -104,7 +104,7 @@ func (u *usecase) CheckIDAndPassword(id uint64, password string) bool {
 	return utils.CheckHashPassword(password, user.Password)
 }
 
-func (u *usecase) IsExistUsernameAndEmail(username, email string) bool {
+func (u usecase) IsExistUsernameAndEmail(username, email string) bool {
 	_, err := u.GetByUsername(username)
 	if err == nil {
 		if _, err = u.GetByEmail(email); err == nil {

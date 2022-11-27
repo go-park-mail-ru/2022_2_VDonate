@@ -44,7 +44,7 @@ func NewHandler(p domain.PostsUseCase, u domain.UsersUseCase, i domain.ImageUseC
 // @Failure     500     {object} echo.HTTPError "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /posts [get]
-func (h *Handler) GetPosts(c echo.Context) error {
+func (h Handler) GetPosts(c echo.Context) error {
 	var allPosts []models.Post
 
 	userID, err := strconv.ParseUint(c.QueryParam("user_id"), 10, 64)
@@ -104,7 +104,7 @@ func (h *Handler) GetPosts(c echo.Context) error {
 // @Failure     500 {object} echo.HTTPError "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /posts/{id} [get]
-func (h *Handler) GetPost(c echo.Context) error {
+func (h Handler) GetPost(c echo.Context) error {
 	postID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	post, err := h.postsUseCase.GetPostByID(postID)
 	if err != nil {
@@ -149,7 +149,7 @@ func (h *Handler) GetPost(c echo.Context) error {
 // @Failure     500 {object} echo.HTTPError     "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /posts/{id} [delete]
-func (h *Handler) DeletePost(c echo.Context) error {
+func (h Handler) DeletePost(c echo.Context) error {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
@@ -180,7 +180,7 @@ func (h *Handler) DeletePost(c echo.Context) error {
 // @Failure     500  {object} echo.HTTPError            "Internal error / failed to create image"
 // @Security    ApiKeyAuth
 // @Router      /posts/{id} [put]
-func (h *Handler) PutPost(c echo.Context) error {
+func (h Handler) PutPost(c echo.Context) error {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
@@ -232,7 +232,7 @@ func (h *Handler) PutPost(c echo.Context) error {
 // @Failure     500 {object} echo.HTTPError            "Internal error / failed to create post"
 // @Security    ApiKeyAuth
 // @Router      /posts [post]
-func (h *Handler) CreatePost(c echo.Context) error {
+func (h Handler) CreatePost(c echo.Context) error {
 	cookie, err := httpAuth.GetCookie(c)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNoSession, err)
@@ -286,7 +286,7 @@ func (h *Handler) CreatePost(c echo.Context) error {
 // @Failure     500 {object} echo.HTTPError "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /posts/{id}/likes [get]
-func (h *Handler) GetLikes(c echo.Context) error {
+func (h Handler) GetLikes(c echo.Context) error {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
@@ -315,7 +315,7 @@ func (h *Handler) GetLikes(c echo.Context) error {
 // @Failure     500 {object} echo.HTTPError "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /posts/{id}/likes [post]
-func (h *Handler) CreateLike(c echo.Context) error {
+func (h Handler) CreateLike(c echo.Context) error {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
@@ -352,7 +352,7 @@ func (h *Handler) CreateLike(c echo.Context) error {
 // @Failure     500 {object} echo.HTTPError "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /posts/{id}/likes [delete]
-func (h *Handler) DeleteLike(c echo.Context) error {
+func (h Handler) DeleteLike(c echo.Context) error {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)

@@ -39,33 +39,9 @@ jobs:
         run: go install github.com/golang/mock/mockgen@v1.6.0
       - name: Setup mocks
         run: make mocks
-      - name: Testing
-        run: make cover_out
-      - name: Go Coverage Badge
-        uses: tj-actions/coverage-badge-go@v2
-        with:
-          filename: c.out
-      - name: Verify Changed files
-        uses: tj-actions/verify-changed-files@v12
-        id: verify-changed-files
-        with:
-          files: README.md
-      - name: Commit changes
-        if: steps.verify-changed-files.outputs.files_changed == 'true'
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add README.md
-          git commit -m "chore: Updated coverage badge."
-      - name: Push changes
-        if: steps.verify-changed-files.outputs.files_changed == 'true'
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ github.token }}
-          branch: ${{ github.head_ref }}
       - name: Coverage check
         env:
-          TESTCOVERAGE_THRESHOLD: 10
+          TESTCOVERAGE_THRESHOLD: 60
         run: |
           echo "Checking test coverage is above threshold..."
           echo "Threshold             : $TESTCOVERAGE_THRESHOLD %"

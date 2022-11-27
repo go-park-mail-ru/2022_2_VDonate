@@ -84,6 +84,7 @@ type Config struct {
 	} `yaml:"cors"`
 
 	CSRF struct {
+		Status      bool   `yaml:"status"`
 		TokenLength uint8  `yaml:"token_length"`
 		ContextKey  string `yaml:"context_key"`
 		ContextName string `yaml:"context_name"`
@@ -154,11 +155,13 @@ func New() *Config {
 		},
 
 		CSRF: struct {
+			Status      bool   `yaml:"status"`
 			TokenLength uint8  `yaml:"token_length"`
 			ContextKey  string `yaml:"context_key"`
 			ContextName string `yaml:"context_name"`
 			MaxAge      int    `yaml:"max_age"`
 		}{
+			Status:      false,
 			TokenLength: tokenLength,
 			ContextKey:  contextKey,
 			ContextName: contextName,

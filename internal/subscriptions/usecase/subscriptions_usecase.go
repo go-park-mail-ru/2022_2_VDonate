@@ -16,7 +16,7 @@ func New(s domain.SubscriptionsRepository) domain.SubscriptionsUseCase {
 	}
 }
 
-func (u *usecase) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscription, error) {
+func (u usecase) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscription, error) {
 	s, err := u.subRepo.GetSubscriptionsByUserID(userID)
 	if err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func (u *usecase) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscr
 	return s, nil
 }
 
-func (u *usecase) GetAuthorSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error) {
+func (u usecase) GetAuthorSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error) {
 	s, err := u.subRepo.GetSubscriptionsByAuthorID(authorID)
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func (u *usecase) GetAuthorSubscriptionsByAuthorID(authorID uint64) ([]models.Au
 	return s, nil
 }
 
-func (u *usecase) GetAuthorSubscriptionByID(id uint64) (models.AuthorSubscription, error) {
+func (u usecase) GetAuthorSubscriptionByID(id uint64) (models.AuthorSubscription, error) {
 	s, err := u.subRepo.GetSubscriptionByID(id)
 	if err != nil {
 		return models.AuthorSubscription{}, err
@@ -41,12 +41,12 @@ func (u *usecase) GetAuthorSubscriptionByID(id uint64) (models.AuthorSubscriptio
 	return s, nil
 }
 
-func (u *usecase) AddAuthorSubscription(sub models.AuthorSubscription, id uint64) (uint64, error) {
+func (u usecase) AddAuthorSubscription(sub models.AuthorSubscription, id uint64) (uint64, error) {
 	sub.AuthorID = id
 	return u.subRepo.AddSubscription(sub)
 }
 
-func (u *usecase) UpdateAuthorSubscription(sub models.AuthorSubscription, id uint64) error {
+func (u usecase) UpdateAuthorSubscription(sub models.AuthorSubscription, id uint64) error {
 	updateSub, err := u.GetAuthorSubscriptionByID(id)
 	if err != nil {
 		return err
@@ -59,6 +59,6 @@ func (u *usecase) UpdateAuthorSubscription(sub models.AuthorSubscription, id uin
 	return u.subRepo.UpdateSubscription(updateSub)
 }
 
-func (u *usecase) DeleteAuthorSubscription(subID uint64) error {
+func (u usecase) DeleteAuthorSubscription(subID uint64) error {
 	return u.subRepo.DeleteSubscription(subID)
 }

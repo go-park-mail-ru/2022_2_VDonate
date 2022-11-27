@@ -52,7 +52,7 @@ func NewHandler(
 // @Failure     500 {object} echo.HTTPError "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /users/{id} [get]
-func (h *Handler) GetUser(c echo.Context) error {
+func (h Handler) GetUser(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
@@ -103,7 +103,7 @@ func (h *Handler) GetUser(c echo.Context) error {
 // @Failure     500  {object} echo.HTTPError            "Internal error / failed to create user"
 // @Security    ApiKeyAuth
 // @Router      /users/{id} [put]
-func (h *Handler) PutUser(c echo.Context) error {
+func (h Handler) PutUser(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)

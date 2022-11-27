@@ -21,7 +21,7 @@ func NewPostgres(url string) (*Postgres, error) {
 	return &Postgres{DB: db}, nil
 }
 
-func (p *Postgres) SendDonate(donate models.Donate) (models.Donate, error) {
+func (p Postgres) SendDonate(donate models.Donate) (models.Donate, error) {
 	err := p.DB.QueryRowx(`
 		INSERT INTO donates (user_id, author_id, price)
 		VALUES ($1, $2, $3) RETURNING id;`,

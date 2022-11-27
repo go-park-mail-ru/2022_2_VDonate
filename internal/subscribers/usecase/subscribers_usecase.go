@@ -18,7 +18,7 @@ func New(s domain.SubscribersRepository, u domain.UsersRepository) domain.Subscr
 	}
 }
 
-func (u *usecase) GetSubscribers(authorID uint64) ([]models.User, error) {
+func (u usecase) GetSubscribers(authorID uint64) ([]models.User, error) {
 	s, err := u.subscribersRepo.GetSubscribers(authorID)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func (u *usecase) GetSubscribers(authorID uint64) ([]models.User, error) {
 	return subs, nil
 }
 
-func (u *usecase) Subscribe(subscription models.Subscription, userID uint64) error {
+func (u usecase) Subscribe(subscription models.Subscription, userID uint64) error {
 	subscription.SubscriberID = userID
 	if utils.Empty(subscription.SubscriberID, subscription.AuthorID, subscription.AuthorSubscriptionID) {
 		return domain.ErrBadRequest
@@ -47,7 +47,7 @@ func (u *usecase) Subscribe(subscription models.Subscription, userID uint64) err
 	return u.subscribersRepo.Subscribe(subscription)
 }
 
-func (u *usecase) Unsubscribe(userID, authorID uint64) error {
+func (u usecase) Unsubscribe(userID, authorID uint64) error {
 	if userID == 0 || authorID == 0 {
 		return domain.ErrBadRequest
 	}
