@@ -652,10 +652,10 @@ func (mr *MockUsersRepositoryMockRecorder) DeleteByID(id interface{}) *gomock.Ca
 }
 
 // GetAuthorByUsername mocks base method.
-func (m *MockUsersRepository) GetAuthorByUsername(username string) (models.User, error) {
+func (m *MockUsersRepository) GetAuthorByUsername(username string) ([]models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAuthorByUsername", username)
-	ret0, _ := ret[0].(models.User)
+	ret0, _ := ret[0].([]models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

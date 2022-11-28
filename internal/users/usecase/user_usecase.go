@@ -127,10 +127,7 @@ func (u usecase) FindAuthors(keyword string) ([]models.User, error) {
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return resAuthors, err
 		}
-		if errors.Is(err, sql.ErrNoRows) {
-			continue
-		}
-		resAuthors = append(resAuthors, author)
+		resAuthors = append(resAuthors, author...)
 	}
 
 	return resAuthors, nil

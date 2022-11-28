@@ -60,7 +60,7 @@ type UsersRepository interface {
 	GetUserByPostID(postID uint64) (models.User, error)
 	Update(user models.User) error
 	DeleteByID(id uint64) error
-	GetAuthorByUsername(username string) (models.User, error)
+	GetAuthorByUsername(username string) ([]models.User, error)
 	Close() error
 }
 
