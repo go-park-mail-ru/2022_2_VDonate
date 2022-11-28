@@ -3,6 +3,8 @@ package auth
 import (
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
@@ -66,7 +68,7 @@ func (u usecase) Login(login, password string) (string, error) {
 	if err != nil {
 		user, err = u.usersRepo.GetByEmail(login)
 		if err != nil {
-			return "", domain.ErrUsernameOrEmailNotExist
+			return "", errors.Wrap(err, domain.ErrUsernameOrEmailNotExist.Error())
 		}
 	}
 

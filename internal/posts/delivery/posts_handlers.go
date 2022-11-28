@@ -2,13 +2,13 @@ package httpPosts
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
+	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
+
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 
-	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
@@ -35,8 +35,7 @@ func NewHandler(p domain.PostsUseCase, u domain.UsersUseCase, i domain.ImageUseC
 // @ID          get_posts
 // @Tags        posts
 // @Produce     json
-// @Param       user_id query    integer        true "User ID"
-// @Param       filter  query    string         true "filter to use to get posts. Filters: subscriptions"
+// @Param       filter  query    string         true "filter to use to get posts. Filters: subscriptions, user_id(as digit)"
 // @Success     200     {object} []models.Post  "Posts were successfully received"
 // @Failure     400     {object} echo.HTTPError "Bad request"
 // @Failure     401     {object} echo.HTTPError "No session provided"
@@ -46,44 +45,29 @@ func NewHandler(p domain.PostsUseCase, u domain.UsersUseCase, i domain.ImageUseC
 // @Router      /posts [get]
 func (h Handler) GetPosts(c echo.Context) error {
 	var allPosts []models.Post
-
-	userID, err := strconv.ParseUint(c.QueryParam("user_id"), 10, 64)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
-	}
-
-	filter := c.QueryParam("filter")
-	if len(filter) != 0 {
-		if allPosts, err = h.postsUseCase.GetPostsByFilter(filter, userID); err != nil {
-			return errorHandling.WrapEcho(domain.ErrNotFound, err)
-		}
-	} else {
-		if allPosts, err = h.postsUseCase.GetPostsByUserID(userID); err != nil {
-			return errorHandling.WrapEcho(domain.ErrNotFound, err)
-		}
-	}
-
-	if len(allPosts) == 0 {
-		return c.JSON(http.StatusOK, struct{}{})
-	}
+	var user models.User
+	var authorID uint64
 
 	cookie, err := httpAuth.GetCookie(c)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
-	user, err := h.usersUseCase.GetBySessionID(cookie.Value)
-	if err != nil {
+
+	if user, err = h.usersUseCase.GetBySessionID(cookie.Value); err != nil {
 		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
 
-	for i, post := range allPosts {
-		if allPosts[i].Img, err = h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), post.Img); err != nil {
-			return errorHandling.WrapEcho(domain.ErrInternal, err)
+	filter := c.QueryParam("filter")
+	switch filter {
+	case "subscriptions":
+	default:
+		if authorID, err = strconv.ParseUint(filter, 10, 64); err != nil {
+			return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 		}
-		if allPosts[i].LikesNum, err = h.postsUseCase.GetLikesNum(post.ID); err != nil {
-			return errorHandling.WrapEcho(domain.ErrInternal, err)
-		}
-		allPosts[i].IsLiked = h.postsUseCase.IsPostLiked(user.ID, post.ID)
+	}
+
+	if allPosts, err = h.postsUseCase.GetPostsByFilter(user.ID, authorID); err != nil {
+		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
 
 	return c.JSON(http.StatusOK, allPosts)
@@ -105,30 +89,25 @@ func (h Handler) GetPosts(c echo.Context) error {
 // @Security    ApiKeyAuth
 // @Router      /posts/{id} [get]
 func (h Handler) GetPost(c echo.Context) error {
-	postID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	post, err := h.postsUseCase.GetPostByID(postID)
+	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrNotFound, err)
-	}
-
-	if post.Img, err = h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), post.Img); err != nil {
-		return errorHandling.WrapEcho(domain.ErrInternal, err)
-	}
-
-	post.LikesNum, err = h.postsUseCase.GetLikesNum(postID)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrNotFound, err)
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
 	cookie, err := httpAuth.GetCookie(c)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
+
 	user, err := h.usersUseCase.GetBySessionID(cookie.Value)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
-	post.IsLiked = h.postsUseCase.IsPostLiked(user.ID, postID)
+
+	post, err := h.postsUseCase.GetPostByID(postID, user.ID)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNotFound, err)
+	}
 
 	return c.JSON(http.StatusOK, post)
 }
@@ -195,7 +174,7 @@ func (h Handler) PutPost(c echo.Context) error {
 	file, err := images.GetFileFromContext(c)
 
 	if file != nil && !errors.Is(err, http.ErrMissingFile) {
-		if prevPost.Img, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
+		if prevPost.Img, err = h.imageUseCase.CreateOrUpdateImage(file, prevPost.Img); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
 		}
 	}
@@ -204,7 +183,7 @@ func (h Handler) PutPost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrUpdate, err)
 	}
 
-	tmpURL, err := h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), prevPost.Img)
+	tmpURL, err := h.imageUseCase.GetImage(prevPost.Img)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
@@ -251,7 +230,7 @@ func (h Handler) CreatePost(c echo.Context) error {
 
 	file, err := images.GetFileFromContext(c)
 	if file != nil && !errors.Is(err, http.ErrMissingFile) {
-		if post.Img, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
+		if post.Img, err = h.imageUseCase.CreateOrUpdateImage(file, ""); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
 		}
 	}
@@ -261,7 +240,7 @@ func (h Handler) CreatePost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 
-	tmpURL, err := h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), post.Img)
+	tmpURL, err := h.imageUseCase.GetImage(post.Img)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}

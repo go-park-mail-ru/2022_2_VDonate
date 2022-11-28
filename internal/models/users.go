@@ -3,10 +3,10 @@ package models
 type User struct {
 	ID       uint64 `json:"id" db:"id" form:"id" example:"1"`
 	Username string `json:"username" db:"username" form:"username" validate:"required" example:"admin"`
-	Email    string `json:"email" db:"email" form:"email" validate:"required" example:"admin@mail.ru"`
+	Email    string `json:"email" db:"email" form:"email" validate:"required,email" example:"admin@mail.ru"`
 	Avatar   string `json:"avatar" db:"avatar" form:"avatar" example:"filename.jpeg"`
 	Password string `json:"password" db:"password" form:"password" validate:"required" example:"*****"`
-	IsAuthor bool   `json:"isAuthor" db:"is_author" form:"isAuthor" validate:"required" example:"true"`
+	IsAuthor bool   `json:"isAuthor" db:"is_author" form:"isAuthor" validate:"required,boolean" example:"true"`
 	About    string `json:"about" db:"about" form:"about" example:"it's info about myself"`
 
 	CountSubscriptions uint64 `json:"countSubscriptions" example:"25"`

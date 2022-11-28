@@ -2,7 +2,6 @@ package domain
 
 import (
 	"mime/multipart"
-	"net/url"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 )
@@ -18,7 +17,7 @@ type AuthRepository interface {
 }
 
 type PostsRepository interface {
-	GetAllByUserID(userID uint64) ([]models.Post, error)
+	GetAllByUserID(authorID uint64) ([]models.Post, error)
 	GetPostByID(postID uint64) (models.Post, error)
 	Create(post models.Post) (uint64, error)
 	Update(post models.Post) error
@@ -29,6 +28,12 @@ type PostsRepository interface {
 	CreateLike(userID, postID uint64) error
 	DeleteLikeByID(userID, postID uint64) error
 	GetPostsBySubscriptions(userID uint64) ([]models.Post, error)
+	CreateTag(tagName string) (uint64, error)
+	CreateDepTag(postID, tagID uint64) error
+	DeleteDepTag(tagDep models.TagDep) error
+	GetTagById(tagID uint64) (models.Tag, error)
+	GetTagDepsByPostId(postID uint64) ([]models.TagDep, error)
+	GetTagByName(tagName string) (models.Tag, error)
 }
 
 type SubscribersRepository interface {
@@ -40,6 +45,7 @@ type SubscribersRepository interface {
 type SubscriptionsRepository interface {
 	GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscription, error)
 	GetSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error)
+	GetSubscriptionByUserAndAuthorID(userID, authorID uint64) (models.AuthorSubscription, error)
 	GetSubscriptionByID(ID uint64) (models.AuthorSubscription, error)
 	AddSubscription(sub models.AuthorSubscription) (uint64, error)
 	UpdateSubscription(sub models.AuthorSubscription) error
@@ -55,6 +61,7 @@ type UsersRepository interface {
 	GetUserByPostID(postID uint64) (models.User, error)
 	Update(user models.User) error
 	DeleteByID(id uint64) error
+	GetAuthorByUsername(username string) ([]models.User, error)
 	Close() error
 }
 
@@ -65,7 +72,6 @@ type DonatesRepository interface {
 }
 
 type ImagesRepository interface {
-	CreateImage(image *multipart.FileHeader, bucket string) (string, error)
-	GetImage(bucket string, filename string) (*url.URL, error)
-	GetPermanentImage(bucket string, filename string) (string, error)
+	CreateOrUpdateImage(image *multipart.FileHeader, oldFilename string) (string, error)
+	GetPermanentImage(filename string) (string, error)
 }

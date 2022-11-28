@@ -14,6 +14,7 @@ type ResponseImageSubscription struct {
 }
 
 type ResponseImageUsers struct {
-	UserID  uint64 `json:"userID" validate:"required" example:"25"`
-	ImgPath string `json:"imgPath" validate:"required" example:"/path/to/image.jpeg"`
+	UserID   uint64 `json:"userID" validate:"required" example:"25"`
+	Username string `json:"username" validate:"required" example:"leo"`
+	ImgPath  string `json:"imgPath" validate:"required" example:"/path/to/image.jpeg"`
 }

@@ -31,13 +31,13 @@ const (
 	contextKey  = "csrf"
 	contextName = "csrf_token"
 	csrfMaxAge  = 86400
+
+	policy        = "{\"Version\": \"2012-10-17\",\"Statement\": [{\"Action\": [\"s3:GetObject\"],\"Effect\": \"Allow\",\"Principal\": {\"AWS\": [\"*\"]},\"Resource\": [\"arn:aws:s3:::$(bucket)/*\"],\"Sid\": \"\"}]}"
+	expire        = 60
+	symbolsToHash = 1
 )
 
 var (
-	buckets = map[string]string{
-		"image":  "",
-		"avatar": "{\"Version\": \"2012-10-17\",\"Statement\": [{\"Action\": [\"s3:GetObject\"],\"Effect\": \"Allow\",\"Principal\": {\"AWS\": [\"*\"]},\"Resource\": [\"arn:aws:s3:::avatar/*\"],\"Sid\": \"\"}]}",
-	}
 	allowMethods = []string{
 		http.MethodDelete,
 		http.MethodGet,
@@ -92,11 +92,15 @@ type Config struct {
 	} `yaml:"csrf"`
 
 	S3 struct {
-		Endpoint        string            `yaml:"endpoint"`
-		AccessKeyID     string            `yaml:"access_key_id"`
-		SecretAccessKey string            `yaml:"secret_access_key"`
-		UseSSL          bool              `yaml:"use_ssl"`
-		Buckets         map[string]string `yaml:"buckets"`
+		Endpoint        string `yaml:"endpoint"`
+		AccessKeyID     string `yaml:"access_key_id"`
+		SecretAccessKey string `yaml:"secret_access_key"`
+		UseSSL          bool   `yaml:"use_ssl"`
+		Buckets         struct {
+			Policy        string `yaml:"policy"`
+			SymbolsToHash int    `yaml:"symbols_to_hash"`
+			Expire        int    `yaml:"expire"`
+		} `yaml:"buckets"`
 	} `yaml:"s3"`
 }
 
@@ -169,17 +173,29 @@ func New() *Config {
 		},
 
 		S3: struct {
-			Endpoint        string            `yaml:"endpoint"`
-			AccessKeyID     string            `yaml:"access_key_id"`
-			SecretAccessKey string            `yaml:"secret_access_key"`
-			UseSSL          bool              `yaml:"use_ssl"`
-			Buckets         map[string]string `yaml:"buckets"`
+			Endpoint        string `yaml:"endpoint"`
+			AccessKeyID     string `yaml:"access_key_id"`
+			SecretAccessKey string `yaml:"secret_access_key"`
+			UseSSL          bool   `yaml:"use_ssl"`
+			Buckets         struct {
+				Policy        string `yaml:"policy"`
+				SymbolsToHash int    `yaml:"symbols_to_hash"`
+				Expire        int    `yaml:"expire"`
+			} `yaml:"buckets"`
 		}{
 			Endpoint:        endpoint,
 			AccessKeyID:     assessKeyID,
 			SecretAccessKey: secretAccessKey,
 			UseSSL:          useSSL,
-			Buckets:         buckets,
+			Buckets: struct {
+				Policy        string `yaml:"policy"`
+				SymbolsToHash int    `yaml:"symbols_to_hash"`
+				Expire        int    `yaml:"expire"`
+			}(struct {
+				Policy        string
+				SymbolsToHash int
+				Expire        int
+			}{Policy: policy, SymbolsToHash: symbolsToHash, Expire: expire}),
 		},
 	}
 }

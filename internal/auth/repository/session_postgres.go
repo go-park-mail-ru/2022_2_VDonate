@@ -24,19 +24,12 @@ func NewPostgres(url string) (*Postgres, error) {
 }
 
 func (r Postgres) Close() error {
-	if err := r.DB.Close(); err != nil {
-		return err
-	}
-
-	return nil
+	return r.DB.Close()
 }
 
 func (r Postgres) GetByUserID(id uint64) (models.Cookie, error) {
 	var c models.Cookie
 	err := r.DB.Get(&c, "SELECT value, user_id, expire_date FROM sessions WHERE user_id=$1;", id)
-	if err != nil {
-		return models.Cookie{}, err
-	}
 
 	return c, err
 }
@@ -44,9 +37,6 @@ func (r Postgres) GetByUserID(id uint64) (models.Cookie, error) {
 func (r Postgres) GetBySessionID(sessionID string) (models.Cookie, error) {
 	var c models.Cookie
 	err := r.DB.Get(&c, "SELECT value, user_id, expire_date FROM sessions WHERE value=$1;", sessionID)
-	if err != nil {
-		return models.Cookie{}, err
-	}
 
 	return c, err
 }
@@ -59,11 +49,8 @@ func (r Postgres) GetByUsername(username string) (models.Cookie, error) {
 		JOIN users on users.username = $1`,
 		username,
 	)
-	if err != nil {
-		return models.Cookie{}, err
-	}
 
-	return c, nil
+	return c, err
 }
 
 func (r Postgres) CreateSession(cookie models.Cookie) (models.Cookie, error) {
@@ -73,27 +60,18 @@ func (r Postgres) CreateSession(cookie models.Cookie) (models.Cookie, error) {
 		cookie.UserID,
 		cookie.Expires,
 	)
-	if err != nil {
-		return models.Cookie{}, err
-	}
 
-	return cookie, nil
+	return cookie, err
 }
 
 func (r Postgres) DeleteByUserID(id uint64) error {
 	_, err := r.DB.Exec("DELETE FROM sessions WHERE user_id=$1;", id)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 func (r Postgres) DeleteBySessionID(sessionID string) error {
 	_, err := r.DB.Exec("DELETE FROM sessions WHERE value=$1;", sessionID)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }

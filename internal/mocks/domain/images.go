@@ -34,32 +34,32 @@ func (m *MockImageUseCase) EXPECT() *MockImageUseCaseMockRecorder {
 	return m.recorder
 }
 
-// CreateImage mocks base method.
-func (m *MockImageUseCase) CreateImage(image *multipart.FileHeader, bucket string) (string, error) {
+// CreateOrUpdateImage mocks base method.
+func (m *MockImageUseCase) CreateOrUpdateImage(image *multipart.FileHeader, oldFilename string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateImage", image, bucket)
+	ret := m.ctrl.Call(m, "CreateOrUpdateImage", image, oldFilename)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CreateImage indicates an expected call of CreateImage.
-func (mr *MockImageUseCaseMockRecorder) CreateImage(image, bucket interface{}) *gomock.Call {
+// CreateOrUpdateImage indicates an expected call of CreateOrUpdateImage.
+func (mr *MockImageUseCaseMockRecorder) CreateOrUpdateImage(image, oldFilename interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateImage", reflect.TypeOf((*MockImageUseCase)(nil).CreateImage), image, bucket)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrUpdateImage", reflect.TypeOf((*MockImageUseCase)(nil).CreateOrUpdateImage), image, oldFilename)
 }
 
 // GetImage mocks base method.
-func (m *MockImageUseCase) GetImage(bucket, name string) (string, error) {
+func (m *MockImageUseCase) GetImage(filename string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetImage", bucket, name)
+	ret := m.ctrl.Call(m, "GetImage", filename)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetImage indicates an expected call of GetImage.
-func (mr *MockImageUseCaseMockRecorder) GetImage(bucket, name interface{}) *gomock.Call {
+func (mr *MockImageUseCaseMockRecorder) GetImage(filename interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImage", reflect.TypeOf((*MockImageUseCase)(nil).GetImage), bucket, name)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImage", reflect.TypeOf((*MockImageUseCase)(nil).GetImage), filename)
 }

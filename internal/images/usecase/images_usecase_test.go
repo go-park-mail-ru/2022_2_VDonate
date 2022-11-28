@@ -1,7 +1,6 @@
 package images
 
 import (
-	"net/url"
 	"testing"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
@@ -12,74 +11,35 @@ import (
 )
 
 func TestUsecase_GetImage(t *testing.T) {
-	type mockBehaviourGetImage func(r *mockDomain.MockImagesRepository, bucket, filename string)
-	type mockBehaviourGetPermImage func(r *mockDomain.MockImagesRepository, bucket, filename string)
+	type mockBehaviourGetPermImage func(r *mockDomain.MockImagesRepository, filename string)
 
 	tests := []struct {
 		name                      string
-		bucket                    string
 		filename                  string
-		mockBehaviourGetImage     mockBehaviourGetImage
 		mockBehaviourGetPermImage mockBehaviourGetPermImage
 		responseError             string
 		expectedResult            string
 	}{
 		{
-			name:     "OK-image",
+			name:     "OK",
 			filename: "filename.jpg",
-			bucket:   "image",
-			mockBehaviourGetImage: func(r *mockDomain.MockImagesRepository, bucket, filename string) {
-				r.EXPECT().GetImage(bucket, filename).Return(&url.URL{
-					Path: "newURL",
-				}, nil)
-			},
-			mockBehaviourGetPermImage: func(r *mockDomain.MockImagesRepository, bucket, filename string) {},
-			expectedResult:            "https://wsrv.nl/?url=newURL",
-		},
-		{
-			name:     "Bad-image",
-			filename: "filename.jpg",
-			bucket:   "image",
-			mockBehaviourGetImage: func(r *mockDomain.MockImagesRepository, bucket, filename string) {
-				r.EXPECT().GetImage(bucket, filename).Return(nil, domain.ErrNotFound)
-			},
-			mockBehaviourGetPermImage: func(r *mockDomain.MockImagesRepository, bucket, filename string) {},
-			responseError:             "failed to find item",
-		},
-		{
-			name:                  "OK-avatar",
-			filename:              "filename.jpg",
-			bucket:                "avatar",
-			mockBehaviourGetImage: func(r *mockDomain.MockImagesRepository, bucket, filename string) {},
-			mockBehaviourGetPermImage: func(r *mockDomain.MockImagesRepository, bucket, filename string) {
-				r.EXPECT().GetPermanentImage(bucket, filename).Return("newURL", nil)
+			mockBehaviourGetPermImage: func(r *mockDomain.MockImagesRepository, filename string) {
+				r.EXPECT().GetPermanentImage(filename).Return("newURL", nil)
 			},
 			expectedResult: "https://wsrv.nl/?url=newURL",
 		},
 		{
-			name:                  "Bad-avatar",
-			filename:              "filename.jpg",
-			bucket:                "avatar",
-			mockBehaviourGetImage: func(r *mockDomain.MockImagesRepository, bucket, filename string) {},
-			mockBehaviourGetPermImage: func(r *mockDomain.MockImagesRepository, bucket, filename string) {
-				r.EXPECT().GetPermanentImage(bucket, filename).Return("", domain.ErrNotFound)
+			name:     "Bad-image",
+			filename: "filename.jpg",
+			mockBehaviourGetPermImage: func(r *mockDomain.MockImagesRepository, filename string) {
+				r.EXPECT().GetPermanentImage(filename).Return("", domain.ErrInternal)
 			},
-			responseError: "failed to find item",
-		},
-		{
-			name:                      "BadRequest-Bucket",
-			filename:                  "filename.jpg",
-			bucket:                    "",
-			mockBehaviourGetImage:     func(r *mockDomain.MockImagesRepository, bucket, filename string) {},
-			mockBehaviourGetPermImage: func(r *mockDomain.MockImagesRepository, bucket, filename string) {},
-			responseError:             "bad url",
+			responseError: "server error",
 		},
 		{
 			name:                      "BadRequest-Filename",
 			filename:                  "",
-			bucket:                    "",
-			mockBehaviourGetImage:     func(r *mockDomain.MockImagesRepository, bucket, filename string) {},
-			mockBehaviourGetPermImage: func(r *mockDomain.MockImagesRepository, bucket, filename string) {},
+			mockBehaviourGetPermImage: func(r *mockDomain.MockImagesRepository, filename string) {},
 		},
 	}
 
@@ -90,11 +50,10 @@ func TestUsecase_GetImage(t *testing.T) {
 
 			image := mockDomain.NewMockImagesRepository(ctrl)
 
-			test.mockBehaviourGetImage(image, test.bucket, test.filename)
-			test.mockBehaviourGetPermImage(image, test.bucket, test.filename)
+			test.mockBehaviourGetPermImage(image, test.filename)
 
 			usecase := New(image)
-			result, err := usecase.GetImage(test.bucket, test.filename)
+			result, err := usecase.GetImage(test.filename)
 			if err != nil {
 				assert.Equal(t, err.Error(), test.responseError)
 			} else {

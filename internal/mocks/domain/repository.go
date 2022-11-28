@@ -6,7 +6,6 @@ package mock_domain
 
 import (
 	multipart "mime/multipart"
-	url "net/url"
 	reflect "reflect"
 
 	models "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
@@ -190,6 +189,20 @@ func (mr *MockPostsRepositoryMockRecorder) Create(post interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockPostsRepository)(nil).Create), post)
 }
 
+// CreateDepTag mocks base method.
+func (m *MockPostsRepository) CreateDepTag(postID, tagID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateDepTag", postID, tagID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateDepTag indicates an expected call of CreateDepTag.
+func (mr *MockPostsRepositoryMockRecorder) CreateDepTag(postID, tagID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDepTag", reflect.TypeOf((*MockPostsRepository)(nil).CreateDepTag), postID, tagID)
+}
+
 // CreateLike mocks base method.
 func (m *MockPostsRepository) CreateLike(userID, postID uint64) error {
 	m.ctrl.T.Helper()
@@ -204,6 +217,21 @@ func (mr *MockPostsRepositoryMockRecorder) CreateLike(userID, postID interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLike", reflect.TypeOf((*MockPostsRepository)(nil).CreateLike), userID, postID)
 }
 
+// CreateTag mocks base method.
+func (m *MockPostsRepository) CreateTag(tagName string) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateTag", tagName)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateTag indicates an expected call of CreateTag.
+func (mr *MockPostsRepositoryMockRecorder) CreateTag(tagName interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTag", reflect.TypeOf((*MockPostsRepository)(nil).CreateTag), tagName)
+}
+
 // DeleteByID mocks base method.
 func (m *MockPostsRepository) DeleteByID(postID uint64) error {
 	m.ctrl.T.Helper()
@@ -216,6 +244,20 @@ func (m *MockPostsRepository) DeleteByID(postID uint64) error {
 func (mr *MockPostsRepositoryMockRecorder) DeleteByID(postID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockPostsRepository)(nil).DeleteByID), postID)
+}
+
+// DeleteDepTag mocks base method.
+func (m *MockPostsRepository) DeleteDepTag(tagDep models.TagDep) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteDepTag", tagDep)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteDepTag indicates an expected call of DeleteDepTag.
+func (mr *MockPostsRepositoryMockRecorder) DeleteDepTag(tagDep interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDepTag", reflect.TypeOf((*MockPostsRepository)(nil).DeleteDepTag), tagDep)
 }
 
 // DeleteLikeByID mocks base method.
@@ -233,18 +275,18 @@ func (mr *MockPostsRepositoryMockRecorder) DeleteLikeByID(userID, postID interfa
 }
 
 // GetAllByUserID mocks base method.
-func (m *MockPostsRepository) GetAllByUserID(userID uint64) ([]models.Post, error) {
+func (m *MockPostsRepository) GetAllByUserID(authorID uint64) ([]models.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllByUserID", userID)
+	ret := m.ctrl.Call(m, "GetAllByUserID", authorID)
 	ret0, _ := ret[0].([]models.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAllByUserID indicates an expected call of GetAllByUserID.
-func (mr *MockPostsRepositoryMockRecorder) GetAllByUserID(userID interface{}) *gomock.Call {
+func (mr *MockPostsRepositoryMockRecorder) GetAllByUserID(authorID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllByUserID", reflect.TypeOf((*MockPostsRepository)(nil).GetAllByUserID), userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllByUserID", reflect.TypeOf((*MockPostsRepository)(nil).GetAllByUserID), authorID)
 }
 
 // GetAllLikesByPostID mocks base method.
@@ -305,6 +347,51 @@ func (m *MockPostsRepository) GetPostsBySubscriptions(userID uint64) ([]models.P
 func (mr *MockPostsRepositoryMockRecorder) GetPostsBySubscriptions(userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostsBySubscriptions", reflect.TypeOf((*MockPostsRepository)(nil).GetPostsBySubscriptions), userID)
+}
+
+// GetTagById mocks base method.
+func (m *MockPostsRepository) GetTagById(tagID uint64) (models.Tag, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTagById", tagID)
+	ret0, _ := ret[0].(models.Tag)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTagById indicates an expected call of GetTagById.
+func (mr *MockPostsRepositoryMockRecorder) GetTagById(tagID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTagById", reflect.TypeOf((*MockPostsRepository)(nil).GetTagById), tagID)
+}
+
+// GetTagByName mocks base method.
+func (m *MockPostsRepository) GetTagByName(tagName string) (models.Tag, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTagByName", tagName)
+	ret0, _ := ret[0].(models.Tag)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTagByName indicates an expected call of GetTagByName.
+func (mr *MockPostsRepositoryMockRecorder) GetTagByName(tagName interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTagByName", reflect.TypeOf((*MockPostsRepository)(nil).GetTagByName), tagName)
+}
+
+// GetTagDepsByPostId mocks base method.
+func (m *MockPostsRepository) GetTagDepsByPostId(postID uint64) ([]models.TagDep, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTagDepsByPostId", postID)
+	ret0, _ := ret[0].([]models.TagDep)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTagDepsByPostId indicates an expected call of GetTagDepsByPostId.
+func (mr *MockPostsRepositoryMockRecorder) GetTagDepsByPostId(postID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTagDepsByPostId", reflect.TypeOf((*MockPostsRepository)(nil).GetTagDepsByPostId), postID)
 }
 
 // Update mocks base method.
@@ -454,6 +541,21 @@ func (mr *MockSubscriptionsRepositoryMockRecorder) GetSubscriptionByID(ID interf
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionByID", reflect.TypeOf((*MockSubscriptionsRepository)(nil).GetSubscriptionByID), ID)
 }
 
+// GetSubscriptionByUserAndAuthorID mocks base method.
+func (m *MockSubscriptionsRepository) GetSubscriptionByUserAndAuthorID(userID, authorID uint64) (models.AuthorSubscription, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscriptionByUserAndAuthorID", userID, authorID)
+	ret0, _ := ret[0].(models.AuthorSubscription)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubscriptionByUserAndAuthorID indicates an expected call of GetSubscriptionByUserAndAuthorID.
+func (mr *MockSubscriptionsRepositoryMockRecorder) GetSubscriptionByUserAndAuthorID(userID, authorID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionByUserAndAuthorID", reflect.TypeOf((*MockSubscriptionsRepository)(nil).GetSubscriptionByUserAndAuthorID), userID, authorID)
+}
+
 // GetSubscriptionsByAuthorID mocks base method.
 func (m *MockSubscriptionsRepository) GetSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error) {
 	m.ctrl.T.Helper()
@@ -562,6 +664,21 @@ func (m *MockUsersRepository) DeleteByID(id uint64) error {
 func (mr *MockUsersRepositoryMockRecorder) DeleteByID(id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockUsersRepository)(nil).DeleteByID), id)
+}
+
+// GetAuthorByUsername mocks base method.
+func (m *MockUsersRepository) GetAuthorByUsername(username string) ([]models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAuthorByUsername", username)
+	ret0, _ := ret[0].([]models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAuthorByUsername indicates an expected call of GetAuthorByUsername.
+func (mr *MockUsersRepositoryMockRecorder) GetAuthorByUsername(username interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthorByUsername", reflect.TypeOf((*MockUsersRepository)(nil).GetAuthorByUsername), username)
 }
 
 // GetByEmail mocks base method.
@@ -744,47 +861,32 @@ func (m *MockImagesRepository) EXPECT() *MockImagesRepositoryMockRecorder {
 	return m.recorder
 }
 
-// CreateImage mocks base method.
-func (m *MockImagesRepository) CreateImage(image *multipart.FileHeader, bucket string) (string, error) {
+// CreateOrUpdateImage mocks base method.
+func (m *MockImagesRepository) CreateOrUpdateImage(image *multipart.FileHeader, oldFilename string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateImage", image, bucket)
+	ret := m.ctrl.Call(m, "CreateOrUpdateImage", image, oldFilename)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CreateImage indicates an expected call of CreateImage.
-func (mr *MockImagesRepositoryMockRecorder) CreateImage(image, bucket interface{}) *gomock.Call {
+// CreateOrUpdateImage indicates an expected call of CreateOrUpdateImage.
+func (mr *MockImagesRepositoryMockRecorder) CreateOrUpdateImage(image, oldFilename interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateImage", reflect.TypeOf((*MockImagesRepository)(nil).CreateImage), image, bucket)
-}
-
-// GetImage mocks base method.
-func (m *MockImagesRepository) GetImage(bucket, filename string) (*url.URL, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetImage", bucket, filename)
-	ret0, _ := ret[0].(*url.URL)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetImage indicates an expected call of GetImage.
-func (mr *MockImagesRepositoryMockRecorder) GetImage(bucket, filename interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetImage", reflect.TypeOf((*MockImagesRepository)(nil).GetImage), bucket, filename)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrUpdateImage", reflect.TypeOf((*MockImagesRepository)(nil).CreateOrUpdateImage), image, oldFilename)
 }
 
 // GetPermanentImage mocks base method.
-func (m *MockImagesRepository) GetPermanentImage(bucket, filename string) (string, error) {
+func (m *MockImagesRepository) GetPermanentImage(filename string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPermanentImage", bucket, filename)
+	ret := m.ctrl.Call(m, "GetPermanentImage", filename)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetPermanentImage indicates an expected call of GetPermanentImage.
-func (mr *MockImagesRepositoryMockRecorder) GetPermanentImage(bucket, filename interface{}) *gomock.Call {
+func (mr *MockImagesRepositoryMockRecorder) GetPermanentImage(filename interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPermanentImage", reflect.TypeOf((*MockImagesRepository)(nil).GetPermanentImage), bucket, filename)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPermanentImage", reflect.TypeOf((*MockImagesRepository)(nil).GetPermanentImage), filename)
 }

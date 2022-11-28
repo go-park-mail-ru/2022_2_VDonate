@@ -24,11 +24,7 @@ func (u usecase) GetSubscribers(authorID uint64) ([]models.User, error) {
 		return nil, err
 	}
 
-	if len(s) == 0 {
-		return []models.User{}, nil
-	}
-
-	var subs []models.User
+	subs := make([]models.User, 0)
 
 	for _, userID := range s {
 		// Notion: if there is an error while getting user, skip it

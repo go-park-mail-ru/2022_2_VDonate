@@ -2,7 +2,6 @@ package httpUsers
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -63,10 +62,6 @@ func (h Handler) GetUser(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
 
-	if user.Avatar, err = h.imageUseCase.GetImage(fmt.Sprint(c.Get("bucket")), user.Avatar); err != nil {
-		return errorHandling.WrapEcho(domain.ErrInternal, err)
-	}
-
 	var subscriptions []models.AuthorSubscription
 	var subscribers []models.User
 
@@ -120,18 +115,52 @@ func (h Handler) PutUser(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	if file != nil {
-		if updateUser.Avatar, err = h.imageUseCase.CreateImage(file, fmt.Sprint(c.Get("bucket"))); err != nil {
-			return errorHandling.WrapEcho(domain.ErrCreate, err)
-		}
-	}
-
-	if err = h.userUseCase.Update(updateUser, id); err != nil {
+	if updateUser, err = h.userUseCase.Update(updateUser, file, id); err != nil {
 		return errorHandling.WrapEcho(domain.ErrUpdate, err)
 	}
 
+	if updateUser.Avatar, err = h.imageUseCase.GetImage(updateUser.Avatar); err != nil {
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
+	}
+
 	return c.JSON(http.StatusOK, models.ResponseImageUsers{
-		UserID:  id,
-		ImgPath: updateUser.Avatar,
+		UserID:   id,
+		Username: updateUser.Username,
+		ImgPath:  updateUser.Avatar,
 	})
+}
+
+// GetAuthor godoc
+// @Summary     Search author
+// @Description Search author by keyword
+// @ID          search_author
+// @Tags        search
+// @Produce     json
+// @Param       keyword path string true "Keyword"
+// @Accept      mpfd
+// @Param       post formData models.UserMpfd           true  "New Post"
+// @Param       file formData file                      false "Uploaded file"
+// @Success     200  {object} models.User 				"User was successfully updated"
+// @Failure     401  {object} echo.HTTPError            "No session provided"
+// @Failure     403  {object} echo.HTTPError            "Not a user"
+// @Failure     500  {object} echo.HTTPError            "Internal error / failed to search author"
+// @Security    ApiKeyAuth
+// @Router      /search [get]
+func (h Handler) GetAuthors(c echo.Context) error {
+	keyword := c.QueryParam("keyword")
+
+	authors, err := h.userUseCase.FindAuthors(keyword)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
+	}
+
+	for index, author := range authors {
+		subscribers, errSubscribers := h.subscribersUseCase.GetSubscribers(author.ID)
+		if errSubscribers != nil {
+			return errorHandling.WrapEcho(domain.ErrInternal, errSubscribers)
+		}
+		authors[index].CountSubscribers = uint64(len(subscribers))
+	}
+
+	return AuthorsResponse(c, authors)
 }

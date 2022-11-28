@@ -52,7 +52,7 @@ func TestHadler_GetUser(t *testing.T) {
 				}, nil)
 			},
 			mockImageBehavior: func(r *mockDomain.MockImageUseCase, bucket, filename string) {
-				r.EXPECT().GetImage(bucket, filename).Return("", nil)
+				r.EXPECT().GetImage(bucket).Return("", nil)
 			},
 			mockSubscriptionsBehavior: func(r *mockDomain.MockSubscriptionsUseCase, userID uint64) {
 				r.EXPECT().GetSubscriptionsByUserID(userID).Return([]models.AuthorSubscription{
@@ -157,12 +157,12 @@ func TestHandler_PutUser(t *testing.T) {
 				About:    "I love sport",
 			},
 			mockUserBehavior: func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {
-				r.EXPECT().Update(user, user.ID).Return(nil)
+				r.EXPECT().Update(user, "", user.ID).Return(user, nil)
 			},
 			mockImagesBehavior: func(r *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
 				assert.NoError(t, err)
-				r.EXPECT().CreateImage(file, bucket)
+				r.EXPECT().CreateOrUpdateImage(file, "")
 			},
 			expectedResponseBody: `{"id":345,"username":"superuser","email":"","is_author":true,"about":"I love sport"}`,
 		},
@@ -223,12 +223,12 @@ func TestHandler_PutUser(t *testing.T) {
 				About:    "I love sport",
 			},
 			mockUserBehavior: func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {
-				r.EXPECT().Update(user, user.ID).Return(domain.ErrUpdate)
+				r.EXPECT().Update(user, "", user.ID).Return(user, domain.ErrUpdate)
 			},
 			mockImagesBehavior: func(r *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
 				file, err := images.GetFileFromContext(c)
 				assert.NoError(t, err)
-				r.EXPECT().CreateImage(file, bucket)
+				r.EXPECT().CreateOrUpdateImage(file, "")
 			},
 			expectedErrorMessage: "code=500, message=failed to update item, internal=failed to update item",
 		},

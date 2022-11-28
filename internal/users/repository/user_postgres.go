@@ -33,21 +33,42 @@ func (r Postgres) Close() error {
 
 func (r Postgres) Create(user model.User) (uint64, error) {
 	var id uint64
-	err := r.DB.QueryRowx(
-		`
-			INSERT INTO users (username, avatar, email, password, is_author, about) 
-			VALUES ($1, $2, $3, $4, $5, $6) 
-			RETURNING id;`,
-		user.Username,
-		user.Avatar,
-		user.Email,
-		user.Password,
-		user.IsAuthor,
-		user.About,
-	).Scan(&id)
+	tx, err := r.DB.Begin()
 	if err != nil {
 		return 0, err
 	}
+
+	if err = tx.QueryRow(
+		`
+			INSERT INTO users (username, email) 
+			VALUES ($1, $2) 
+			RETURNING id;`,
+		user.Username,
+		user.Email,
+	).Scan(&id); err != nil {
+		return 0, err
+	}
+
+	if _, err = tx.Exec(
+		`
+			INSERT INTO user_info (user_id, avatar, password, is_author, about) 
+			VALUES ($1, $2, $3, $4, $5);`,
+		id,
+		user.Avatar,
+		user.Password,
+		user.IsAuthor,
+		user.About,
+	); err != nil {
+		if errTx := tx.Rollback(); errTx != nil {
+			return 0, errTx
+		}
+		return 0, err
+	}
+
+	if err = tx.Commit(); err != nil {
+		return 0, err
+	}
+
 	return id, nil
 }
 
@@ -56,10 +77,21 @@ func (r Postgres) GetByUsername(username string) (model.User, error) {
 	if err := r.DB.Get(
 		&u,
 		`
-		SELECT id, username, avatar, email, password, is_author, about 
+		SELECT id, username, email 
 		FROM users 
 		WHERE username = $1;`,
 		username,
+	); err != nil {
+		return model.User{}, err
+	}
+
+	if err := r.DB.Get(
+		&u,
+		`
+		SELECT avatar, password, is_author, about
+		FROM user_info 
+		WHERE user_id = $1;`,
+		u.ID,
 	); err != nil {
 		return model.User{}, err
 	}
@@ -72,10 +104,21 @@ func (r Postgres) GetByID(id uint64) (model.User, error) {
 	if err := r.DB.Get(
 		&u,
 		`
-		SELECT id, username, avatar, email, password, is_author, about 
+		SELECT id, username, email 
 		FROM users 
 		WHERE id = $1;`,
 		id,
+	); err != nil {
+		return model.User{}, err
+	}
+
+	if err := r.DB.Get(
+		&u,
+		`
+		SELECT avatar, password, is_author, about
+		FROM user_info 
+		WHERE user_id = $1;`,
+		u.ID,
 	); err != nil {
 		return model.User{}, err
 	}
@@ -88,10 +131,21 @@ func (r Postgres) GetByEmail(email string) (model.User, error) {
 	if err := r.DB.Get(
 		&u,
 		`
-		SELECT id, username, avatar, email, password, is_author, about 
+		SELECT id, username, email 
 		FROM users 
 		WHERE email = $1;`,
 		email,
+	); err != nil {
+		return model.User{}, err
+	}
+
+	if err := r.DB.Get(
+		&u,
+		`
+		SELECT avatar, password, is_author, about
+		FROM user_info 
+		WHERE user_id = $1;`,
+		u.ID,
 	); err != nil {
 		return model.User{}, err
 	}
@@ -104,10 +158,21 @@ func (r Postgres) GetBySessionID(sessionID string) (model.User, error) {
 	if err := r.DB.Get(
 		&u,
 		`
-		SELECT id, username, avatar, email, password, is_author, about 
+		SELECT id, username, email
 		FROM users JOIN sessions ON sessions.user_id = id
     	WHERE sessions.value = $1;`,
 		sessionID,
+	); err != nil {
+		return model.User{}, err
+	}
+
+	if err := r.DB.Get(
+		&u,
+		`
+		SELECT avatar, password, is_author, about
+		FROM user_info 
+		WHERE user_id = $1;`,
+		u.ID,
 	); err != nil {
 		return model.User{}, err
 	}
@@ -118,10 +183,21 @@ func (r Postgres) GetBySessionID(sessionID string) (model.User, error) {
 func (r Postgres) GetUserByPostID(postID uint64) (model.User, error) {
 	var user model.User
 	if err := r.DB.Get(&user, `
-		SELECT id, username, avatar, email, password, is_author, about 
+		SELECT id, username, email
 		FROM posts 
 		JOIN users on users.id = posts.user_id 
 		WHERE posts.post_id = $1`, postID,
+	); err != nil {
+		return model.User{}, err
+	}
+
+	if err := r.DB.Get(
+		&user,
+		`
+		SELECT avatar, password, is_author, about
+		FROM user_info 
+		WHERE user_id = $1;`,
+		user.ID,
 	); err != nil {
 		return model.User{}, err
 	}
@@ -130,25 +206,103 @@ func (r Postgres) GetUserByPostID(postID uint64) (model.User, error) {
 }
 
 func (r Postgres) Update(user model.User) error {
-	_, err := r.DB.NamedExec(
-		`
-		UPDATE users 
-		SET username=:username,
-		    avatar=:avatar,
-		    email=:email,
-		    password=:password,
-		    is_author=:is_author,
-		    about=:about 
-		WHERE id = :id`, user)
-
-	return err
-}
-
-func (r Postgres) DeleteByID(id uint64) error {
-	_, err := r.DB.Exec("DELETE FROM users WHERE id=$1;", id)
+	tx, err := r.DB.Begin()
 	if err != nil {
 		return err
 	}
 
-	return nil
+	if _, err = tx.Exec(
+		`
+		UPDATE users 
+		SET username=$1,
+		    email=$2
+		WHERE id = $3`,
+		user.Username,
+		user.Email,
+		user.ID,
+	); err != nil {
+		if errTx := tx.Rollback(); errTx != nil {
+			return errTx
+		}
+		return err
+	}
+
+	if _, err = tx.Exec(
+		`
+		UPDATE user_info 
+		SET avatar=$1,
+		    password=$2,
+		    is_author=$3,
+		    about=$4
+		WHERE user_id = $5`,
+		user.Avatar,
+		user.Password,
+		user.IsAuthor,
+		user.About,
+		user.ID,
+	); err != nil {
+		if errTx := tx.Rollback(); errTx != nil {
+			return errTx
+		}
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (r Postgres) DeleteByID(id uint64) error {
+	tx, err := r.DB.Begin()
+	if err != nil {
+		return err
+	}
+	if _, err = tx.Exec(`
+		DELETE FROM users WHERE id=$1;`,
+		id,
+	); err != nil {
+		if errTx := tx.Rollback(); errTx != nil {
+			return errTx
+		}
+		return err
+	}
+
+	if _, err = tx.Exec(`
+		DELETE FROM user_info WHERE user_id=$1;`,
+		id,
+	); err != nil {
+		if errTx := tx.Rollback(); errTx != nil {
+			return errTx
+		}
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (r Postgres) GetAuthorByUsername(username string) ([]model.User, error) {
+	var u []model.User
+	if err := r.DB.Select(
+		&u,
+		`
+		SELECT * 
+		FROM users
+		WHERE to_tsvector(username) @@ to_tsquery($1::text || ':*');`,
+		username,
+	); err != nil {
+		return []model.User{}, err
+	}
+
+	for _, user := range u {
+		if err := r.DB.Get(
+			&user,
+			`
+			SELECT avatar, is_author, about
+			FROM user_info 
+			WHERE user_id = $1 AND is_author = true;`,
+			user.ID,
+		); err != nil {
+			return []model.User{}, err
+		}
+	}
+
+	return u, nil
 }

@@ -1008,7 +1008,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.AuthorSubscriptionMpfd"
+                                "$ref": "#/definitions/models.AuthorSubscription"
                             }
                         }
                     },
@@ -1697,6 +1697,53 @@ const docTemplate = `{
                 }
             }
         },
+        "models.AuthorSubscription": {
+            "type": "object",
+            "required": [
+                "price",
+                "text",
+                "tier",
+                "title"
+            ],
+            "properties": {
+                "authorAvatar": {
+                    "type": "string",
+                    "example": "path/to/img"
+                },
+                "authorID": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "authorName": {
+                    "type": "string",
+                    "example": "leo"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "img": {
+                    "type": "string",
+                    "example": "filename.jpeg"
+                },
+                "price": {
+                    "type": "integer",
+                    "example": 2999
+                },
+                "text": {
+                    "type": "string",
+                    "example": "some text"
+                },
+                "tier": {
+                    "type": "integer",
+                    "example": 15
+                },
+                "title": {
+                    "type": "string",
+                    "example": "some title"
+                }
+            }
+        },
         "models.AuthorSubscriptionMpfd": {
             "type": "object",
             "required": [
@@ -1785,6 +1832,7 @@ const docTemplate = `{
         "models.Post": {
             "type": "object",
             "required": [
+                "author",
                 "img",
                 "isLiked",
                 "likesNum",
@@ -1792,6 +1840,9 @@ const docTemplate = `{
                 "title"
             ],
             "properties": {
+                "author": {
+                    "$ref": "#/definitions/models.ResponseImageUsers"
+                },
                 "img": {
                     "type": "string",
                     "example": "path/to/image.jpeg"
@@ -1870,7 +1921,8 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "imgPath",
-                "userID"
+                "userID",
+                "username"
             ],
             "properties": {
                 "imgPath": {
@@ -1880,6 +1932,10 @@ const docTemplate = `{
                 "userID": {
                     "type": "integer",
                     "example": 25
+                },
+                "username": {
+                    "type": "string",
+                    "example": "leo"
                 }
             }
         },

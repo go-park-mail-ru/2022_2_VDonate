@@ -1,22 +1,22 @@
 package app
 
 import (
-	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
-	authMiddlewares "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/middlewares"
+	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http/middlewares"
+	httpDonates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery"
+
 	sessionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
 	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-	httpdonates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery"
 	donatesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/repository"
 	donates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/usecase"
-	imagesMiddleware "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/middlewares"
 	imagesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/repository"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	httpPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery"
 	postsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
 	posts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/usecase"
-	httpsubscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/delivery"
+	httpSubscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/delivery"
 	subscribersRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/repository"
 	subscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/usecase"
 	httpSubscriptions "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/delivery"
@@ -48,8 +48,8 @@ type Server struct {
 	userHandler          *httpUsers.Handler
 	postsHandler         *httpPosts.Handler
 	subscriptionsHandler *httpSubscriptions.Handler
-	subscribersHandler   *httpsubscribers.Handler
-	donatesHandler       *httpdonates.Handler
+	subscribersHandler   *httpSubscribers.Handler
+	donatesHandler       *httpDonates.Handler
 
 	authMiddleware *authMiddlewares.Middlewares
 }
@@ -116,7 +116,9 @@ func (s *Server) makeUseCase(url string) error {
 		s.Config.S3.AccessKeyID,
 		s.Config.S3.SecretAccessKey,
 		s.Config.S3.UseSSL,
-		s.Config.S3.Buckets,
+		s.Config.S3.Buckets.SymbolsToHash,
+		s.Config.S3.Buckets.Policy,
+		s.Config.S3.Buckets.Expire,
 	)
 	if err != nil {
 		return err
@@ -126,26 +128,26 @@ func (s *Server) makeUseCase(url string) error {
 		s.Echo.Logger.Error(err)
 	}
 
+	//------------------------images------------------------//
+	s.ImagesService = images.New(imagesRepo)
+
 	//-----------------------sessions-----------------------//
 	s.AuthService = auth.New(sessionRepo, userRepo)
 
 	//-------------------------user-------------------------//
-	s.UserService = users.New(userRepo)
+	s.UserService = users.New(userRepo, s.ImagesService)
 
 	//-------------------------post-------------------------//
-	s.PostsService = posts.New(postsRepo)
+	s.PostsService = posts.New(postsRepo, userRepo, s.ImagesService, subscriptionsRepo)
 
 	//----------------------subscriber----------------------//
 	s.SubscribersService = subscribers.New(subscribersRepo, userRepo)
 
 	//---------------------subscription---------------------//
-	s.SubscriptionService = subscriptions.New(subscriptionsRepo)
+	s.SubscriptionService = subscriptions.New(subscriptionsRepo, userRepo, s.ImagesService)
 
 	//-----------------------donates------------------------//
 	s.DonatesService = donates.New(donatesRepo, userRepo)
-
-	//------------------------images------------------------//
-	s.ImagesService = images.New(imagesRepo)
 
 	return nil
 }
@@ -153,11 +155,11 @@ func (s *Server) makeUseCase(url string) error {
 func (s *Server) makeHandlers() {
 	s.authHandler = httpAuth.NewHandler(s.AuthService, s.UserService)
 
-	s.donatesHandler = httpdonates.NewHandler(s.DonatesService, s.UserService)
+	s.donatesHandler = httpDonates.NewHandler(s.DonatesService, s.UserService)
 	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService, s.ImagesService)
 	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService, s.ImagesService, s.SubscriptionService, s.SubscribersService)
 	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionService, s.UserService, s.ImagesService)
-	s.subscribersHandler = httpsubscribers.NewHandler(s.SubscribersService, s.UserService)
+	s.subscribersHandler = httpSubscribers.NewHandler(s.SubscribersService, s.UserService)
 }
 
 func (s *Server) makeEchoLogger() {
@@ -175,8 +177,6 @@ func (s *Server) makeRouter() {
 	s.Echo.Use(middleware.Secure())
 	v1 := s.Echo.Group("/api/v1")
 
-	v1.Use(imagesMiddleware.BucketManager)
-
 	v1.POST("/login", s.authHandler.Login)
 	v1.GET("/auth", s.authHandler.Auth)
 	v1.DELETE("/logout", s.authHandler.Logout, s.authMiddleware.LoginRequired)
@@ -187,6 +187,11 @@ func (s *Server) makeRouter() {
 
 	user.GET("", s.userHandler.GetUser)
 	user.PUT("", s.userHandler.PutUser)
+
+	search := v1.Group("/search")
+	search.Use(s.authMiddleware.LoginRequired)
+
+	search.GET("", s.userHandler.GetAuthors)
 
 	post := v1.Group("/posts")
 	post.Use(s.authMiddleware.LoginRequired)
