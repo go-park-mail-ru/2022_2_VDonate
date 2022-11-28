@@ -1,8 +1,6 @@
 package app
 
 import (
-	"net/http"
-
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http/middlewares"
 
@@ -65,7 +63,7 @@ func (s *Server) init() error {
 	s.makeHandlers()
 	s.makeRouter()
 	s.makeCORS()
-	if s.Config.CSRF.Status {
+	if s.Config.CSRF.Enabled {
 		s.makeCSRF()
 	}
 
@@ -157,7 +155,7 @@ func (s *Server) makeUseCase(url string) error {
 func (s *Server) makeHandlers() {
 	s.authHandler = httpAuth.NewHandler(s.AuthService, s.UserService)
 
-	s.donatesHandler = httpdonates.New(s.DonatesService, s.UserService)
+	s.donatesHandler = httpdonates.NewHandler(s.DonatesService, s.UserService)
 	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService, s.ImagesService)
 	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService, s.ImagesService, s.SubscriptionService, s.SubscribersService)
 	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionService, s.UserService, s.ImagesService)
@@ -247,13 +245,12 @@ func (s *Server) makeCORS() {
 
 func (s *Server) makeCSRF() {
 	s.Echo.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		TokenLength:    s.Config.CSRF.TokenLength,
-		TokenLookup:    "header:" + echo.HeaderXCSRFToken,
-		ContextKey:     s.Config.CSRF.ContextKey,
-		CookieName:     s.Config.CSRF.ContextName,
-		CookieMaxAge:   s.Config.CSRF.MaxAge,
-		CookiePath:     "/",
-		CookieSameSite: http.SameSiteNoneMode,
+		TokenLength:  s.Config.CSRF.TokenLength,
+		TokenLookup:  "header:" + echo.HeaderXCSRFToken,
+		ContextKey:   s.Config.CSRF.ContextKey,
+		CookieName:   s.Config.CSRF.ContextName,
+		CookieMaxAge: s.Config.CSRF.MaxAge,
+		CookiePath:   "/",
 	}))
 }
 

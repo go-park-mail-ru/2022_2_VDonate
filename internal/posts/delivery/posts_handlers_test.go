@@ -977,6 +977,48 @@ func TestHandler_DeleteLike(t *testing.T) {
 			},
 			expectedResponse: `{}`,
 		},
+		{
+			name:   "OK",
+			postID: 3,
+			userID: 21,
+			cookie: "JSAoPdaAsdasjdJNPdapoSAjdasakZcs",
+			mockBehaviourUsers: func(s *mockDomain.MockUsersUseCase, sessionID string) {
+				s.EXPECT().GetBySessionID(sessionID).Return(models.User{
+					ID:       21,
+					Username: "user",
+					Email:    "a@a.ru",
+				}, nil)
+			},
+			mockBehaviourLikes: func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {
+				s.EXPECT().UnlikePost(userID, postID).Return(errors.New("like not found"))
+			},
+			expectedErrorMessage: "code=404, message=failed to find item, internal=like not found",
+		},
+		{
+			name:   "ErrNoSession-1",
+			postID: 3,
+			userID: 21,
+			cookie: "JSAoPdaAsdasjdJNPdapoSAjdasakZcs",
+			mockBehaviourUsers: func(s *mockDomain.MockUsersUseCase, sessionID string) {
+				s.EXPECT().GetBySessionID(sessionID).Return(models.User{}, errors.New("no session"))
+			},
+			mockBehaviourLikes:   func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			expectedErrorMessage: "code=401, message=no existing session, internal=no session",
+		},
+		{
+			name:                 "ErrNoSession-2",
+			cookie:               "JSAoPdaAsdasjdJNPdapoSAjdasakZcs",
+			mockBehaviourUsers:   func(s *mockDomain.MockUsersUseCase, sessionID string) {},
+			mockBehaviourLikes:   func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			expectedErrorMessage: "code=401, message=no existing session, internal=http: named cookie not present",
+		},
+		{
+			name:                 "BadId",
+			postID:               -1,
+			mockBehaviourUsers:   func(s *mockDomain.MockUsersUseCase, sessionID string) {},
+			mockBehaviourLikes:   func(s *mockDomain.MockPostsUseCase, userID, postID uint64) {},
+			expectedErrorMessage: "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
+		},
 	}
 
 	for _, test := range tests {
@@ -995,7 +1037,9 @@ func TestHandler_DeleteLike(t *testing.T) {
 
 			e := echo.New()
 			req := httptest.NewRequest(http.MethodPut, "https://127.0.0.1/api/v1/posts/:id/likes", nil)
-			req.Header.Add("Cookie", "session_id="+test.cookie)
+			if test.name != "ErrNoSession-2" {
+				req.Header.Add("Cookie", "session_id="+test.cookie)
+			}
 			rec := httptest.NewRecorder()
 
 			c := e.NewContext(req, rec)

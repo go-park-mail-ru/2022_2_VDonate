@@ -172,6 +172,7 @@ func (h Handler) PutPost(c echo.Context) error {
 	}
 
 	file, err := images.GetFileFromContext(c)
+
 	if file != nil && !errors.Is(err, http.ErrMissingFile) {
 		if prevPost.Img, err = h.imageUseCase.CreateOrUpdateImage(file, prevPost.Img); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
@@ -318,7 +319,7 @@ func (h Handler) CreateLike(c echo.Context) error {
 
 // DeleteLike godoc
 // @Summary     Delete like
-// @Description Create like on post
+// @Description Delete like on post
 // @ID          delete_like
 // @Tags        posts
 // @Param       id path integer true "Post id"

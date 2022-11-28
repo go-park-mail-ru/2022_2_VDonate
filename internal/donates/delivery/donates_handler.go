@@ -14,14 +14,14 @@ import (
 )
 
 type Handler struct {
-	handlerUsecase domain.DonatesUseCase
-	usersUsecase   domain.UsersUseCase
+	donateUsecase domain.DonatesUseCase
+	usersUsecase  domain.UsersUseCase
 }
 
-func New(d domain.DonatesUseCase, u domain.UsersUseCase) *Handler {
+func NewHandler(d domain.DonatesUseCase, u domain.UsersUseCase) *Handler {
 	return &Handler{
-		handlerUsecase: d,
-		usersUsecase:   u,
+		donateUsecase: d,
+		usersUsecase:  u,
 	}
 }
 
@@ -54,7 +54,7 @@ func (h Handler) CreateDonate(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	donate, err := h.handlerUsecase.SendDonate(user.ID, d.AuthorID, d.Price)
+	donate, err := h.donateUsecase.SendDonate(user.ID, d.AuthorID, d.Price)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
@@ -81,7 +81,7 @@ func (h Handler) GetDonate(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	donate, err := h.handlerUsecase.GetDonateByID(id)
+	donate, err := h.donateUsecase.GetDonateByID(id)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
@@ -111,7 +111,7 @@ func (h Handler) GetDonates(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrNoSession, err)
 	}
 
-	donates, err := h.handlerUsecase.GetDonatesByUserID(user.ID)
+	donates, err := h.donateUsecase.GetDonatesByUserID(user.ID)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
