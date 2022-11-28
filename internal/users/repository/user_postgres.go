@@ -283,9 +283,10 @@ func (r Postgres) GetAuthorByUsername(username string) ([]model.User, error) {
 	if err := r.DB.Select(
 		&u,
 		`
-		SELECT * 
+		SELECT *
 		FROM users
-		WHERE to_tsvector(username) @@ to_tsquery($1::text || ':*');`,
+		WHERE similarity(username, $1) > 0
+		ORDER BY similarity(username, $1) DESC, username;`,
 		username,
 	); err != nil {
 		return []model.User{}, err
