@@ -5,7 +5,12 @@ import (
 
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 
+	"database/sql"
+	"errors"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/interface"
+	"strings"
+
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/jinzhu/copier"
@@ -48,39 +53,19 @@ func (u usecase) GetByID(id uint64) (models.User, error) {
 }
 
 func (u usecase) GetByUsername(username string) (models.User, error) {
-	user, err := u.usersRepo.GetByUsername(username)
-	if err != nil {
-		return models.User{}, err
-	}
-
-	return user, nil
+	return u.usersRepo.GetByUsername(username)
 }
 
 func (u usecase) GetByEmail(email string) (models.User, error) {
-	user, err := u.usersRepo.GetByEmail(email)
-	if err != nil {
-		return models.User{}, err
-	}
-
-	return user, nil
+	return u.usersRepo.GetByEmail(email)
 }
 
 func (u usecase) GetBySessionID(sessionID string) (models.User, error) {
-	user, err := u.usersRepo.GetBySessionID(sessionID)
-	if err != nil {
-		return models.User{}, err
-	}
-
-	return user, nil
+	return u.usersRepo.GetBySessionID(sessionID)
 }
 
 func (u usecase) GetUserByPostID(postID uint64) (models.User, error) {
-	user, err := u.usersRepo.GetUserByPostID(postID)
-	if err != nil {
-		return models.User{}, err
-	}
-
-	return user, nil
+	return u.usersRepo.GetUserByPostID(postID)
 }
 
 func (u usecase) Create(user models.User) (uint64, error) {
@@ -152,4 +137,18 @@ func (u usecase) IsExistUsernameAndEmail(username, email string) bool {
 	}
 
 	return false
+}
+
+func (u usecase) FindAuthors(keyword string) ([]models.User, error) {
+	parsedWords := strings.Split(keyword, " ")
+	resAuthors := make([]models.User, 0)
+	for _, word := range parsedWords {
+		author, err := u.usersRepo.GetAuthorByUsername(word)
+		if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return resAuthors, err
+		}
+		resAuthors = append(resAuthors, author...)
+	}
+
+	return resAuthors, nil
 }

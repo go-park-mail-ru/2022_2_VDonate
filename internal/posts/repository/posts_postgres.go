@@ -147,3 +147,57 @@ func (r Postgres) DeleteLikeByID(userID, postID uint64) error {
 	_, err := r.DB.Exec("DELETE FROM likes WHERE user_id=$1 AND post_id=$2;", userID, postID)
 	return err
 }
+
+func (r Postgres) CreateDepTag(postID, tagID uint64) error {
+	return r.DB.QueryRowx(
+		`
+		INSERT INTO post_tags (post_id, tag_id)
+		VALUES ($1, $2);`,
+		postID,
+		tagID,
+	).Err()
+}
+
+func (r Postgres) DeleteDepTag(tagDep models.TagDep) error {
+	_, err := r.DB.Exec("DELETE FROM post_tags WHERE post_id=$1 AND tag_id=$2;", tagDep.PostID, tagDep.TagID)
+	return err
+}
+
+func (r Postgres) CreateTag(tagName string) (uint64, error) {
+	var tagID uint64
+	err := r.DB.QueryRowx(
+		`
+		INSERT INTO tags (tag_name)
+		VALUES ($1) RETURNING id;`,
+		tagName,
+	).Scan(&tagID)
+	if err != nil {
+		return 0, err
+	}
+
+	return tagID, nil
+}
+
+func (r Postgres) GetTagById(tagID uint64) (models.Tag, error) {
+	var tag models.Tag
+	if err := r.DB.Get(&tag, "SELECT * FROM tags WHERE id=$1;", tagID); err != nil {
+		return models.Tag{}, err
+	}
+	return tag, nil
+}
+
+func (r Postgres) GetTagDepsByPostId(postID uint64) ([]models.TagDep, error) {
+	var tagDeps []models.TagDep
+	if err := r.DB.Select(&tagDeps, "SELECT * FROM post_tags WHERE post_id=$1;", postID); err != nil {
+		return nil, err
+	}
+	return tagDeps, nil
+}
+
+func (r Postgres) GetTagByName(tagName string) (models.Tag, error) {
+	var tag models.Tag
+	if err := r.DB.Get(&tag, "SELECT * FROM tags WHERE tag_name=$1;", tagName); err != nil {
+		return models.Tag{}, err
+	}
+	return tag, nil
+}

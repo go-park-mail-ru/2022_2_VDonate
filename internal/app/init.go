@@ -190,6 +190,11 @@ func (s *Server) makeRouter() {
 	user.GET("", s.userHandler.GetUser)
 	user.PUT("", s.userHandler.PutUser)
 
+	search := v1.Group("/search")
+	search.Use(s.authMiddleware.LoginRequired)
+
+	search.GET("", s.userHandler.GetAuthors)
+
 	post := v1.Group("/posts")
 	post.Use(s.authMiddleware.LoginRequired)
 

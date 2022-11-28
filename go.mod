@@ -29,6 +29,7 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a // indirect
+	golang.org/x/exp v0.0.0-20221114191408-850992195362 // indirect
 	golang.org/x/tools v0.2.0 // indirect
 )
 

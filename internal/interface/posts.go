@@ -14,4 +14,9 @@ type PostsUseCase interface {
 	UnlikePost(userID, postID uint64) error
 	GetLikesNum(postID uint64) (uint64, error)
 	IsPostLiked(userID, postID uint64) bool
+	CreateTags(tagNames []string, postID uint64) error
+	GetTagsByPostID(postID uint64) ([]models.Tag, error)
+	DeleteTagDeps(postID uint64) error
+	UpdateTags(tagNames []string, postID uint64) error
+	ConvertTagsToStrSlice(tags []models.Tag) []string
 }
