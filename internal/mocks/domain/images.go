@@ -49,6 +49,21 @@ func (mr *MockImageUseCaseMockRecorder) CreateOrUpdateImage(image, oldFilename i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrUpdateImage", reflect.TypeOf((*MockImageUseCase)(nil).CreateOrUpdateImage), image, oldFilename)
 }
 
+// GetBlurredImage mocks base method.
+func (m *MockImageUseCase) GetBlurredImage(filename string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBlurredImage", filename)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBlurredImage indicates an expected call of GetBlurredImage.
+func (mr *MockImageUseCaseMockRecorder) GetBlurredImage(filename interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBlurredImage", reflect.TypeOf((*MockImageUseCase)(nil).GetBlurredImage), filename)
+}
+
 // GetImage mocks base method.
 func (m *MockImageUseCase) GetImage(filename string) (string, error) {
 	m.ctrl.T.Helper()
