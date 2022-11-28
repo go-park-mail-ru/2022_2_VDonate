@@ -28,6 +28,12 @@ type PostsRepository interface {
 	CreateLike(userID, postID uint64) error
 	DeleteLikeByID(userID, postID uint64) error
 	GetPostsBySubscriptions(userID uint64) ([]models.Post, error)
+	CreateTag(tagName string) (uint64, error)
+	CreateDepTag(postID, tagID uint64) error
+	DeleteDepTag(tagDep models.TagDep) error
+	GetTagById(tagID uint64) (models.Tag, error)
+	GetTagDepsByPostId(postID uint64) ([]models.TagDep, error)
+	GetTagByName(tagName string) (models.Tag, error)
 }
 
 type SubscribersRepository interface {
@@ -54,6 +60,7 @@ type UsersRepository interface {
 	GetUserByPostID(postID uint64) (models.User, error)
 	Update(user models.User) error
 	DeleteByID(id uint64) error
+	GetAuthorByUsername(username string) ([]models.User, error)
 	Close() error
 }
 

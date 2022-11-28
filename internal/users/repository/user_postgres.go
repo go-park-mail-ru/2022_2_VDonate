@@ -277,3 +277,32 @@ func (r Postgres) DeleteByID(id uint64) error {
 
 	return tx.Commit()
 }
+
+func (r Postgres) GetAuthorByUsername(username string) ([]model.User, error) {
+	var u []model.User
+	if err := r.DB.Select(
+		&u,
+		`
+		SELECT * 
+		FROM users
+		WHERE to_tsvector(username) @@ to_tsquery($1::text || ':*');`,
+		username,
+	); err != nil {
+		return []model.User{}, err
+	}
+
+	for _, user := range u {
+		if err := r.DB.Get(
+			&user,
+			`
+			SELECT avatar, is_author, about
+			FROM user_info 
+			WHERE user_id = $1 AND is_author = true;`,
+			user.ID,
+		); err != nil {
+			return []model.User{}, err
+		}
+	}
+
+	return u, nil
+}

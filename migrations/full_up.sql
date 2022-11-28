@@ -108,3 +108,21 @@ CREATE TABLE IF NOT EXISTS donates
     user_id   bigserial not null references users (id) on delete cascade,
     price     integer   not null default 0 check ( price >= 0 )
 );
+
+/*
+    {id} -> {tag_name}
+*/
+CREATE TABLE IF NOT EXISTS tags
+(
+    id bigserial NOT NULL PRIMARY KEY,
+    tag_name VARCHAR(128) NOT NULL UNIQUE
+);
+
+/*
+    No dependices
+*/
+CREATE TABLE IF NOT EXISTS post_tags
+(
+    post_id bigserial NOT NULL REFERENCES posts(post_id) ON DELETE CASCADE, 
+    tag_id bigserial NOT NULL REFERENCES tags(id) ON DELETE CASCADE
+);
