@@ -13,8 +13,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/interface"
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/golang/mock/gomock"

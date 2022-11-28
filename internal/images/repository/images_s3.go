@@ -14,7 +14,7 @@ import (
 	"github.com/esimov/stackblur-go"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/interface"
 	"github.com/minio/minio-go"
 )
 

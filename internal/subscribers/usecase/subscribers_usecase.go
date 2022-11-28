@@ -1,7 +1,7 @@
 package subscribers
 
 import (
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/interface"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 )

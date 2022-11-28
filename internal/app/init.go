@@ -3,17 +3,18 @@ package app
 import (
 	"net/http"
 
-	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
-	authMiddlewares "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/middlewares"
+	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http/middlewares"
+
 	sessionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
 	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	httpdonates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery"
 	donatesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/repository"
 	donates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/usecase"
 	imagesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/repository"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/interface"
 	httpPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery"
 	postsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
 	posts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/usecase"

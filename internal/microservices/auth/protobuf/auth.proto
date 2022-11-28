@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "microservices/auth/protobuf";
+
+message SessionID {
+  string session_id = 1;
+}
+
+message UserSession {
+  string session_id = 1;
+  uint64 user_id = 2;
+}
+
+message BoolType {
+  bool status = 1;
+}
+
+service AuthService {
+  rpc IsSameSession(UserSession) returns(BoolType);
+}

@@ -14,7 +14,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/interface"
 
 	mock_domain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"

@@ -4,7 +4,7 @@ import (
 	"mime/multipart"
 	"strings"
 
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/interface"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )

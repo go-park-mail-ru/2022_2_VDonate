@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+package subscribers;
+
+option go_package = "microservices/subscribers/protobuf";

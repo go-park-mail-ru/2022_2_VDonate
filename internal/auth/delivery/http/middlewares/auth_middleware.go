@@ -3,10 +3,11 @@ package authMiddlewares
 import (
 	"strconv"
 
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
+
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 
-	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/interface"
 	"github.com/labstack/echo/v4"
 )
 
