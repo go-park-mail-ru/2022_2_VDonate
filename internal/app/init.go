@@ -3,12 +3,12 @@ package app
 import (
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http/middlewares"
+	httpDonates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery"
 
 	sessionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
 	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-	httpdonates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery"
 	donatesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/repository"
 	donates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/usecase"
 	imagesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/repository"
@@ -16,7 +16,7 @@ import (
 	httpPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery"
 	postsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
 	posts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/usecase"
-	httpsubscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/delivery"
+	httpSubscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/delivery"
 	subscribersRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/repository"
 	subscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/usecase"
 	httpSubscriptions "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/delivery"
@@ -48,8 +48,8 @@ type Server struct {
 	userHandler          *httpUsers.Handler
 	postsHandler         *httpPosts.Handler
 	subscriptionsHandler *httpSubscriptions.Handler
-	subscribersHandler   *httpsubscribers.Handler
-	donatesHandler       *httpdonates.Handler
+	subscribersHandler   *httpSubscribers.Handler
+	donatesHandler       *httpDonates.Handler
 
 	authMiddleware *authMiddlewares.Middlewares
 }
@@ -155,11 +155,11 @@ func (s *Server) makeUseCase(url string) error {
 func (s *Server) makeHandlers() {
 	s.authHandler = httpAuth.NewHandler(s.AuthService, s.UserService)
 
-	s.donatesHandler = httpdonates.NewHandler(s.DonatesService, s.UserService)
+	s.donatesHandler = httpDonates.NewHandler(s.DonatesService, s.UserService)
 	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService, s.ImagesService)
 	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService, s.ImagesService, s.SubscriptionService, s.SubscribersService)
 	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionService, s.UserService, s.ImagesService)
-	s.subscribersHandler = httpsubscribers.NewHandler(s.SubscribersService, s.UserService)
+	s.subscribersHandler = httpSubscribers.NewHandler(s.SubscribersService, s.UserService)
 }
 
 func (s *Server) makeEchoLogger() {
