@@ -1,7 +1,7 @@
 package subscriptions
 
 import (
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/interface"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 	"github.com/jinzhu/copier"

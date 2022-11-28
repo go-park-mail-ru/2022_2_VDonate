@@ -1,14 +1,12 @@
 package users
 
 import (
-	"mime/multipart"
-
-	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
-
 	"database/sql"
 	"errors"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/interface"
+	"mime/multipart"
 	"strings"
+
+	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"

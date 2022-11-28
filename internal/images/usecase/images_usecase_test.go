@@ -3,7 +3,7 @@ package images
 import (
 	"testing"
 
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/interface"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"github.com/golang/mock/gomock"

@@ -9,8 +9,8 @@ import (
 
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/interface"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/labstack/echo/v4"
 )

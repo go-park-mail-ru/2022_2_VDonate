@@ -3,7 +3,7 @@ package subscribers
 import (
 	"testing"
 
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/interface"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 
 	"github.com/stretchr/testify/assert"
 
