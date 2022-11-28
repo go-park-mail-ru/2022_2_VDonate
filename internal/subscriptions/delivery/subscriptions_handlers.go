@@ -5,9 +5,10 @@ import (
 	"net/http"
 	"strconv"
 
+	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
+
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 
-	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
@@ -53,26 +54,6 @@ func (h Handler) GetSubscriptions(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
-	if len(s) == 0 {
-		return c.JSON(http.StatusOK, make([]models.AuthorSubscription, 0))
-	}
-
-	for i, subscription := range s {
-		if s[i].Img, err = h.imageUsecase.GetImage(subscription.Img); err != nil {
-			return errorHandling.WrapEcho(domain.ErrInternal, err)
-		}
-
-		author, errAuthor := h.userUsecase.GetByID(subscription.AuthorID)
-		if errAuthor != nil {
-			return errorHandling.WrapEcho(domain.ErrInternal, errAuthor)
-		}
-
-		s[i].AuthorName = author.Username
-		if s[i].AuthorAvatar, err = h.imageUsecase.GetImage(author.Avatar); err != nil {
-			return errorHandling.WrapEcho(domain.ErrInternal, err)
-		}
-	}
-
 	return c.JSON(http.StatusOK, s)
 }
 
@@ -99,16 +80,6 @@ func (h Handler) GetAuthorSubscriptions(c echo.Context) error {
 	s, err := h.subscriptionsUsecase.GetAuthorSubscriptionsByAuthorID(authorID)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
-	}
-
-	if len(s) == 0 {
-		return c.JSON(http.StatusOK, make([]models.AuthorSubscription, 0))
-	}
-
-	for i, subscription := range s {
-		if s[i].Img, err = h.imageUsecase.GetImage(subscription.Img); err != nil {
-			return errorHandling.WrapEcho(domain.ErrInternal, err)
-		}
 	}
 
 	return c.JSON(http.StatusOK, s)
@@ -138,10 +109,6 @@ func (h Handler) GetAuthorSubscription(c echo.Context) error {
 	s, err := h.subscriptionsUsecase.GetAuthorSubscriptionByID(subID)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
-	}
-
-	if s.Img, err = h.imageUsecase.GetImage(s.Img); err != nil {
-		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
 	return c.JSON(http.StatusOK, s)
@@ -181,7 +148,7 @@ func (h Handler) CreateAuthorSubscription(c echo.Context) error {
 
 	file, err := images.GetFileFromContext(c)
 	if file != nil && !errors.Is(err, http.ErrMissingFile) {
-		if s.Img, err = h.imageUsecase.CreateImage(file); err != nil {
+		if s.Img, err = h.imageUsecase.CreateOrUpdateImage(file, ""); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
 		}
 	}
@@ -234,7 +201,7 @@ func (h Handler) UpdateAuthorSubscription(c echo.Context) error {
 
 	file, err := images.GetFileFromContext(c)
 	if file != nil && !errors.Is(err, http.ErrMissingFile) {
-		if s.Img, err = h.imageUsecase.CreateImage(file); err != nil {
+		if s.Img, err = h.imageUsecase.CreateOrUpdateImage(file, s.Img); err != nil {
 			return errorHandling.WrapEcho(domain.ErrCreate, err)
 		}
 	}

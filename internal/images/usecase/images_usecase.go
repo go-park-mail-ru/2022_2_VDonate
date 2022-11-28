@@ -19,9 +19,13 @@ func New(imageRepo domain.ImagesRepository) domain.ImageUseCase {
 	}
 }
 
-func (u usecase) CreateImage(image *multipart.FileHeader) (string, error) {
-	image.Filename = uuid.New().String() + image.Filename[strings.IndexByte(image.Filename, '.'):]
-	return u.ImageRepo.CreateImage(image)
+func (u usecase) CreateOrUpdateImage(image *multipart.FileHeader, oldFilename string) (string, error) {
+	idx := strings.IndexByte(image.Filename, '.')
+	if idx == -1 {
+		return "", domain.ErrBadRequest
+	}
+	image.Filename = uuid.New().String() + image.Filename[idx:]
+	return u.ImageRepo.CreateOrUpdateImage(image, oldFilename)
 }
 
 func (u usecase) GetImage(filename string) (string, error) {
@@ -35,6 +39,11 @@ func (u usecase) GetImage(filename string) (string, error) {
 	}
 
 	return "https://wsrv.nl/?url=" + strings.ReplaceAll(newURL, "vdonate.ml", "95.163.209.195"), nil
+}
+
+func (u usecase) GetBlurredImage(filename string) (string, error) {
+	filename = "blur_" + filename
+	return u.GetImage(filename)
 }
 
 func GetFileFromContext(c echo.Context) (*multipart.FileHeader, error) {

@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "microservices/user/protobuf";
+
+message User {
+  uint64 id = 1;
+  string username = 2;
+  string email = 3;
+  string password = 4;
+  string avatar = 5;
+  bool is_author = 6;
+  string about = 7;
+
+  uint64 count_subscriptions = 8;
+  uint64 count_subscribers = 9;
+};
+
+message UserID {
+  uint64 user_id = 1;
+}
+
+message File {
+  bytes file = 1;
+}
+
+message Empty {}
+
+service UsersService {
+  rpc Create(User) returns(Empty) {}
+  rpc Update(User) returns(Empty) {}
+}

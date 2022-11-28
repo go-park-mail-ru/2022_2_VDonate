@@ -3,6 +3,8 @@ package auth
 import (
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
@@ -61,12 +63,12 @@ func createCookie(id uint64) models.Cookie {
 	}
 }
 
-func (u *usecase) Login(login, password string) (string, error) {
+func (u usecase) Login(login, password string) (string, error) {
 	user, err := u.usersRepo.GetByUsername(login)
 	if err != nil {
 		user, err = u.usersRepo.GetByEmail(login)
 		if err != nil {
-			return "", domain.ErrUsernameOrEmailNotExist
+			return "", errors.Wrap(err, domain.ErrUsernameOrEmailNotExist.Error())
 		}
 	}
 
@@ -84,7 +86,7 @@ func (u *usecase) Login(login, password string) (string, error) {
 	return s.Value, nil
 }
 
-func (u *usecase) Auth(sessionID string) (bool, error) {
+func (u usecase) Auth(sessionID string) (bool, error) {
 	_, err := u.authRepo.GetBySessionID(sessionID)
 	if err != nil {
 		return false, err
@@ -93,7 +95,7 @@ func (u *usecase) Auth(sessionID string) (bool, error) {
 	return true, nil
 }
 
-func (u *usecase) SignUp(user models.User) (string, error) {
+func (u usecase) SignUp(user models.User) (string, error) {
 	_, err := u.usersRepo.GetByUsername(user.Username)
 	if err == nil {
 		return "", domain.ErrUsernameExist
@@ -119,7 +121,7 @@ func (u *usecase) SignUp(user models.User) (string, error) {
 	return s.Value, nil
 }
 
-func (u *usecase) Logout(sessionID string) (bool, error) {
+func (u usecase) Logout(sessionID string) (bool, error) {
 	if err := u.authRepo.DeleteBySessionID(sessionID); err != nil {
 		return false, err
 	}
@@ -127,7 +129,7 @@ func (u *usecase) Logout(sessionID string) (bool, error) {
 	return true, nil
 }
 
-func (u *usecase) IsSameSession(sessionID string, userID uint64) bool {
+func (u usecase) IsSameSession(sessionID string, userID uint64) bool {
 	user, err := u.usersRepo.GetBySessionID(sessionID)
 	if err != nil {
 		return false

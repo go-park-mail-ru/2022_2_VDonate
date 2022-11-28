@@ -17,7 +17,7 @@ type AuthRepository interface {
 }
 
 type PostsRepository interface {
-	GetAllByUserID(userID uint64) ([]models.Post, error)
+	GetAllByUserID(authorID uint64) ([]models.Post, error)
 	GetPostByID(postID uint64) (models.Post, error)
 	Create(post models.Post) (uint64, error)
 	Update(post models.Post) error
@@ -45,6 +45,7 @@ type SubscribersRepository interface {
 type SubscriptionsRepository interface {
 	GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscription, error)
 	GetSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error)
+	GetSubscriptionByUserAndAuthorID(userID, authorID uint64) (models.AuthorSubscription, error)
 	GetSubscriptionByID(ID uint64) (models.AuthorSubscription, error)
 	AddSubscription(sub models.AuthorSubscription) (uint64, error)
 	UpdateSubscription(sub models.AuthorSubscription) error
@@ -71,6 +72,6 @@ type DonatesRepository interface {
 }
 
 type ImagesRepository interface {
-	CreateImage(image *multipart.FileHeader) (string, error)
+	CreateOrUpdateImage(image *multipart.FileHeader, oldFilename string) (string, error)
 	GetPermanentImage(filename string) (string, error)
 }

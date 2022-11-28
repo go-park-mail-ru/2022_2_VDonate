@@ -4,9 +4,10 @@ import (
 	"net/http"
 	"strconv"
 
+	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
+
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 
-	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/labstack/echo/v4"
@@ -38,7 +39,7 @@ func New(d domain.DonatesUseCase, u domain.UsersUseCase) *Handler {
 // @Failure     500 {object} echo.HTTPError "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /donate [post]
-func (h *Handler) CreateDonate(c echo.Context) error {
+func (h Handler) CreateDonate(c echo.Context) error {
 	cookie, err := httpAuth.GetCookie(c)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNoSession, err)
@@ -74,7 +75,7 @@ func (h *Handler) CreateDonate(c echo.Context) error {
 // @Failure     500 {object} echo.HTTPError "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /donate/{id} [get]
-func (h *Handler) GetDonate(c echo.Context) error {
+func (h Handler) GetDonate(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
@@ -100,7 +101,7 @@ func (h *Handler) GetDonate(c echo.Context) error {
 // @Failure     500 {object} echo.HTTPError  "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /donates [get]
-func (h *Handler) GetDonates(c echo.Context) error {
+func (h Handler) GetDonates(c echo.Context) error {
 	cookie, err := httpAuth.GetCookie(c)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNoSession, err)

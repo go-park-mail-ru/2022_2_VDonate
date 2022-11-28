@@ -5,6 +5,7 @@
 package mock_domain
 
 import (
+	multipart "mime/multipart"
 	reflect "reflect"
 
 	models "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
@@ -210,16 +211,16 @@ func (mr *MockUsersUseCaseMockRecorder) IsExistUsernameAndEmail(username, email 
 }
 
 // Update mocks base method.
-func (m *MockUsersUseCase) Update(user models.User, id uint64) (models.User, error) {
+func (m *MockUsersUseCase) Update(user models.User, file *multipart.FileHeader, id uint64) (models.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", user, id)
+	ret := m.ctrl.Call(m, "Update", user, file, id)
 	ret0, _ := ret[0].(models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockUsersUseCaseMockRecorder) Update(user, id interface{}) *gomock.Call {
+func (mr *MockUsersUseCaseMockRecorder) Update(user, file, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsersUseCase)(nil).Update), user, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsersUseCase)(nil).Update), user, file, id)
 }

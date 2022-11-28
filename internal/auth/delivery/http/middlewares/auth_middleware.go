@@ -3,9 +3,10 @@ package authMiddlewares
 import (
 	"strconv"
 
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
+
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 
-	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/labstack/echo/v4"
 )
@@ -48,12 +49,17 @@ func (m Middlewares) PostSameSessionByID(next echo.HandlerFunc) echo.HandlerFunc
 			return errorHandling.WrapEcho(domain.ErrNoSession, err)
 		}
 
+		user, err := m.usersUseCase.GetBySessionID(cookie.Value)
+		if err != nil {
+			return errorHandling.WrapEcho(domain.ErrNoSession, err)
+		}
+
 		postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 		if err != nil {
 			return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 		}
 
-		post, err := m.postsUseCase.GetPostByID(postID)
+		post, err := m.postsUseCase.GetPostByID(postID, user.ID)
 		if err != nil {
 			return errorHandling.WrapEcho(domain.ErrNoContent, err)
 		}

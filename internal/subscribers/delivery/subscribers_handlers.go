@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
+	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
 
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 
@@ -47,10 +47,6 @@ func (h Handler) GetSubscribers(c echo.Context) error {
 	s, err := h.subscribersUsecase.GetSubscribers(id)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
-	}
-
-	if len(s) == 0 {
-		return c.JSON(http.StatusOK, make([]models.User, 0))
 	}
 
 	return c.JSON(http.StatusOK, s)

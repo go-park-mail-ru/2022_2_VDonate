@@ -51,7 +51,7 @@ func NewHandler(
 // @Failure     500 {object} echo.HTTPError "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /users/{id} [get]
-func (h *Handler) GetUser(c echo.Context) error {
+func (h Handler) GetUser(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
@@ -60,10 +60,6 @@ func (h *Handler) GetUser(c echo.Context) error {
 	user, err := h.userUseCase.GetByID(id)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
-	}
-
-	if user.Avatar, err = h.imageUseCase.GetImage(user.Avatar); err != nil {
-		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
 
 	var subscriptions []models.AuthorSubscription
@@ -102,7 +98,7 @@ func (h *Handler) GetUser(c echo.Context) error {
 // @Failure     500  {object} echo.HTTPError            "Internal error / failed to create user"
 // @Security    ApiKeyAuth
 // @Router      /users/{id} [put]
-func (h *Handler) PutUser(c echo.Context) error {
+func (h Handler) PutUser(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
@@ -119,13 +115,7 @@ func (h *Handler) PutUser(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	if file != nil {
-		if updateUser.Avatar, err = h.imageUseCase.CreateImage(file); err != nil {
-			return errorHandling.WrapEcho(domain.ErrCreate, err)
-		}
-	}
-
-	if updateUser, err = h.userUseCase.Update(updateUser, id); err != nil {
+	if updateUser, err = h.userUseCase.Update(updateUser, file, id); err != nil {
 		return errorHandling.WrapEcho(domain.ErrUpdate, err)
 	}
 

@@ -62,12 +62,14 @@ func TestUsecase_Update(t *testing.T) {
 			defer ctrl.Finish()
 
 			userMock := mockDomain.NewMockUsersRepository(ctrl)
+			imgMock := mockDomain.NewMockImageUseCase(ctrl)
 
 			test.mockBehaviourGet(userMock, test.inputUser.ID)
 			test.mockBehaviourUpdate(userMock, test.inputUser)
 
 			usecase := WithHashCreator(
 				userMock,
+				imgMock,
 				func(password string) (string, error) {
 					if len(password) == 0 {
 						return "", errors.New("empty password")
@@ -130,10 +132,12 @@ func TestUsecase_DeleteByUsername(t *testing.T) {
 			defer ctrl.Finish()
 
 			userMock := mockDomain.NewMockUsersRepository(ctrl)
+			imgMock := mockDomain.NewMockImageUseCase(ctrl)
+
 			test.mockBehaviourGet(userMock, test.usernmae)
 			test.mockBehaviourDelete(userMock, test.userID)
 
-			usecase := New(userMock)
+			usecase := New(userMock, imgMock)
 
 			err := usecase.DeleteByUsername(test.usernmae)
 
@@ -189,10 +193,12 @@ func TestUsecase_DeleteByEmail(t *testing.T) {
 			defer ctrl.Finish()
 
 			userMock := mockDomain.NewMockUsersRepository(ctrl)
+			imgMock := mockDomain.NewMockImageUseCase(ctrl)
+
 			test.mockBehaviourGet(userMock, test.email)
 			test.mockBehaviourDelete(userMock, test.userID)
 
-			usecase := New(userMock)
+			usecase := New(userMock, imgMock)
 
 			err := usecase.DeleteByEmail(test.email)
 
@@ -244,9 +250,11 @@ func TestUsecase_CheckIDAndPassword(t *testing.T) {
 			defer ctrl.Finish()
 
 			userMock := mockDomain.NewMockUsersRepository(ctrl)
+			imgMock := mockDomain.NewMockImageUseCase(ctrl)
+
 			test.mockBehaviourGet(userMock, test.userID)
 
-			usecase := New(userMock)
+			usecase := New(userMock, imgMock)
 
 			isRight := usecase.CheckIDAndPassword(test.userID, test.password)
 
@@ -319,10 +327,12 @@ func TestUsecase_IsExistUsernameAndEmail(t *testing.T) {
 			defer ctrl.Finish()
 
 			userMock := mockDomain.NewMockUsersRepository(ctrl)
+			imgMock := mockDomain.NewMockImageUseCase(ctrl)
+
 			test.mockBehaviourGetByUsername(userMock, test.username)
 			test.mockBehaviourGetByEmail(userMock, test.email)
 
-			usecase := New(userMock)
+			usecase := New(userMock, imgMock)
 
 			isExist := usecase.IsExistUsernameAndEmail(test.username, test.email)
 

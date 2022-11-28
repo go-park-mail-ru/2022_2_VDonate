@@ -1,8 +1,11 @@
 package app
 
 import (
-	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
-	authMiddlewares "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/middlewares"
+	"net/http"
+
+	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http/middlewares"
+
 	sessionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
 	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
@@ -62,7 +65,9 @@ func (s *Server) init() error {
 	s.makeHandlers()
 	s.makeRouter()
 	s.makeCORS()
-	// s.makeCSRF()
+	if s.Config.CSRF.Status {
+		s.makeCSRF()
+	}
 
 	return nil
 }
@@ -125,26 +130,26 @@ func (s *Server) makeUseCase(url string) error {
 		s.Echo.Logger.Error(err)
 	}
 
+	//------------------------images------------------------//
+	s.ImagesService = images.New(imagesRepo)
+
 	//-----------------------sessions-----------------------//
 	s.AuthService = auth.New(sessionRepo, userRepo)
 
 	//-------------------------user-------------------------//
-	s.UserService = users.New(userRepo)
+	s.UserService = users.New(userRepo, s.ImagesService)
 
 	//-------------------------post-------------------------//
-	s.PostsService = posts.New(postsRepo, userRepo)
+	s.PostsService = posts.New(postsRepo, userRepo, s.ImagesService, subscriptionsRepo)
 
 	//----------------------subscriber----------------------//
 	s.SubscribersService = subscribers.New(subscribersRepo, userRepo)
 
 	//---------------------subscription---------------------//
-	s.SubscriptionService = subscriptions.New(subscriptionsRepo)
+	s.SubscriptionService = subscriptions.New(subscriptionsRepo, userRepo, s.ImagesService)
 
 	//-----------------------donates------------------------//
 	s.DonatesService = donates.New(donatesRepo, userRepo)
-
-	//------------------------images------------------------//
-	s.ImagesService = images.New(imagesRepo)
 
 	return nil
 }
@@ -240,17 +245,17 @@ func (s *Server) makeCORS() {
 	}))
 }
 
-// func (s *Server) makeCSRF() {
-// 	s.Echo.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-// 		TokenLength:    s.Config.CSRF.TokenLength,
-// 		TokenLookup:    "header:" + echo.HeaderXCSRFToken,
-// 		ContextKey:     s.Config.CSRF.ContextKey,
-// 		CookieName:     s.Config.CSRF.ContextName,
-// 		CookieMaxAge:   s.Config.CSRF.MaxAge,
-// 		CookiePath:     "/",
-// 		CookieSameSite: http.SameSiteNoneMode,
-// 	}))
-// }
+func (s *Server) makeCSRF() {
+	s.Echo.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		TokenLength:    s.Config.CSRF.TokenLength,
+		TokenLookup:    "header:" + echo.HeaderXCSRFToken,
+		ContextKey:     s.Config.CSRF.ContextKey,
+		CookieName:     s.Config.CSRF.ContextName,
+		CookieMaxAge:   s.Config.CSRF.MaxAge,
+		CookiePath:     "/",
+		CookieSameSite: http.SameSiteNoneMode,
+	}))
+}
 
 func (s *Server) makeMiddlewares() {
 	s.authMiddleware = authMiddlewares.New(s.AuthService, s.UserService, s.PostsService)
