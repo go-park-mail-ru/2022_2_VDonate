@@ -4,6 +4,7 @@ import (
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http/middlewares"
 	httpDonates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery"
+	httpImages "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/delivery"
 
 	sessionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
 	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
@@ -50,6 +51,7 @@ type Server struct {
 	subscriptionsHandler *httpSubscriptions.Handler
 	subscribersHandler   *httpSubscribers.Handler
 	donatesHandler       *httpDonates.Handler
+	imagesHandler        *httpImages.Handler
 
 	authMiddleware *authMiddlewares.Middlewares
 }
@@ -155,6 +157,7 @@ func (s *Server) makeUseCase(url string) error {
 func (s *Server) makeHandlers() {
 	s.authHandler = httpAuth.NewHandler(s.AuthService, s.UserService)
 
+	s.imagesHandler = httpImages.NewHandler(s.ImagesService)
 	s.donatesHandler = httpDonates.NewHandler(s.DonatesService, s.UserService)
 	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService, s.ImagesService)
 	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService, s.ImagesService, s.SubscriptionService, s.SubscribersService)
@@ -232,6 +235,9 @@ func (s *Server) makeRouter() {
 	donate.GET("/:id", s.donatesHandler.GetDonate)
 	donate.GET("", s.donatesHandler.GetDonates)
 	donate.POST("", s.donatesHandler.CreateDonate)
+
+	image := v1.Group("/image")
+	image.POST("", s.imagesHandler.CreateOrUpdateImage)
 }
 
 func (s *Server) makeCORS() {

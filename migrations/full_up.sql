@@ -42,13 +42,11 @@ CREATE TABLE IF NOT EXISTS user_info
 */
 CREATE TABLE IF NOT EXISTS posts
 (
-    post_id      bigserial     not null primary key,
-    user_id      bigserial     not null references users (id) on delete cascade,
-    img          varchar(64)   not null,
-    title        varchar(128)  not null,
-    text         varchar(2048) not null,
-    date_created date          not null,
-    tier         int default 0
+    post_id          bigserial not null primary key,
+    user_id          bigserial not null references users (id) on delete cascade,
+    content_template text      not null,
+    date_created     date      not null,
+    tier             int default 0
 );
 
 /*
@@ -116,7 +114,7 @@ CREATE TABLE IF NOT EXISTS donates
 */
 CREATE TABLE IF NOT EXISTS tags
 (
-    id bigserial NOT NULL PRIMARY KEY,
+    id       bigserial    NOT NULL PRIMARY KEY,
     tag_name VARCHAR(128) NOT NULL UNIQUE
 );
 
@@ -125,6 +123,6 @@ CREATE TABLE IF NOT EXISTS tags
 */
 CREATE TABLE IF NOT EXISTS post_tags
 (
-    post_id bigserial NOT NULL REFERENCES posts(post_id) ON DELETE CASCADE, 
-    tag_id bigserial NOT NULL REFERENCES tags(id) ON DELETE CASCADE
+    post_id bigserial NOT NULL REFERENCES posts (post_id) ON DELETE CASCADE,
+    tag_id  bigserial NOT NULL REFERENCES tags (id) ON DELETE CASCADE
 );

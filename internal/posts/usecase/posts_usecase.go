@@ -1,13 +1,14 @@
 package posts
 
 import (
-	"sort"
-
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 	"github.com/jinzhu/copier"
 	"golang.org/x/exp/slices"
+	"regexp"
+	"sort"
+	"strings"
 )
 
 type usecase struct {
@@ -26,8 +27,42 @@ func New(p domain.PostsRepository, u domain.UsersRepository, i domain.ImageUseCa
 	}
 }
 
+func (u usecase) RenderHTML(content []byte, blur bool) (string, error) {
+	r, err := regexp.Compile(`\[img\|.{116}]`)
+	if err != nil {
+		return "", err
+	}
+	bytesImages := r.FindAll(content, -1)
+
+	for i, img := range bytesImages {
+		matched, errMatch := regexp.Match("vdonate.ml", img)
+		if errMatch != nil {
+			return "", errMatch
+		}
+		if !matched {
+			// make special error for this
+			return "", domain.ErrBadRequest
+		}
+		img = img[5 : len(img)-1]
+		if blur {
+			idx := strings.LastIndex(string(img), "/")
+			if idx == -1 {
+				return "", err
+			}
+
+			tmp := append([]byte("blur_"), img[idx+1:]...)
+			img = append(img[:idx+1], tmp...)
+		}
+		bytesImages[i] = append(append([]byte(`<img src="`), img...), []byte(`" class="post-content__image">`)...)
+
+		content = r.ReplaceAll(content, bytesImages[i])
+	}
+
+	return string(content), nil
+}
+
 func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error) {
-	var r []models.Post
+	r := make([]models.Post, 0)
 	var err error
 	validate := true
 
@@ -62,14 +97,8 @@ func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error
 			r[i].IsAllowed = true
 		}
 
-		if r[i].IsAllowed {
-			if r[i].Img, err = u.imgUseCase.GetImage(post.Img); err != nil {
-				return nil, err
-			}
-		} else {
-			if r[i].Img, err = u.imgUseCase.GetBlurredImage(post.Img); err != nil {
-				return nil, err
-			}
+		if r[i].ContentTemplate, err = u.RenderHTML([]byte(r[i].ContentTemplate), !r[i].IsAllowed); err != nil {
+			return nil, err
 		}
 
 		author, errGetAuthor := u.userRepo.GetByID(post.UserID)
@@ -79,7 +108,7 @@ func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error
 
 		tags, getTagsErr := u.GetTagsByPostID(r[i].ID)
 		if getTagsErr != nil {
-			return nil, err
+			return nil, getTagsErr
 		}
 		tagsStr := u.ConvertTagsToStrSlice(tags)
 
@@ -97,7 +126,7 @@ func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error
 	}
 
 	sort.Slice(r, func(i, j int) bool {
-		return r[i].ID > r[j].ID
+		return r[i].DateCreated.Unix() > r[j].DateCreated.Unix()
 	})
 
 	return r, nil
@@ -109,12 +138,21 @@ func (u usecase) GetPostByID(postID, userID uint64) (models.Post, error) {
 		return models.Post{}, err
 	}
 
-	if r.Img, err = u.imgUseCase.GetImage(r.Img); err != nil {
+	author, errGetAuthor := u.userRepo.GetByID(r.UserID)
+	if errGetAuthor != nil {
 		return models.Post{}, err
 	}
 
-	author, errGetAuthor := u.userRepo.GetByID(r.UserID)
-	if errGetAuthor != nil {
+	as, errSubscriptions := u.subscriptionsRepo.GetSubscriptionByUserAndAuthorID(userID, author.ID)
+	if errSubscriptions != nil {
+		return models.Post{}, errSubscriptions
+	}
+
+	if as.Tier >= r.Tier {
+		r.IsAllowed = true
+	}
+
+	if r.ContentTemplate, err = u.RenderHTML([]byte(r.ContentTemplate), !r.IsAllowed); err != nil {
 		return models.Post{}, err
 	}
 
@@ -140,37 +178,46 @@ func (u usecase) GetPostByID(postID, userID uint64) (models.Post, error) {
 	return r, nil
 }
 
-func (u usecase) Create(post models.Post, userID uint64) (uint64, error) {
+func (u usecase) Create(post models.Post, userID uint64) (uint64, string, error) {
 	post.UserID = userID
 	var err error
 	post.ID, err = u.postsRepo.Create(post)
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
 
 	if err = u.CreateTags(post.Tags, post.ID); err != nil {
-		return 0, err
+		return 0, "", err
 	}
-	return post.ID, nil
+
+	if post.ContentTemplate, err = u.RenderHTML([]byte(post.ContentTemplate), false); err != nil {
+		return 0, "", err
+	}
+
+	return post.ID, post.ContentTemplate, nil
 }
 
-func (u usecase) Update(post models.Post, postID uint64) error {
+func (u usecase) Update(post models.Post, postID uint64) (models.Post, error) {
 	var err error
 
 	updatePost, err := u.GetPostByID(postID, post.UserID)
 	if err != nil {
-		return err
+		return models.Post{}, err
 	}
 
 	if err = copier.CopyWithOption(&updatePost, &post, copier.Option{IgnoreEmpty: true}); err != nil {
-		return err
+		return models.Post{}, err
 	}
 
 	if err = u.UpdateTags(post.Tags, postID); err != nil {
-		return err
+		return models.Post{}, err
 	}
 
-	return u.postsRepo.Update(updatePost)
+	if updatePost.ContentTemplate, err = u.RenderHTML([]byte(updatePost.ContentTemplate), false); err != nil {
+		return models.Post{}, err
+	}
+
+	return updatePost, u.postsRepo.Update(updatePost)
 }
 
 func (u usecase) DeleteByID(postID uint64) error {

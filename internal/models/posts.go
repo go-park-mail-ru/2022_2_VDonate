@@ -5,15 +5,16 @@ import (
 )
 
 type Post struct {
-	ID          uint64    `json:"postID" form:"postID" db:"post_id" example:"1"`
-	UserID      uint64    `json:"userID" form:"userID" db:"user_id" example:"1"`
-	Img         string    `json:"img" form:"img" db:"img" validate:"required" example:"path/to/image.jpeg"`
-	Title       string    `json:"title" form:"title" db:"title" validate:"required" example:"some title"`
-	Text        string    `json:"text" form:"text" db:"text" validate:"required" example:"some text"`
-	Tier        uint64    `json:"tier" form:"tier" db:"tier" example:"5"`
-	IsAllowed   bool      `json:"isAllowed" example:"true"`
-	DateCreated time.Time `json:"dateCreated" form:"date_created" db:"date_created" example:"2022-11-11"`
-	Tags        []string  `json:"tags" form:"tags" db:"tag_name"`
+	ID     uint64 `json:"postID" form:"postID" db:"post_id" example:"1"`
+	UserID uint64 `json:"userID" form:"userID" db:"user_id" example:"1"`
+	//Img         string    `json:"img" form:"img" db:"img" validate:"required" example:"path/to/image.jpeg"`
+	//Title       string    `json:"title" form:"title" db:"title" validate:"required" example:"some title"`
+	//Text        string    `json:"text" form:"text" db:"text" validate:"required" example:"some text"`
+	ContentTemplate string    `json:"content" form:"content" db:"content_template" validate:"required" example:"Hello [img|vdonate/path/to/img]"`
+	Tier            uint64    `json:"tier" form:"tier" db:"tier" example:"5"`
+	IsAllowed       bool      `json:"isAllowed" example:"true"`
+	DateCreated     time.Time `json:"dateCreated" form:"date_created" db:"date_created" example:"2022-11-11"`
+	Tags            []string  `json:"tags" form:"tags" db:"tag_name"`
 
 	Author   ResponseImageUsers `json:"author" validate:"required"`
 	LikesNum uint64             `json:"likesNum" validate:"required" example:"5"`

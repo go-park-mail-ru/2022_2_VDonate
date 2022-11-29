@@ -1,8 +1,8 @@
 package models
 
 type ResponseImagePosts struct {
-	PostID  uint64 `json:"postID" validate:"required" example:"25"`
-	ImgPath string `json:"imgPath" validate:"required" example:"/path/to/image.jpeg"`
+	PostID          uint64 `json:"postID" validate:"required" example:"25"`
+	ContentTemplate string `json:"contentTemplate" validate:"required" example:"<img src=\"\">"`
 }
 
 type ResponseImageSubscription struct {

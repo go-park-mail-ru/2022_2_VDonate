@@ -17,8 +17,32 @@ message User {
   uint64 count_subscribers = 9;
 };
 
+message Users {
+  repeated User users = 1;
+}
+
 message UserID {
   uint64 user_id = 1;
+}
+
+message PostID {
+  uint64 post_id = 1;
+}
+
+message Username {
+  string username = 1;
+}
+
+message Keyword {
+  string keyword = 1;
+}
+
+message Email {
+  string email = 1;
+}
+
+message SessionID {
+  string session_id = 1;
 }
 
 message File {
@@ -28,6 +52,13 @@ message File {
 message Empty {}
 
 service UsersService {
-  rpc Create(User) returns(Empty) {}
-  rpc Update(User) returns(Empty) {}
+  rpc Create(User) returns(Empty);
+  rpc Update(User) returns(Empty);
+  rpc DeleteByID(UserID) returns(Empty);
+  rpc DeleteByUsername(Username) returns(Empty);
+  rpc GetByID(UserID) returns(User);
+  rpc GetBySessionID(SessionID) returns(User);
+  rpc GetByEmail(Email) returns(User);
+  rpc GetByUsername(Username) returns(User);
+  rpc Find(Keyword) returns(Users);
 }

@@ -1,7 +1,6 @@
 package httpPosts
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -10,7 +9,6 @@ import (
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/labstack/echo/v4"
 )
@@ -171,26 +169,12 @@ func (h Handler) PutPost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	file, err := images.GetFileFromContext(c)
-
-	if file != nil && !errors.Is(err, http.ErrMissingFile) {
-		if prevPost.Img, err = h.imageUseCase.CreateOrUpdateImage(file, prevPost.Img); err != nil {
-			return errorHandling.WrapEcho(domain.ErrCreate, err)
-		}
-	}
-
-	if err = h.postsUseCase.Update(prevPost, postID); err != nil {
+	if prevPost, err = h.postsUseCase.Update(prevPost, postID); err != nil {
 		return errorHandling.WrapEcho(domain.ErrUpdate, err)
 	}
 
-	tmpURL, err := h.imageUseCase.GetImage(prevPost.Img)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrInternal, err)
-	}
-
 	return c.JSON(http.StatusOK, models.ResponseImagePosts{
-		PostID:  postID,
-		ImgPath: tmpURL,
+		PostID: postID,
 	})
 }
 
@@ -228,26 +212,14 @@ func (h Handler) CreatePost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	file, err := images.GetFileFromContext(c)
-	if file != nil && !errors.Is(err, http.ErrMissingFile) {
-		if post.Img, err = h.imageUseCase.CreateOrUpdateImage(file, ""); err != nil {
-			return errorHandling.WrapEcho(domain.ErrCreate, err)
-		}
-	}
-
-	id, err := h.postsUseCase.Create(post, user.ID)
+	id, content, err := h.postsUseCase.Create(post, user.ID)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 
-	tmpURL, err := h.imageUseCase.GetImage(post.Img)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrInternal, err)
-	}
-
 	return c.JSON(http.StatusOK, models.ResponseImagePosts{
-		PostID:  id,
-		ImgPath: tmpURL,
+		PostID:          id,
+		ContentTemplate: content,
 	})
 }
 

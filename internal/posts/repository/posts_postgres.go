@@ -34,7 +34,7 @@ func (r Postgres) Close() error {
 }
 
 func (r Postgres) GetAllByUserID(authorID uint64) ([]models.Post, error) {
-	var posts []models.Post
+	posts := make([]models.Post, 0)
 	if err := r.DB.Select(
 		&posts,
 		"SELECT * FROM posts WHERE user_id=$1;",
@@ -63,12 +63,10 @@ func (r Postgres) Create(post models.Post) (uint64, error) {
 	var postID uint64
 	err := r.DB.QueryRowx(
 		`
-		INSERT INTO posts (user_id, img, title, text, tier, date_created) 
-		VALUES ($1, $2, $3, $4, $5, $6) RETURNING post_id;`,
+		INSERT INTO posts (user_id, content_template, tier, date_created) 
+		VALUES ($1, $2, $3, $4) RETURNING post_id;`,
 		post.UserID,
-		post.Img,
-		post.Title,
-		post.Text,
+		post.ContentTemplate,
 		post.Tier,
 		time.Now(),
 	).Scan(&postID)
@@ -84,9 +82,7 @@ func (r Postgres) Update(post models.Post) error {
 		`
                 UPDATE posts
                 SET user_id=:user_id,
-                    title=:title,
-                    text=:text,
-                    img=:img,
+                    content_template=:content_template,
                     tier=:tier
                 WHERE post_id = :post_id`, &post)
 
@@ -94,9 +90,9 @@ func (r Postgres) Update(post models.Post) error {
 }
 
 func (r Postgres) GetPostsBySubscriptions(userID uint64) ([]models.Post, error) {
-	var posts []models.Post
+	posts := make([]models.Post, 0)
 	if err := r.DB.Select(&posts, `
-		SELECT p.post_id, p.user_id, p.img, p.title, p.text, p.tier, p.date_created
+		SELECT p.post_id, p.user_id, p.content_template, p.text, p.tier, p.date_created
 		FROM subscriptions s
 		JOIN posts p on s.author_id = p.user_id
 		JOIN author_subscriptions "as" on "as".id = s.subscription_id
@@ -126,7 +122,7 @@ func (r Postgres) GetLikeByUserAndPostID(userID, postID uint64) (models.Like, er
 }
 
 func (r Postgres) GetAllLikesByPostID(postID uint64) ([]models.Like, error) {
-	var likes []models.Like
+	likes := make([]models.Like, 0)
 	if err := r.DB.Select(&likes, "SELECT * FROM likes WHERE post_id=$1;", postID); err != nil {
 		return nil, err
 	}
@@ -187,7 +183,7 @@ func (r Postgres) GetTagById(tagID uint64) (models.Tag, error) {
 }
 
 func (r Postgres) GetTagDepsByPostId(postID uint64) ([]models.TagDep, error) {
-	var tagDeps []models.TagDep
+	tagDeps := make([]models.TagDep, 0)
 	if err := r.DB.Select(&tagDeps, "SELECT * FROM post_tags WHERE post_id=$1;", postID); err != nil {
 		return nil, err
 	}
