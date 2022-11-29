@@ -1,6 +1,8 @@
 package app
 
 import (
+	"net/http"
+
 	authMiddlewares "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http/middlewares"
 
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
@@ -252,12 +254,13 @@ func (s *Server) makeCORS() {
 
 func (s *Server) makeCSRF() {
 	s.Echo.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		TokenLength:  s.Config.CSRF.TokenLength,
-		TokenLookup:  "header:" + echo.HeaderXCSRFToken,
-		ContextKey:   s.Config.CSRF.ContextKey,
-		CookieName:   s.Config.CSRF.ContextName,
-		CookieMaxAge: s.Config.CSRF.MaxAge,
-		CookiePath:   "/",
+		TokenLength:    s.Config.CSRF.TokenLength,
+		TokenLookup:    "header:" + echo.HeaderXCSRFToken,
+		ContextKey:     s.Config.CSRF.ContextKey,
+		CookieName:     s.Config.CSRF.ContextName,
+		CookieMaxAge:   s.Config.CSRF.MaxAge,
+		CookiePath:     "/",
+		CookieSameSite: http.SameSiteNoneMode,
 	}))
 }
 
