@@ -62,6 +62,10 @@ func (h Handler) GetUser(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
 
+	if user.Avatar, err = h.imageUseCase.GetImage(user.Avatar); err != nil {
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
+	}
+
 	var subscriptions []models.AuthorSubscription
 	var subscribers []models.User
 
