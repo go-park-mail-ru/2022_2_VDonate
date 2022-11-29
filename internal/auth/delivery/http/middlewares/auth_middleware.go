@@ -3,7 +3,7 @@ package authMiddlewares
 import (
 	"strconv"
 
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
+	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
 
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 

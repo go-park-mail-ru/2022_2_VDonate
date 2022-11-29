@@ -1,8 +1,9 @@
 package app
 
 import (
+	authMiddlewares "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http/middlewares"
+
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http/middlewares"
 	httpDonates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery"
 	httpImages "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/delivery"
 

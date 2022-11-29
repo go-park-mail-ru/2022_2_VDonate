@@ -49,12 +49,13 @@ func (mr *MockPostsUseCaseMockRecorder) ConvertTagsToStrSlice(tags interface{}) 
 }
 
 // Create mocks base method.
-func (m *MockPostsUseCase) Create(post models.Post, userID uint64) (uint64, error) {
+func (m *MockPostsUseCase) Create(post models.Post, userID uint64) (uint64, string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", post, userID)
 	ret0, _ := ret[0].(uint64)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // Create indicates an expected call of Create.
@@ -238,11 +239,12 @@ func (mr *MockPostsUseCaseMockRecorder) UnlikePost(userID, postID interface{}) *
 }
 
 // Update mocks base method.
-func (m *MockPostsUseCase) Update(post models.Post, postID uint64) error {
+func (m *MockPostsUseCase) Update(post models.Post, postID uint64) (models.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", post, postID)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(models.Post)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Update indicates an expected call of Update.

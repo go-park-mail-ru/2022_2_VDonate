@@ -27,6 +27,7 @@ type UserID struct {
 }
 
 type Author struct {
+	ID       uint64 `json:"id" db:"id" form:"id" example:"1"`
 	Username string `json:"username" validate:"required" example:"admin"`
 	Email    string `json:"email" validate:"required" example:"admin@mail.ru"`
 	Avatar   string `json:"avatar" example:"filename.jpeg"`
@@ -38,6 +39,7 @@ type Author struct {
 }
 
 type NotAuthor struct {
+	ID       uint64 `json:"id" db:"id" form:"id" example:"1"`
 	Username string `json:"username" validate:"required" example:"admin"`
 	Email    string `json:"email" validate:"required" example:"admin@mail.ru"`
 	Avatar   string `json:"avatar" example:"filename.jpeg"`
@@ -48,6 +50,7 @@ type NotAuthor struct {
 
 func ToAuthor(u User) Author {
 	return Author{
+		ID:       u.ID,
 		Username: u.Username,
 		Email:    u.Email,
 		Avatar:   u.Avatar,
@@ -61,6 +64,7 @@ func ToAuthor(u User) Author {
 
 func ToNonAuthor(u User) NotAuthor {
 	return NotAuthor{
+		ID:       u.ID,
 		Username: u.Username,
 		Email:    u.Email,
 		Avatar:   u.Avatar,

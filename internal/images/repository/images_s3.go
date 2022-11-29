@@ -18,6 +18,11 @@ import (
 	"github.com/minio/minio-go"
 )
 
+const (
+	quality    = 100
+	blurRadius = 500
+)
+
 type S3 struct {
 	client *minio.Client
 
@@ -118,13 +123,13 @@ func (s S3) CreateOrUpdateImage(img *multipart.FileHeader, oldFilename string) (
 		return "", err
 	}
 
-	blurImageNRGBA, _ := stackblur.Process(blurImage, 500)
+	blurImageNRGBA, _ := stackblur.Process(blurImage, blurRadius)
 
 	blurFile := new(bytes.Buffer)
 
 	switch format {
 	case "jpeg":
-		if err = jpeg.Encode(blurFile, blurImageNRGBA.SubImage(blurImageNRGBA.Rect), &jpeg.Options{Quality: 100}); err != nil {
+		if err = jpeg.Encode(blurFile, blurImageNRGBA.SubImage(blurImageNRGBA.Rect), &jpeg.Options{Quality: quality}); err != nil {
 			return "", err
 		}
 	case "png":

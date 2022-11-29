@@ -2,6 +2,7 @@ package users
 
 import (
 	"errors"
+	"mime/multipart"
 	"testing"
 
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
@@ -78,7 +79,7 @@ func TestUsecase_Update(t *testing.T) {
 				},
 			)
 
-			_, err := usecase.Update(test.inputUser, test.inputUser.ID)
+			_, err := usecase.Update(test.inputUser, &multipart.FileHeader{}, test.inputUser.ID)
 			if err != nil {
 				require.EqualError(t, err, test.responseError)
 			}

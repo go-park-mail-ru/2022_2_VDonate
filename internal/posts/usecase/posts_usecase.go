@@ -1,14 +1,17 @@
 package posts
 
 import (
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
-	"github.com/jinzhu/copier"
-	"golang.org/x/exp/slices"
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+
+	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
+
+	"github.com/jinzhu/copier"
+	"golang.org/x/exp/slices"
 )
 
 type usecase struct {
@@ -28,18 +31,12 @@ func New(p domain.PostsRepository, u domain.UsersRepository, i domain.ImageUseCa
 }
 
 func (u usecase) RenderHTML(content []byte, blur bool) (string, error) {
-	r, err := regexp.Compile(`\[img\|.{116}]`)
-	if err != nil {
-		return "", err
-	}
+	r := regexp.MustCompile(`(?m)\[img\|.{116}]`)
 	bytesImages := r.FindAll(content, -1)
 
+	m := regexp.MustCompile(`(?m)vdonate\.ml`)
 	for i, img := range bytesImages {
-		matched, errMatch := regexp.Match("vdonate.ml", img)
-		if errMatch != nil {
-			return "", errMatch
-		}
-		if !matched {
+		if !m.Match(img) {
 			// make special error for this
 			return "", domain.ErrBadRequest
 		}
@@ -47,7 +44,7 @@ func (u usecase) RenderHTML(content []byte, blur bool) (string, error) {
 		if blur {
 			idx := strings.LastIndex(string(img), "/")
 			if idx == -1 {
-				return "", err
+				return "", domain.ErrBadRequest
 			}
 
 			tmp := append([]byte("blur_"), img[idx+1:]...)
