@@ -4,6 +4,9 @@ package user;
 
 option go_package = "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf";
 
+import "internal/microservices/auth/protobuf/auth.proto";
+import "google/protobuf/empty.proto";
+
 message User {
   uint64 id = 1;
   string username = 2;
@@ -17,7 +20,13 @@ message User {
   uint64 count_subscribers = 9;
 };
 
-message Users {
+message LessUser {
+  uint64 id = 1;
+  string username = 2;
+  string avatar = 3;
+}
+
+message UsersArray {
   repeated User users = 1;
 }
 
@@ -25,8 +34,9 @@ message UserID {
   uint64 user_id = 1;
 }
 
-message PostID {
-  uint64 post_id = 1;
+message UserAuthorPair {
+  uint64 user_id = 1;
+  uint64 author_id = 2;
 }
 
 message Username {
@@ -41,24 +51,21 @@ message Email {
   string email = 1;
 }
 
-message SessionID {
-  string session_id = 1;
-}
-
 message File {
   bytes file = 1;
 }
 
-message Empty {}
+message PostID {
+  uint64 postID = 1;
+}
 
-service UsersService {
-  rpc Create(User) returns(Empty);
-  rpc Update(User) returns(Empty);
-  rpc DeleteByID(UserID) returns(Empty);
-  rpc DeleteByUsername(Username) returns(Empty);
+service Users {
+  rpc Update(User) returns(google.protobuf.Empty);
+  rpc Create(User) returns(UserID);
+  rpc Search(Keyword) returns(UsersArray);
   rpc GetByID(UserID) returns(User);
-  rpc GetBySessionID(SessionID) returns(User);
+  rpc GetBySessionID(auth.SessionID) returns(User);
   rpc GetByEmail(Email) returns(User);
   rpc GetByUsername(Username) returns(User);
-  rpc Find(Keyword) returns(Users);
+  rpc GetUserByPostID(PostID) returns(User);
 }

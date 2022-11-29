@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS posts
     post_id          bigserial not null primary key,
     user_id          bigserial not null references users (id) on delete cascade,
     content_template text      not null,
+    content          text      not null,
     date_created     date      not null,
     tier             int default 0
 );

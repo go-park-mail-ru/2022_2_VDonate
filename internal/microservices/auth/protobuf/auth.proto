@@ -4,7 +4,6 @@ package auth;
 
 option go_package = "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf";
 
-
 message SessionID {
   string session_id = 1;
 }

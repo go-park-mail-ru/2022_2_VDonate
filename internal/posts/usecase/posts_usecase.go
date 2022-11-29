@@ -31,24 +31,45 @@ func New(p domain.PostsRepository, u domain.UsersRepository, i domain.ImageUseCa
 }
 
 func (u usecase) RenderHTML(content []byte, blur bool) (string, error) {
-	r := regexp.MustCompile(`(?m)\[img\|.{116}]`)
+	r := regexp.MustCompile(`\[img\|.{121}.?]`)
 	bytesImages := r.FindAll(content, -1)
 
-	m := regexp.MustCompile(`(?m)vdonate\.ml`)
+	if len(bytesImages) == 0 {
+		return string(content), nil
+	}
+
+	m := regexp.MustCompile(`wsrv.nl`)
+	if blur {
+		img := bytesImages[0]
+		if !m.Match(img) {
+			// make special error for this
+			return "", domain.ErrBadRequest
+		}
+		img = img[5 : len(img)-1]
+		if img[len(img)-1] == '/' {
+			img = img[:len(img)-1]
+		}
+
+		idx := strings.LastIndex(string(img[:len(img)-1]), "/")
+		if idx == -1 {
+			return "", domain.ErrBadRequest
+		}
+
+		tmp := append([]byte("blur_"), img[idx+1:]...)
+		img = append(img[:idx+1], tmp...)
+		img = append(append([]byte(`<img src="`), img...), []byte(`" class="post-content__image">`)...)
+
+		return string(img), nil
+	}
+
 	for i, img := range bytesImages {
 		if !m.Match(img) {
 			// make special error for this
 			return "", domain.ErrBadRequest
 		}
 		img = img[5 : len(img)-1]
-		if blur {
-			idx := strings.LastIndex(string(img), "/")
-			if idx == -1 {
-				return "", domain.ErrBadRequest
-			}
-
-			tmp := append([]byte("blur_"), img[idx+1:]...)
-			img = append(img[:idx+1], tmp...)
+		if img[len(img)-1] == '/' {
+			img = img[:len(img)-1]
 		}
 		bytesImages[i] = append(append([]byte(`<img src="`), img...), []byte(`" class="post-content__image">`)...)
 
@@ -94,7 +115,7 @@ func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error
 			r[i].IsAllowed = true
 		}
 
-		if r[i].ContentTemplate, err = u.RenderHTML([]byte(r[i].ContentTemplate), !r[i].IsAllowed); err != nil {
+		if r[i].Content, err = u.RenderHTML([]byte(r[i].ContentTemplate), !r[i].IsAllowed); err != nil {
 			return nil, err
 		}
 
@@ -123,7 +144,7 @@ func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error
 	}
 
 	sort.Slice(r, func(i, j int) bool {
-		return r[i].DateCreated.Unix() > r[j].DateCreated.Unix()
+		return r[i].ID > r[j].ID
 	})
 
 	return r, nil
@@ -149,7 +170,7 @@ func (u usecase) GetPostByID(postID, userID uint64) (models.Post, error) {
 		r.IsAllowed = true
 	}
 
-	if r.ContentTemplate, err = u.RenderHTML([]byte(r.ContentTemplate), !r.IsAllowed); err != nil {
+	if r.Content, err = u.RenderHTML([]byte(r.ContentTemplate), !r.IsAllowed); err != nil {
 		return models.Post{}, err
 	}
 
@@ -175,23 +196,23 @@ func (u usecase) GetPostByID(postID, userID uint64) (models.Post, error) {
 	return r, nil
 }
 
-func (u usecase) Create(post models.Post, userID uint64) (uint64, string, error) {
+func (u usecase) Create(post models.Post, userID uint64) (models.Post, error) {
 	post.UserID = userID
 	var err error
 	post.ID, err = u.postsRepo.Create(post)
 	if err != nil {
-		return 0, "", err
+		return models.Post{}, err
 	}
 
 	if err = u.CreateTags(post.Tags, post.ID); err != nil {
-		return 0, "", err
+		return models.Post{}, err
 	}
 
-	if post.ContentTemplate, err = u.RenderHTML([]byte(post.ContentTemplate), false); err != nil {
-		return 0, "", err
+	if post.Content, err = u.RenderHTML([]byte(post.ContentTemplate), false); err != nil {
+		return models.Post{}, err
 	}
 
-	return post.ID, post.ContentTemplate, nil
+	return post, nil
 }
 
 func (u usecase) Update(post models.Post, postID uint64) (models.Post, error) {

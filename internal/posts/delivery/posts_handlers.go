@@ -212,14 +212,14 @@ func (h Handler) CreatePost(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	id, content, err := h.postsUseCase.Create(post, user.ID)
-	if err != nil {
+	if post, err = h.postsUseCase.Create(post, user.ID); err != nil {
 		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 
 	return c.JSON(http.StatusOK, models.ResponseImagePosts{
-		PostID:          id,
-		ContentTemplate: content,
+		PostID:          post.ID,
+		ContentTemplate: post.ContentTemplate,
+		Content:         post.Content,
 	})
 }
 

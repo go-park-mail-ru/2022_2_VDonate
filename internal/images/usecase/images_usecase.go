@@ -25,7 +25,19 @@ func (u usecase) CreateOrUpdateImage(image *multipart.FileHeader, oldFilename st
 		return "", domain.ErrBadRequest
 	}
 	image.Filename = uuid.New().String() + image.Filename[idx:]
-	return u.ImageRepo.CreateOrUpdateImage(image, oldFilename)
+
+	file, err := image.Open()
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	buffer := make([]byte, image.Size)
+	if _, err = file.Read(buffer); err != nil {
+		return "", err
+	}
+
+	return u.ImageRepo.CreateOrUpdateImage(image.Filename, buffer, image.Size, oldFilename)
 }
 
 func (u usecase) GetImage(filename string) (string, error) {

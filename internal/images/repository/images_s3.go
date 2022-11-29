@@ -1,12 +1,12 @@
 package imagesRepository
 
 import (
+	"bufio"
 	"bytes"
 	"errors"
 	"image"
 	"image/jpeg"
 	"image/png"
-	"mime/multipart"
 	"net/url"
 	"strings"
 	"time"
@@ -76,21 +76,12 @@ func New(endpoint, accessKeyID, secretAccessKey string, secure bool, sth int, p 
 	}, nil
 }
 
-func (s S3) CreateOrUpdateImage(img *multipart.FileHeader, oldFilename string) (string, error) {
-	idxNew := strings.Index(img.Filename, ".")
+func (s S3) CreateOrUpdateImage(filename string, file []byte, size int64, oldFilename string) (string, error) {
+	idxNew := strings.Index(filename, ".")
 	if idxNew == -1 {
 		return "", domain.ErrBadRequest
 	}
-	bucket := utils.GetMD5OfNumLast(img.Filename[:idxNew], s.symbolsToHash)
-
-	if err := makeBucket(s.client, bucket, s.policy); err != nil {
-		return "", err
-	}
-
-	file, err := img.Open()
-	if err != nil {
-		return "", domain.ErrFileOpen
-	}
+	bucket := utils.GetMD5OfNumLast(filename[:idxNew], s.symbolsToHash)
 
 	if len(oldFilename) != 0 {
 		idxOld := strings.Index(oldFilename, ".")
@@ -99,26 +90,37 @@ func (s S3) CreateOrUpdateImage(img *multipart.FileHeader, oldFilename string) (
 		}
 
 		oldBucket := utils.GetMD5OfNumLast(oldFilename[:idxOld], s.symbolsToHash)
-		if err = s.client.RemoveObject(oldBucket, oldFilename); err != nil {
+		if err := s.client.RemoveObject(oldBucket, oldFilename); err != nil {
 			return "", err
 		}
 	}
 
+	err := makeBucket(s.client, bucket, s.policy)
+	if err != nil {
+		return "", err
+	}
+
+	fileReader := new(bytes.Buffer)
+	fileReader.Write(file)
+
+	r := bufio.NewReader(fileReader)
+
 	if _, err = s.client.PutObject(
 		bucket,
-		img.Filename,
-		file,
-		img.Size,
-		minio.PutObjectOptions{ContentType: img.Header.Get("Content-Type")},
+		filename,
+		r,
+		size,
+		minio.PutObjectOptions{},
 	); err != nil {
 		return "", err
 	}
 
-	if _, err = file.Seek(0, 0); err != nil {
-		return "", err
-	}
+	fileReader = new(bytes.Buffer)
+	fileReader.Write(file)
 
-	blurImage, format, err := image.Decode(file)
+	r.Reset(fileReader)
+
+	blurImage, format, err := image.Decode(r)
 	if err != nil {
 		return "", err
 	}
@@ -128,7 +130,7 @@ func (s S3) CreateOrUpdateImage(img *multipart.FileHeader, oldFilename string) (
 	blurFile := new(bytes.Buffer)
 
 	switch format {
-	case "jpeg":
+	case "jpeg", "jpg":
 		if err = jpeg.Encode(blurFile, blurImageNRGBA.SubImage(blurImageNRGBA.Rect), &jpeg.Options{Quality: quality}); err != nil {
 			return "", err
 		}
@@ -142,13 +144,13 @@ func (s S3) CreateOrUpdateImage(img *multipart.FileHeader, oldFilename string) (
 
 	_, err = s.client.PutObject(
 		bucket,
-		"blur_"+img.Filename,
+		"blur_"+filename,
 		blurFile,
 		int64(blurFile.Len()),
-		minio.PutObjectOptions{ContentType: img.Header.Get("Content-Type")},
+		minio.PutObjectOptions{},
 	)
 
-	return img.Filename, err
+	return filename, err
 }
 
 func (s S3) GetPermanentImage(filename string) (string, error) {

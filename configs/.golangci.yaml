@@ -183,7 +183,7 @@ linters:
     - predeclared # finds code that shadows one of Go's predeclared identifiers
     - promlinter # checks Prometheus metrics naming via promlint
     - reassign # checks that package variables are not reassigned
-    - revive # fast, configurable, extensible, flexible, and beautiful linter for Go, drop-in replacement of golint
+#    - revive # fast, configurable, extensible, flexible, and beautiful linter for Go, drop-in replacement of golint
     - tenv # detects using os.Setenv instead of t.Setenv since Go1.17
     - tparallel # detects inappropriate usage of t.Parallel() method in your Go test codes
     - unconvert # removes unnecessary type conversions
