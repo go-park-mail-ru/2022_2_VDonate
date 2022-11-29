@@ -15,11 +15,11 @@ message SessionID {
 message Session {
   string session_id = 1;
   uint64 user_id = 2;
-  google.protobuf.timestamp expires = 3;
+  google.protobuf.Timestamp expires = 3;
 }
 
 service AuthService {
   rpc CreateSession(Session) returns (SessionID) {}
-  rpc DeleteBySessionID(SessionID) returns (google.protobuf.empty) {}
+  rpc DeleteBySessionID(SessionID) returns (google.protobuf.Empty) {}
   rpc GetBySessionID(Session) returns (SessionID) {}
 }
