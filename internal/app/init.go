@@ -261,6 +261,7 @@ func (s *Server) makeCSRF() {
 		CookieMaxAge:   s.Config.CSRF.MaxAge,
 		CookiePath:     "/",
 		CookieSameSite: http.SameSiteNoneMode,
+		CookieSecure:   true,
 	}))
 }
 
