@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package user;
 
-option go_package = "microservices/user/protobuf";
+option go_package = "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf";
 
 message User {
   uint64 id = 1;

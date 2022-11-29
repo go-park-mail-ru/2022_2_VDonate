@@ -2,4 +2,4 @@ syntax = "proto3";
 
 package subscriptions;
 
-option go_package = "microservices/subscriptions/protobuf";
+option go_package = "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscriptions/protobuf";

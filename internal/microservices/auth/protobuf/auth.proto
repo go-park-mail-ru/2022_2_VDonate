@@ -2,7 +2,8 @@ syntax = "proto3";
 
 package auth;
 
-option go_package = "microservices/auth/protobuf";
+option go_package = "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf";
+
 
 message SessionID {
   string session_id = 1;
@@ -13,10 +14,6 @@ message UserSession {
   uint64 user_id = 2;
 }
 
-message BoolType {
-  bool status = 1;
-}
-
 service AuthService {
-  rpc IsSameSession(UserSession) returns(BoolType);
+//  rpc IsSameSession(UserSession) returns(common.Bool);
 }

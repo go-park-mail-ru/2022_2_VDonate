@@ -2,4 +2,4 @@ syntax = "proto3";
 
 package images;
 
-option go_package = "microservices/images/protobuf";
+option go_package = "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/images/protobuf";
