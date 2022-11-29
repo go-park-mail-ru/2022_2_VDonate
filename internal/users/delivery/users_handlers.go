@@ -130,20 +130,16 @@ func (h Handler) PutUser(c echo.Context) error {
 	})
 }
 
-// GetAuthor godoc
+// GetAuthors godoc
 // @Summary     Search author
 // @Description Search author by keyword
 // @ID          search_author
-// @Tags        search
+// @Tags        users
 // @Produce     json
-// @Param       keyword path string true "Keyword"
-// @Accept      mpfd
-// @Param       post formData models.UserMpfd           true  "New Post"
-// @Param       file formData file                      false "Uploaded file"
-// @Success     200  {object} models.User 				"User was successfully updated"
-// @Failure     401  {object} echo.HTTPError            "No session provided"
-// @Failure     403  {object} echo.HTTPError            "Not a user"
-// @Failure     500  {object} echo.HTTPError            "Internal error / failed to search author"
+// @Param       keyword query    string            true "Keyword"
+// @Success     200     {object} []models.UserMpfd "User was successfully updated"
+// @Failure     401     {object} echo.HTTPError    "No session provided"
+// @Failure     500     {object} echo.HTTPError    "Internal error / failed to search author"
 // @Security    ApiKeyAuth
 // @Router      /search [get]
 func (h Handler) GetAuthors(c echo.Context) error {

@@ -214,6 +214,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/image": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create image POST request",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "images"
+                ],
+                "summary": "Create image",
+                "operationId": "create_image",
+                "responses": {
+                    "200": {
+                        "description": "Posts were successfully received",
+                        "schema": {
+                            "$ref": "#/definitions/models.ImageMpfd"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "No session provided",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "Authorization of ` + "`" + `User` + "`" + `",
@@ -317,15 +361,8 @@ const docTemplate = `{
                 "operationId": "get_posts",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
                         "type": "string",
-                        "description": "filter to use to get posts. Filters: subscriptions",
+                        "description": "filter to use to get posts. Filters: subscriptions, user_id(as digit)",
                         "name": "filter",
                         "in": "query",
                         "required": true
@@ -737,6 +774,15 @@ const docTemplate = `{
                 ],
                 "summary": "Create like",
                 "operationId": "create_like",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Likes were successfully create",
@@ -776,7 +822,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Create like on post",
+                "description": "Delete like on post",
                 "produces": [
                     "application/json"
                 ],
@@ -821,6 +867,56 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/search": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Search author by keyword",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Search author",
+                "operationId": "search_author",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Keyword",
+                        "name": "keyword",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User was successfully updated",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.UserMpfd"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No session provided",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal error / failed to search author",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -1687,6 +1783,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "admin@mail.ru"
                 },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
                 "isAuthor": {
                     "type": "boolean",
                     "example": true
@@ -1812,6 +1912,18 @@ const docTemplate = `{
         "models.EmptyStruct": {
             "type": "object"
         },
+        "models.ImageMpfd": {
+            "type": "object",
+            "required": [
+                "url"
+            ],
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "example": "path/to/img"
+                }
+            }
+        },
         "models.Like": {
             "type": "object",
             "required": [
@@ -1833,19 +1945,25 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "author",
-                "img",
+                "content",
                 "isLiked",
-                "likesNum",
-                "text",
-                "title"
+                "likesNum"
             ],
             "properties": {
                 "author": {
                     "$ref": "#/definitions/models.ResponseImageUsers"
                 },
-                "img": {
+                "content": {
                     "type": "string",
-                    "example": "path/to/image.jpeg"
+                    "example": "Hello [img|vdonate/path/to/img]"
+                },
+                "dateCreated": {
+                    "type": "string",
+                    "example": "2022-11-11"
+                },
+                "isAllowed": {
+                    "type": "boolean",
+                    "example": true
                 },
                 "isLiked": {
                     "type": "boolean",
@@ -1859,13 +1977,15 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
-                "text": {
-                    "type": "string",
-                    "example": "some text"
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
-                "title": {
-                    "type": "string",
-                    "example": "some title"
+                "tier": {
+                    "type": "integer",
+                    "example": 5
                 },
                 "userID": {
                     "type": "integer",
@@ -1876,13 +1996,13 @@ const docTemplate = `{
         "models.ResponseImagePosts": {
             "type": "object",
             "required": [
-                "imgPath",
+                "contentTemplate",
                 "postID"
             ],
             "properties": {
-                "imgPath": {
+                "contentTemplate": {
                     "type": "string",
-                    "example": "/path/to/image.jpeg"
+                    "example": "\u003cimg src=\"\"\u003e"
                 },
                 "postID": {
                     "type": "integer",

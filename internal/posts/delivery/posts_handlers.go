@@ -33,12 +33,12 @@ func NewHandler(p domain.PostsUseCase, u domain.UsersUseCase, i domain.ImageUseC
 // @ID          get_posts
 // @Tags        posts
 // @Produce     json
-// @Param       filter  query    string         true "filter to use to get posts. Filters: subscriptions, user_id(as digit)"
-// @Success     200     {object} []models.Post  "Posts were successfully received"
-// @Failure     400     {object} echo.HTTPError "Bad request"
-// @Failure     401     {object} echo.HTTPError "No session provided"
-// @Failure     404     {object} echo.HTTPError "User not found"
-// @Failure     500     {object} echo.HTTPError "Internal error"
+// @Param       filter query    string         true "filter to use to get posts. Filters: subscriptions, user_id(as digit)"
+// @Success     200    {object} []models.Post  "Posts were successfully received"
+// @Failure     400    {object} echo.HTTPError "Bad request"
+// @Failure     401    {object} echo.HTTPError "No session provided"
+// @Failure     404    {object} echo.HTTPError "User not found"
+// @Failure     500    {object} echo.HTTPError "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /posts [get]
 func (h Handler) GetPosts(c echo.Context) error {
@@ -258,6 +258,7 @@ func (h Handler) GetLikes(c echo.Context) error {
 // @Description Create like on post
 // @ID          create_like
 // @Tags        posts
+// @Param       id path integer true "Post id"
 // @Produce     json
 // @Success     200 {object} integer        "Likes were successfully create"
 // @Failure     400 {object} echo.HTTPError "Bad request"
