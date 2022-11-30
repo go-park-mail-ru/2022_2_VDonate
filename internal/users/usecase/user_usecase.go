@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
+	"golang.org/x/exp/slices"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
@@ -145,13 +146,14 @@ func (u usecase) FindAuthors(keyword string) ([]models.User, error) {
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return resAuthors, err
 		}
-
 		for i, a := range author {
-			if author[i].Avatar, err = u.imgUseCase.GetImage(a.Avatar); err != nil {
-				return nil, err
+			if !slices.Contains(resAuthors, a) {
+				if author[i].Avatar, err = u.imgUseCase.GetImage(a.Avatar); err != nil {
+					return nil, err
+				}
+				resAuthors = append(resAuthors, a)
 			}
 		}
-		resAuthors = append(resAuthors, author...)
 	}
 
 	return resAuthors, nil
