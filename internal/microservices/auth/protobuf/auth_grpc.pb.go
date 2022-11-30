@@ -7,7 +7,11 @@
 package protobuf
 
 import (
+	context "context"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,6 +23,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthServiceClient interface {
+	CreateSession(ctx context.Context, in *Session, opts ...grpc.CallOption) (*SessionID, error)
+	DeleteBySessionID(ctx context.Context, in *SessionID, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetBySessionID(ctx context.Context, in *Session, opts ...grpc.CallOption) (*SessionID, error)
 }
 
 type authServiceClient struct {
@@ -29,10 +36,40 @@ func NewAuthServiceClient(cc grpc.ClientConnInterface) AuthServiceClient {
 	return &authServiceClient{cc}
 }
 
+func (c *authServiceClient) CreateSession(ctx context.Context, in *Session, opts ...grpc.CallOption) (*SessionID, error) {
+	out := new(SessionID)
+	err := c.cc.Invoke(ctx, "/auth.AuthService/CreateSession", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) DeleteBySessionID(ctx context.Context, in *SessionID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/auth.AuthService/DeleteBySessionID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) GetBySessionID(ctx context.Context, in *Session, opts ...grpc.CallOption) (*SessionID, error) {
+	out := new(SessionID)
+	err := c.cc.Invoke(ctx, "/auth.AuthService/GetBySessionID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility
 type AuthServiceServer interface {
+	CreateSession(context.Context, *Session) (*SessionID, error)
+	DeleteBySessionID(context.Context, *SessionID) (*emptypb.Empty, error)
+	GetBySessionID(context.Context, *Session) (*SessionID, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -40,6 +77,15 @@ type AuthServiceServer interface {
 type UnimplementedAuthServiceServer struct {
 }
 
+func (UnimplementedAuthServiceServer) CreateSession(context.Context, *Session) (*SessionID, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateSession not implemented")
+}
+func (UnimplementedAuthServiceServer) DeleteBySessionID(context.Context, *SessionID) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteBySessionID not implemented")
+}
+func (UnimplementedAuthServiceServer) GetBySessionID(context.Context, *Session) (*SessionID, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBySessionID not implemented")
+}
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 
 // UnsafeAuthServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -53,13 +99,80 @@ func RegisterAuthServiceServer(s grpc.ServiceRegistrar, srv AuthServiceServer) {
 	s.RegisterService(&AuthService_ServiceDesc, srv)
 }
 
+func _AuthService_CreateSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Session)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).CreateSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/auth.AuthService/CreateSession",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).CreateSession(ctx, req.(*Session))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_DeleteBySessionID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SessionID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).DeleteBySessionID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/auth.AuthService/DeleteBySessionID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).DeleteBySessionID(ctx, req.(*SessionID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_GetBySessionID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Session)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GetBySessionID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/auth.AuthService/GetBySessionID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GetBySessionID(ctx, req.(*Session))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AuthService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "auth.AuthService",
 	HandlerType: (*AuthServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams:     []grpc.StreamDesc{},
-	Metadata:    "internal/microservices/auth/protobuf/auth.proto",
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateSession",
+			Handler:    _AuthService_CreateSession_Handler,
+		},
+		{
+			MethodName: "DeleteBySessionID",
+			Handler:    _AuthService_DeleteBySessionID_Handler,
+		},
+		{
+			MethodName: "GetBySessionID",
+			Handler:    _AuthService_GetBySessionID_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "internal/microservices/auth/protobuf/auth.proto",
 }

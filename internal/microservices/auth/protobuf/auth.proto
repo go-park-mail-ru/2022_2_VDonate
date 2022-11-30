@@ -4,15 +4,21 @@ package auth;
 
 option go_package = "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf";
 
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
 message SessionID {
   string session_id = 1;
 }
 
-message UserSession {
+message Session {
   string session_id = 1;
   uint64 user_id = 2;
+  google.protobuf.Timestamp expires = 3;
 }
 
 service AuthService {
-//  rpc IsSameSession(UserSession) returns(common.Bool);
+  rpc CreateSession(Session) returns (SessionID) {}
+  rpc DeleteBySessionID(SessionID) returns (google.protobuf.Empty) {}
+  rpc GetBySessionID(Session) returns (SessionID) {}
 }
