@@ -278,6 +278,29 @@ func (r Postgres) DeleteByID(id uint64) error {
 	return tx.Commit()
 }
 
+func (r Postgres) GetAllAuthors() ([]model.User, error) {
+	var u []model.User
+	if err := r.DB.Select(
+		&u,
+		`
+		SELECT * FROM users;`,
+	); err != nil {
+		return nil, err
+	}
+
+	if err := r.DB.Get(
+		&u,
+		`
+		SELECT avatar, is_author, about
+		FROM user_info 
+		WHERE is_author = true;`,
+	); err != nil {
+		return nil, err
+	}
+
+	return u, nil
+}
+
 func (r Postgres) GetAuthorByUsername(username string) ([]model.User, error) {
 	var u []model.User
 	if err := r.DB.Select(

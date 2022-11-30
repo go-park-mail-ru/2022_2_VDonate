@@ -138,6 +138,13 @@ func (u usecase) IsExistUsernameAndEmail(username, email string) bool {
 }
 
 func (u usecase) FindAuthors(keyword string) ([]models.User, error) {
+	if len(keyword) == 0 {
+		allAuthors, err := u.usersRepo.GetAllAuthors()
+		if err != nil {
+			return nil, err
+		}
+		return allAuthors, nil
+	}
 	resAuthors := make([]models.User, 0)
 	author, err := u.usersRepo.GetAuthorByUsername(keyword)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
