@@ -292,9 +292,9 @@ func (r Postgres) GetAuthorByUsername(username string) ([]model.User, error) {
 		return []model.User{}, err
 	}
 
-	for _, user := range u {
+	for index, user := range u {
 		if err := r.DB.Get(
-			&user,
+			&u[index],
 			`
 			SELECT avatar, is_author, about
 			FROM user_info 

@@ -3,3 +3,22 @@ syntax = "proto3";
 package images;
 
 option go_package = "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/images/protobuf";
+
+message URL {
+  string url = 1;
+}
+
+message Filename {
+  string filename = 1;
+}
+
+message Image {
+  string filename = 1;
+  bytes content = 2;
+  int64 size = 3;
+}
+
+service Images {
+  rpc Create(Image) returns(Filename);
+  rpc Get(Filename) returns(URL);
+}

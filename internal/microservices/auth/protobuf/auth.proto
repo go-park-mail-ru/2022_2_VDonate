@@ -4,7 +4,6 @@ package auth;
 
 option go_package = "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf";
 
-
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 

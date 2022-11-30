@@ -145,6 +145,12 @@ func (u usecase) FindAuthors(keyword string) ([]models.User, error) {
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return resAuthors, err
 		}
+
+		for i, a := range author {
+			if author[i].Avatar, err = u.imgUseCase.GetImage(a.Avatar); err != nil {
+				return nil, err
+			}
+		}
 		resAuthors = append(resAuthors, author...)
 	}
 
