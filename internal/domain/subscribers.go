@@ -9,3 +9,9 @@ type SubscribersUseCase interface {
 
 	IsSubscriber(userID, authorID uint64) (bool, error)
 }
+
+type SubscribersService interface {
+	GetSubscribers(userID uint64) ([]models.User, error)
+	Subscribe(subscriber models.Subscription) error
+	Unsubscribe(subscriber models.Subscription) error
+}
