@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package subscriptions;
+
+option go_package = "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscriptions/protobuf";
+
+import "internal/microservices/users/protobuf/users.proto";
+import "google/protobuf/empty.proto";
+
+message AuthorSubscription {
+  uint64 ID = 1;
+  uint64 AuthorID = 2;
+  string Img = 3;
+  uint64 Tier = 4;
+  string Title = 5;
+  string Text = 6;
+  uint64 Price = 7;
+
+  string AuthorName = 8;
+  string AuthorAvatar = 9;
+}
+
+message AuthorSubscriptionID {
+  uint64 ID = 1;
+}
+
+message SubArray {
+  repeated AuthorSubscription subscriptions = 1;
+}
+
+service Subscriptions {
+  rpc GetSubscriptionsByUserID(user.UserID) returns(SubArray);
+  rpc GetSubscriptionsByAuthorID(user.UserID) returns(SubArray);
+  rpc GetSubscriptionByID(AuthorSubscriptionID) returns(AuthorSubscription);
+  rpc GetSubscriptionByUserAndAuthorID(user.UserAuthorPair) returns(AuthorSubscription);
+  rpc AddSubscription(AuthorSubscription) returns(AuthorSubscriptionID);
+  rpc UpdateSubscription(AuthorSubscription) returns(google.protobuf.Empty);
+  rpc DeleteSubscription(AuthorSubscriptionID) returns(google.protobuf.Empty);
+}
+

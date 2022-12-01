@@ -5,11 +5,169 @@
 package mock_domain
 
 import (
+	multipart "mime/multipart"
 	reflect "reflect"
 
 	models "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	gomock "github.com/golang/mock/gomock"
 )
+
+// MockUsersMicroservice is a mock of UsersMicroservice interface.
+type MockUsersMicroservice struct {
+	ctrl     *gomock.Controller
+	recorder *MockUsersMicroserviceMockRecorder
+}
+
+// MockUsersMicroserviceMockRecorder is the mock recorder for MockUsersMicroservice.
+type MockUsersMicroserviceMockRecorder struct {
+	mock *MockUsersMicroservice
+}
+
+// NewMockUsersMicroservice creates a new mock instance.
+func NewMockUsersMicroservice(ctrl *gomock.Controller) *MockUsersMicroservice {
+	mock := &MockUsersMicroservice{ctrl: ctrl}
+	mock.recorder = &MockUsersMicroserviceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockUsersMicroservice) EXPECT() *MockUsersMicroserviceMockRecorder {
+	return m.recorder
+}
+
+// Create mocks base method.
+func (m *MockUsersMicroservice) Create(user models.User) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", user)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Create indicates an expected call of Create.
+func (mr *MockUsersMicroserviceMockRecorder) Create(user interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUsersMicroservice)(nil).Create), user)
+}
+
+// GetAllAuthors mocks base method.
+func (m *MockUsersMicroservice) GetAllAuthors() ([]models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllAuthors")
+	ret0, _ := ret[0].([]models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllAuthors indicates an expected call of GetAllAuthors.
+func (mr *MockUsersMicroserviceMockRecorder) GetAllAuthors() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllAuthors", reflect.TypeOf((*MockUsersMicroservice)(nil).GetAllAuthors))
+}
+
+// GetAuthorByUsername mocks base method.
+func (m *MockUsersMicroservice) GetAuthorByUsername(username string) ([]models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAuthorByUsername", username)
+	ret0, _ := ret[0].([]models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAuthorByUsername indicates an expected call of GetAuthorByUsername.
+func (mr *MockUsersMicroserviceMockRecorder) GetAuthorByUsername(username interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthorByUsername", reflect.TypeOf((*MockUsersMicroservice)(nil).GetAuthorByUsername), username)
+}
+
+// GetByEmail mocks base method.
+func (m *MockUsersMicroservice) GetByEmail(email string) (models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByEmail", email)
+	ret0, _ := ret[0].(models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByEmail indicates an expected call of GetByEmail.
+func (mr *MockUsersMicroserviceMockRecorder) GetByEmail(email interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByEmail", reflect.TypeOf((*MockUsersMicroservice)(nil).GetByEmail), email)
+}
+
+// GetByID mocks base method.
+func (m *MockUsersMicroservice) GetByID(id uint64) (models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByID", id)
+	ret0, _ := ret[0].(models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByID indicates an expected call of GetByID.
+func (mr *MockUsersMicroserviceMockRecorder) GetByID(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUsersMicroservice)(nil).GetByID), id)
+}
+
+// GetBySessionID mocks base method.
+func (m *MockUsersMicroservice) GetBySessionID(sessionID string) (models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBySessionID", sessionID)
+	ret0, _ := ret[0].(models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBySessionID indicates an expected call of GetBySessionID.
+func (mr *MockUsersMicroserviceMockRecorder) GetBySessionID(sessionID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBySessionID", reflect.TypeOf((*MockUsersMicroservice)(nil).GetBySessionID), sessionID)
+}
+
+// GetByUsername mocks base method.
+func (m *MockUsersMicroservice) GetByUsername(username string) (models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByUsername", username)
+	ret0, _ := ret[0].(models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByUsername indicates an expected call of GetByUsername.
+func (mr *MockUsersMicroserviceMockRecorder) GetByUsername(username interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUsername", reflect.TypeOf((*MockUsersMicroservice)(nil).GetByUsername), username)
+}
+
+// GetUserByPostID mocks base method.
+func (m *MockUsersMicroservice) GetUserByPostID(postID uint64) (models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByPostID", postID)
+	ret0, _ := ret[0].(models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByPostID indicates an expected call of GetUserByPostID.
+func (mr *MockUsersMicroserviceMockRecorder) GetUserByPostID(postID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByPostID", reflect.TypeOf((*MockUsersMicroservice)(nil).GetUserByPostID), postID)
+}
+
+// Update mocks base method.
+func (m *MockUsersMicroservice) Update(user models.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", user)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockUsersMicroserviceMockRecorder) Update(user interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsersMicroservice)(nil).Update), user)
+}
 
 // MockUsersUseCase is a mock of UsersUseCase interface.
 type MockUsersUseCase struct {
@@ -63,46 +221,19 @@ func (mr *MockUsersUseCaseMockRecorder) Create(user interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUsersUseCase)(nil).Create), user)
 }
 
-// DeleteByEmail mocks base method.
-func (m *MockUsersUseCase) DeleteByEmail(email string) error {
+// FindAuthors mocks base method.
+func (m *MockUsersUseCase) FindAuthors(keyword string) ([]models.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteByEmail", email)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "FindAuthors", keyword)
+	ret0, _ := ret[0].([]models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
-// DeleteByEmail indicates an expected call of DeleteByEmail.
-func (mr *MockUsersUseCaseMockRecorder) DeleteByEmail(email interface{}) *gomock.Call {
+// FindAuthors indicates an expected call of FindAuthors.
+func (mr *MockUsersUseCaseMockRecorder) FindAuthors(keyword interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByEmail", reflect.TypeOf((*MockUsersUseCase)(nil).DeleteByEmail), email)
-}
-
-// DeleteByID mocks base method.
-func (m *MockUsersUseCase) DeleteByID(id uint64) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteByID", id)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeleteByID indicates an expected call of DeleteByID.
-func (mr *MockUsersUseCaseMockRecorder) DeleteByID(id interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockUsersUseCase)(nil).DeleteByID), id)
-}
-
-// DeleteByUsername mocks base method.
-func (m *MockUsersUseCase) DeleteByUsername(username string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteByUsername", username)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeleteByUsername indicates an expected call of DeleteByUsername.
-func (mr *MockUsersUseCaseMockRecorder) DeleteByUsername(username interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByUsername", reflect.TypeOf((*MockUsersUseCase)(nil).DeleteByUsername), username)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAuthors", reflect.TypeOf((*MockUsersUseCase)(nil).FindAuthors), keyword)
 }
 
 // GetByEmail mocks base method.
@@ -195,15 +326,16 @@ func (mr *MockUsersUseCaseMockRecorder) IsExistUsernameAndEmail(username, email 
 }
 
 // Update mocks base method.
-func (m *MockUsersUseCase) Update(user models.User, id uint64) error {
+func (m *MockUsersUseCase) Update(user models.User, file *multipart.FileHeader, id uint64) (models.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", user, id)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "Update", user, file, id)
+	ret0, _ := ret[0].(models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockUsersUseCaseMockRecorder) Update(user, id interface{}) *gomock.Call {
+func (mr *MockUsersUseCaseMockRecorder) Update(user, file, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsersUseCase)(nil).Update), user, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsersUseCase)(nil).Update), user, file, id)
 }

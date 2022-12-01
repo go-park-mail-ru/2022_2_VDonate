@@ -1,6 +1,10 @@
 package postsRepository
 
 import (
+	"database/sql"
+	"errors"
+	"time"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -31,13 +35,13 @@ func (r Postgres) Close() error {
 	return nil
 }
 
-func (r Postgres) GetAllByUserID(userID uint64) ([]models.Post, error) {
-	var posts []models.Post
+func (r Postgres) GetAllByUserID(authorID uint64) ([]models.Post, error) {
+	posts := make([]models.Post, 0)
 	if err := r.DB.Select(
 		&posts,
 		"SELECT * FROM posts WHERE user_id=$1;",
-		userID,
-	); err != nil {
+		authorID,
+	); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
@@ -61,12 +65,13 @@ func (r Postgres) Create(post models.Post) (uint64, error) {
 	var postID uint64
 	err := r.DB.QueryRowx(
 		`
-		INSERT INTO posts (user_id, img, title, text) 
-		VALUES ($1, $2, $3, $4) RETURNING post_id;`,
+		INSERT INTO posts (user_id, content_template, content, tier, date_created) 
+		VALUES ($1, $2, $3, $4, $5) RETURNING post_id;`,
 		post.UserID,
-		post.Img,
-		post.Title,
-		post.Text,
+		post.ContentTemplate,
+		post.Content,
+		post.Tier,
+		time.Now(),
 	).Scan(&postID)
 	if err != nil {
 		return 0, err
@@ -80,23 +85,23 @@ func (r Postgres) Update(post models.Post) error {
 		`
                 UPDATE posts
                 SET user_id=:user_id,
-                    title=:title,
-                    text=:text,
-                    img=:img
+                    content_template=:content_template,
+                    content=:content,
+                    tier=:tier
                 WHERE post_id = :post_id`, &post)
 
 	return err
 }
 
 func (r Postgres) GetPostsBySubscriptions(userID uint64) ([]models.Post, error) {
-	var posts []models.Post
+	posts := make([]models.Post, 0)
 	if err := r.DB.Select(&posts, `
-		SELECT p.post_id, p.user_id, p.img, p.title, p.text
-		FROM users
-		JOIN subscriptions s on s.subscriber_id = users.id
+		SELECT p.post_id, p.user_id, p.content_template, p.content, p.tier, p.date_created
+		FROM subscriptions s
 		JOIN posts p on s.author_id = p.user_id
-		WHERE p.user_id=$1;
-	`, userID); err != nil {
+		JOIN author_subscriptions "as" on "as".id = s.subscription_id
+		WHERE s.subscriber_id=$1 AND "as".tier >= p.tier;
+	`, userID); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
@@ -121,7 +126,7 @@ func (r Postgres) GetLikeByUserAndPostID(userID, postID uint64) (models.Like, er
 }
 
 func (r Postgres) GetAllLikesByPostID(postID uint64) ([]models.Like, error) {
-	var likes []models.Like
+	likes := make([]models.Like, 0)
 	if err := r.DB.Select(&likes, "SELECT * FROM likes WHERE post_id=$1;", postID); err != nil {
 		return nil, err
 	}
@@ -141,4 +146,58 @@ func (r Postgres) CreateLike(userID, postID uint64) error {
 func (r Postgres) DeleteLikeByID(userID, postID uint64) error {
 	_, err := r.DB.Exec("DELETE FROM likes WHERE user_id=$1 AND post_id=$2;", userID, postID)
 	return err
+}
+
+func (r Postgres) CreateDepTag(postID, tagID uint64) error {
+	return r.DB.QueryRowx(
+		`
+		INSERT INTO post_tags (post_id, tag_id)
+		VALUES ($1, $2);`,
+		postID,
+		tagID,
+	).Err()
+}
+
+func (r Postgres) DeleteDepTag(tagDep models.TagDep) error {
+	_, err := r.DB.Exec("DELETE FROM post_tags WHERE post_id=$1 AND tag_id=$2;", tagDep.PostID, tagDep.TagID)
+	return err
+}
+
+func (r Postgres) CreateTag(tagName string) (uint64, error) {
+	var tagID uint64
+	err := r.DB.QueryRowx(
+		`
+		INSERT INTO tags (tag_name)
+		VALUES ($1) RETURNING id;`,
+		tagName,
+	).Scan(&tagID)
+	if err != nil {
+		return 0, err
+	}
+
+	return tagID, nil
+}
+
+func (r Postgres) GetTagById(tagID uint64) (models.Tag, error) {
+	var tag models.Tag
+	if err := r.DB.Get(&tag, "SELECT * FROM tags WHERE id=$1;", tagID); err != nil {
+		return models.Tag{}, err
+	}
+	return tag, nil
+}
+
+func (r Postgres) GetTagDepsByPostId(postID uint64) ([]models.TagDep, error) {
+	tagDeps := make([]models.TagDep, 0)
+	if err := r.DB.Select(&tagDeps, "SELECT * FROM post_tags WHERE post_id=$1;", postID); err != nil {
+		return nil, err
+	}
+	return tagDeps, nil
+}
+
+func (r Postgres) GetTagByName(tagName string) (models.Tag, error) {
+	var tag models.Tag
+	if err := r.DB.Get(&tag, "SELECT * FROM tags WHERE tag_name=$1;", tagName); err != nil {
+		return models.Tag{}, err
+	}
+	return tag, nil
 }

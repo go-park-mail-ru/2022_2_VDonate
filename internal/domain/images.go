@@ -4,7 +4,12 @@ import (
 	"mime/multipart"
 )
 
+type ImageMicroservice interface {
+	Create(filename string, file []byte, size int64, oldFilename string) (string, error)
+	Get(filename string) (string, error)
+}
 type ImageUseCase interface {
-	CreateImage(image *multipart.FileHeader, bucket string) (string, error)
-	GetImage(bucket, name string) (string, error)
+	CreateOrUpdateImage(image *multipart.FileHeader, oldFilename string) (string, error)
+	GetImage(filename string) (string, error)
+	GetBlurredImage(filename string) (string, error)
 }
