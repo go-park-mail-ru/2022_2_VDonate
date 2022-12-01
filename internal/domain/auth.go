@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 )
 
@@ -16,5 +15,5 @@ type AuthUseCase interface {
 type AuthMicroservice interface {
 	CreateSession(userID uint64) (string, error)
 	DeleteBySessionID(sessionID string) error
-	GetBySessionID(sessionID string) (*protobuf.Session, error)
+	GetBySessionID(sessionID string) (models.Cookie, error)
 }

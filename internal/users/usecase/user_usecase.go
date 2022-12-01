@@ -17,16 +17,16 @@ import (
 type hashCreator func(password string) (string, error)
 
 type usecase struct {
-	usersMicroservice  domain.UsersMicroservice
-	imgUseCase domain.ImageUseCase
+	usersMicroservice domain.UsersMicroservice
+	imgUseCase        domain.ImageUseCase
 
 	hashCreator hashCreator
 }
 
 func New(usersMicroservice domain.UsersMicroservice, imgUseCase domain.ImageUseCase) domain.UsersUseCase {
 	return &usecase{
-		usersMicroservice:  usersMicroservice,
-		imgUseCase: imgUseCase,
+		usersMicroservice: usersMicroservice,
+		imgUseCase:        imgUseCase,
 
 		hashCreator: utils.HashPassword,
 	}
@@ -34,8 +34,8 @@ func New(usersMicroservice domain.UsersMicroservice, imgUseCase domain.ImageUseC
 
 func WithHashCreator(usersMicroservice domain.UsersMicroservice, imgUseCase domain.ImageUseCase, hashCreator hashCreator) domain.UsersUseCase {
 	return &usecase{
-		usersMicroservice:  usersMicroservice,
-		imgUseCase: imgUseCase,
+		usersMicroservice: usersMicroservice,
+		imgUseCase:        imgUseCase,
 
 		hashCreator: hashCreator,
 	}

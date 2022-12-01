@@ -3,6 +3,8 @@ package app
 import (
 	"net/http"
 
+	"google.golang.org/grpc/credentials/insecure"
+
 	imagesMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/delivery/grpc"
 
 	donatesMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery/grpc"
@@ -90,10 +92,10 @@ type Server struct {
 
 func (s *Server) init() error {
 	s.makeEchoLogger()
-	if err := s.makeUseCase(s.Config.DB.URL); err != nil {
+	if err := s.makeGRPCClients(); err != nil {
 		return err
 	}
-	if err := s.makeGRPCClients(); err != nil {
+	if err := s.makeUseCase(); err != nil {
 		return err
 	}
 	s.makeMiddlewares()
@@ -132,37 +134,58 @@ func makeAddress(host, port string) string {
 
 func (s *Server) makeGRPCClients() error {
 	//----------------------connection----------------------//
-	UserConnection, err := grpc.Dial(makeAddress(s.Config.Services.Users.Host, s.Config.Services.Users.Port))
+	UserConnection, err := grpc.Dial(
+		makeAddress(s.Config.Services.Users.Host, s.Config.Services.Users.Port),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		return err
 	}
 
-	PostsConnection, err := grpc.Dial(makeAddress(s.Config.Services.Posts.Host, s.Config.Services.Posts.Port))
+	PostsConnection, err := grpc.Dial(
+		makeAddress(s.Config.Services.Posts.Host, s.Config.Services.Posts.Port),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		return err
 	}
 
-	AuthConnection, err := grpc.Dial(makeAddress(s.Config.Services.Auth.Host, s.Config.Services.Auth.Port))
+	AuthConnection, err := grpc.Dial(
+		makeAddress(s.Config.Services.Auth.Host, s.Config.Services.Auth.Port),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		return err
 	}
 
-	SubscriptionConnection, err := grpc.Dial(makeAddress(s.Config.Services.Subscriptions.Host, s.Config.Services.Subscriptions.Port))
+	SubscriptionConnection, err := grpc.Dial(
+		makeAddress(s.Config.Services.Subscriptions.Host, s.Config.Services.Subscriptions.Port),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		return err
 	}
 
-	SubscribersConnection, err := grpc.Dial(makeAddress(s.Config.Services.Subscribers.Host, s.Config.Services.Subscribers.Port))
+	SubscribersConnection, err := grpc.Dial(
+		makeAddress(s.Config.Services.Subscribers.Host, s.Config.Services.Subscribers.Port),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		return err
 	}
 
-	DonatesConnection, err := grpc.Dial(makeAddress(s.Config.Services.Donates.Host, s.Config.Services.Donates.Port))
+	DonatesConnection, err := grpc.Dial(
+		makeAddress(s.Config.Services.Donates.Host, s.Config.Services.Donates.Port),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		return err
 	}
 
-	ImagesConnection, err := grpc.Dial(makeAddress(s.Config.Services.Images.Host, s.Config.Services.Images.Port))
+	ImagesConnection, err := grpc.Dial(
+		makeAddress(s.Config.Services.Images.Host, s.Config.Services.Images.Port),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		return err
 	}
@@ -172,7 +195,7 @@ func (s *Server) makeGRPCClients() error {
 
 	s.PostsMicroservice = postsMicroservice.New(postProto.NewPostsClient(PostsConnection))
 
-	s.AuthMicroservice = authMicroservice.New(authProto.NewAuthServiceClient(AuthConnection))
+	s.AuthMicroservice = authMicroservice.New(authProto.NewAuthClient(AuthConnection))
 
 	s.SubscriptionMicroservice = subscriptionsMicroservice.New(subscriptionsProto.NewSubscriptionsClient(SubscriptionConnection))
 
@@ -185,7 +208,7 @@ func (s *Server) makeGRPCClients() error {
 	return nil
 }
 
-func (s *Server) makeUseCase(url string) error {
+func (s *Server) makeUseCase() error {
 	//------------------------images------------------------//
 	s.ImagesUseCase = images.New(s.ImagesMicroservice)
 
@@ -193,16 +216,16 @@ func (s *Server) makeUseCase(url string) error {
 	s.AuthUseCase = auth.New(s.AuthMicroservice, s.UserMicroservice)
 
 	//-------------------------user-------------------------//
-	s.UserUseCase = users.New(s.UserMicroservice, s.ImagesMicroservice)
+	s.UserUseCase = users.New(s.UserMicroservice, s.ImagesUseCase)
 
 	//-------------------------post-------------------------//
-	s.PostsUseCase = posts.New(s.PostsMicroservice, s.UserMicroservice, s.ImagesMicroservice, s.SubscriptionMicroservice)
+	s.PostsUseCase = posts.New(s.PostsMicroservice, s.UserMicroservice, s.ImagesUseCase, s.SubscriptionMicroservice)
 
 	//----------------------subscriber----------------------//
 	s.SubscribersUseCase = subscribers.New(s.SubscribersMicroservice, s.UserMicroservice)
 
 	//---------------------subscription---------------------//
-	s.SubscriptionUseCase = subscriptions.New(s.SubscriptionMicroservice, s.UserMicroservice, s.ImagesMicroservice)
+	s.SubscriptionUseCase = subscriptions.New(s.SubscriptionMicroservice, s.UserMicroservice, s.ImagesUseCase)
 
 	//-----------------------donates------------------------//
 	s.DonatesUseCase = donates.New(s.DonatesMicroservice, s.UserMicroservice)

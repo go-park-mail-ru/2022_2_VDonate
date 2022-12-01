@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
 
@@ -22,21 +24,21 @@ func createCookie(id uint64) models.Cookie {
 	}
 }
 
-type AuthService struct {
+type Auth struct {
 	authRepo      domain.AuthRepository
 	cookieCreator cookieCreator
-	protobuf.UnimplementedAuthServiceServer
+	protobuf.UnimplementedAuthServer
 }
 
-func New(authRepo domain.AuthRepository) protobuf.AuthServiceServer {
-	return &AuthService{
+func New(authRepo domain.AuthRepository) protobuf.AuthServer {
+	return &Auth{
 		authRepo:      authRepo,
 		cookieCreator: createCookie,
 	}
 }
 
-func (as *AuthService) CreateSession(c context.Context, in *protobuf.Session) (*protobuf.SessionID, error) {
-	session, err := as.authRepo.CreateSession(as.cookieCreator(in.UserId))
+func (m *Auth) CreateSession(_ context.Context, in *protobuf.Session) (*protobuf.SessionID, error) {
+	session, err := m.authRepo.CreateSession(m.cookieCreator(in.GetUserId()))
 	if err != nil {
 		return nil, err
 	}
@@ -45,20 +47,22 @@ func (as *AuthService) CreateSession(c context.Context, in *protobuf.Session) (*
 	}, nil
 }
 
-func (as *AuthService) DeleteBySessionID(c context.Context, in *protobuf.SessionID) (*emptypb.Empty, error) {
-	err := as.authRepo.DeleteBySessionID(in.SessionId)
+func (m *Auth) DeleteBySessionID(_ context.Context, in *protobuf.SessionID) (*emptypb.Empty, error) {
+	err := m.authRepo.DeleteBySessionID(in.GetSessionId())
 	if err != nil {
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
 }
 
-func (as *AuthService) GetBySessionID(c context.Context, in *protobuf.Session) (*protobuf.SessionID, error) {
-	cookie, err := as.authRepo.GetBySessionID(in.SessionId)
+func (m *Auth) GetBySessionID(_ context.Context, in *protobuf.SessionID) (*protobuf.Session, error) {
+	cookie, err := m.authRepo.GetBySessionID(in.GetSessionId())
 	if err != nil {
 		return nil, err
 	}
-	return &protobuf.SessionID{
+	return &protobuf.Session{
 		SessionId: cookie.Value,
+		UserId:    cookie.UserID,
+		Expires:   timestamppb.New(cookie.Expires),
 	}, nil
 }

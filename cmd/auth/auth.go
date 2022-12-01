@@ -7,8 +7,8 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/app"
 	sessionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/grpc"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf"
 )
 
 func main() {
@@ -32,7 +32,7 @@ func main() {
 	/*----------------------------grpc----------------------------*/
 	server, lis := app.CreateGRPCServer(cfg.Server.Host, cfg.Server.Port)
 	defer lis.Close()
-	protobuf.RegisterAuthServiceServer(server, grpcAuth.New(r))
+	protobuf.RegisterAuthServer(server, grpcAuth.New(r))
 
 	/*---------------------------server---------------------------*/
 	if err = server.Serve(lis); err != nil {

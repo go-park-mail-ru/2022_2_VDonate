@@ -28,7 +28,7 @@ func (u usecase) GetSubscribers(authorID uint64) ([]models.User, error) {
 
 	for _, userID := range s {
 		// Notion: if there is an error while getting user, skip it
-		user, _ := u.userMicroservice.GetByID(userID.ID)
+		user, _ := u.userMicroservice.GetByID(userID)
 		subs = append(subs, user)
 	}
 
@@ -48,7 +48,7 @@ func (u usecase) Unsubscribe(userID, authorID uint64) error {
 		return domain.ErrBadRequest
 	}
 	return u.subscribersMicroservice.Unsubscribe(models.Subscription{
-		AuthorID: authorID,
+		AuthorID:     authorID,
 		SubscriberID: userID,
 	})
 }
@@ -60,7 +60,7 @@ func (u usecase) IsSubscriber(userID, authorID uint64) (bool, error) {
 	}
 
 	for _, id := range s {
-		if id.ID == userID {
+		if id == userID {
 			return true, nil
 		}
 	}

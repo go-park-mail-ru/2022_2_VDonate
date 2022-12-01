@@ -3,7 +3,7 @@ MOCKS_DESTINATION = internal/mocks
 INTERNAL_PATH = internal
 ACTIVE_PACKAGES = $(shell go list ./... | grep -v "/mocks/" | tr '\n' ',')
 PROTO_FILES = $(shell find . -iname '*.proto')
-GEN_PROTO_FILES = $(shell find -iname "*.pb.go")
+GEN_PROTO_FILES = $(shell find . -iname "*.pb.go")
 
 .PHONY: test
 test: ## Run all the tests

@@ -45,7 +45,7 @@ func (u usecase) GetImage(filename string) (string, error) {
 		return "", nil
 	}
 
-	newURL, err := u.ImageRepo.GetPermanentImage(filename)
+	newURL, err := u.ImageMicroservice.Get(filename)
 	if err != nil {
 		return "", err
 	}

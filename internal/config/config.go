@@ -12,7 +12,7 @@ const (
 	host = "127.0.0.1"
 	port = "8080"
 
-	dbURL    = "host=localhost dbname=dev sslmode=disabled"
+	dbURL    = "host=localhost dbname=dev sslmode=disable"
 	dbDriver = "postgres"
 
 	loggerLevel = "debug"
@@ -377,5 +377,5 @@ func (c *Config) Open(path string) error {
 }
 
 func PathFlag(path *string) {
-	flag.StringVar(path, "config-path", "./configs/config_local.yaml", "path to config file")
+	flag.StringVar(path, "config-path", "./cmd/api/configs/config_local.yaml", "path to config file")
 }

@@ -17,8 +17,8 @@ message Session {
   google.protobuf.Timestamp expires = 3;
 }
 
-service AuthService {
+service Auth {
   rpc CreateSession(Session) returns (SessionID) {}
   rpc DeleteBySessionID(SessionID) returns (google.protobuf.Empty) {}
-  rpc GetBySessionID(Session) returns (SessionID) {}
+  rpc GetBySessionID(SessionID) returns (Session) {}
 }

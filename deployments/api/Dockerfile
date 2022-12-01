@@ -10,8 +10,7 @@ EXPOSE 8080
 RUN CGO_ENABLED=0 go build -a -installsuffix cgo cmd/api/main.go
 
 FROM alpine:latest
-RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=builder /build/main ./
-COPY --from=builder /build/configs/config_deploy.yaml ./
-CMD ["./main", "-config-path", "config_deploy.yaml"]
+COPY --from=builder /build/cmd/api/configs/config_local.yaml ./
+CMD ["./main", "-config-path", "config_local.yaml"]

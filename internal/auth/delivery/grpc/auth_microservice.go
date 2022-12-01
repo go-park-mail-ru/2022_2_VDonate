@@ -3,15 +3,17 @@ package authMicroservice
 import (
 	"context"
 
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf"
 )
 
 type AuthMicroservice struct {
-	authClient protobuf.AuthServiceClient
+	authClient protobuf.AuthClient
 }
 
-func New(authClient protobuf.AuthServiceClient) domain.AuthMicroservice {
+func New(authClient protobuf.AuthClient) domain.AuthMicroservice {
 	return &AuthMicroservice{
 		authClient: authClient,
 	}
@@ -35,15 +37,17 @@ func (m AuthMicroservice) DeleteBySessionID(sessionID string) error {
 	return err
 }
 
-func (m AuthMicroservice) GetBySessionID(sessionID string) (*protobuf.Session, error) {
-	session, err := m.authClient.GetBySessionID(context.Background(), &protobuf.Session{
+func (m AuthMicroservice) GetBySessionID(sessionID string) (models.Cookie, error) {
+	session, err := m.authClient.GetBySessionID(context.Background(), &protobuf.SessionID{
 		SessionId: sessionID,
 	})
 	if err != nil {
-		return nil, err
+		return models.Cookie{}, err
 	}
 
-	return &protobuf.Session{
-		SessionId: session.SessionId,
+	return models.Cookie{
+		UserID:  session.GetUserId(),
+		Value:   session.GetSessionId(),
+		Expires: session.Expires.AsTime(),
 	}, nil
 }
