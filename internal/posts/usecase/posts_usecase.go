@@ -1,6 +1,7 @@
 package posts
 
 import (
+	"bytes"
 	"regexp"
 	"sort"
 	"strings"
@@ -15,44 +16,69 @@ import (
 )
 
 type usecase struct {
-	postsRepo         domain.PostsRepository
-	userRepo          domain.UsersRepository
-	subscriptionsRepo domain.SubscriptionsRepository
-	imgUseCase        domain.ImageUseCase
+	postsMicroservice         domain.PostsMicroservice
+	userMicroservice          domain.UsersMicroservice
+	subscriptionsMicroservice domain.SubscriptionMicroservice
+	imgUseCase                domain.ImageUseCase
 }
 
-func New(p domain.PostsRepository, u domain.UsersRepository, i domain.ImageUseCase, s domain.SubscriptionsRepository) domain.PostsUseCase {
+func New(p domain.PostsMicroservice, u domain.UsersMicroservice, i domain.ImageUseCase, s domain.SubscriptionMicroservice) domain.PostsUseCase {
 	return &usecase{
-		postsRepo:         p,
-		userRepo:          u,
-		subscriptionsRepo: s,
-		imgUseCase:        i,
+		postsMicroservice:         p,
+		userMicroservice:          u,
+		subscriptionsMicroservice: s,
+		imgUseCase:                i,
 	}
 }
 
 func (u usecase) RenderHTML(content []byte, blur bool) (string, error) {
-	r := regexp.MustCompile(`(?m)\[img\|.{116}]`)
+	r := regexp.MustCompile(`\[img\|.{121}.?]`)
 	bytesImages := r.FindAll(content, -1)
 
-	m := regexp.MustCompile(`(?m)vdonate\.ml`)
+	if len(bytesImages) == 0 && blur {
+		return "", nil
+	}
+
+	if len(bytesImages) == 0 && !blur {
+		return string(content), nil
+	}
+
+	m := regexp.MustCompile(`wsrv.nl`)
+	if blur {
+		img := bytesImages[0]
+		if !m.Match(img) {
+			// make special error for this
+			return "", domain.ErrBadRequest
+		}
+		img = img[5 : len(img)-1]
+		if img[len(img)-1] == '/' {
+			img = img[:len(img)-1]
+		}
+
+		idx := strings.LastIndex(string(img[:len(img)-1]), "/")
+		if idx == -1 {
+			return "", domain.ErrBadRequest
+		}
+
+		tmp := append([]byte("blur_"), img[idx+1:]...)
+		img = append(img[:idx+1], tmp...)
+		img = append(append([]byte(`<img src="`), img...), []byte(`" class="post-content__image">`)...)
+
+		return string(img), nil
+	}
+
 	for i, img := range bytesImages {
 		if !m.Match(img) {
 			// make special error for this
 			return "", domain.ErrBadRequest
 		}
 		img = img[5 : len(img)-1]
-		if blur {
-			idx := strings.LastIndex(string(img), "/")
-			if idx == -1 {
-				return "", domain.ErrBadRequest
-			}
-
-			tmp := append([]byte("blur_"), img[idx+1:]...)
-			img = append(img[:idx+1], tmp...)
+		if img[len(img)-1] == '/' {
+			img = img[:len(img)-1]
 		}
-		bytesImages[i] = append(append([]byte(`<img src="`), img...), []byte(`" class="post-content__image">`)...)
+		img = append(append([]byte(`<img src="`), img...), []byte(`" class="post-content__image">`)...)
 
-		content = r.ReplaceAll(content, bytesImages[i])
+		content = bytes.ReplaceAll(content, bytesImages[i], img)
 	}
 
 	return string(content), nil
@@ -65,12 +91,12 @@ func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error
 
 	switch {
 	case authorID == 0:
-		if r, err = u.postsRepo.GetPostsBySubscriptions(userID); err != nil {
+		if r, err = u.postsMicroservice.GetPostsBySubscriptions(userID); err != nil {
 			return nil, err
 		}
 		validate = false
 	case authorID > 0:
-		if r, err = u.postsRepo.GetAllByUserID(authorID); err != nil {
+		if r, err = u.postsMicroservice.GetAllByUserID(authorID); err != nil {
 			return nil, err
 		}
 		if authorID == userID {
@@ -82,7 +108,7 @@ func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error
 
 	for i, post := range r {
 		if validate {
-			as, errSubscriptions := u.subscriptionsRepo.GetSubscriptionByUserAndAuthorID(userID, authorID)
+			as, errSubscriptions := u.subscriptionsMicroservice.GetSubscriptionByUserAndAuthorID(userID, authorID)
 			if errSubscriptions != nil {
 				return nil, errSubscriptions
 			}
@@ -94,11 +120,11 @@ func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error
 			r[i].IsAllowed = true
 		}
 
-		if r[i].ContentTemplate, err = u.RenderHTML([]byte(r[i].ContentTemplate), !r[i].IsAllowed); err != nil {
+		if r[i].Content, err = u.RenderHTML([]byte(r[i].ContentTemplate), !r[i].IsAllowed); err != nil {
 			return nil, err
 		}
 
-		author, errGetAuthor := u.userRepo.GetByID(post.UserID)
+		author, errGetAuthor := u.userMicroservice.GetByID(post.UserID)
 		if errGetAuthor != nil {
 			return nil, errGetAuthor
 		}
@@ -123,24 +149,24 @@ func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error
 	}
 
 	sort.Slice(r, func(i, j int) bool {
-		return r[i].DateCreated.Unix() > r[j].DateCreated.Unix()
+		return r[i].ID < r[j].ID
 	})
 
 	return r, nil
 }
 
 func (u usecase) GetPostByID(postID, userID uint64) (models.Post, error) {
-	r, err := u.postsRepo.GetPostByID(postID)
+	r, err := u.postsMicroservice.GetPostByID(postID)
 	if err != nil {
 		return models.Post{}, err
 	}
 
-	author, errGetAuthor := u.userRepo.GetByID(r.UserID)
+	author, errGetAuthor := u.userMicroservice.GetByID(r.UserID)
 	if errGetAuthor != nil {
 		return models.Post{}, err
 	}
 
-	as, errSubscriptions := u.subscriptionsRepo.GetSubscriptionByUserAndAuthorID(userID, author.ID)
+	as, errSubscriptions := u.subscriptionsMicroservice.GetSubscriptionByUserAndAuthorID(userID, author.ID)
 	if errSubscriptions != nil {
 		return models.Post{}, errSubscriptions
 	}
@@ -149,7 +175,7 @@ func (u usecase) GetPostByID(postID, userID uint64) (models.Post, error) {
 		r.IsAllowed = true
 	}
 
-	if r.ContentTemplate, err = u.RenderHTML([]byte(r.ContentTemplate), !r.IsAllowed); err != nil {
+	if r.Content, err = u.RenderHTML([]byte(r.ContentTemplate), !r.IsAllowed); err != nil {
 		return models.Post{}, err
 	}
 
@@ -175,23 +201,23 @@ func (u usecase) GetPostByID(postID, userID uint64) (models.Post, error) {
 	return r, nil
 }
 
-func (u usecase) Create(post models.Post, userID uint64) (uint64, string, error) {
+func (u usecase) Create(post models.Post, userID uint64) (models.Post, error) {
 	post.UserID = userID
 	var err error
-	post.ID, err = u.postsRepo.Create(post)
+	post.ID, err = u.postsMicroservice.Create(post)
 	if err != nil {
-		return 0, "", err
+		return models.Post{}, err
 	}
 
 	if err = u.CreateTags(post.Tags, post.ID); err != nil {
-		return 0, "", err
+		return models.Post{}, err
 	}
 
-	if post.ContentTemplate, err = u.RenderHTML([]byte(post.ContentTemplate), false); err != nil {
-		return 0, "", err
+	if post.Content, err = u.RenderHTML([]byte(post.ContentTemplate), false); err != nil {
+		return models.Post{}, err
 	}
 
-	return post.ID, post.ContentTemplate, nil
+	return post, nil
 }
 
 func (u usecase) Update(post models.Post, postID uint64) (models.Post, error) {
@@ -210,11 +236,11 @@ func (u usecase) Update(post models.Post, postID uint64) (models.Post, error) {
 		return models.Post{}, err
 	}
 
-	if updatePost.ContentTemplate, err = u.RenderHTML([]byte(updatePost.ContentTemplate), false); err != nil {
+	if updatePost.Content, err = u.RenderHTML([]byte(updatePost.ContentTemplate), false); err != nil {
 		return models.Post{}, err
 	}
 
-	return updatePost, u.postsRepo.Update(updatePost)
+	return updatePost, u.postsMicroservice.Update(updatePost)
 }
 
 func (u usecase) DeleteByID(postID uint64) error {
@@ -222,23 +248,23 @@ func (u usecase) DeleteByID(postID uint64) error {
 	if err != nil {
 		return err
 	}
-	return u.postsRepo.DeleteByID(postID)
+	return u.postsMicroservice.DeleteByID(postID)
 }
 
 func (u usecase) GetLikesByPostID(postID uint64) ([]models.Like, error) {
-	return u.postsRepo.GetAllLikesByPostID(postID)
+	return u.postsMicroservice.GetAllLikesByPostID(postID)
 }
 
 func (u usecase) GetLikeByUserAndPostID(userID, postID uint64) (models.Like, error) {
-	return u.postsRepo.GetLikeByUserAndPostID(userID, postID)
+	return u.postsMicroservice.GetLikeByUserAndPostID(userID, postID)
 }
 
 func (u usecase) LikePost(userID, postID uint64) error {
-	return u.postsRepo.CreateLike(userID, postID)
+	return u.postsMicroservice.CreateLike(userID, postID)
 }
 
 func (u usecase) UnlikePost(userID, postID uint64) error {
-	return u.postsRepo.DeleteLikeByID(userID, postID)
+	return u.postsMicroservice.DeleteLikeByID(userID, postID)
 }
 
 func (u usecase) GetLikesNum(postID uint64) (uint64, error) {
@@ -258,15 +284,15 @@ func (u usecase) IsPostLiked(userID, postID uint64) bool {
 
 func (u usecase) CreateTags(tagNames []string, postID uint64) error {
 	for _, tagName := range tagNames {
-		tag, err := u.postsRepo.GetTagByName(tagName)
+		tag, err := u.postsMicroservice.GetTagByName(tagName)
 		tagID := tag.ID
 		if err != nil {
-			tagID, err = u.postsRepo.CreateTag(tagName)
+			tagID, err = u.postsMicroservice.CreateTag(tagName)
 			if err != nil {
 				return err
 			}
 		}
-		if err = u.postsRepo.CreateDepTag(postID, tagID); err != nil {
+		if err = u.postsMicroservice.CreateDepTag(postID, tagID); err != nil {
 			return err
 		}
 	}
@@ -274,14 +300,14 @@ func (u usecase) CreateTags(tagNames []string, postID uint64) error {
 }
 
 func (u usecase) GetTagsByPostID(postID uint64) ([]models.Tag, error) {
-	tagDeps, err := u.postsRepo.GetTagDepsByPostId(postID)
+	tagDeps, err := u.postsMicroservice.GetTagDepsByPostId(postID)
 	if err != nil {
 		return nil, err
 	}
 
 	var tags []models.Tag
 	for _, dep := range tagDeps {
-		tag, tagErr := u.postsRepo.GetTagById(dep.TagID)
+		tag, tagErr := u.postsMicroservice.GetTagById(dep.TagID)
 		if tagErr != nil {
 			return tags, err
 		}
@@ -292,12 +318,12 @@ func (u usecase) GetTagsByPostID(postID uint64) ([]models.Tag, error) {
 }
 
 func (u usecase) DeleteTagDeps(postID uint64) error {
-	tagDeps, err := u.postsRepo.GetTagDepsByPostId(postID)
+	tagDeps, err := u.postsMicroservice.GetTagDepsByPostId(postID)
 	if err != nil {
 		return err
 	}
 	for _, tagDep := range tagDeps {
-		if err = u.postsRepo.DeleteDepTag(tagDep); err != nil {
+		if err = u.postsMicroservice.DeleteDepTag(tagDep); err != nil {
 			return err
 		}
 	}
@@ -328,7 +354,7 @@ func (u usecase) UpdateTags(tagNames []string, postID uint64) error {
 			PostID: postID,
 			TagID:  postTags[idx].ID,
 		}
-		err = u.postsRepo.DeleteDepTag(tagDep)
+		err = u.postsMicroservice.DeleteDepTag(tagDep)
 		if err != nil {
 			return err
 		}

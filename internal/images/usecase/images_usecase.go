@@ -10,12 +10,12 @@ import (
 )
 
 type usecase struct {
-	ImageRepo domain.ImagesRepository
+	ImageMicroservice domain.ImageMicroservice
 }
 
-func New(imageRepo domain.ImagesRepository) domain.ImageUseCase {
+func New(i domain.ImageMicroservice) domain.ImageUseCase {
 	return &usecase{
-		ImageRepo: imageRepo,
+		ImageMicroservice: i,
 	}
 }
 
@@ -25,7 +25,19 @@ func (u usecase) CreateOrUpdateImage(image *multipart.FileHeader, oldFilename st
 		return "", domain.ErrBadRequest
 	}
 	image.Filename = uuid.New().String() + image.Filename[idx:]
-	return u.ImageRepo.CreateOrUpdateImage(image, oldFilename)
+
+	file, err := image.Open()
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	buffer := make([]byte, image.Size)
+	if _, err = file.Read(buffer); err != nil {
+		return "", err
+	}
+
+	return u.ImageMicroservice.Create(image.Filename, buffer, image.Size, oldFilename)
 }
 
 func (u usecase) GetImage(filename string) (string, error) {
@@ -33,7 +45,7 @@ func (u usecase) GetImage(filename string) (string, error) {
 		return "", nil
 	}
 
-	newURL, err := u.ImageRepo.GetPermanentImage(filename)
+	newURL, err := u.ImageMicroservice.Get(filename)
 	if err != nil {
 		return "", err
 	}

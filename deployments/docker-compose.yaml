@@ -1,6 +1,6 @@
 version: "3.7"
 services:
-  app:
+  api:
     hostname: api
     container_name: vdonate-api
     image: zeronethunter/vdonate-api
@@ -8,14 +8,85 @@ services:
       - "8080:8080"
     env_file:
       - ../.env
-    depends_on:
-      - db
-      - s3storage
     volumes:
       - /etc/letsencrypt/live/vdonate.ml/fullchain.pem:/etc/letsencrypt/live/vdonate.ml/fullchain.pem
       - /etc/letsencrypt/live/vdonate.ml/privkey.pem:/etc/letsencrypt/live/vdonate.ml/privkey.pem
     networks:
       - vdonate-network-api
+  auth:
+    hostname: auth
+    container_name: vdonate-auth
+    image: zeronethunter/vdonate-auth
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+    networks:
+      - vdonate-network-api
+  donates:
+    hostname: donates
+    container_name: vdonate-donates
+    image: zeronethunter/vdonate-donates
+    ports:
+      - "8082:8082"
+    depends_on:
+      - db
+    networks:
+      - vdonate-network-api
+  images:
+    hostname: images
+    container_name: vdonate-images
+    image: zeronethunter/vdonate-images
+    ports:
+      - "8083:8083"
+    env_file:
+      - ../.env
+    depends_on:
+      - db
+      - s3storage
+    networks:
+      - vdonate-network-api
+  posts:
+    hostname: posts
+    container_name: vdonate-posts
+    image: zeronethunter/vdonate-posts
+    ports:
+      - "8084:8084"
+    depends_on:
+      - db
+    networks:
+      - vdonate-network-api
+  subscribers:
+    hostname: subscribers
+    container_name: vdonate-subscribers
+    image: zeronethunter/vdonate-subscribers
+    ports:
+      - "8085:8085"
+    depends_on:
+      - db
+    networks:
+      - vdonate-network-api
+  subscriptions:
+    hostname: subscriptions
+    container_name: vdonate-subscriptions
+    image: zeronethunter/vdonate-subscriptions
+    ports:
+      - "8086:8086"
+    depends_on:
+      - db
+    networks:
+      - vdonate-network-api
+  users:
+    hostname: users
+    container_name: vdonate-users
+    image: zeronethunter/vdonate-users
+    ports:
+      - "8087:8087"
+    depends_on:
+      - db
+    networks:
+      - vdonate-network-api
+
   db:
     hostname: postgresql
     container_name: vdonate-db
@@ -35,17 +106,36 @@ services:
       - /var/lib/postgresql/data:/var/lib/postgresql/data
     networks:
       - vdonate-network-api
+
+  prometheus:
+    hostname: prometheus
+    image: prom/prometheus:latest
+    container_name: vdonate-prometheus
+    restart: unless-stopped
+    volumes:
+      - ../configs/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - vdonate-network-api
+
+  grafana:
+    image: grafana/grafana-enterprise:latest
+    container_name: vdonate-grafana
+    ports:
+      - "3000:3000"
+
   s3storage:
     hostname: vdonate.ml
     container_name: vdonate-cloud
     image: quay.io/minio/minio:RELEASE.2022-10-21T22-37-48Z
-    command: server --console-address ":9090" /data
+    command: server --console-address ":9099" /data
     volumes:
       - ~/minio/data:/data
     restart: always
     ports:
       - "9000:9000"
-      - "9090:9090"
+      - "9099:9099"
     env_file:
       - ../.env
     healthcheck:

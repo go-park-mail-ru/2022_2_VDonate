@@ -3,7 +3,7 @@ MOCKS_DESTINATION = internal/mocks
 INTERNAL_PATH = internal
 ACTIVE_PACKAGES = $(shell go list ./... | grep -v "/mocks/" | tr '\n' ',')
 PROTO_FILES = $(shell find . -iname '*.proto')
-GEN_PROTO_FILES = $(shell find -iname "*.pb.go")
+GEN_PROTO_FILES = $(shell find . -iname "*.pb.go")
 
 .PHONY: test
 test: ## Run all the tests
@@ -31,7 +31,6 @@ docs: ## Make swagger docs
 
 .PHONY: proto
 proto: ## Make protobuf files
-	@rm $(GEN_PROTO_FILES)
 	protoc -I=. --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative $(PROTO_FILES)
 
 .PHONY: mocks

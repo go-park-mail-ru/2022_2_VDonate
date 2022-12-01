@@ -7,7 +7,8 @@ import (
 type Post struct {
 	ID              uint64    `json:"postID" form:"postID" db:"post_id" example:"1"`
 	UserID          uint64    `json:"userID" form:"userID" db:"user_id" example:"1"`
-	ContentTemplate string    `json:"content" form:"content" db:"content_template" validate:"required" example:"Hello [img|vdonate/path/to/img]"`
+	ContentTemplate string    `json:"contentTemplate" form:"contentTemplate" db:"content_template" validate:"required" example:"Hello [img|vdonate/path/to/img]"`
+	Content         string    `json:"content" form:"content" db:"content" validate:"required" example:"Hello <img src=...>"`
 	Tier            uint64    `json:"tier" form:"tier" db:"tier" example:"5"`
 	IsAllowed       bool      `json:"isAllowed" example:"true"`
 	DateCreated     time.Time `json:"dateCreated" form:"date_created" db:"date_created" example:"2022-11-11"`

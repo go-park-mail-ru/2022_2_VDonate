@@ -1,0 +1,11 @@
+server:
+  host: 0.0.0.0
+  port: 8081
+  metricsPort: 9081
+
+db:
+  driver: postgres
+  url: host=postgresql port=5432 user=ubuntu password=secretkey dbname=dev sslmode=disable
+
+logger:
+  level: info

@@ -2,10 +2,29 @@ package domain
 
 import "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 
+type PostsMicroservice interface {
+	GetAllByUserID(authorID uint64) ([]models.Post, error)
+	GetPostByID(postID uint64) (models.Post, error)
+	Create(post models.Post) (uint64, error)
+	Update(post models.Post) error
+	DeleteByID(postID uint64) error
+	GetLikeByUserAndPostID(userID, postID uint64) (models.Like, error)
+	GetAllLikesByPostID(postID uint64) ([]models.Like, error)
+	CreateLike(userID, postID uint64) error
+	DeleteLikeByID(userID, postID uint64) error
+	GetPostsBySubscriptions(userID uint64) ([]models.Post, error)
+	CreateTag(tagName string) (uint64, error)
+	CreateDepTag(postID, tagID uint64) error
+	DeleteDepTag(tagDep models.TagDep) error
+	GetTagById(tagID uint64) (models.Tag, error)
+	GetTagDepsByPostId(postID uint64) ([]models.TagDep, error)
+	GetTagByName(tagName string) (models.Tag, error)
+}
+
 type PostsUseCase interface {
 	GetPostByID(postID, userID uint64) (models.Post, error)
 	GetPostsByFilter(userID, authorID uint64) ([]models.Post, error)
-	Create(post models.Post, userID uint64) (uint64, string, error)
+	Create(post models.Post, userID uint64) (models.Post, error)
 	Update(post models.Post, postID uint64) (models.Post, error)
 	DeleteByID(postID uint64) error
 	GetLikesByPostID(postID uint64) ([]models.Like, error)

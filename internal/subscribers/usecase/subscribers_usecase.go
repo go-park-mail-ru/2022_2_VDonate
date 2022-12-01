@@ -7,19 +7,19 @@ import (
 )
 
 type usecase struct {
-	subscribersRepo domain.SubscribersRepository
-	userRepo        domain.UsersRepository
+	subscribersMicroservice domain.SubscribersMicroservice
+	userMicroservice        domain.UsersMicroservice
 }
 
-func New(s domain.SubscribersRepository, u domain.UsersRepository) domain.SubscribersUseCase {
+func New(s domain.SubscribersMicroservice, u domain.UsersMicroservice) domain.SubscribersUseCase {
 	return &usecase{
-		subscribersRepo: s,
-		userRepo:        u,
+		subscribersMicroservice: s,
+		userMicroservice:        u,
 	}
 }
 
 func (u usecase) GetSubscribers(authorID uint64) ([]models.User, error) {
-	s, err := u.subscribersRepo.GetSubscribers(authorID)
+	s, err := u.subscribersMicroservice.GetSubscribers(authorID)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (u usecase) GetSubscribers(authorID uint64) ([]models.User, error) {
 
 	for _, userID := range s {
 		// Notion: if there is an error while getting user, skip it
-		user, _ := u.userRepo.GetByID(userID)
+		user, _ := u.userMicroservice.GetByID(userID)
 		subs = append(subs, user)
 	}
 
@@ -40,18 +40,21 @@ func (u usecase) Subscribe(subscription models.Subscription, userID uint64) erro
 	if utils.Empty(subscription.SubscriberID, subscription.AuthorID, subscription.AuthorSubscriptionID) {
 		return domain.ErrBadRequest
 	}
-	return u.subscribersRepo.Subscribe(subscription)
+	return u.subscribersMicroservice.Subscribe(subscription)
 }
 
 func (u usecase) Unsubscribe(userID, authorID uint64) error {
 	if userID == 0 || authorID == 0 {
 		return domain.ErrBadRequest
 	}
-	return u.subscribersRepo.Unsubscribe(userID, authorID)
+	return u.subscribersMicroservice.Unsubscribe(models.Subscription{
+		AuthorID:     authorID,
+		SubscriberID: userID,
+	})
 }
 
 func (u usecase) IsSubscriber(userID, authorID uint64) (bool, error) {
-	s, err := u.subscribersRepo.GetSubscribers(authorID)
+	s, err := u.subscribersMicroservice.GetSubscribers(authorID)
 	if err != nil {
 		return false, err
 	}

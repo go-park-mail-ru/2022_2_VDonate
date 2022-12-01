@@ -155,6 +155,9 @@ definitions:
       author:
         $ref: '#/definitions/models.ResponseImageUsers'
       content:
+        example: Hello <img src=...>
+        type: string
+      contentTemplate:
         example: Hello [img|vdonate/path/to/img]
         type: string
       dateCreated:
@@ -185,18 +188,23 @@ definitions:
     required:
     - author
     - content
+    - contentTemplate
     - isLiked
     - likesNum
     type: object
   models.ResponseImagePosts:
     properties:
-      contentTemplate:
+      content:
         example: <img src="">
+        type: string
+      contentTemplate:
+        example: '[img|vdonate.ml...]'
         type: string
       postID:
         example: 25
         type: integer
     required:
+    - content
     - contentTemplate
     - postID
     type: object

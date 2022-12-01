@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"mime/multipart"
-	"strings"
 
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 	"golang.org/x/exp/slices"
@@ -18,32 +17,32 @@ import (
 type hashCreator func(password string) (string, error)
 
 type usecase struct {
-	usersRepo  domain.UsersRepository
-	imgUseCase domain.ImageUseCase
+	usersMicroservice domain.UsersMicroservice
+	imgUseCase        domain.ImageUseCase
 
 	hashCreator hashCreator
 }
 
-func New(usersRepo domain.UsersRepository, imgUseCase domain.ImageUseCase) domain.UsersUseCase {
+func New(usersMicroservice domain.UsersMicroservice, imgUseCase domain.ImageUseCase) domain.UsersUseCase {
 	return &usecase{
-		usersRepo:  usersRepo,
-		imgUseCase: imgUseCase,
+		usersMicroservice: usersMicroservice,
+		imgUseCase:        imgUseCase,
 
 		hashCreator: utils.HashPassword,
 	}
 }
 
-func WithHashCreator(usersRepo domain.UsersRepository, imgUseCase domain.ImageUseCase, hashCreator hashCreator) domain.UsersUseCase {
+func WithHashCreator(usersMicroservice domain.UsersMicroservice, imgUseCase domain.ImageUseCase, hashCreator hashCreator) domain.UsersUseCase {
 	return &usecase{
-		usersRepo:  usersRepo,
-		imgUseCase: imgUseCase,
+		usersMicroservice: usersMicroservice,
+		imgUseCase:        imgUseCase,
 
 		hashCreator: hashCreator,
 	}
 }
 
 func (u usecase) GetByID(id uint64) (models.User, error) {
-	user, err := u.usersRepo.GetByID(id)
+	user, err := u.usersMicroservice.GetByID(id)
 	if err != nil {
 		return models.User{}, err
 	}
@@ -52,23 +51,23 @@ func (u usecase) GetByID(id uint64) (models.User, error) {
 }
 
 func (u usecase) GetByUsername(username string) (models.User, error) {
-	return u.usersRepo.GetByUsername(username)
+	return u.usersMicroservice.GetByUsername(username)
 }
 
 func (u usecase) GetByEmail(email string) (models.User, error) {
-	return u.usersRepo.GetByEmail(email)
+	return u.usersMicroservice.GetByEmail(email)
 }
 
 func (u usecase) GetBySessionID(sessionID string) (models.User, error) {
-	return u.usersRepo.GetBySessionID(sessionID)
+	return u.usersMicroservice.GetBySessionID(sessionID)
 }
 
 func (u usecase) GetUserByPostID(postID uint64) (models.User, error) {
-	return u.usersRepo.GetUserByPostID(postID)
+	return u.usersMicroservice.GetUserByPostID(postID)
 }
 
 func (u usecase) Create(user models.User) (uint64, error) {
-	return u.usersRepo.Create(user)
+	return u.usersMicroservice.Create(user)
 }
 
 func (u usecase) Update(user models.User, file *multipart.FileHeader, id uint64) (models.User, error) {
@@ -93,29 +92,7 @@ func (u usecase) Update(user models.User, file *multipart.FileHeader, id uint64)
 		return models.User{}, err
 	}
 
-	return updateUser, u.usersRepo.Update(updateUser)
-}
-
-func (u usecase) DeleteByID(id uint64) error {
-	return u.usersRepo.DeleteByID(id)
-}
-
-func (u usecase) DeleteByUsername(username string) error {
-	user, err := u.GetByUsername(username)
-	if err != nil {
-		return err
-	}
-
-	return u.DeleteByID(user.ID)
-}
-
-func (u usecase) DeleteByEmail(email string) error {
-	user, err := u.GetByEmail(email)
-	if err != nil {
-		return err
-	}
-
-	return u.DeleteByID(user.ID)
+	return updateUser, u.usersMicroservice.Update(updateUser)
 }
 
 func (u usecase) CheckIDAndPassword(id uint64, password string) bool {
@@ -139,19 +116,30 @@ func (u usecase) IsExistUsernameAndEmail(username, email string) bool {
 }
 
 func (u usecase) FindAuthors(keyword string) ([]models.User, error) {
-	parsedWords := strings.Split(keyword, " ")
-	resAuthors := make([]models.User, 0)
-	for _, word := range parsedWords {
-		author, err := u.usersRepo.GetAuthorByUsername(word)
-		if err != nil && !errors.Is(err, sql.ErrNoRows) {
-			return resAuthors, err
+	var allAuthors []models.User
+	var err error
+
+	if len(keyword) == 0 {
+		if allAuthors, err = u.usersMicroservice.GetAllAuthors(); err != nil {
+			return nil, err
 		}
-		for _, a := range author {
-			if !slices.Contains(resAuthors, a) {
-				resAuthors = append(resAuthors, a)
-			}
+	} else {
+		copyToword := "%" + keyword + "%"
+		if allAuthors, err = u.usersMicroservice.GetAuthorByUsername(copyToword); err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return make([]models.User, 0), nil
 		}
 	}
 
-	return resAuthors, nil
+	result := make([]models.User, 0)
+
+	for _, a := range allAuthors {
+		if !slices.Contains(result, a) {
+			if a.Avatar, err = u.imgUseCase.GetImage(a.Avatar); err != nil {
+				return nil, err
+			}
+			result = append(result, a)
+		}
+	}
+
+	return result, nil
 }

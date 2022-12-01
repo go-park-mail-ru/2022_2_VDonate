@@ -1,0 +1,24 @@
+server:
+  host: 0.0.0.0
+  port: 8083
+  metricsPort: 9083
+
+db:
+  driver: postgres
+  url: host=postgresql port=5432 user=ubuntu password=secretkey dbname=dev sslmode=disable
+
+logger:
+  level: info
+
+s3:
+  endpoint: vdonate.ml:9000
+  access_key_id: admin
+  secret_access_key: secretkey
+  use_ssl: false
+  buckets:
+    # Declare policy of buckets, where $(bucket) is name of your bucket
+    policy: >-
+      {"Version": "2012-10-17","Statement": [{"Action": ["s3:GetObject"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::$(bucket)/*"],"Sid": ""}]}
+    symbols_to_hash: 1
+    # count of minutes
+    expire: 60

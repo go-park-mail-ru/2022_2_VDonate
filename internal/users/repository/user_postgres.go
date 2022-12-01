@@ -1,6 +1,8 @@
 package userRepository
 
 import (
+	"database/sql"
+	"errors"
 	model "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -278,18 +280,34 @@ func (r Postgres) DeleteByID(id uint64) error {
 	return tx.Commit()
 }
 
-func (r Postgres) GetAuthorByUsername(username string) ([]model.User, error) {
+func (r Postgres) GetAllAuthors() ([]model.User, error) {
 	var u []model.User
 	if err := r.DB.Select(
 		&u,
 		`
-		SELECT *
-		FROM users
-		WHERE similarity(username, $1) > 0
-		ORDER BY similarity(username, $1) DESC, username;`,
+		SELECT id, username, email, avatar, password, is_author, about 
+		FROM users 
+		JOIN user_info ui on users.id = ui.user_id
+		WHERE ui.is_author = true;`,
+	); err != nil {
+		return nil, err
+	}
+
+	return u, nil
+}
+
+func (r Postgres) GetAuthorByUsername(username string) ([]model.User, error) {
+	u := make([]model.User, 0)
+	if err := r.DB.Select(
+		&u,
+		`
+		SELECT * FROM users WHERE username LIKE $1;`,
 		username,
 	); err != nil {
-		return []model.User{}, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
 	}
 
 	for index, user := range u {
@@ -301,7 +319,7 @@ func (r Postgres) GetAuthorByUsername(username string) ([]model.User, error) {
 			WHERE user_id = $1 AND is_author = true;`,
 			user.ID,
 		); err != nil {
-			return []model.User{}, err
+			return nil, err
 		}
 	}
 

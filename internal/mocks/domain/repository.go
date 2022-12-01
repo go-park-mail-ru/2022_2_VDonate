@@ -5,7 +5,6 @@
 package mock_domain
 
 import (
-	multipart "mime/multipart"
 	reflect "reflect"
 
 	models "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
@@ -666,6 +665,21 @@ func (mr *MockUsersRepositoryMockRecorder) DeleteByID(id interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockUsersRepository)(nil).DeleteByID), id)
 }
 
+// GetAllAuthors mocks base method.
+func (m *MockUsersRepository) GetAllAuthors() ([]models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllAuthors")
+	ret0, _ := ret[0].([]models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllAuthors indicates an expected call of GetAllAuthors.
+func (mr *MockUsersRepositoryMockRecorder) GetAllAuthors() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllAuthors", reflect.TypeOf((*MockUsersRepository)(nil).GetAllAuthors))
+}
+
 // GetAuthorByUsername mocks base method.
 func (m *MockUsersRepository) GetAuthorByUsername(username string) ([]models.User, error) {
 	m.ctrl.T.Helper()
@@ -862,18 +876,18 @@ func (m *MockImagesRepository) EXPECT() *MockImagesRepositoryMockRecorder {
 }
 
 // CreateOrUpdateImage mocks base method.
-func (m *MockImagesRepository) CreateOrUpdateImage(image *multipart.FileHeader, oldFilename string) (string, error) {
+func (m *MockImagesRepository) CreateOrUpdateImage(filename string, file []byte, size int64, oldFilename string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateOrUpdateImage", image, oldFilename)
+	ret := m.ctrl.Call(m, "CreateOrUpdateImage", filename, file, size, oldFilename)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateOrUpdateImage indicates an expected call of CreateOrUpdateImage.
-func (mr *MockImagesRepositoryMockRecorder) CreateOrUpdateImage(image, oldFilename interface{}) *gomock.Call {
+func (mr *MockImagesRepositoryMockRecorder) CreateOrUpdateImage(filename, file, size, oldFilename interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrUpdateImage", reflect.TypeOf((*MockImagesRepository)(nil).CreateOrUpdateImage), image, oldFilename)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrUpdateImage", reflect.TypeOf((*MockImagesRepository)(nil).CreateOrUpdateImage), filename, file, size, oldFilename)
 }
 
 // GetPermanentImage mocks base method.

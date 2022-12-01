@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-package common;
-
-option go_package = "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/common/protobuf";
-
-message Bool {
-  bool ok = 1;
-}

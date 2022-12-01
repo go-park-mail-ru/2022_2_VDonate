@@ -1946,6 +1946,7 @@ const docTemplate = `{
             "required": [
                 "author",
                 "content",
+                "contentTemplate",
                 "isLiked",
                 "likesNum"
             ],
@@ -1954,6 +1955,10 @@ const docTemplate = `{
                     "$ref": "#/definitions/models.ResponseImageUsers"
                 },
                 "content": {
+                    "type": "string",
+                    "example": "Hello \u003cimg src=...\u003e"
+                },
+                "contentTemplate": {
                     "type": "string",
                     "example": "Hello [img|vdonate/path/to/img]"
                 },
@@ -1996,13 +2001,18 @@ const docTemplate = `{
         "models.ResponseImagePosts": {
             "type": "object",
             "required": [
+                "content",
                 "contentTemplate",
                 "postID"
             ],
             "properties": {
-                "contentTemplate": {
+                "content": {
                     "type": "string",
                     "example": "\u003cimg src=\"\"\u003e"
+                },
+                "contentTemplate": {
+                    "type": "string",
+                    "example": "[img|vdonate.ml...]"
                 },
                 "postID": {
                     "type": "integer",
