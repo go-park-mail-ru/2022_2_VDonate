@@ -68,6 +68,37 @@ type Config struct {
 		URL    string `yaml:"url"`
 	} `yaml:"db"`
 
+	Services struct {
+		Auth struct {
+			Port string `yaml:"port"`
+			Host string `yaml:"host"`
+		} `yaml:"auth"`
+		Donates struct {
+			Port string `yaml:"port"`
+			Host string `yaml:"host"`
+		} `yaml:"donates"`
+		Images struct {
+			Port string `yaml:"port"`
+			Host string `yaml:"host"`
+		} `yaml:"images"`
+		Posts struct {
+			Port string `yaml:"port"`
+			Host string `yaml:"host"`
+		} `yaml:"posts"`
+		Subscribers struct {
+			Port string `yaml:"port"`
+			Host string `yaml:"host"`
+		} `yaml:"subscribers"`
+		Subscriptions struct {
+			Port string `yaml:"port"`
+			Host string `yaml:"host"`
+		} `yaml:"subscriptions"`
+		Users struct {
+			Port string `yaml:"port"`
+			Host string `yaml:"host"`
+		} `yaml:"users"`
+	} `yaml:"services"`
+
 	Logger struct {
 		Level string `yaml:"level"`
 	} `yaml:"debug"`
@@ -121,6 +152,137 @@ func New() *Config {
 			Port:     port,
 			CertPath: certPath,
 			KeyPath:  keyPath,
+		}),
+
+		Services: struct {
+			Auth struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			} `yaml:"auth"`
+			Donates struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			} `yaml:"donates"`
+			Images struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			} `yaml:"images"`
+			Posts struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			} `yaml:"posts"`
+			Subscribers struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			} `yaml:"subscribers"`
+			Subscriptions struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			} `yaml:"subscriptions"`
+			Users struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			} `yaml:"users"`
+		}(struct {
+			Auth struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			}
+			Donates struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			}
+			Images struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			}
+			Posts struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			}
+			Subscribers struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			}
+			Subscriptions struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			}
+			Users struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			}
+		}{
+			Auth: struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			}(struct {
+				Port string
+				Host string
+			}{
+				Port: "8081",
+				Host: "0.0.0.0",
+			}),
+			Donates: struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			}(struct {
+				Port string
+				Host string
+			}{
+				Port: "8082",
+				Host: "0.0.0.0",
+			}),
+			Images: struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			}(struct {
+				Port string
+				Host string
+			}{
+				Port: "8083",
+				Host: "0.0.0.0",
+			}),
+			Posts: struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			}(struct {
+				Port string
+				Host string
+			}{
+				Port: "8084",
+				Host: "0.0.0.0",
+			}),
+			Subscribers: struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			}(struct {
+				Port string
+				Host string
+			}{
+				Port: "8085",
+				Host: "0.0.0.0",
+			}),
+			Subscriptions: struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			}(struct {
+				Port string
+				Host string
+			}{
+				Port: "8086",
+				Host: "0.0.0.0",
+			}),
+			Users: struct {
+				Port string `yaml:"port"`
+				Host string `yaml:"host"`
+			}(struct {
+				Port string
+				Host string
+			}{
+				Port: "8087",
+				Host: "0.0.0.0",
+			}),
 		}),
 
 		DB: struct {

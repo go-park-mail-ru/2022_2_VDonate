@@ -10,12 +10,12 @@ import (
 )
 
 type usecase struct {
-	ImageRepo domain.ImagesRepository
+	ImageMicroservice domain.ImageMicroservice
 }
 
-func New(imageRepo domain.ImagesRepository) domain.ImageUseCase {
+func New(i domain.ImageMicroservice) domain.ImageUseCase {
 	return &usecase{
-		ImageRepo: imageRepo,
+		ImageMicroservice: i,
 	}
 }
 
@@ -37,7 +37,7 @@ func (u usecase) CreateOrUpdateImage(image *multipart.FileHeader, oldFilename st
 		return "", err
 	}
 
-	return u.ImageRepo.CreateOrUpdateImage(image.Filename, buffer, image.Size, oldFilename)
+	return u.ImageMicroservice.Create(image.Filename, buffer, image.Size, oldFilename)
 }
 
 func (u usecase) GetImage(filename string) (string, error) {

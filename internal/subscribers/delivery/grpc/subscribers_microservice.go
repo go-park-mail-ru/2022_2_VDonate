@@ -6,7 +6,6 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscribers/protobuf"
 
-	grpcUsers "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/grpc"
 	userProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 )
@@ -21,7 +20,7 @@ func New(subscribersClient protobuf.SubscribersClient) domain.SubscribersMicrose
 	}
 }
 
-func (m SubscribersMicroservice) GetSubscribers(userID uint64) ([]models.User, error) {
+func (m SubscribersMicroservice) GetSubscribers(userID uint64) ([]uint64, error) {
 	subscribers, err := m.subscribersClient.GetSubscribers(context.Background(), &userProto.UserID{
 		UserId: userID,
 	})
@@ -29,9 +28,9 @@ func (m SubscribersMicroservice) GetSubscribers(userID uint64) ([]models.User, e
 		return nil, err
 	}
 
-	res := make([]models.User, 0)
-	for _, u := range subscribers.GetUsers() {
-		res = append(res, grpcUsers.ConvertToModel(u))
+	res := make([]uint64, 0)
+	for _, id := range subscribers.GetIds() {
+		res = append(res, id.GetUserId())
 	}
 
 	return res, nil

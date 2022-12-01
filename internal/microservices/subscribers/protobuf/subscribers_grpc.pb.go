@@ -24,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SubscribersClient interface {
-	GetSubscribers(ctx context.Context, in *protobuf.UserID, opts ...grpc.CallOption) (*protobuf.UsersArray, error)
+	GetSubscribers(ctx context.Context, in *protobuf.UserID, opts ...grpc.CallOption) (*protobuf.UserIDs, error)
 	Subscribe(ctx context.Context, in *Subscriber, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Unsubscribe(ctx context.Context, in *protobuf.UserAuthorPair, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -37,8 +37,8 @@ func NewSubscribersClient(cc grpc.ClientConnInterface) SubscribersClient {
 	return &subscribersClient{cc}
 }
 
-func (c *subscribersClient) GetSubscribers(ctx context.Context, in *protobuf.UserID, opts ...grpc.CallOption) (*protobuf.UsersArray, error) {
-	out := new(protobuf.UsersArray)
+func (c *subscribersClient) GetSubscribers(ctx context.Context, in *protobuf.UserID, opts ...grpc.CallOption) (*protobuf.UserIDs, error) {
+	out := new(protobuf.UserIDs)
 	err := c.cc.Invoke(ctx, "/subscribers.Subscribers/GetSubscribers", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func (c *subscribersClient) Unsubscribe(ctx context.Context, in *protobuf.UserAu
 // All implementations must embed UnimplementedSubscribersServer
 // for forward compatibility
 type SubscribersServer interface {
-	GetSubscribers(context.Context, *protobuf.UserID) (*protobuf.UsersArray, error)
+	GetSubscribers(context.Context, *protobuf.UserID) (*protobuf.UserIDs, error)
 	Subscribe(context.Context, *Subscriber) (*emptypb.Empty, error)
 	Unsubscribe(context.Context, *protobuf.UserAuthorPair) (*emptypb.Empty, error)
 	mustEmbedUnimplementedSubscribersServer()
@@ -78,7 +78,7 @@ type SubscribersServer interface {
 type UnimplementedSubscribersServer struct {
 }
 
-func (UnimplementedSubscribersServer) GetSubscribers(context.Context, *protobuf.UserID) (*protobuf.UsersArray, error) {
+func (UnimplementedSubscribersServer) GetSubscribers(context.Context, *protobuf.UserID) (*protobuf.UserIDs, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSubscribers not implemented")
 }
 func (UnimplementedSubscribersServer) Subscribe(context.Context, *Subscriber) (*emptypb.Empty, error) {

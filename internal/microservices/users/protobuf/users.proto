@@ -18,7 +18,11 @@ message User {
 
   uint64 count_subscriptions = 8;
   uint64 count_subscribers = 9;
-};
+}
+
+message UserIDs {
+  repeated UserID ids = 1;
+}
 
 message LessUser {
   uint64 id = 1;

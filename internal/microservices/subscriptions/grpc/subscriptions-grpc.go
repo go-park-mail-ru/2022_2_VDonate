@@ -14,16 +14,12 @@ import (
 
 type SubscriptionsService struct {
 	subscriptionsRepo domain.SubscriptionsRepository
-	userRepo          domain.UsersRepository
-	imagesUseCase     domain.ImageUseCase
 	protobuf.UnimplementedSubscriptionsServer
 }
 
-func New(r domain.SubscriptionsRepository, i domain.ImageUseCase, u domain.UsersRepository) protobuf.SubscriptionsServer {
+func New(r domain.SubscriptionsRepository) protobuf.SubscriptionsServer {
 	return &SubscriptionsService{
 		subscriptionsRepo: r,
-		userRepo:          u,
-		imagesUseCase:     i,
 	}
 }
 
@@ -78,11 +74,8 @@ func (s SubscriptionsService) GetSubscriptionsByAuthorID(_ context.Context, id *
 
 	result := make([]*protobuf.AuthorSubscription, 0)
 
-	for i, subscription := range sub {
-		if sub[i].Img, err = s.imagesUseCase.GetImage(subscription.Img); err != nil {
-			return nil, err
-		}
-		result = append(result, ConvertToProto(sub[i]))
+	for _, subscription := range sub {
+		result = append(result, ConvertToProto(subscription))
 	}
 
 	return &protobuf.SubArray{Subscriptions: result}, nil
@@ -91,10 +84,6 @@ func (s SubscriptionsService) GetSubscriptionsByAuthorID(_ context.Context, id *
 func (s SubscriptionsService) GetSubscriptionByID(_ context.Context, id *protobuf.AuthorSubscriptionID) (*protobuf.AuthorSubscription, error) {
 	sub, err := s.subscriptionsRepo.GetSubscriptionByID(id.GetID())
 	if err != nil {
-		return nil, err
-	}
-
-	if sub.Img, err = s.imagesUseCase.GetImage(sub.Img); err != nil {
 		return nil, err
 	}
 

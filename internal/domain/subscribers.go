@@ -11,7 +11,7 @@ type SubscribersUseCase interface {
 }
 
 type SubscribersMicroservice interface {
-	GetSubscribers(userID uint64) ([]models.User, error)
-	Subscribe(subscriber models.Subscription) error
-	Unsubscribe(subscriber models.Subscription) error
+	GetSubscribers(authorID uint64) ([]uint64, error)
+	Subscribe(subscription models.Subscription) error
+	Unsubscribe(subscription models.Subscription) error
 }

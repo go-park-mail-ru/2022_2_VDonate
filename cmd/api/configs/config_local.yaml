@@ -4,6 +4,29 @@ server:
   cert_path: ""
   key_path: ""
 
+services:
+  auth:
+    port: 8081
+    host: 0.0.0.0
+  donates:
+    port: 8082
+    host: 0.0.0.0
+  images:
+    port: 8083
+    host: 0.0.0.0
+  posts:
+    port: 8084
+    host: 0.0.0.0
+  subscribers:
+    port: 8085
+    host: 0.0.0.0
+  subscriptions:
+    port: 8086
+    host: 0.0.0.0
+  users:
+    port: 8087
+    host: 0.0.0.0
+
 logger:
   level: info
 

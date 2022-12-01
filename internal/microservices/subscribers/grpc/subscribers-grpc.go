@@ -7,8 +7,6 @@ import (
 
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	grpcUsers "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/grpc"
-
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscribers/protobuf"
 
@@ -17,7 +15,6 @@ import (
 
 type SubscribersService struct {
 	subscribersRepo domain.SubscribersRepository
-	usersRepo       domain.UsersRepository
 	protobuf.UnimplementedSubscribersServer
 }
 
@@ -29,28 +26,26 @@ func ConvertToModel(s *protobuf.Subscriber) models.Subscription {
 	}
 }
 
-func NewSubscribersService(s domain.SubscribersRepository, u domain.UsersRepository) protobuf.SubscribersServer {
+func New(s domain.SubscribersRepository) protobuf.SubscribersServer {
 	return &SubscribersService{
 		subscribersRepo: s,
-		usersRepo:       u,
 	}
 }
 
-func (s SubscribersService) GetSubscribers(_ context.Context, id *userProto.UserID) (*userProto.UsersArray, error) {
+func (s SubscribersService) GetSubscribers(_ context.Context, id *userProto.UserID) (*userProto.UserIDs, error) {
 	sub, err := s.subscribersRepo.GetSubscribers(id.GetUserId())
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]*userProto.User, 0)
+	result := make([]*userProto.UserID, 0)
 
 	for _, userID := range sub {
 		// Notion: if there is an error while getting user, skip it
-		user, _ := s.usersRepo.GetByID(userID)
-		result = append(result, grpcUsers.ConvertToProto(user))
+		result = append(result, &userProto.UserID{UserId: userID})
 	}
 
-	return &userProto.UsersArray{Users: result}, err
+	return &userProto.UserIDs{Ids: result}, err
 }
 
 func (s SubscribersService) Subscribe(_ context.Context, sub *protobuf.Subscriber) (*emptypb.Empty, error) {

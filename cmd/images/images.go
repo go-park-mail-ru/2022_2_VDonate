@@ -39,9 +39,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("images: %s", err)
 	}
+
+	/*----------------------------grpc----------------------------*/
 	s, l := app.CreateGRPCServer(cfg.Server.Host, cfg.Server.Port)
+	defer l.Close()
 	protobuf.RegisterImagesServer(s, grpcImages.New(r))
 
+	/*---------------------------server---------------------------*/
 	if err = s.Serve(l); err != nil {
 		log.Printf("images: %s", "service image stopped")
 	}

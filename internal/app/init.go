@@ -3,6 +3,29 @@ package app
 import (
 	"net/http"
 
+	imagesMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/delivery/grpc"
+
+	donatesMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery/grpc"
+
+	subscribersMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/delivery/grpc"
+
+	subscriptionsMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/delivery/grpc"
+
+	authMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/grpc"
+	postsMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery/grpc"
+
+	usersMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery/grpc"
+
+	authProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf"
+	donatesProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/donates/protobuf"
+	imagesProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/images/protobuf"
+	postProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/post/protobuf"
+	subscribersProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscribers/protobuf"
+	subscriptionsProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscriptions/protobuf"
+	usersProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
+
+	"google.golang.org/grpc"
+
 	httpSubscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/delivery/http"
 
 	httpDonates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery/http"
@@ -18,21 +41,14 @@ import (
 	authMiddlewares "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http/middlewares"
 
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
-	sessionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
 	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-	donatesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/repository"
 	donates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/usecase"
-	imagesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/repository"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
-	postsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
 	posts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/usecase"
-	subscribersRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/repository"
 	subscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/usecase"
-	subscriptionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/repository"
 	subscriptions "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/usecase"
-	userRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/repository"
 	users "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
 	"github.com/labstack/echo/v4"
@@ -44,6 +60,14 @@ type Server struct {
 	Echo *echo.Echo
 
 	Config *config.Config
+
+	UserMicroservice         domain.UsersMicroservice
+	PostsMicroservice        domain.PostsMicroservice
+	AuthMicroservice         domain.AuthMicroservice
+	SubscriptionMicroservice domain.SubscriptionMicroservice
+	SubscribersMicroservice  domain.SubscribersMicroservice
+	DonatesMicroservice      domain.DonatesMicroservice
+	ImagesMicroservice       domain.ImageMicroservice
 
 	UserUseCase         domain.UsersUseCase
 	PostsUseCase        domain.PostsUseCase
@@ -67,6 +91,9 @@ type Server struct {
 func (s *Server) init() error {
 	s.makeEchoLogger()
 	if err := s.makeUseCase(s.Config.DB.URL); err != nil {
+		return err
+	}
+	if err := s.makeGRPCClients(); err != nil {
 		return err
 	}
 	s.makeMiddlewares()
@@ -99,65 +126,86 @@ func (s *Server) StartTLS() error {
 	)
 }
 
-func (s *Server) makeUseCase(url string) error {
-	//-------------------------repo-------------------------//
-	sessionRepo, err := sessionsRepository.NewPostgres(url)
+func makeAddress(host, port string) string {
+	return host + ":" + port
+}
+
+func (s *Server) makeGRPCClients() error {
+	//----------------------connection----------------------//
+	UserConnection, err := grpc.Dial(makeAddress(s.Config.Services.Users.Host, s.Config.Services.Users.Port))
 	if err != nil {
 		return err
-	}
-	userRepo, err := userRepository.NewPostgres(url)
-	if err != nil {
-		return err
-	}
-	postsRepo, err := postsRepository.NewPostgres(url)
-	if err != nil {
-		return err
-	}
-	subscriptionsRepo, err := subscriptionsRepository.NewPostgres(url)
-	if err != nil {
-		return err
-	}
-	subscribersRepo, err := subscribersRepository.NewPostgres(url)
-	if err != nil {
-		return err
-	}
-	imagesRepo, err := imagesRepository.New(
-		s.Config.S3.Endpoint,
-		s.Config.S3.AccessKeyID,
-		s.Config.S3.SecretAccessKey,
-		s.Config.S3.UseSSL,
-		s.Config.S3.Buckets.SymbolsToHash,
-		s.Config.S3.Buckets.Policy,
-		s.Config.S3.Buckets.Expire,
-	)
-	if err != nil {
-		return err
-	}
-	donatesRepo, err := donatesRepository.NewPostgres(url)
-	if err != nil {
-		s.Echo.Logger.Error(err)
 	}
 
+	PostsConnection, err := grpc.Dial(makeAddress(s.Config.Services.Posts.Host, s.Config.Services.Posts.Port))
+	if err != nil {
+		return err
+	}
+
+	AuthConnection, err := grpc.Dial(makeAddress(s.Config.Services.Auth.Host, s.Config.Services.Auth.Port))
+	if err != nil {
+		return err
+	}
+
+	SubscriptionConnection, err := grpc.Dial(makeAddress(s.Config.Services.Subscriptions.Host, s.Config.Services.Subscriptions.Port))
+	if err != nil {
+		return err
+	}
+
+	SubscribersConnection, err := grpc.Dial(makeAddress(s.Config.Services.Subscribers.Host, s.Config.Services.Subscribers.Port))
+	if err != nil {
+		return err
+	}
+
+	DonatesConnection, err := grpc.Dial(makeAddress(s.Config.Services.Donates.Host, s.Config.Services.Donates.Port))
+	if err != nil {
+		return err
+	}
+
+	ImagesConnection, err := grpc.Dial(makeAddress(s.Config.Services.Images.Host, s.Config.Services.Images.Port))
+	if err != nil {
+		return err
+	}
+
+	//---------------------microservice---------------------//
+	s.UserMicroservice = usersMicroservice.New(usersProto.NewUsersClient(UserConnection))
+
+	s.PostsMicroservice = postsMicroservice.New(postProto.NewPostsClient(PostsConnection))
+
+	s.AuthMicroservice = authMicroservice.New(authProto.NewAuthServiceClient(AuthConnection))
+
+	s.SubscriptionMicroservice = subscriptionsMicroservice.New(subscriptionsProto.NewSubscriptionsClient(SubscriptionConnection))
+
+	s.SubscribersMicroservice = subscribersMicroservice.New(subscribersProto.NewSubscribersClient(SubscribersConnection))
+
+	s.DonatesMicroservice = donatesMicroservice.New(donatesProto.NewDonatesClient(DonatesConnection))
+
+	s.ImagesMicroservice = imagesMicroservice.New(imagesProto.NewImagesClient(ImagesConnection))
+
+	return nil
+}
+
+func (s *Server) makeUseCase(url string) error {
 	//------------------------images------------------------//
-	s.ImagesUseCase = images.New(imagesRepo)
+	s.ImagesUseCase = images.New(s.ImagesMicroservice)
 
 	//-----------------------sessions-----------------------//
-	s.AuthUseCase = auth.New(sessionRepo, userRepo)
+	s.AuthUseCase = auth.New(s.AuthMicroservice, s.UserMicroservice)
 
 	//-------------------------user-------------------------//
-	s.UserUseCase = users.New(userRepo, s.ImagesUseCase)
+	s.UserUseCase = users.New(s.UserMicroservice, s.ImagesMicroservice)
 
 	//-------------------------post-------------------------//
-	s.PostsUseCase = posts.New(postsRepo, userRepo, s.ImagesUseCase, subscriptionsRepo)
+	s.PostsUseCase = posts.New(s.PostsMicroservice, s.UserMicroservice, s.ImagesMicroservice, s.SubscriptionMicroservice)
 
 	//----------------------subscriber----------------------//
-	s.SubscribersUseCase = subscribers.New(subscribersRepo, userRepo)
+	s.SubscribersUseCase = subscribers.New(s.SubscribersMicroservice, s.UserMicroservice)
 
 	//---------------------subscription---------------------//
-	s.SubscriptionUseCase = subscriptions.New(subscriptionsRepo, userRepo, s.ImagesUseCase)
+	s.SubscriptionUseCase = subscriptions.New(s.SubscriptionMicroservice, s.UserMicroservice, s.ImagesMicroservice)
 
 	//-----------------------donates------------------------//
-	s.DonatesUseCase = donates.New(donatesRepo, userRepo)
+	s.DonatesUseCase = donates.New(s.DonatesMicroservice, s.UserMicroservice)
 
 	return nil
 }
