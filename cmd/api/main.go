@@ -2,9 +2,8 @@ package main
 
 import (
 	"flag"
-	"log"
-
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"log"
 
 	_ "github.com/go-park-mail-ru/2022_2_VDonate/docs"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/app"
@@ -50,8 +49,8 @@ func main() {
 
 	/*--------------------------prometheus------------------------*/
 	p := prometheus.NewPrometheus("echo", nil)
-	p.Use(e)
 
+	e.Use(p.HandlerFunc)
 	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 
 	/*----------------------------server--------------------------*/

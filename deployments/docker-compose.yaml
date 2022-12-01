@@ -106,17 +106,36 @@ services:
       - /var/lib/postgresql/data:/var/lib/postgresql/data
     networks:
       - vdonate-network-api
+
+  prometheus:
+    hostname: prometheus
+    image: prom/prometheus:latest
+    container_name: vdonate-prometheus
+    restart: unless-stopped
+    volumes:
+      - ../configs/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - vdonate-network-api
+
+  grafana:
+    image: grafana/grafana-enterprise:latest
+    container_name: vdonate-grafana
+    ports:
+      - "3000:3000"
+
   s3storage:
     hostname: vdonate.ml
     container_name: vdonate-cloud
     image: quay.io/minio/minio:RELEASE.2022-10-21T22-37-48Z
-    command: server --console-address ":9090" /data
+    command: server --console-address ":9099" /data
     volumes:
       - ~/minio/data:/data
     restart: always
     ports:
       - "9000:9000"
-      - "9090:9090"
+      - "9099:9099"
     env_file:
       - ../.env
     healthcheck:
