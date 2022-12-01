@@ -7,7 +7,6 @@ package mock_domain
 import (
 	reflect "reflect"
 
-	protobuf "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf"
 	models "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -162,10 +161,10 @@ func (mr *MockAuthMicroserviceMockRecorder) DeleteBySessionID(sessionID interfac
 }
 
 // GetBySessionID mocks base method.
-func (m *MockAuthMicroservice) GetBySessionID(sessionID string) (*protobuf.Session, error) {
+func (m *MockAuthMicroservice) GetBySessionID(sessionID string) (models.Cookie, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBySessionID", sessionID)
-	ret0, _ := ret[0].(*protobuf.Session)
+	ret0, _ := ret[0].(models.Cookie)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

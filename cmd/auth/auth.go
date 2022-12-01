@@ -4,10 +4,11 @@ import (
 	"flag"
 	"log"
 
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/app"
 	sessionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
+	grpcAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/grpc"
+
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/app"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/grpc"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf"
 )
 

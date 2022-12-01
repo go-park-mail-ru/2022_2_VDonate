@@ -35,11 +35,11 @@ func (u usecase) RenderHTML(content []byte, blur bool) (string, error) {
 	r := regexp.MustCompile(`\[img\|.{121}.?]`)
 	bytesImages := r.FindAll(content, -1)
 
-	if len(bytesImages) == 0 && blur == true {
+	if len(bytesImages) == 0 && blur {
 		return "", nil
 	}
 
-	if len(bytesImages) == 0 && blur == false {
+	if len(bytesImages) == 0 && !blur {
 		return string(content), nil
 	}
 

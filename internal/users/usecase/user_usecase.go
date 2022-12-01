@@ -116,7 +116,7 @@ func (u usecase) IsExistUsernameAndEmail(username, email string) bool {
 }
 
 func (u usecase) FindAuthors(keyword string) ([]models.User, error) {
-	allAuthors := make([]models.User, 0)
+	var allAuthors []models.User
 	var err error
 
 	if len(keyword) == 0 {

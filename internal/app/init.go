@@ -134,7 +134,7 @@ func makeAddress(host, port string) string {
 
 func (s *Server) makeGRPCClients() error {
 	//----------------------connection----------------------//
-	UserConnection, err := grpc.Dial(
+	userConnection, err := grpc.Dial(
 		makeAddress(s.Config.Services.Users.Host, s.Config.Services.Users.Port),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
@@ -142,7 +142,7 @@ func (s *Server) makeGRPCClients() error {
 		return err
 	}
 
-	PostsConnection, err := grpc.Dial(
+	postsConnection, err := grpc.Dial(
 		makeAddress(s.Config.Services.Posts.Host, s.Config.Services.Posts.Port),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
@@ -150,7 +150,7 @@ func (s *Server) makeGRPCClients() error {
 		return err
 	}
 
-	AuthConnection, err := grpc.Dial(
+	authConnection, err := grpc.Dial(
 		makeAddress(s.Config.Services.Auth.Host, s.Config.Services.Auth.Port),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
@@ -158,7 +158,7 @@ func (s *Server) makeGRPCClients() error {
 		return err
 	}
 
-	SubscriptionConnection, err := grpc.Dial(
+	subscriptionConnection, err := grpc.Dial(
 		makeAddress(s.Config.Services.Subscriptions.Host, s.Config.Services.Subscriptions.Port),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
@@ -166,7 +166,7 @@ func (s *Server) makeGRPCClients() error {
 		return err
 	}
 
-	SubscribersConnection, err := grpc.Dial(
+	subscribersConnection, err := grpc.Dial(
 		makeAddress(s.Config.Services.Subscribers.Host, s.Config.Services.Subscribers.Port),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
@@ -174,7 +174,7 @@ func (s *Server) makeGRPCClients() error {
 		return err
 	}
 
-	DonatesConnection, err := grpc.Dial(
+	donatesConnection, err := grpc.Dial(
 		makeAddress(s.Config.Services.Donates.Host, s.Config.Services.Donates.Port),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
@@ -182,7 +182,7 @@ func (s *Server) makeGRPCClients() error {
 		return err
 	}
 
-	ImagesConnection, err := grpc.Dial(
+	imagesConnection, err := grpc.Dial(
 		makeAddress(s.Config.Services.Images.Host, s.Config.Services.Images.Port),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
@@ -191,19 +191,19 @@ func (s *Server) makeGRPCClients() error {
 	}
 
 	//---------------------microservice---------------------//
-	s.UserMicroservice = usersMicroservice.New(usersProto.NewUsersClient(UserConnection))
+	s.UserMicroservice = usersMicroservice.New(usersProto.NewUsersClient(userConnection))
 
-	s.PostsMicroservice = postsMicroservice.New(postProto.NewPostsClient(PostsConnection))
+	s.PostsMicroservice = postsMicroservice.New(postProto.NewPostsClient(postsConnection))
 
-	s.AuthMicroservice = authMicroservice.New(authProto.NewAuthClient(AuthConnection))
+	s.AuthMicroservice = authMicroservice.New(authProto.NewAuthClient(authConnection))
 
-	s.SubscriptionMicroservice = subscriptionsMicroservice.New(subscriptionsProto.NewSubscriptionsClient(SubscriptionConnection))
+	s.SubscriptionMicroservice = subscriptionsMicroservice.New(subscriptionsProto.NewSubscriptionsClient(subscriptionConnection))
 
-	s.SubscribersMicroservice = subscribersMicroservice.New(subscribersProto.NewSubscribersClient(SubscribersConnection))
+	s.SubscribersMicroservice = subscribersMicroservice.New(subscribersProto.NewSubscribersClient(subscribersConnection))
 
-	s.DonatesMicroservice = donatesMicroservice.New(donatesProto.NewDonatesClient(DonatesConnection))
+	s.DonatesMicroservice = donatesMicroservice.New(donatesProto.NewDonatesClient(donatesConnection))
 
-	s.ImagesMicroservice = imagesMicroservice.New(imagesProto.NewImagesClient(ImagesConnection))
+	s.ImagesMicroservice = imagesMicroservice.New(imagesProto.NewImagesClient(imagesConnection))
 
 	return nil
 }
