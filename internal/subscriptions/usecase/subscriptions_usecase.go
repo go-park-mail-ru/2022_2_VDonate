@@ -8,21 +8,21 @@ import (
 )
 
 type usecase struct {
-	subRepo    domain.SubscriptionsRepository
-	userRepo   domain.UsersRepository
-	imgUseCase domain.ImageUseCase
+	subMicroservice  domain.SubscriptionMicroservice
+	userMicroservice domain.UsersMicroservice
+	imgUseCase       domain.ImageUseCase
 }
 
-func New(s domain.SubscriptionsRepository, u domain.UsersRepository, i domain.ImageUseCase) domain.SubscriptionsUseCase {
+func New(s domain.SubscriptionMicroservice, u domain.UsersMicroservice, i domain.ImageUseCase) domain.SubscriptionsUseCase {
 	return &usecase{
-		subRepo:    s,
-		userRepo:   u,
-		imgUseCase: i,
+		subMicroservice:  s,
+		userMicroservice: u,
+		imgUseCase:       i,
 	}
 }
 
 func (u usecase) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscription, error) {
-	s, err := u.subRepo.GetSubscriptionsByUserID(userID)
+	s, err := u.subMicroservice.GetSubscriptionsByUserID(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (u usecase) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscri
 			return nil, errorHandling.WrapEcho(domain.ErrInternal, err)
 		}
 
-		author, errAuthor := u.userRepo.GetByID(subscription.AuthorID)
+		author, errAuthor := u.userMicroservice.GetByID(subscription.AuthorID)
 		if errAuthor != nil {
 			return nil, errorHandling.WrapEcho(domain.ErrInternal, errAuthor)
 		}
@@ -51,7 +51,7 @@ func (u usecase) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscri
 }
 
 func (u usecase) GetAuthorSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error) {
-	s, err := u.subRepo.GetSubscriptionsByAuthorID(authorID)
+	s, err := u.subMicroservice.GetSubscriptionsByAuthorID(authorID)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (u usecase) GetAuthorSubscriptionsByAuthorID(authorID uint64) ([]models.Aut
 }
 
 func (u usecase) GetAuthorSubscriptionByID(id uint64) (models.AuthorSubscription, error) {
-	s, err := u.subRepo.GetSubscriptionByID(id)
+	s, err := u.subMicroservice.GetSubscriptionByID(id)
 	if err != nil {
 		return models.AuthorSubscription{}, err
 	}
@@ -84,11 +84,11 @@ func (u usecase) GetAuthorSubscriptionByID(id uint64) (models.AuthorSubscription
 
 func (u usecase) AddAuthorSubscription(sub models.AuthorSubscription, id uint64) (uint64, error) {
 	sub.AuthorID = id
-	return u.subRepo.AddSubscription(sub)
+	return u.subMicroservice.AddSubscription(sub)
 }
 
 func (u usecase) UpdateAuthorSubscription(sub models.AuthorSubscription, id uint64) error {
-	updateSub, err := u.subRepo.GetSubscriptionByID(id)
+	updateSub, err := u.subMicroservice.GetSubscriptionByID(id)
 	if err != nil {
 		return err
 	}
@@ -97,9 +97,9 @@ func (u usecase) UpdateAuthorSubscription(sub models.AuthorSubscription, id uint
 		return err
 	}
 
-	return u.subRepo.UpdateSubscription(updateSub)
+	return u.subMicroservice.UpdateSubscription(updateSub)
 }
 
 func (u usecase) DeleteAuthorSubscription(subID uint64) error {
-	return u.subRepo.DeleteSubscription(subID)
+	return u.subMicroservice.DeleteSubscription(subID)
 }

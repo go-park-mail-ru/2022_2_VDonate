@@ -11,6 +11,59 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
+// MockImageMicroservice is a mock of ImageMicroservice interface.
+type MockImageMicroservice struct {
+	ctrl     *gomock.Controller
+	recorder *MockImageMicroserviceMockRecorder
+}
+
+// MockImageMicroserviceMockRecorder is the mock recorder for MockImageMicroservice.
+type MockImageMicroserviceMockRecorder struct {
+	mock *MockImageMicroservice
+}
+
+// NewMockImageMicroservice creates a new mock instance.
+func NewMockImageMicroservice(ctrl *gomock.Controller) *MockImageMicroservice {
+	mock := &MockImageMicroservice{ctrl: ctrl}
+	mock.recorder = &MockImageMicroserviceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockImageMicroservice) EXPECT() *MockImageMicroserviceMockRecorder {
+	return m.recorder
+}
+
+// Create mocks base method.
+func (m *MockImageMicroservice) Create(filename string, file []byte, size int64, oldFilename string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", filename, file, size, oldFilename)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Create indicates an expected call of Create.
+func (mr *MockImageMicroserviceMockRecorder) Create(filename, file, size, oldFilename interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockImageMicroservice)(nil).Create), filename, file, size, oldFilename)
+}
+
+// Get mocks base method.
+func (m *MockImageMicroservice) Get(filename string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get", filename)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get indicates an expected call of Get.
+func (mr *MockImageMicroserviceMockRecorder) Get(filename interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockImageMicroservice)(nil).Get), filename)
+}
+
 // MockImageUseCase is a mock of ImageUseCase interface.
 type MockImageUseCase struct {
 	ctrl     *gomock.Controller

@@ -109,31 +109,31 @@ func (mr *MockAuthUseCaseMockRecorder) SignUp(user interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SignUp", reflect.TypeOf((*MockAuthUseCase)(nil).SignUp), user)
 }
 
-// MockAuthServiceManager is a mock of AuthServiceManager interface.
-type MockAuthServiceManager struct {
+// MockAuthMicroservice is a mock of AuthMicroservice interface.
+type MockAuthMicroservice struct {
 	ctrl     *gomock.Controller
-	recorder *MockAuthServiceManagerMockRecorder
+	recorder *MockAuthMicroserviceMockRecorder
 }
 
-// MockAuthServiceManagerMockRecorder is the mock recorder for MockAuthServiceManager.
-type MockAuthServiceManagerMockRecorder struct {
-	mock *MockAuthServiceManager
+// MockAuthMicroserviceMockRecorder is the mock recorder for MockAuthMicroservice.
+type MockAuthMicroserviceMockRecorder struct {
+	mock *MockAuthMicroservice
 }
 
-// NewMockAuthServiceManager creates a new mock instance.
-func NewMockAuthServiceManager(ctrl *gomock.Controller) *MockAuthServiceManager {
-	mock := &MockAuthServiceManager{ctrl: ctrl}
-	mock.recorder = &MockAuthServiceManagerMockRecorder{mock}
+// NewMockAuthMicroservice creates a new mock instance.
+func NewMockAuthMicroservice(ctrl *gomock.Controller) *MockAuthMicroservice {
+	mock := &MockAuthMicroservice{ctrl: ctrl}
+	mock.recorder = &MockAuthMicroserviceMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockAuthServiceManager) EXPECT() *MockAuthServiceManagerMockRecorder {
+func (m *MockAuthMicroservice) EXPECT() *MockAuthMicroserviceMockRecorder {
 	return m.recorder
 }
 
 // CreateSession mocks base method.
-func (m *MockAuthServiceManager) CreateSession(userID uint64) (string, error) {
+func (m *MockAuthMicroservice) CreateSession(userID uint64) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateSession", userID)
 	ret0, _ := ret[0].(string)
@@ -142,13 +142,13 @@ func (m *MockAuthServiceManager) CreateSession(userID uint64) (string, error) {
 }
 
 // CreateSession indicates an expected call of CreateSession.
-func (mr *MockAuthServiceManagerMockRecorder) CreateSession(userID interface{}) *gomock.Call {
+func (mr *MockAuthMicroserviceMockRecorder) CreateSession(userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSession", reflect.TypeOf((*MockAuthServiceManager)(nil).CreateSession), userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSession", reflect.TypeOf((*MockAuthMicroservice)(nil).CreateSession), userID)
 }
 
 // DeleteBySessionID mocks base method.
-func (m *MockAuthServiceManager) DeleteBySessionID(sessionID string) error {
+func (m *MockAuthMicroservice) DeleteBySessionID(sessionID string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteBySessionID", sessionID)
 	ret0, _ := ret[0].(error)
@@ -156,13 +156,13 @@ func (m *MockAuthServiceManager) DeleteBySessionID(sessionID string) error {
 }
 
 // DeleteBySessionID indicates an expected call of DeleteBySessionID.
-func (mr *MockAuthServiceManagerMockRecorder) DeleteBySessionID(sessionID interface{}) *gomock.Call {
+func (mr *MockAuthMicroserviceMockRecorder) DeleteBySessionID(sessionID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBySessionID", reflect.TypeOf((*MockAuthServiceManager)(nil).DeleteBySessionID), sessionID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBySessionID", reflect.TypeOf((*MockAuthMicroservice)(nil).DeleteBySessionID), sessionID)
 }
 
 // GetBySessionID mocks base method.
-func (m *MockAuthServiceManager) GetBySessionID(sessionID string) (*protobuf.Session, error) {
+func (m *MockAuthMicroservice) GetBySessionID(sessionID string) (*protobuf.Session, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBySessionID", sessionID)
 	ret0, _ := ret[0].(*protobuf.Session)
@@ -171,7 +171,7 @@ func (m *MockAuthServiceManager) GetBySessionID(sessionID string) (*protobuf.Ses
 }
 
 // GetBySessionID indicates an expected call of GetBySessionID.
-func (mr *MockAuthServiceManagerMockRecorder) GetBySessionID(sessionID interface{}) *gomock.Call {
+func (mr *MockAuthMicroserviceMockRecorder) GetBySessionID(sessionID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBySessionID", reflect.TypeOf((*MockAuthServiceManager)(nil).GetBySessionID), sessionID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBySessionID", reflect.TypeOf((*MockAuthMicroservice)(nil).GetBySessionID), sessionID)
 }

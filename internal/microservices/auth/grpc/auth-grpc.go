@@ -28,7 +28,7 @@ type AuthService struct {
 	protobuf.UnimplementedAuthServiceServer
 }
 
-func New(authRepo domain.AuthRepository) *AuthService {
+func New(authRepo domain.AuthRepository) protobuf.AuthServiceServer {
 	return &AuthService{
 		authRepo:      authRepo,
 		cookieCreator: createCookie,
@@ -45,7 +45,7 @@ func (as *AuthService) CreateSession(c context.Context, in *protobuf.Session) (*
 	}, nil
 }
 
-func (as *AuthService) DeleteBySessionID(c context.Context, in *protobuf.Session) (*emptypb.Empty, error) {
+func (as *AuthService) DeleteBySessionID(c context.Context, in *protobuf.SessionID) (*emptypb.Empty, error) {
 	err := as.authRepo.DeleteBySessionID(in.SessionId)
 	if err != nil {
 		return nil, err

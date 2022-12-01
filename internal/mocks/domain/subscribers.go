@@ -91,3 +91,69 @@ func (mr *MockSubscribersUseCaseMockRecorder) Unsubscribe(userID, authorID inter
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Unsubscribe", reflect.TypeOf((*MockSubscribersUseCase)(nil).Unsubscribe), userID, authorID)
 }
+
+// MockSubscribersMicroservice is a mock of SubscribersMicroservice interface.
+type MockSubscribersMicroservice struct {
+	ctrl     *gomock.Controller
+	recorder *MockSubscribersMicroserviceMockRecorder
+}
+
+// MockSubscribersMicroserviceMockRecorder is the mock recorder for MockSubscribersMicroservice.
+type MockSubscribersMicroserviceMockRecorder struct {
+	mock *MockSubscribersMicroservice
+}
+
+// NewMockSubscribersMicroservice creates a new mock instance.
+func NewMockSubscribersMicroservice(ctrl *gomock.Controller) *MockSubscribersMicroservice {
+	mock := &MockSubscribersMicroservice{ctrl: ctrl}
+	mock.recorder = &MockSubscribersMicroserviceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockSubscribersMicroservice) EXPECT() *MockSubscribersMicroserviceMockRecorder {
+	return m.recorder
+}
+
+// GetSubscribers mocks base method.
+func (m *MockSubscribersMicroservice) GetSubscribers(userID uint64) ([]models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscribers", userID)
+	ret0, _ := ret[0].([]models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubscribers indicates an expected call of GetSubscribers.
+func (mr *MockSubscribersMicroserviceMockRecorder) GetSubscribers(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscribers", reflect.TypeOf((*MockSubscribersMicroservice)(nil).GetSubscribers), userID)
+}
+
+// Subscribe mocks base method.
+func (m *MockSubscribersMicroservice) Subscribe(subscriber models.Subscription) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Subscribe", subscriber)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Subscribe indicates an expected call of Subscribe.
+func (mr *MockSubscribersMicroserviceMockRecorder) Subscribe(subscriber interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockSubscribersMicroservice)(nil).Subscribe), subscriber)
+}
+
+// Unsubscribe mocks base method.
+func (m *MockSubscribersMicroservice) Unsubscribe(subscriber models.Subscription) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Unsubscribe", subscriber)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Unsubscribe indicates an expected call of Unsubscribe.
+func (mr *MockSubscribersMicroserviceMockRecorder) Unsubscribe(subscriber interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Unsubscribe", reflect.TypeOf((*MockSubscribersMicroservice)(nil).Unsubscribe), subscriber)
+}

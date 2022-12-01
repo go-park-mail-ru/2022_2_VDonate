@@ -17,24 +17,24 @@ import (
 type hashCreator func(password string) (string, error)
 
 type usecase struct {
-	usersRepo  domain.UsersRepository
+	usersMicroservice  domain.UsersMicroservice
 	imgUseCase domain.ImageUseCase
 
 	hashCreator hashCreator
 }
 
-func New(usersRepo domain.UsersRepository, imgUseCase domain.ImageUseCase) domain.UsersUseCase {
+func New(usersMicroservice domain.UsersMicroservice, imgUseCase domain.ImageUseCase) domain.UsersUseCase {
 	return &usecase{
-		usersRepo:  usersRepo,
+		usersMicroservice:  usersMicroservice,
 		imgUseCase: imgUseCase,
 
 		hashCreator: utils.HashPassword,
 	}
 }
 
-func WithHashCreator(usersRepo domain.UsersRepository, imgUseCase domain.ImageUseCase, hashCreator hashCreator) domain.UsersUseCase {
+func WithHashCreator(usersMicroservice domain.UsersMicroservice, imgUseCase domain.ImageUseCase, hashCreator hashCreator) domain.UsersUseCase {
 	return &usecase{
-		usersRepo:  usersRepo,
+		usersMicroservice:  usersMicroservice,
 		imgUseCase: imgUseCase,
 
 		hashCreator: hashCreator,
@@ -42,7 +42,7 @@ func WithHashCreator(usersRepo domain.UsersRepository, imgUseCase domain.ImageUs
 }
 
 func (u usecase) GetByID(id uint64) (models.User, error) {
-	user, err := u.usersRepo.GetByID(id)
+	user, err := u.usersMicroservice.GetByID(id)
 	if err != nil {
 		return models.User{}, err
 	}
@@ -51,23 +51,23 @@ func (u usecase) GetByID(id uint64) (models.User, error) {
 }
 
 func (u usecase) GetByUsername(username string) (models.User, error) {
-	return u.usersRepo.GetByUsername(username)
+	return u.usersMicroservice.GetByUsername(username)
 }
 
 func (u usecase) GetByEmail(email string) (models.User, error) {
-	return u.usersRepo.GetByEmail(email)
+	return u.usersMicroservice.GetByEmail(email)
 }
 
 func (u usecase) GetBySessionID(sessionID string) (models.User, error) {
-	return u.usersRepo.GetBySessionID(sessionID)
+	return u.usersMicroservice.GetBySessionID(sessionID)
 }
 
 func (u usecase) GetUserByPostID(postID uint64) (models.User, error) {
-	return u.usersRepo.GetUserByPostID(postID)
+	return u.usersMicroservice.GetUserByPostID(postID)
 }
 
 func (u usecase) Create(user models.User) (uint64, error) {
-	return u.usersRepo.Create(user)
+	return u.usersMicroservice.Create(user)
 }
 
 func (u usecase) Update(user models.User, file *multipart.FileHeader, id uint64) (models.User, error) {
@@ -92,29 +92,7 @@ func (u usecase) Update(user models.User, file *multipart.FileHeader, id uint64)
 		return models.User{}, err
 	}
 
-	return updateUser, u.usersRepo.Update(updateUser)
-}
-
-func (u usecase) DeleteByID(id uint64) error {
-	return u.usersRepo.DeleteByID(id)
-}
-
-func (u usecase) DeleteByUsername(username string) error {
-	user, err := u.GetByUsername(username)
-	if err != nil {
-		return err
-	}
-
-	return u.DeleteByID(user.ID)
-}
-
-func (u usecase) DeleteByEmail(email string) error {
-	user, err := u.GetByEmail(email)
-	if err != nil {
-		return err
-	}
-
-	return u.DeleteByID(user.ID)
+	return updateUser, u.usersMicroservice.Update(updateUser)
 }
 
 func (u usecase) CheckIDAndPassword(id uint64, password string) bool {
@@ -142,11 +120,11 @@ func (u usecase) FindAuthors(keyword string) ([]models.User, error) {
 	var err error
 
 	if len(keyword) == 0 {
-		if allAuthors, err = u.usersRepo.GetAllAuthors(); err != nil {
+		if allAuthors, err = u.usersMicroservice.GetAllAuthors(); err != nil {
 			return nil, err
 		}
 	} else {
-		if allAuthors, err = u.usersRepo.GetAuthorByUsername(keyword); err != nil && !errors.Is(err, sql.ErrNoRows) {
+		if allAuthors, err = u.usersMicroservice.GetAuthorByUsername(keyword); err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return nil, err
 		}
 	}

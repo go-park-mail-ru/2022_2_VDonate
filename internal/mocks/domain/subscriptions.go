@@ -11,6 +11,132 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
+// MockSubscriptionMicroservice is a mock of SubscriptionMicroservice interface.
+type MockSubscriptionMicroservice struct {
+	ctrl     *gomock.Controller
+	recorder *MockSubscriptionMicroserviceMockRecorder
+}
+
+// MockSubscriptionMicroserviceMockRecorder is the mock recorder for MockSubscriptionMicroservice.
+type MockSubscriptionMicroserviceMockRecorder struct {
+	mock *MockSubscriptionMicroservice
+}
+
+// NewMockSubscriptionMicroservice creates a new mock instance.
+func NewMockSubscriptionMicroservice(ctrl *gomock.Controller) *MockSubscriptionMicroservice {
+	mock := &MockSubscriptionMicroservice{ctrl: ctrl}
+	mock.recorder = &MockSubscriptionMicroserviceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockSubscriptionMicroservice) EXPECT() *MockSubscriptionMicroserviceMockRecorder {
+	return m.recorder
+}
+
+// AddSubscription mocks base method.
+func (m *MockSubscriptionMicroservice) AddSubscription(sub models.AuthorSubscription) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddSubscription", sub)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddSubscription indicates an expected call of AddSubscription.
+func (mr *MockSubscriptionMicroserviceMockRecorder) AddSubscription(sub interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSubscription", reflect.TypeOf((*MockSubscriptionMicroservice)(nil).AddSubscription), sub)
+}
+
+// DeleteSubscription mocks base method.
+func (m *MockSubscriptionMicroservice) DeleteSubscription(subID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteSubscription", subID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteSubscription indicates an expected call of DeleteSubscription.
+func (mr *MockSubscriptionMicroserviceMockRecorder) DeleteSubscription(subID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSubscription", reflect.TypeOf((*MockSubscriptionMicroservice)(nil).DeleteSubscription), subID)
+}
+
+// GetSubscriptionByID mocks base method.
+func (m *MockSubscriptionMicroservice) GetSubscriptionByID(ID uint64) (models.AuthorSubscription, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscriptionByID", ID)
+	ret0, _ := ret[0].(models.AuthorSubscription)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubscriptionByID indicates an expected call of GetSubscriptionByID.
+func (mr *MockSubscriptionMicroserviceMockRecorder) GetSubscriptionByID(ID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionByID", reflect.TypeOf((*MockSubscriptionMicroservice)(nil).GetSubscriptionByID), ID)
+}
+
+// GetSubscriptionByUserAndAuthorID mocks base method.
+func (m *MockSubscriptionMicroservice) GetSubscriptionByUserAndAuthorID(userID, authorID uint64) (models.AuthorSubscription, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscriptionByUserAndAuthorID", userID, authorID)
+	ret0, _ := ret[0].(models.AuthorSubscription)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubscriptionByUserAndAuthorID indicates an expected call of GetSubscriptionByUserAndAuthorID.
+func (mr *MockSubscriptionMicroserviceMockRecorder) GetSubscriptionByUserAndAuthorID(userID, authorID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionByUserAndAuthorID", reflect.TypeOf((*MockSubscriptionMicroservice)(nil).GetSubscriptionByUserAndAuthorID), userID, authorID)
+}
+
+// GetSubscriptionsByAuthorID mocks base method.
+func (m *MockSubscriptionMicroservice) GetSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscriptionsByAuthorID", authorID)
+	ret0, _ := ret[0].([]models.AuthorSubscription)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubscriptionsByAuthorID indicates an expected call of GetSubscriptionsByAuthorID.
+func (mr *MockSubscriptionMicroserviceMockRecorder) GetSubscriptionsByAuthorID(authorID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionsByAuthorID", reflect.TypeOf((*MockSubscriptionMicroservice)(nil).GetSubscriptionsByAuthorID), authorID)
+}
+
+// GetSubscriptionsByUserID mocks base method.
+func (m *MockSubscriptionMicroservice) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscription, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscriptionsByUserID", userID)
+	ret0, _ := ret[0].([]models.AuthorSubscription)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubscriptionsByUserID indicates an expected call of GetSubscriptionsByUserID.
+func (mr *MockSubscriptionMicroserviceMockRecorder) GetSubscriptionsByUserID(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionsByUserID", reflect.TypeOf((*MockSubscriptionMicroservice)(nil).GetSubscriptionsByUserID), userID)
+}
+
+// UpdateSubscription mocks base method.
+func (m *MockSubscriptionMicroservice) UpdateSubscription(sub models.AuthorSubscription) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateSubscription", sub)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateSubscription indicates an expected call of UpdateSubscription.
+func (mr *MockSubscriptionMicroserviceMockRecorder) UpdateSubscription(sub interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSubscription", reflect.TypeOf((*MockSubscriptionMicroservice)(nil).UpdateSubscription), sub)
+}
+
 // MockSubscriptionsUseCase is a mock of SubscriptionsUseCase interface.
 type MockSubscriptionsUseCase struct {
 	ctrl     *gomock.Controller
