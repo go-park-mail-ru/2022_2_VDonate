@@ -301,10 +301,7 @@ func (r Postgres) GetAuthorByUsername(username string) ([]model.User, error) {
 	if err := r.DB.Select(
 		&u,
 		`
-		SELECT *
-		FROM users
-		WHERE similarity(username, $1) > 0
-		ORDER BY similarity(username, $1) DESC, username;`,
+		SELECT * FROM users WHERE username LIKE $1;`,
 		username,
 	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

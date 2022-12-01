@@ -124,7 +124,8 @@ func (u usecase) FindAuthors(keyword string) ([]models.User, error) {
 			return nil, err
 		}
 	} else {
-		if allAuthors, err = u.usersMicroservice.GetAuthorByUsername(keyword); err != nil && !errors.Is(err, sql.ErrNoRows) {
+		copyToword := "%" + keyword + "%"
+		if allAuthors, err = u.usersMicroservice.GetAuthorByUsername(copyToword); err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return make([]models.User, 0), nil
 		}
 	}
