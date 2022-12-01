@@ -4,9 +4,12 @@ import (
 	"flag"
 	"log"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	_ "github.com/go-park-mail-ru/2022_2_VDonate/docs"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/app"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
+	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 )
 
@@ -42,8 +45,17 @@ func main() {
 		log.Fatalf("failed to open config: %s", err)
 	}
 
+	/*-----------------------------echo---------------------------*/
+	e := echo.New()
+
+	/*--------------------------prometheus------------------------*/
+	p := prometheus.NewPrometheus("echo", nil)
+	p.Use(e)
+
+	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
+
 	/*----------------------------server--------------------------*/
-	a := app.New(echo.New(), cfg)
+	a := app.New(e, cfg)
 	switch cfg.Deploy.Mode {
 	case true:
 		if err := a.StartTLS(); err != nil {

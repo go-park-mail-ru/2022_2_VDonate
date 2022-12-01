@@ -2,12 +2,20 @@ package main
 
 import (
 	"flag"
-	"log"
-
-	grpcPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/post/grpc"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/post/protobuf"
+	defaultLogger "log"
+	"net/http"
 
 	postsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
+
+	grpcPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/post/grpc"
+
+	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/post/protobuf"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/app"
 
@@ -23,22 +31,49 @@ func main() {
 	/*---------------------------config---------------------------*/
 	cfg := config.New()
 	if err := cfg.Open(configPath); err != nil {
-		log.Fatalf("failed to open config: %s", err)
+		defaultLogger.Fatalf("posts: failed to open config: %s", err)
 	}
+
+	/*---------------------------logger---------------------------*/
+	log := logger.GetInstance()
+	log.SetLevel(logger.ToLevel(cfg.Logger.Level))
+	log.Info("posts: server started")
 
 	/*----------------------------repo----------------------------*/
 	r, err := postsRepository.NewPostgres(cfg.DB.URL)
 	if err != nil {
-		log.Fatalf("posts: %s", err)
+		log.Fatalf("posts: failed to open db: %s", err)
 	}
 
 	/*----------------------------grpc----------------------------*/
-	s, l := app.CreateGRPCServer(cfg.Server.Host, cfg.Server.Port)
-	defer l.Close()
-	protobuf.RegisterPostsServer(s, grpcPosts.New(r))
+	lis, metricsServer := app.CreateGRPCServer(cfg.Server.Host, cfg.Server.Port)
+	defer lis.Close()
+
+	/*---------------------------metric---------------------------*/
+	grpcMetrics := grpc_prometheus.NewServerMetrics()
+	gatherer := prometheus.NewRegistry()
+	gatherer.MustRegister(grpcMetrics)
+
+	grpcMetrics.InitializeMetrics(metricsServer)
+
+	metricsHTTP := &http.Server{Handler: promhttp.HandlerFor(gatherer, promhttp.HandlerOpts{
+		ErrorLog: log,
+	}), Addr: "localhost" + cfg.Services.Posts.MetricsPort}
+
+	grpc_prometheus.EnableHandlingTimeHistogram()
+	grpc_prometheus.EnableClientHandlingTimeHistogram()
+
+	protobuf.RegisterPostsServer(metricsServer, grpcPosts.New(r))
+	grpc_prometheus.Register(metricsServer)
+
+	go func() {
+		if err = metricsHTTP.ListenAndServe(); err != nil {
+			log.Warnf("posts: prometheus: HTTP server stopped: %s", err)
+		}
+	}()
 
 	/*---------------------------server---------------------------*/
-	if err = s.Serve(l); err != nil {
-		log.Printf("posts: %s", "service image stopped")
+	if err = metricsServer.Serve(lis); err != nil {
+		log.Warnf("posts: %s", "service image stopped")
 	}
 }

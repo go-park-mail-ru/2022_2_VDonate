@@ -70,32 +70,39 @@ type Config struct {
 
 	Services struct {
 		Auth struct {
-			Port string `yaml:"port"`
-			Host string `yaml:"host"`
+			Port        string `yaml:"port"`
+			MetricsPort string `yaml:"metricsPort"`
+			Host        string `yaml:"host"`
 		} `yaml:"auth"`
 		Donates struct {
-			Port string `yaml:"port"`
-			Host string `yaml:"host"`
+			Port        string `yaml:"port"`
+			MetricsPort string `yaml:"metricsPort"`
+			Host        string `yaml:"host"`
 		} `yaml:"donates"`
 		Images struct {
-			Port string `yaml:"port"`
-			Host string `yaml:"host"`
+			Port        string `yaml:"port"`
+			MetricsPort string `yaml:"metricsPort"`
+			Host        string `yaml:"host"`
 		} `yaml:"images"`
 		Posts struct {
-			Port string `yaml:"port"`
-			Host string `yaml:"host"`
+			Port        string `yaml:"port"`
+			MetricsPort string `yaml:"metricsPort"`
+			Host        string `yaml:"host"`
 		} `yaml:"posts"`
 		Subscribers struct {
-			Port string `yaml:"port"`
-			Host string `yaml:"host"`
+			Port        string `yaml:"port"`
+			MetricsPort string `yaml:"metricsPort"`
+			Host        string `yaml:"host"`
 		} `yaml:"subscribers"`
 		Subscriptions struct {
-			Port string `yaml:"port"`
-			Host string `yaml:"host"`
+			Port        string `yaml:"port"`
+			MetricsPort string `yaml:"metricsPort"`
+			Host        string `yaml:"host"`
 		} `yaml:"subscriptions"`
 		Users struct {
-			Port string `yaml:"port"`
-			Host string `yaml:"host"`
+			Port        string `yaml:"port"`
+			MetricsPort string `yaml:"metricsPort"`
+			Host        string `yaml:"host"`
 		} `yaml:"users"`
 	} `yaml:"services"`
 
@@ -156,132 +163,167 @@ func New() *Config {
 
 		Services: struct {
 			Auth struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			} `yaml:"auth"`
 			Donates struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			} `yaml:"donates"`
 			Images struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			} `yaml:"images"`
 			Posts struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			} `yaml:"posts"`
 			Subscribers struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			} `yaml:"subscribers"`
 			Subscriptions struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			} `yaml:"subscriptions"`
 			Users struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			} `yaml:"users"`
 		}(struct {
 			Auth struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			}
 			Donates struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			}
 			Images struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			}
 			Posts struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			}
 			Subscribers struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			}
 			Subscriptions struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			}
 			Users struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			}
 		}{
 			Auth: struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			}(struct {
-				Port string
-				Host string
+				Port        string
+				MetricsPort string
+				Host        string
 			}{
-				Port: "8081",
-				Host: "0.0.0.0",
+				Port:        "8081",
+				MetricsPort: "9081",
+				Host:        "0.0.0.0",
 			}),
 			Donates: struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			}(struct {
-				Port string
-				Host string
+				Port        string
+				MetricsPort string
+				Host        string
 			}{
-				Port: "8082",
-				Host: "0.0.0.0",
+				Port:        "8082",
+				MetricsPort: "9082",
+				Host:        "0.0.0.0",
 			}),
 			Images: struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			}(struct {
-				Port string
-				Host string
+				Port        string
+				MetricsPort string
+				Host        string
 			}{
-				Port: "8083",
-				Host: "0.0.0.0",
+				Port:        "8083",
+				MetricsPort: "9083",
+				Host:        "0.0.0.0",
 			}),
 			Posts: struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			}(struct {
-				Port string
-				Host string
+				Port        string
+				MetricsPort string
+				Host        string
 			}{
-				Port: "8084",
-				Host: "0.0.0.0",
+				Port:        "8084",
+				MetricsPort: "9084",
+				Host:        "0.0.0.0",
 			}),
 			Subscribers: struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			}(struct {
-				Port string
-				Host string
+				Port        string
+				MetricsPort string
+				Host        string
 			}{
-				Port: "8085",
-				Host: "0.0.0.0",
+				Port:        "8085",
+				MetricsPort: "9085",
+				Host:        "0.0.0.0",
 			}),
 			Subscriptions: struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			}(struct {
-				Port string
-				Host string
+				Port        string
+				MetricsPort string
+				Host        string
 			}{
-				Port: "8086",
-				Host: "0.0.0.0",
+				Port:        "8086",
+				MetricsPort: "9086",
+				Host:        "0.0.0.0",
 			}),
 			Users: struct {
-				Port string `yaml:"port"`
-				Host string `yaml:"host"`
+				Port        string `yaml:"port"`
+				MetricsPort string `yaml:"metricsPort"`
+				Host        string `yaml:"host"`
 			}(struct {
-				Port string
-				Host string
+				Port        string
+				MetricsPort string
+				Host        string
 			}{
-				Port: "8087",
-				Host: "0.0.0.0",
+				Port:        "8087",
+				MetricsPort: "9087",
+				Host:        "0.0.0.0",
 			}),
 		}),
 

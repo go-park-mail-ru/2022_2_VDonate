@@ -3,6 +3,8 @@ package app
 import (
 	"net/http"
 
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+
 	"google.golang.org/grpc/credentials/insecure"
 
 	imagesMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/delivery/grpc"
@@ -136,6 +138,8 @@ func (s *Server) makeGRPCClients() error {
 	//----------------------connection----------------------//
 	userConnection, err := grpc.Dial(
 		makeAddress(s.Config.Services.Users.Host, s.Config.Services.Users.Port),
+		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
+		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -144,6 +148,8 @@ func (s *Server) makeGRPCClients() error {
 
 	postsConnection, err := grpc.Dial(
 		makeAddress(s.Config.Services.Posts.Host, s.Config.Services.Posts.Port),
+		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
+		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -152,6 +158,8 @@ func (s *Server) makeGRPCClients() error {
 
 	authConnection, err := grpc.Dial(
 		makeAddress(s.Config.Services.Auth.Host, s.Config.Services.Auth.Port),
+		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
+		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -160,6 +168,8 @@ func (s *Server) makeGRPCClients() error {
 
 	subscriptionConnection, err := grpc.Dial(
 		makeAddress(s.Config.Services.Subscriptions.Host, s.Config.Services.Subscriptions.Port),
+		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
+		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -168,6 +178,8 @@ func (s *Server) makeGRPCClients() error {
 
 	subscribersConnection, err := grpc.Dial(
 		makeAddress(s.Config.Services.Subscribers.Host, s.Config.Services.Subscribers.Port),
+		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
+		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -176,6 +188,8 @@ func (s *Server) makeGRPCClients() error {
 
 	donatesConnection, err := grpc.Dial(
 		makeAddress(s.Config.Services.Donates.Host, s.Config.Services.Donates.Port),
+		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
+		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -184,6 +198,8 @@ func (s *Server) makeGRPCClients() error {
 
 	imagesConnection, err := grpc.Dial(
 		makeAddress(s.Config.Services.Images.Host, s.Config.Services.Images.Port),
+		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
+		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {

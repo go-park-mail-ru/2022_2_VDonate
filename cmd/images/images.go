@@ -2,13 +2,20 @@ package main
 
 import (
 	"flag"
-	"log"
+	defaultLogger "log"
+	"net/http"
+
+	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
+
+	grpcImages "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/images/grpc"
+
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/app"
 
 	imagesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/repository"
-	grpcImages "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/images/grpc"
-
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/images/protobuf"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
@@ -23,8 +30,13 @@ func main() {
 	/*---------------------------config---------------------------*/
 	cfg := config.New()
 	if err := cfg.Open(configPath); err != nil {
-		log.Fatalf("images: failed to open config: %s", err)
+		defaultLogger.Fatalf("images: failed to open config: %s", err)
 	}
+
+	/*---------------------------logger---------------------------*/
+	log := logger.GetInstance()
+	log.SetLevel(logger.ToLevel(cfg.Logger.Level))
+	log.Info("images: server started")
 
 	/*----------------------------repo----------------------------*/
 	r, err := imagesRepository.New(
@@ -41,12 +53,34 @@ func main() {
 	}
 
 	/*----------------------------grpc----------------------------*/
-	s, l := app.CreateGRPCServer(cfg.Server.Host, cfg.Server.Port)
-	defer l.Close()
-	protobuf.RegisterImagesServer(s, grpcImages.New(r))
+	lis, metricsServer := app.CreateGRPCServer(cfg.Server.Host, cfg.Server.Port)
+	defer lis.Close()
+
+	/*---------------------------metric---------------------------*/
+	grpcMetrics := grpc_prometheus.NewServerMetrics()
+	gatherer := prometheus.NewRegistry()
+	gatherer.MustRegister(grpcMetrics)
+
+	grpcMetrics.InitializeMetrics(metricsServer)
+
+	metricsHTTP := &http.Server{Handler: promhttp.HandlerFor(gatherer, promhttp.HandlerOpts{
+		ErrorLog: log,
+	}), Addr: "localhost" + cfg.Services.Images.MetricsPort}
+
+	grpc_prometheus.EnableHandlingTimeHistogram()
+	grpc_prometheus.EnableClientHandlingTimeHistogram()
+
+	protobuf.RegisterImagesServer(metricsServer, grpcImages.New(r))
+	grpc_prometheus.Register(metricsServer)
+
+	go func() {
+		if err = metricsHTTP.ListenAndServe(); err != nil {
+			log.Warnf("images: prometheus: HTTP server stopped: %s", err)
+		}
+	}()
 
 	/*---------------------------server---------------------------*/
-	if err = s.Serve(l); err != nil {
-		log.Printf("images: %s", "service image stopped")
+	if err = metricsServer.Serve(lis); err != nil {
+		log.Warnf("images: %s", "service image stopped")
 	}
 }
