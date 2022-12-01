@@ -13,7 +13,7 @@ import (
 	usersProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
 )
 
-func convertToProto(p models.Post) *protobuf.Post {
+func ConvertToProto(p models.Post) *protobuf.Post {
 	return &protobuf.Post{
 		ID:              p.ID,
 		UserID:          p.UserID,
@@ -33,7 +33,7 @@ func convertToProto(p models.Post) *protobuf.Post {
 	}
 }
 
-func convertToModel(p *protobuf.Post) models.Post {
+func ConvertToModel(p *protobuf.Post) models.Post {
 	return models.Post{
 		ID:              p.ID,
 		UserID:          p.UserID,
@@ -58,7 +58,7 @@ type PostsService struct {
 	protobuf.UnimplementedPostsServer
 }
 
-func NewPostsService(p domain.PostsRepository) protobuf.PostsServer {
+func New(p domain.PostsRepository) protobuf.PostsServer {
 	return &PostsService{
 		postsRepo: p,
 	}
@@ -72,7 +72,7 @@ func (s PostsService) GetAllByUserID(_ context.Context, userID *usersProto.UserI
 
 	result := make([]*protobuf.Post, 0)
 	for _, post := range posts {
-		result = append(result, convertToProto(post))
+		result = append(result, ConvertToProto(post))
 	}
 
 	return &protobuf.PostArray{Posts: result}, nil
@@ -84,11 +84,11 @@ func (s PostsService) GetPostByID(_ context.Context, postID *protobuf.PostID) (*
 		return nil, err
 	}
 
-	return convertToProto(post), nil
+	return ConvertToProto(post), nil
 }
 
 func (s PostsService) Create(_ context.Context, post *protobuf.Post) (*protobuf.PostID, error) {
-	id, err := s.postsRepo.Create(convertToModel(post))
+	id, err := s.postsRepo.Create(ConvertToModel(post))
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (s PostsService) Create(_ context.Context, post *protobuf.Post) (*protobuf.
 }
 
 func (s PostsService) Update(_ context.Context, post *protobuf.Post) (*emptypb.Empty, error) {
-	err := s.postsRepo.Update(convertToModel(post))
+	err := s.postsRepo.Update(ConvertToModel(post))
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func (s PostsService) GetPostsBySubscriptions(_ context.Context, userID *usersPr
 	}
 	result := make([]*protobuf.Post, 0)
 	for _, post := range posts {
-		result = append(result, convertToProto(post))
+		result = append(result, ConvertToProto(post))
 	}
 
 	return &protobuf.PostArray{Posts: result}, nil

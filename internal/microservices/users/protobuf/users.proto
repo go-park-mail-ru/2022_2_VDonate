@@ -62,10 +62,11 @@ message PostID {
 service Users {
   rpc Update(User) returns(google.protobuf.Empty);
   rpc Create(User) returns(UserID);
-  rpc Search(Keyword) returns(UsersArray);
+  rpc GetAuthorByUsername(Keyword) returns(UsersArray);
   rpc GetByID(UserID) returns(User);
   rpc GetBySessionID(auth.SessionID) returns(User);
   rpc GetByEmail(Email) returns(User);
   rpc GetByUsername(Username) returns(User);
   rpc GetUserByPostID(PostID) returns(User);
+  rpc GetAllAuthors(google.protobuf.Empty) returns(UsersArray);
 }

@@ -45,10 +45,27 @@ type UserService struct {
 	protobuf.UnimplementedUsersServer
 }
 
-func NewUserService(s domain.UsersRepository) protobuf.UsersServer {
+func New(s domain.UsersRepository) protobuf.UsersServer {
 	return &UserService{
 		userRepo: s,
 	}
+}
+
+func (s UserService) GetAllAuthors(_ context.Context, _ *emptypb.Empty) (*protobuf.UsersArray, error) {
+	authors, err := s.userRepo.GetAllAuthors()
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*protobuf.User, 0)
+
+	for _, author := range authors {
+		result = append(result, ConvertToProto(author))
+	}
+
+	return &protobuf.UsersArray{
+		Users: result,
+	}, nil
 }
 
 func (s UserService) Create(_ context.Context, user *protobuf.User) (*protobuf.UserID, error) {
@@ -69,7 +86,7 @@ func (s UserService) Update(_ context.Context, user *protobuf.User) (*emptypb.Em
 	return &emptypb.Empty{}, nil
 }
 
-func (s UserService) Search(_ context.Context, key *protobuf.Keyword) (*protobuf.UsersArray, error) {
+func (s UserService) GetAuthorByUsername(_ context.Context, key *protobuf.Keyword) (*protobuf.UsersArray, error) {
 	users, err := s.userRepo.GetAuthorByUsername(key.GetKeyword())
 	if err != nil {
 		return nil, err

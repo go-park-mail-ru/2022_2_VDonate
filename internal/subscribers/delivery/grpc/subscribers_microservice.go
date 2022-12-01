@@ -1,4 +1,4 @@
-package subscribersClient
+package subscribersMicroservice
 
 import (
 	"context"
@@ -11,18 +11,18 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 )
 
-type subscribersServiceClient struct {
+type SubscribersMicroservice struct {
 	subscribersClient protobuf.SubscribersClient
 }
 
-func NewSubcribersClient(subscribersClient protobuf.SubscribersClient) domain.SubscribersService {
-	return subscribersServiceClient{
+func New(subscribersClient protobuf.SubscribersClient) domain.SubscribersMicroservice {
+	return &SubscribersMicroservice{
 		subscribersClient: subscribersClient,
 	}
 }
 
-func (ss subscribersServiceClient) GetSubscribers(userID uint64) ([]models.User, error) {
-	subscribers, err := ss.subscribersClient.GetSubscribers(context.Background(), &userProto.UserID{
+func (m SubscribersMicroservice) GetSubscribers(userID uint64) ([]models.User, error) {
+	subscribers, err := m.subscribersClient.GetSubscribers(context.Background(), &userProto.UserID{
 		UserId: userID,
 	})
 	if err != nil {
@@ -37,8 +37,8 @@ func (ss subscribersServiceClient) GetSubscribers(userID uint64) ([]models.User,
 	return res, nil
 }
 
-func (ss subscribersServiceClient) Subscribe(subscriber models.Subscription) error {
-	_, err := ss.subscribersClient.Subscribe(context.Background(), &protobuf.Subscriber{
+func (m SubscribersMicroservice) Subscribe(subscriber models.Subscription) error {
+	_, err := m.subscribersClient.Subscribe(context.Background(), &protobuf.Subscriber{
 		AuthorID:             subscriber.AuthorID,
 		SubscriberID:         subscriber.SubscriberID,
 		AuthorSubscriptionID: subscriber.AuthorSubscriptionID,
@@ -47,8 +47,8 @@ func (ss subscribersServiceClient) Subscribe(subscriber models.Subscription) err
 	return err
 }
 
-func (ss subscribersServiceClient) Unsubscribe(subscriber models.Subscription) error {
-	_, err := ss.subscribersClient.Unsubscribe(context.Background(), &userProto.UserAuthorPair{
+func (m SubscribersMicroservice) Unsubscribe(subscriber models.Subscription) error {
+	_, err := m.subscribersClient.Unsubscribe(context.Background(), &userProto.UserAuthorPair{
 		UserId:   subscriber.SubscriberID,
 		AuthorId: subscriber.AuthorID,
 	})

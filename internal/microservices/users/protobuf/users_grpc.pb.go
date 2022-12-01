@@ -26,12 +26,13 @@ const _ = grpc.SupportPackageIsVersion7
 type UsersClient interface {
 	Update(ctx context.Context, in *User, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Create(ctx context.Context, in *User, opts ...grpc.CallOption) (*UserID, error)
-	Search(ctx context.Context, in *Keyword, opts ...grpc.CallOption) (*UsersArray, error)
+	GetAuthorByUsername(ctx context.Context, in *Keyword, opts ...grpc.CallOption) (*UsersArray, error)
 	GetByID(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*User, error)
 	GetBySessionID(ctx context.Context, in *protobuf.SessionID, opts ...grpc.CallOption) (*User, error)
 	GetByEmail(ctx context.Context, in *Email, opts ...grpc.CallOption) (*User, error)
 	GetByUsername(ctx context.Context, in *Username, opts ...grpc.CallOption) (*User, error)
 	GetUserByPostID(ctx context.Context, in *PostID, opts ...grpc.CallOption) (*User, error)
+	GetAllAuthors(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UsersArray, error)
 }
 
 type usersClient struct {
@@ -60,9 +61,9 @@ func (c *usersClient) Create(ctx context.Context, in *User, opts ...grpc.CallOpt
 	return out, nil
 }
 
-func (c *usersClient) Search(ctx context.Context, in *Keyword, opts ...grpc.CallOption) (*UsersArray, error) {
+func (c *usersClient) GetAuthorByUsername(ctx context.Context, in *Keyword, opts ...grpc.CallOption) (*UsersArray, error) {
 	out := new(UsersArray)
-	err := c.cc.Invoke(ctx, "/user.Users/Search", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/user.Users/GetAuthorByUsername", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -114,18 +115,28 @@ func (c *usersClient) GetUserByPostID(ctx context.Context, in *PostID, opts ...g
 	return out, nil
 }
 
+func (c *usersClient) GetAllAuthors(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UsersArray, error) {
+	out := new(UsersArray)
+	err := c.cc.Invoke(ctx, "/user.Users/GetAllAuthors", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
 type UsersServer interface {
 	Update(context.Context, *User) (*emptypb.Empty, error)
 	Create(context.Context, *User) (*UserID, error)
-	Search(context.Context, *Keyword) (*UsersArray, error)
+	GetAuthorByUsername(context.Context, *Keyword) (*UsersArray, error)
 	GetByID(context.Context, *UserID) (*User, error)
 	GetBySessionID(context.Context, *protobuf.SessionID) (*User, error)
 	GetByEmail(context.Context, *Email) (*User, error)
 	GetByUsername(context.Context, *Username) (*User, error)
 	GetUserByPostID(context.Context, *PostID) (*User, error)
+	GetAllAuthors(context.Context, *emptypb.Empty) (*UsersArray, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -139,8 +150,8 @@ func (UnimplementedUsersServer) Update(context.Context, *User) (*emptypb.Empty, 
 func (UnimplementedUsersServer) Create(context.Context, *User) (*UserID, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedUsersServer) Search(context.Context, *Keyword) (*UsersArray, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
+func (UnimplementedUsersServer) GetAuthorByUsername(context.Context, *Keyword) (*UsersArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAuthorByUsername not implemented")
 }
 func (UnimplementedUsersServer) GetByID(context.Context, *UserID) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByID not implemented")
@@ -156,6 +167,9 @@ func (UnimplementedUsersServer) GetByUsername(context.Context, *Username) (*User
 }
 func (UnimplementedUsersServer) GetUserByPostID(context.Context, *PostID) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserByPostID not implemented")
+}
+func (UnimplementedUsersServer) GetAllAuthors(context.Context, *emptypb.Empty) (*UsersArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllAuthors not implemented")
 }
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
@@ -206,20 +220,20 @@ func _Users_Create_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Users_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Users_GetAuthorByUsername_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Keyword)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UsersServer).Search(ctx, in)
+		return srv.(UsersServer).GetAuthorByUsername(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.Users/Search",
+		FullMethod: "/user.Users/GetAuthorByUsername",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UsersServer).Search(ctx, req.(*Keyword))
+		return srv.(UsersServer).GetAuthorByUsername(ctx, req.(*Keyword))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -314,6 +328,24 @@ func _Users_GetUserByPostID_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_GetAllAuthors_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetAllAuthors(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.Users/GetAllAuthors",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetAllAuthors(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Users_ServiceDesc is the grpc.ServiceDesc for Users service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -330,8 +362,8 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Users_Create_Handler,
 		},
 		{
-			MethodName: "Search",
-			Handler:    _Users_Search_Handler,
+			MethodName: "GetAuthorByUsername",
+			Handler:    _Users_GetAuthorByUsername_Handler,
 		},
 		{
 			MethodName: "GetByID",
@@ -352,6 +384,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserByPostID",
 			Handler:    _Users_GetUserByPostID_Handler,
+		},
+		{
+			MethodName: "GetAllAuthors",
+			Handler:    _Users_GetAllAuthors_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

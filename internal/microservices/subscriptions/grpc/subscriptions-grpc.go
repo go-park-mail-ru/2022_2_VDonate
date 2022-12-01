@@ -19,7 +19,7 @@ type SubscriptionsService struct {
 	protobuf.UnimplementedSubscriptionsServer
 }
 
-func NewSubscriptionsService(r domain.SubscriptionsRepository, i domain.ImageUseCase, u domain.UsersRepository) protobuf.SubscriptionsServer {
+func New(r domain.SubscriptionsRepository, i domain.ImageUseCase, u domain.UsersRepository) protobuf.SubscriptionsServer {
 	return &SubscriptionsService{
 		subscriptionsRepo: r,
 		userRepo:          u,
@@ -27,7 +27,7 @@ func NewSubscriptionsService(r domain.SubscriptionsRepository, i domain.ImageUse
 	}
 }
 
-func convertToProto(s models.AuthorSubscription) *protobuf.AuthorSubscription {
+func ConvertToProto(s models.AuthorSubscription) *protobuf.AuthorSubscription {
 	return &protobuf.AuthorSubscription{
 		ID:           s.ID,
 		AuthorID:     s.AuthorID,
@@ -41,7 +41,7 @@ func convertToProto(s models.AuthorSubscription) *protobuf.AuthorSubscription {
 	}
 }
 
-func convertToModel(s *protobuf.AuthorSubscription) models.AuthorSubscription {
+func ConvertToModel(s *protobuf.AuthorSubscription) models.AuthorSubscription {
 	return models.AuthorSubscription{
 		ID:           s.GetID(),
 		AuthorID:     s.GetAuthorID(),
@@ -64,13 +64,13 @@ func (s SubscriptionsService) GetSubscriptionsByUserID(_ context.Context, id *us
 	result := make([]*protobuf.AuthorSubscription, 0)
 
 	for _, subscription := range sub {
-		result = append(result, convertToProto(subscription))
+		result = append(result, ConvertToProto(subscription))
 	}
 
 	return &protobuf.SubArray{Subscriptions: result}, nil
 }
 
-func (s SubscriptionsService) GetAuthorSubscriptionsByAuthorID(_ context.Context, id *usersProto.UserID) (*protobuf.SubArray, error) {
+func (s SubscriptionsService) GetSubscriptionsByAuthorID(_ context.Context, id *usersProto.UserID) (*protobuf.SubArray, error) {
 	sub, err := s.subscriptionsRepo.GetSubscriptionsByAuthorID(id.GetUserId())
 	if err != nil {
 		return nil, err
@@ -82,13 +82,13 @@ func (s SubscriptionsService) GetAuthorSubscriptionsByAuthorID(_ context.Context
 		if sub[i].Img, err = s.imagesUseCase.GetImage(subscription.Img); err != nil {
 			return nil, err
 		}
-		result = append(result, convertToProto(sub[i]))
+		result = append(result, ConvertToProto(sub[i]))
 	}
 
 	return &protobuf.SubArray{Subscriptions: result}, nil
 }
 
-func (s SubscriptionsService) GetAuthorSubscriptionByID(_ context.Context, id *protobuf.AuthorSubscriptionID) (*protobuf.AuthorSubscription, error) {
+func (s SubscriptionsService) GetSubscriptionByID(_ context.Context, id *protobuf.AuthorSubscriptionID) (*protobuf.AuthorSubscription, error) {
 	sub, err := s.subscriptionsRepo.GetSubscriptionByID(id.GetID())
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func (s SubscriptionsService) GetAuthorSubscriptionByID(_ context.Context, id *p
 		return nil, err
 	}
 
-	return convertToProto(sub), nil
+	return ConvertToProto(sub), nil
 }
 
 func (s SubscriptionsService) GetSubscriptionByUserAndAuthorID(_ context.Context, pair *usersProto.UserAuthorPair) (*protobuf.AuthorSubscription, error) {
@@ -107,11 +107,11 @@ func (s SubscriptionsService) GetSubscriptionByUserAndAuthorID(_ context.Context
 		return nil, err
 	}
 
-	return convertToProto(sub), nil
+	return ConvertToProto(sub), nil
 }
 
 func (s SubscriptionsService) AddSubscription(_ context.Context, sub *protobuf.AuthorSubscription) (*protobuf.AuthorSubscriptionID, error) {
-	subscription := convertToModel(sub)
+	subscription := ConvertToModel(sub)
 	id, err := s.subscriptionsRepo.AddSubscription(subscription)
 	if err != nil {
 		return nil, err
@@ -121,7 +121,7 @@ func (s SubscriptionsService) AddSubscription(_ context.Context, sub *protobuf.A
 }
 
 func (s SubscriptionsService) UpdateSubscription(_ context.Context, sub *protobuf.AuthorSubscription) (*emptypb.Empty, error) {
-	err := s.subscriptionsRepo.UpdateSubscription(convertToModel(sub))
+	err := s.subscriptionsRepo.UpdateSubscription(ConvertToModel(sub))
 	if err != nil {
 		return nil, err
 	}

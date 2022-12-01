@@ -29,12 +29,12 @@ message SubArray {
 }
 
 service Subscriptions {
-    rpc GetSubscriptionsByUserID(user.UserID) returns(SubArray);
-    rpc GetAuthorSubscriptionsByAuthorID(user.UserID) returns(SubArray);
-    rpc GetAuthorSubscriptionByID(AuthorSubscriptionID) returns(AuthorSubscription);
-    rpc GetSubscriptionByUserAndAuthorID(user.UserAuthorPair) returns(AuthorSubscription);
-    rpc AddSubscription(AuthorSubscription) returns(AuthorSubscriptionID);
-    rpc UpdateSubscription(AuthorSubscription) returns(google.protobuf.Empty);
-    rpc DeleteSubscription(AuthorSubscriptionID) returns(google.protobuf.Empty);
+  rpc GetSubscriptionsByUserID(user.UserID) returns(SubArray);
+  rpc GetAuthorSubscriptionsByAuthorID(user.UserID) returns(SubArray);
+  rpc GetAuthorSubscriptionByID(AuthorSubscriptionID) returns(AuthorSubscription);
+  rpc GetSubscriptionByUserAndAuthorID(user.UserAuthorPair) returns(AuthorSubscription);
+  rpc AddSubscription(AuthorSubscription) returns(AuthorSubscriptionID);
+  rpc UpdateSubscription(AuthorSubscription) returns(google.protobuf.Empty);
+  rpc DeleteSubscription(AuthorSubscriptionID) returns(google.protobuf.Empty);
 }
 

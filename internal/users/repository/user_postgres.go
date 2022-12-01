@@ -283,17 +283,10 @@ func (r Postgres) GetAllAuthors() ([]model.User, error) {
 	if err := r.DB.Select(
 		&u,
 		`
-		SELECT * FROM users;`,
-	); err != nil {
-		return nil, err
-	}
-
-	if err := r.DB.Get(
-		&u,
-		`
-		SELECT avatar, is_author, about
-		FROM user_info 
-		WHERE is_author = true;`,
+		SELECT id, username, email, avatar, password, is_author, about 
+		FROM users 
+		JOIN user_info ui on users.id = ui.user_id
+		WHERE ui.is_author = true;`,
 	); err != nil {
 		return nil, err
 	}

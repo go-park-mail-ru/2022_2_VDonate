@@ -24,7 +24,6 @@ const _ = grpc.SupportPackageIsVersion7
 type ImagesClient interface {
 	Create(ctx context.Context, in *Image, opts ...grpc.CallOption) (*Filename, error)
 	Get(ctx context.Context, in *Filename, opts ...grpc.CallOption) (*URL, error)
-	GetBlurred(ctx context.Context, in *Filename, opts ...grpc.CallOption) (*URL, error)
 }
 
 type imagesClient struct {
@@ -53,22 +52,12 @@ func (c *imagesClient) Get(ctx context.Context, in *Filename, opts ...grpc.CallO
 	return out, nil
 }
 
-func (c *imagesClient) GetBlurred(ctx context.Context, in *Filename, opts ...grpc.CallOption) (*URL, error) {
-	out := new(URL)
-	err := c.cc.Invoke(ctx, "/images.Images/GetBlurred", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // ImagesServer is the server API for Images service.
 // All implementations must embed UnimplementedImagesServer
 // for forward compatibility
 type ImagesServer interface {
 	Create(context.Context, *Image) (*Filename, error)
 	Get(context.Context, *Filename) (*URL, error)
-	GetBlurred(context.Context, *Filename) (*URL, error)
 	mustEmbedUnimplementedImagesServer()
 }
 
@@ -81,9 +70,6 @@ func (UnimplementedImagesServer) Create(context.Context, *Image) (*Filename, err
 }
 func (UnimplementedImagesServer) Get(context.Context, *Filename) (*URL, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
-}
-func (UnimplementedImagesServer) GetBlurred(context.Context, *Filename) (*URL, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetBlurred not implemented")
 }
 func (UnimplementedImagesServer) mustEmbedUnimplementedImagesServer() {}
 
@@ -134,24 +120,6 @@ func _Images_Get_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Images_GetBlurred_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Filename)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ImagesServer).GetBlurred(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/images.Images/GetBlurred",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ImagesServer).GetBlurred(ctx, req.(*Filename))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // Images_ServiceDesc is the grpc.ServiceDesc for Images service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -166,10 +134,6 @@ var Images_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Get",
 			Handler:    _Images_Get_Handler,
-		},
-		{
-			MethodName: "GetBlurred",
-			Handler:    _Images_GetBlurred_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

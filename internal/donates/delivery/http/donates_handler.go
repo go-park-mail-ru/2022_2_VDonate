@@ -1,4 +1,4 @@
-package httpdonates
+package httpDonates
 
 import (
 	"net/http"

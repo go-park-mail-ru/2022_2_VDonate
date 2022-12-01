@@ -174,7 +174,9 @@ func (h Handler) PutPost(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, models.ResponseImagePosts{
-		PostID: postID,
+		PostID:          postID,
+		Content:         prevPost.Content,
+		ContentTemplate: prevPost.ContentTemplate,
 	})
 }
 

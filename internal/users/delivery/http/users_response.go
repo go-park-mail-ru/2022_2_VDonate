@@ -17,7 +17,7 @@ func UserResponse(c echo.Context, u model.User) error {
 }
 
 func AuthorsResponse(c echo.Context, u []model.User) error {
-	var authors []models.Author
+	authors := make([]models.Author, 0)
 	for _, user := range u {
 		authors = append(authors, model.ToAuthor(user))
 	}

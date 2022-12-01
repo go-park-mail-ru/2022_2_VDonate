@@ -1,6 +1,7 @@
 package posts
 
 import (
+	"bytes"
 	"regexp"
 	"sort"
 	"strings"
@@ -34,7 +35,11 @@ func (u usecase) RenderHTML(content []byte, blur bool) (string, error) {
 	r := regexp.MustCompile(`\[img\|.{121}.?]`)
 	bytesImages := r.FindAll(content, -1)
 
-	if len(bytesImages) == 0 {
+	if len(bytesImages) == 0 && blur == true {
+		return "", nil
+	}
+
+	if len(bytesImages) == 0 && blur == false {
 		return string(content), nil
 	}
 
@@ -71,9 +76,9 @@ func (u usecase) RenderHTML(content []byte, blur bool) (string, error) {
 		if img[len(img)-1] == '/' {
 			img = img[:len(img)-1]
 		}
-		bytesImages[i] = append(append([]byte(`<img src="`), img...), []byte(`" class="post-content__image">`)...)
+		img = append(append([]byte(`<img src="`), img...), []byte(`" class="post-content__image">`)...)
 
-		content = r.ReplaceAll(content, bytesImages[i])
+		content = bytes.ReplaceAll(content, bytesImages[i], img)
 	}
 
 	return string(content), nil
@@ -144,7 +149,7 @@ func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error
 	}
 
 	sort.Slice(r, func(i, j int) bool {
-		return r[i].ID > r[j].ID
+		return r[i].ID < r[j].ID
 	})
 
 	return r, nil
@@ -231,7 +236,7 @@ func (u usecase) Update(post models.Post, postID uint64) (models.Post, error) {
 		return models.Post{}, err
 	}
 
-	if updatePost.ContentTemplate, err = u.RenderHTML([]byte(updatePost.ContentTemplate), false); err != nil {
+	if updatePost.Content, err = u.RenderHTML([]byte(updatePost.ContentTemplate), false); err != nil {
 		return models.Post{}, err
 	}
 

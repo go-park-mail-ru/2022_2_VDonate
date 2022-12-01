@@ -138,26 +138,29 @@ func (u usecase) IsExistUsernameAndEmail(username, email string) bool {
 }
 
 func (u usecase) FindAuthors(keyword string) ([]models.User, error) {
+	allAuthors := make([]models.User, 0)
+	var err error
+
 	if len(keyword) == 0 {
-		allAuthors, err := u.usersRepo.GetAllAuthors()
-		if err != nil {
+		if allAuthors, err = u.usersRepo.GetAllAuthors(); err != nil {
 			return nil, err
 		}
-		return allAuthors, nil
-	}
-	resAuthors := make([]models.User, 0)
-	author, err := u.usersRepo.GetAuthorByUsername(keyword)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return resAuthors, err
-	}
-	for i, a := range author {
-		if !slices.Contains(resAuthors, a) {
-			if author[i].Avatar, err = u.imgUseCase.GetImage(a.Avatar); err != nil {
-				return nil, err
-			}
-			resAuthors = append(resAuthors, a)
+	} else {
+		if allAuthors, err = u.usersRepo.GetAuthorByUsername(keyword); err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return nil, err
 		}
 	}
 
-	return resAuthors, nil
+	result := make([]models.User, 0)
+
+	for _, a := range allAuthors {
+		if !slices.Contains(result, a) {
+			if a.Avatar, err = u.imgUseCase.GetImage(a.Avatar); err != nil {
+				return nil, err
+			}
+			result = append(result, a)
+		}
+	}
+
+	return result, nil
 }

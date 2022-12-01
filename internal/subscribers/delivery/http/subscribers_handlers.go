@@ -1,4 +1,4 @@
-package httpsubscribers
+package httpSubscribers
 
 import (
 	"net/http"

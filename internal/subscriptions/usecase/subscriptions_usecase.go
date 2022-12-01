@@ -88,7 +88,7 @@ func (u usecase) AddAuthorSubscription(sub models.AuthorSubscription, id uint64)
 }
 
 func (u usecase) UpdateAuthorSubscription(sub models.AuthorSubscription, id uint64) error {
-	updateSub, err := u.GetAuthorSubscriptionByID(id)
+	updateSub, err := u.subRepo.GetSubscriptionByID(id)
 	if err != nil {
 		return err
 	}

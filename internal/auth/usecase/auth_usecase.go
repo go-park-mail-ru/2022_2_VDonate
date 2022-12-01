@@ -17,8 +17,8 @@ type (
 )
 
 type usecase struct {
-	authServiceManager domain.AuthServiceManager
-	usersRepo          domain.UsersRepository
+	authRepo  domain.AuthRepository
+	usersRepo domain.UsersRepository
 
 	// cookieCreator is func for creation cookie,
 	// so you can test random sessionID
@@ -29,29 +29,29 @@ type usecase struct {
 	hashCreator hashCreator
 }
 
-func New(authServiceManager domain.AuthServiceManager, usersRepo domain.UsersRepository) domain.AuthUseCase {
+func New(authRepo domain.AuthRepository, usersRepo domain.UsersRepository) domain.AuthUseCase {
 	return &usecase{
-		authServiceManager: authServiceManager,
-		usersRepo:          usersRepo,
-		cookieCreator:      createCookie,
-		hashCreator:        utils.HashPassword,
+		authRepo:      authRepo,
+		usersRepo:     usersRepo,
+		cookieCreator: createCookie,
+		hashCreator:   utils.HashPassword,
 	}
 }
 
-func WithCookieCreator(authServiceManager domain.AuthServiceManager, usersRepo domain.UsersRepository, cookieCreator cookieCreator) domain.AuthUseCase {
+func WithCookieCreator(authRepo domain.AuthRepository, usersRepo domain.UsersRepository, cookieCreator cookieCreator) domain.AuthUseCase {
 	return &usecase{
-		authServiceManager: authServiceManager,
-		usersRepo:          usersRepo,
-		cookieCreator:      cookieCreator,
+		authRepo:      authRepo,
+		usersRepo:     usersRepo,
+		cookieCreator: cookieCreator,
 	}
 }
 
-func WithCreators(authServiceManager domain.AuthServiceManager, usersRepo domain.UsersRepository, cookieCreator cookieCreator, hashCreator hashCreator) domain.AuthUseCase {
+func WithCreators(authRepo domain.AuthRepository, usersRepo domain.UsersRepository, cookieCreator cookieCreator, hashCreator hashCreator) domain.AuthUseCase {
 	return &usecase{
-		authServiceManager: authServiceManager,
-		usersRepo:          usersRepo,
-		cookieCreator:      cookieCreator,
-		hashCreator:        hashCreator,
+		authRepo:      authRepo,
+		usersRepo:     usersRepo,
+		cookieCreator: cookieCreator,
+		hashCreator:   hashCreator,
 	}
 }
 
@@ -78,16 +78,16 @@ func (u usecase) Login(login, password string) (string, error) {
 		return "", domain.ErrPasswordsNotEqual
 	}
 
-	s, err := u.authServiceManager.CreateSession(user.ID)
+	s, err := u.authRepo.CreateSession(u.cookieCreator(user.ID))
 	if err != nil {
 		return "", err
 	}
 
-	return s, nil
+	return s.Value, nil
 }
 
 func (u usecase) Auth(sessionID string) (bool, error) {
-	_, err := u.authServiceManager.GetBySessionID(sessionID)
+	_, err := u.authRepo.GetBySessionID(sessionID)
 	if err != nil {
 		return false, err
 	}
@@ -113,16 +113,16 @@ func (u usecase) SignUp(user models.User) (string, error) {
 		return "", err
 	}
 
-	s, err := u.authServiceManager.CreateSession(user.ID)
+	s, err := u.authRepo.CreateSession(u.cookieCreator(user.ID))
 	if err != nil {
 		return "", err
 	}
 
-	return s, nil
+	return s.Value, nil
 }
 
 func (u usecase) Logout(sessionID string) (bool, error) {
-	if err := u.authServiceManager.DeleteBySessionID(sessionID); err != nil {
+	if err := u.authRepo.DeleteBySessionID(sessionID); err != nil {
 		return false, err
 	}
 

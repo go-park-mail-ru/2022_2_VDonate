@@ -12,14 +12,14 @@ type ImagesService struct {
 	protobuf.UnimplementedImagesServer
 }
 
-func NewImagesService(r domain.ImagesRepository) protobuf.ImagesServer {
+func New(r domain.ImagesRepository) protobuf.ImagesServer {
 	return &ImagesService{
 		imageRepo: r,
 	}
 }
 
 func (s ImagesService) Create(_ context.Context, img *protobuf.Image) (*protobuf.Filename, error) {
-	image, err := s.imageRepo.CreateOrUpdateImage(img.Filename, img.Content, img.Size, "")
+	image, err := s.imageRepo.CreateOrUpdateImage(img.Filename, img.Content, img.Size, img.OldFilename)
 	if err != nil {
 		return nil, err
 	}
@@ -33,5 +33,7 @@ func (s ImagesService) Get(_ context.Context, filename *protobuf.Filename) (*pro
 		return nil, err
 	}
 
-	return &protobuf.URL{Url: url}, nil
+	return &protobuf.URL{
+		Url: url,
+	}, nil
 }

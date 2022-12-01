@@ -13,7 +13,7 @@ type AuthUseCase interface {
 	IsSameSession(sessionID string, userID uint64) bool
 }
 
-type AuthServiceManager interface {
+type AuthMicroservice interface {
 	CreateSession(userID uint64) (string, error)
 	DeleteBySessionID(sessionID string) error
 	GetBySessionID(sessionID string) (*protobuf.Session, error)
