@@ -4,10 +4,6 @@ server:
   cert_path: ""
   key_path: ""
 
-db:
-  driver: postgres
-  url: host=localhost port=5432 user=ubuntu password=secretkey dbname=dev sslmode=disable
-
 logger:
   level: info
 
@@ -31,6 +27,7 @@ cors:
   allow_headers: [
     "Content-Type",
     "Content-length",
+    "X-CSRF-Token",
   ]
 
 csrf:
@@ -39,16 +36,3 @@ csrf:
   context_key: csrf
   context_name: csrf_token
   max_age: 86400
-
-s3:
-  endpoint: localhost:9000
-  access_key_id: admin
-  secret_access_key: secretkey
-  use_ssl: false
-  buckets:
-    # Declare polices of buckets here
-    policy: >-
-      {"Version": "2012-10-17","Statement": [{"Action": ["s3:GetObject"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::$(bucket)/*"],"Sid": ""}]}
-    symbols_to_hash: 1
-    # count of minutes
-    expire: 60
