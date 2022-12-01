@@ -12,5 +12,5 @@ RUN CGO_ENABLED=0 go build -a -installsuffix cgo cmd/api/main.go
 FROM alpine:latest
 WORKDIR /root/
 COPY --from=builder /build/main ./
-COPY --from=builder /build/cmd/api/configs/config_local.yaml ./
-CMD ["./main", "-config-path", "config_local.yaml"]
+COPY --from=builder /build/cmd/api/configs/config_deploy.yaml ./
+CMD ["./main", "-config-path", "config_deploy.yaml"]

@@ -10,6 +10,29 @@ logger:
 deploy:
   mode: true
 
+services:
+  auth:
+    port: 8081
+    host: auth
+  donates:
+    port: 8082
+    host: donates
+  images:
+    port: 8083
+    host: images
+  posts:
+    port: 8084
+    host: posts
+  subscribers:
+    port: 8085
+    host: subscribers
+  subscriptions:
+    port: 8086
+    host: subscriptions
+  users:
+    port: 8087
+    host: users
+
 cors:
   allow_methods: [
     "POST",
