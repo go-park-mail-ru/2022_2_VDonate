@@ -90,7 +90,7 @@ func toEchoLevel(level logrus.Level) log.Lvl {
 }
 
 func (l *Logger) Println(v ...interface{}) {
-	l.Logrus.Println(v)
+	l.Logrus.Println(v...)
 }
 
 func (l *Logger) Output() io.Writer {
