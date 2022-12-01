@@ -46,12 +46,19 @@ func main() {
 
 	/*-----------------------------echo---------------------------*/
 	e := echo.New()
+	eProtheus := echo.New()
 
 	/*--------------------------prometheus------------------------*/
 	p := prometheus.NewPrometheus("echo", nil)
 
 	e.Use(p.HandlerFunc)
-	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
+	eProtheus.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
+	go func() {
+		err := eProtheus.Start(":8079")
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	/*----------------------------server--------------------------*/
 	a := app.New(e, cfg)
