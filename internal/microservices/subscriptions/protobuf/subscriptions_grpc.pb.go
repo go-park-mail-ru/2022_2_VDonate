@@ -25,8 +25,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SubscriptionsClient interface {
 	GetSubscriptionsByUserID(ctx context.Context, in *protobuf.UserID, opts ...grpc.CallOption) (*SubArray, error)
-	GetAuthorSubscriptionsByAuthorID(ctx context.Context, in *protobuf.UserID, opts ...grpc.CallOption) (*SubArray, error)
-	GetAuthorSubscriptionByID(ctx context.Context, in *AuthorSubscriptionID, opts ...grpc.CallOption) (*AuthorSubscription, error)
+	GetSubscriptionsByAuthorID(ctx context.Context, in *protobuf.UserID, opts ...grpc.CallOption) (*SubArray, error)
+	GetSubscriptionByID(ctx context.Context, in *AuthorSubscriptionID, opts ...grpc.CallOption) (*AuthorSubscription, error)
 	GetSubscriptionByUserAndAuthorID(ctx context.Context, in *protobuf.UserAuthorPair, opts ...grpc.CallOption) (*AuthorSubscription, error)
 	AddSubscription(ctx context.Context, in *AuthorSubscription, opts ...grpc.CallOption) (*AuthorSubscriptionID, error)
 	UpdateSubscription(ctx context.Context, in *AuthorSubscription, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -50,18 +50,18 @@ func (c *subscriptionsClient) GetSubscriptionsByUserID(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *subscriptionsClient) GetAuthorSubscriptionsByAuthorID(ctx context.Context, in *protobuf.UserID, opts ...grpc.CallOption) (*SubArray, error) {
+func (c *subscriptionsClient) GetSubscriptionsByAuthorID(ctx context.Context, in *protobuf.UserID, opts ...grpc.CallOption) (*SubArray, error) {
 	out := new(SubArray)
-	err := c.cc.Invoke(ctx, "/subscriptions.Subscriptions/GetAuthorSubscriptionsByAuthorID", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/subscriptions.Subscriptions/GetSubscriptionsByAuthorID", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *subscriptionsClient) GetAuthorSubscriptionByID(ctx context.Context, in *AuthorSubscriptionID, opts ...grpc.CallOption) (*AuthorSubscription, error) {
+func (c *subscriptionsClient) GetSubscriptionByID(ctx context.Context, in *AuthorSubscriptionID, opts ...grpc.CallOption) (*AuthorSubscription, error) {
 	out := new(AuthorSubscription)
-	err := c.cc.Invoke(ctx, "/subscriptions.Subscriptions/GetAuthorSubscriptionByID", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/subscriptions.Subscriptions/GetSubscriptionByID", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -109,8 +109,8 @@ func (c *subscriptionsClient) DeleteSubscription(ctx context.Context, in *Author
 // for forward compatibility
 type SubscriptionsServer interface {
 	GetSubscriptionsByUserID(context.Context, *protobuf.UserID) (*SubArray, error)
-	GetAuthorSubscriptionsByAuthorID(context.Context, *protobuf.UserID) (*SubArray, error)
-	GetAuthorSubscriptionByID(context.Context, *AuthorSubscriptionID) (*AuthorSubscription, error)
+	GetSubscriptionsByAuthorID(context.Context, *protobuf.UserID) (*SubArray, error)
+	GetSubscriptionByID(context.Context, *AuthorSubscriptionID) (*AuthorSubscription, error)
 	GetSubscriptionByUserAndAuthorID(context.Context, *protobuf.UserAuthorPair) (*AuthorSubscription, error)
 	AddSubscription(context.Context, *AuthorSubscription) (*AuthorSubscriptionID, error)
 	UpdateSubscription(context.Context, *AuthorSubscription) (*emptypb.Empty, error)
@@ -125,11 +125,11 @@ type UnimplementedSubscriptionsServer struct {
 func (UnimplementedSubscriptionsServer) GetSubscriptionsByUserID(context.Context, *protobuf.UserID) (*SubArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSubscriptionsByUserID not implemented")
 }
-func (UnimplementedSubscriptionsServer) GetAuthorSubscriptionsByAuthorID(context.Context, *protobuf.UserID) (*SubArray, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAuthorSubscriptionsByAuthorID not implemented")
+func (UnimplementedSubscriptionsServer) GetSubscriptionsByAuthorID(context.Context, *protobuf.UserID) (*SubArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSubscriptionsByAuthorID not implemented")
 }
-func (UnimplementedSubscriptionsServer) GetAuthorSubscriptionByID(context.Context, *AuthorSubscriptionID) (*AuthorSubscription, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAuthorSubscriptionByID not implemented")
+func (UnimplementedSubscriptionsServer) GetSubscriptionByID(context.Context, *AuthorSubscriptionID) (*AuthorSubscription, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSubscriptionByID not implemented")
 }
 func (UnimplementedSubscriptionsServer) GetSubscriptionByUserAndAuthorID(context.Context, *protobuf.UserAuthorPair) (*AuthorSubscription, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSubscriptionByUserAndAuthorID not implemented")
@@ -174,38 +174,38 @@ func _Subscriptions_GetSubscriptionsByUserID_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Subscriptions_GetAuthorSubscriptionsByAuthorID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Subscriptions_GetSubscriptionsByAuthorID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(protobuf.UserID)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SubscriptionsServer).GetAuthorSubscriptionsByAuthorID(ctx, in)
+		return srv.(SubscriptionsServer).GetSubscriptionsByAuthorID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/subscriptions.Subscriptions/GetAuthorSubscriptionsByAuthorID",
+		FullMethod: "/subscriptions.Subscriptions/GetSubscriptionsByAuthorID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SubscriptionsServer).GetAuthorSubscriptionsByAuthorID(ctx, req.(*protobuf.UserID))
+		return srv.(SubscriptionsServer).GetSubscriptionsByAuthorID(ctx, req.(*protobuf.UserID))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Subscriptions_GetAuthorSubscriptionByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Subscriptions_GetSubscriptionByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AuthorSubscriptionID)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SubscriptionsServer).GetAuthorSubscriptionByID(ctx, in)
+		return srv.(SubscriptionsServer).GetSubscriptionByID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/subscriptions.Subscriptions/GetAuthorSubscriptionByID",
+		FullMethod: "/subscriptions.Subscriptions/GetSubscriptionByID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SubscriptionsServer).GetAuthorSubscriptionByID(ctx, req.(*AuthorSubscriptionID))
+		return srv.(SubscriptionsServer).GetSubscriptionByID(ctx, req.(*AuthorSubscriptionID))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -294,12 +294,12 @@ var Subscriptions_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Subscriptions_GetSubscriptionsByUserID_Handler,
 		},
 		{
-			MethodName: "GetAuthorSubscriptionsByAuthorID",
-			Handler:    _Subscriptions_GetAuthorSubscriptionsByAuthorID_Handler,
+			MethodName: "GetSubscriptionsByAuthorID",
+			Handler:    _Subscriptions_GetSubscriptionsByAuthorID_Handler,
 		},
 		{
-			MethodName: "GetAuthorSubscriptionByID",
-			Handler:    _Subscriptions_GetAuthorSubscriptionByID_Handler,
+			MethodName: "GetSubscriptionByID",
+			Handler:    _Subscriptions_GetSubscriptionByID_Handler,
 		},
 		{
 			MethodName: "GetSubscriptionByUserAndAuthorID",

@@ -1,6 +1,8 @@
 package userRepository
 
 import (
+	"database/sql"
+	"errors"
 	model "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -295,7 +297,7 @@ func (r Postgres) GetAllAuthors() ([]model.User, error) {
 }
 
 func (r Postgres) GetAuthorByUsername(username string) ([]model.User, error) {
-	var u []model.User
+	u := make([]model.User, 0)
 	if err := r.DB.Select(
 		&u,
 		`
@@ -305,7 +307,10 @@ func (r Postgres) GetAuthorByUsername(username string) ([]model.User, error) {
 		ORDER BY similarity(username, $1) DESC, username;`,
 		username,
 	); err != nil {
-		return []model.User{}, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
 	}
 
 	for index, user := range u {
@@ -317,7 +322,7 @@ func (r Postgres) GetAuthorByUsername(username string) ([]model.User, error) {
 			WHERE user_id = $1 AND is_author = true;`,
 			user.ID,
 		); err != nil {
-			return []model.User{}, err
+			return nil, err
 		}
 	}
 

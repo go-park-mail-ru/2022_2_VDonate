@@ -125,7 +125,7 @@ func (u usecase) FindAuthors(keyword string) ([]models.User, error) {
 		}
 	} else {
 		if allAuthors, err = u.usersMicroservice.GetAuthorByUsername(keyword); err != nil && !errors.Is(err, sql.ErrNoRows) {
-			return nil, err
+			return make([]models.User, 0), nil
 		}
 	}
 

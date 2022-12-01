@@ -37,7 +37,7 @@ func (m SubscriptionsMicroservice) GetSubscriptionsByUserID(userID uint64) ([]mo
 }
 
 func (m SubscriptionsMicroservice) GetSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error) {
-	s, err := m.client.GetAuthorSubscriptionsByAuthorID(context.Background(), &usersProto.UserID{UserId: authorID})
+	s, err := m.client.GetSubscriptionsByAuthorID(context.Background(), &usersProto.UserID{UserId: authorID})
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (m SubscriptionsMicroservice) GetSubscriptionsByAuthorID(authorID uint64) (
 }
 
 func (m SubscriptionsMicroservice) GetSubscriptionByID(id uint64) (models.AuthorSubscription, error) {
-	s, err := m.client.GetAuthorSubscriptionByID(context.Background(), &protobuf.AuthorSubscriptionID{ID: id})
+	s, err := m.client.GetSubscriptionByID(context.Background(), &protobuf.AuthorSubscriptionID{ID: id})
 	if err != nil {
 		return models.AuthorSubscription{}, err
 	}

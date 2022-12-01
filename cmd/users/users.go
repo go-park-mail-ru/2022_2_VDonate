@@ -29,18 +29,18 @@ func main() {
 	/*---------------------------config---------------------------*/
 	cfg := config.New()
 	if err := cfg.Open(configPath); err != nil {
-		defaultLogger.Fatalf("subscriptions: failed to open config: %s", err)
+		defaultLogger.Fatalf("users: failed to open config: %s", err)
 	}
 
 	/*---------------------------logger---------------------------*/
 	log := logger.GetInstance()
 	log.SetLevel(logger.ToLevel(cfg.Logger.Level))
-	log.Info("subscriptions: server started")
+	log.Info("users: server started")
 
 	/*----------------------------repo----------------------------*/
 	r, err := userRepository.NewPostgres(cfg.DB.URL)
 	if err != nil {
-		log.Fatalf("subscriptions: failed to open db: %s", err)
+		log.Fatalf("users: failed to open db: %s", err)
 	}
 
 	/*----------------------------grpc----------------------------*/
@@ -66,7 +66,7 @@ func main() {
 
 	go func() {
 		if err = metricsHTTP.ListenAndServe(); err != nil {
-			log.Warnf("subscriptions: prometheus: HTTP server stopped: %s", err)
+			log.Warnf("users: prometheus: HTTP server stopped: %s", err)
 		}
 	}()
 
