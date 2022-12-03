@@ -159,6 +159,7 @@ services:
     container_name: vdonate-grafana
     volumes:
       - ../configs/grafana/provisioning:/etc/grafana/provisioning
+      - ../configs/grafana/grafana.ini:/etc/grafana/grafana.ini
       - grafana_data:/var/lib/grafana
     environment:
       - GF_SECURITY_ADMIN_USER=zenehu
