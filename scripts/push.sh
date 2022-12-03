@@ -2,5 +2,10 @@
 
 PREFIX=zeronethunter/vdonate
 
-# pushing Docker image
-docker push ${PREFIX}-api
+# building Docker images
+for f in $(find .. -name 'Dockerfile')
+do
+  echo "BUILD $f"
+  BASE=$(basename "$(dirname "${f}")")
+  docker push ${PREFIX}-"${BASE}":latest
+done

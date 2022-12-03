@@ -56,7 +56,7 @@ func main() {
 
 	metricsHTTP := &http.Server{Handler: promhttp.HandlerFor(gatherer, promhttp.HandlerOpts{
 		ErrorLog: log,
-	}), Addr: "localhost" + cfg.Services.Donates.MetricsPort}
+	}), Addr: "localhost" + ":" + cfg.Services.Donates.MetricsPort}
 
 	grpc_prometheus.EnableHandlingTimeHistogram()
 	grpc_prometheus.EnableClientHandlingTimeHistogram()

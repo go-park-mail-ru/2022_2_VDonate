@@ -7,6 +7,7 @@ WORKDIR ../build
 COPY / .
 RUN go mod download
 EXPOSE 8082
+EXPOSE 9082
 RUN CGO_ENABLED=0 go build -a -installsuffix cgo cmd/donates/donates.go
 
 FROM alpine:latest

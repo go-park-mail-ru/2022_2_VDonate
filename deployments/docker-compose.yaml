@@ -6,6 +6,7 @@ services:
     image: zeronethunter/vdonate-api
     ports:
       - "8080:8080"
+      - "8079:8079"
     env_file:
       - ../.env
     volumes:
@@ -19,6 +20,7 @@ services:
     image: zeronethunter/vdonate-auth
     ports:
       - "8081:8081"
+      - "9081:9081"
     depends_on:
       - db
     networks:
@@ -29,6 +31,7 @@ services:
     image: zeronethunter/vdonate-donates
     ports:
       - "8082:8082"
+      - "9082:9082"
     depends_on:
       - db
     networks:
@@ -39,6 +42,7 @@ services:
     image: zeronethunter/vdonate-images
     ports:
       - "8083:8083"
+      - "9083:9083"
     env_file:
       - ../.env
     depends_on:
@@ -52,6 +56,7 @@ services:
     image: zeronethunter/vdonate-posts
     ports:
       - "8084:8084"
+      - "9084:9084"
     depends_on:
       - db
     networks:
@@ -62,6 +67,7 @@ services:
     image: zeronethunter/vdonate-subscribers
     ports:
       - "8085:8085"
+      - "9085:9085"
     depends_on:
       - db
     networks:
@@ -72,6 +78,7 @@ services:
     image: zeronethunter/vdonate-subscriptions
     ports:
       - "8086:8086"
+      - "9086:9086"
     depends_on:
       - db
     networks:
@@ -82,6 +89,7 @@ services:
     image: zeronethunter/vdonate-users
     ports:
       - "8087:8087"
+      - "9087:9087"
     depends_on:
       - db
     networks:
@@ -112,18 +120,54 @@ services:
     image: prom/prometheus:latest
     container_name: vdonate-prometheus
     restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
     volumes:
+      - prometheus_data:/prometheus
       - ../configs/prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"
+    expose:
+      - "9090"
+    networks:
+      - vdonate-network-api
+
+  node-exporter:
+    hostname: node-exporter
+    image: prom/node-exporter:latest
+    container_name: vdonate-node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - "9100"
     networks:
       - vdonate-network-api
 
   grafana:
-    image: grafana/grafana-enterprise:latest
+    image: grafana/grafana:latest
     container_name: vdonate-grafana
+    volumes:
+      - ../configs/grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=zenehu
+      - GF_SECURITY_ADMIN_PASSWORD=secretkey
+      - GF_USERS_ALLOW_SIGN_UP=true
     ports:
       - "3000:3000"
+    networks:
+      - vdonate-network-api
 
   s3storage:
     hostname: vdonate.ml
@@ -145,8 +189,13 @@ services:
       retries: 3
     networks:
       - vdonate-network-api
+
 networks:
   vdonate-network-api:
     name: "vdonate-network-api"
     driver: bridge
     external: false
+
+volumes:
+  prometheus_data: {}
+  grafana_data: {}
