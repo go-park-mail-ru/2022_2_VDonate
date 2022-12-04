@@ -1,7 +1,7 @@
 MAIN_PATH = ./cmd/api/main.go
 MOCKS_DESTINATION = internal/mocks
 INTERNAL_PATH = internal
-ACTIVE_PACKAGES = $(shell go list ./... | grep -v "/mocks/" | tr '\n' ',')
+ACTIVE_PACKAGES = $(shell go list ./... | grep -v "/mocks/" "*/protobuf/*" | tr '\n' ',')
 PROTO_FILES = $(shell find . -iname '*.proto')
 GEN_PROTO_FILES = $(shell find . -iname "*.pb.go")
 

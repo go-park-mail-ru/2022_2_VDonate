@@ -12,7 +12,6 @@ import (
 	"testing"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/golang/mock/gomock"
@@ -22,11 +21,8 @@ import (
 
 func TestHadler_GetUser(t *testing.T) {
 	type mockUserBehavior func(r *mockDomain.MockUsersUseCase, id uint64)
-
 	type mockImageBehavior func(r *mockDomain.MockImageUseCase, bucket, filename string)
-
 	type mockSubscribersBehavior func(r *mockDomain.MockSubscribersUseCase, userID uint64)
-
 	type mockSubscriptionsBehavior func(r *mockDomain.MockSubscriptionsUseCase, userID uint64)
 
 	tests := []struct {
@@ -46,7 +42,7 @@ func TestHadler_GetUser(t *testing.T) {
 				r.EXPECT().GetByID(id).Return(models.User{
 					ID:       id,
 					Username: "themilchenko",
-					Avatar:   "filename",
+					Avatar:   "avatar",
 					Email:    "example@ex.com",
 					IsAuthor: true,
 				}, nil)
@@ -64,7 +60,7 @@ func TestHadler_GetUser(t *testing.T) {
 					{ID: 24},
 				}, nil)
 			},
-			expectedResponseBody: "{\"username\":\"themilchenko\",\"email\":\"example@ex.com\",\"avatar\":\"\",\"isAuthor\":true,\"about\":\"\",\"countSubscriptions\":1,\"countSubscribers\":1}",
+			expectedResponseBody: "{\"id\":24,\"username\":\"themilchenko\",\"email\":\"example@ex.com\",\"avatar\":\"\",\"isAuthor\":true,\"about\":\"\",\"countSubscriptions\":1,\"countSubscribers\":1}",
 		},
 		{
 			name:                      "BadID",
@@ -128,8 +124,8 @@ func TestHadler_GetUser(t *testing.T) {
 }
 
 func TestHandler_PutUser(t *testing.T) {
-	type mockUserBehavior func(r *mockDomain.MockUsersUseCase, id uint64, user models.User)
-	type mockImagesBehavior func(r *mockDomain.MockImageUseCase, bucket string, c echo.Context)
+	type mockUserBehavior func(r *mockDomain.MockUsersUseCase, u models.User, f *multipart.FileHeader, id uint64)
+	type mockGetImageBehaviout func(r *mockDomain.MockImageUseCase, avatart string)
 
 	tests := []struct {
 		name                 string
@@ -137,7 +133,7 @@ func TestHandler_PutUser(t *testing.T) {
 		requestBody          multipart.Form
 		inputUser            models.User
 		mockUserBehavior     mockUserBehavior
-		mockImagesBehavior   mockImagesBehavior
+		mockGetImageBehaviout mockGetImageBehaviout
 		expectedErrorMessage string
 		expectedResponseBody string
 	}{
@@ -156,13 +152,11 @@ func TestHandler_PutUser(t *testing.T) {
 				Username: "superuser",
 				About:    "I love sport",
 			},
-			mockUserBehavior: func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {
-				r.EXPECT().Update(user, "", user.ID).Return(user, nil)
+			mockUserBehavior: func(r *mockDomain.MockUsersUseCase, u models.User, f *multipart.FileHeader, id uint64) {
+				r.EXPECT().Update(u, f, id).Return(models.User{}, nil)
 			},
-			mockImagesBehavior: func(r *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
-				file, err := images.GetFileFromContext(c)
-				assert.NoError(t, err)
-				r.EXPECT().CreateOrUpdateImage(file, "")
+			mockGetImageBehaviout: func(r *mockDomain.MockImageUseCase, avatar string) {
+				r.EXPECT().GetImage(avatar).Return("", nil)
 			},
 			expectedResponseBody: `{"id":345,"username":"superuser","email":"","is_author":true,"about":"I love sport"}`,
 		},
@@ -181,8 +175,8 @@ func TestHandler_PutUser(t *testing.T) {
 				Username: "superuser",
 				About:    "I love sport",
 			},
-			mockUserBehavior:   func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {},
-			mockImagesBehavior: func(r *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
+			mockUserBehavior:   func(r *mockDomain.MockUsersUseCase, u models.User, f *multipart.FileHeader, id uint64) {},
+			mockGetImageBehaviout: func(r *mockDomain.MockImageUseCase, avatar string) {},
 			expectedErrorMessage: "" +
 				"code=400, " +
 				"message=bad request, " +
@@ -199,8 +193,8 @@ func TestHandler_PutUser(t *testing.T) {
 			},
 			userID:             345,
 			inputUser:          models.User{},
-			mockUserBehavior:   func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {},
-			mockImagesBehavior: func(r *mockDomain.MockImageUseCase, bucket string, c echo.Context) {},
+			mockUserBehavior:   func(r *mockDomain.MockUsersUseCase, u models.User, f *multipart.FileHeader, id uint64) {},
+			mockGetImageBehaviout: func(r *mockDomain.MockImageUseCase, avatar string) {},
 			expectedErrorMessage: "" +
 				"code=400, " +
 				"message=bad request, " +
@@ -222,14 +216,10 @@ func TestHandler_PutUser(t *testing.T) {
 				Username: "superuser",
 				About:    "I love sport",
 			},
-			mockUserBehavior: func(r *mockDomain.MockUsersUseCase, id uint64, user models.User) {
-				r.EXPECT().Update(user, "", user.ID).Return(user, domain.ErrUpdate)
+			mockUserBehavior:   func(r *mockDomain.MockUsersUseCase, u models.User, f *multipart.FileHeader, id uint64) {
+				r.EXPECT().Update(u, f, id).Return(models.User{}, domain.ErrUpdate)
 			},
-			mockImagesBehavior: func(r *mockDomain.MockImageUseCase, bucket string, c echo.Context) {
-				file, err := images.GetFileFromContext(c)
-				assert.NoError(t, err)
-				r.EXPECT().CreateOrUpdateImage(file, "")
-			},
+			mockGetImageBehaviout: func(r *mockDomain.MockImageUseCase, avatar string) {},
 			expectedErrorMessage: "code=500, message=failed to update item, internal=failed to update item",
 		},
 	}
@@ -245,8 +235,6 @@ func TestHandler_PutUser(t *testing.T) {
 			subscriber := mockDomain.NewMockSubscribersUseCase(ctrl)
 			subscription := mockDomain.NewMockSubscriptionsUseCase(ctrl)
 
-			test.mockUserBehavior(user, test.inputUser.ID, test.inputUser)
-
 			handler := NewHandler(user, auth, image, subscription, subscriber)
 
 			e := echo.New()
@@ -261,10 +249,10 @@ func TestHandler_PutUser(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			formFile, err := writer.CreateFormFile("file", "../../../test/test.txt")
+			formFile, err := writer.CreateFormFile("file", "../../../../test/test.txt")
 			assert.NoError(t, err)
 
-			sample, err := os.Open("../../../test/test.txt")
+			sample, err := os.Open("../../../../test/test.txt")
 			assert.NoError(t, err)
 
 			_, err = io.Copy(formFile, sample)
@@ -289,7 +277,12 @@ func TestHandler_PutUser(t *testing.T) {
 			c.SetParamValues(strconv.FormatInt(int64(test.userID), 10))
 			c.Set("bucket", "avatar")
 
-			test.mockImagesBehavior(image, "avatar", c)
+			f, err := c.FormFile("file")
+			assert.NoError(t, err)
+
+			test.mockUserBehavior(user, test.inputUser, f, uint64(test.userID))
+			test.mockGetImageBehaviout(image, "")
+
 			err = handler.PutUser(c)
 			if err != nil {
 				assert.Equal(t, test.expectedErrorMessage, err.Error())
