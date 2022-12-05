@@ -23,7 +23,7 @@ func TestUsecase_Update(t *testing.T) {
 		mockBehaviourUpdate mockBehaviourUpdate
 		responseError       string
 	}{
-		//FIXME this case depends on images microsrevices. Need to fix it
+		// FIXME this case depends on images microsrevices. Need to fix it
 		// {
 		// 	name: "OK",
 		// 	inputUser: models.User{

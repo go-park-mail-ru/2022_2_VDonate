@@ -128,14 +128,14 @@ func TestHandler_PutUser(t *testing.T) {
 	type mockGetImageBehaviout func(r *mockDomain.MockImageUseCase, avatart string)
 
 	tests := []struct {
-		name                 string
-		userID               int
-		requestBody          multipart.Form
-		inputUser            models.User
-		mockUserBehavior     mockUserBehavior
+		name                  string
+		userID                int
+		requestBody           multipart.Form
+		inputUser             models.User
+		mockUserBehavior      mockUserBehavior
 		mockGetImageBehaviout mockGetImageBehaviout
-		expectedErrorMessage string
-		expectedResponseBody string
+		expectedErrorMessage  string
+		expectedResponseBody  string
 	}{
 		{
 			name: "OK",
@@ -175,7 +175,7 @@ func TestHandler_PutUser(t *testing.T) {
 				Username: "superuser",
 				About:    "I love sport",
 			},
-			mockUserBehavior:   func(r *mockDomain.MockUsersUseCase, u models.User, f *multipart.FileHeader, id uint64) {},
+			mockUserBehavior:      func(r *mockDomain.MockUsersUseCase, u models.User, f *multipart.FileHeader, id uint64) {},
 			mockGetImageBehaviout: func(r *mockDomain.MockImageUseCase, avatar string) {},
 			expectedErrorMessage: "" +
 				"code=400, " +
@@ -191,9 +191,9 @@ func TestHandler_PutUser(t *testing.T) {
 					"about":    {"I love sport"},
 				},
 			},
-			userID:             345,
-			inputUser:          models.User{},
-			mockUserBehavior:   func(r *mockDomain.MockUsersUseCase, u models.User, f *multipart.FileHeader, id uint64) {},
+			userID:                345,
+			inputUser:             models.User{},
+			mockUserBehavior:      func(r *mockDomain.MockUsersUseCase, u models.User, f *multipart.FileHeader, id uint64) {},
 			mockGetImageBehaviout: func(r *mockDomain.MockImageUseCase, avatar string) {},
 			expectedErrorMessage: "" +
 				"code=400, " +
@@ -216,11 +216,11 @@ func TestHandler_PutUser(t *testing.T) {
 				Username: "superuser",
 				About:    "I love sport",
 			},
-			mockUserBehavior:   func(r *mockDomain.MockUsersUseCase, u models.User, f *multipart.FileHeader, id uint64) {
+			mockUserBehavior: func(r *mockDomain.MockUsersUseCase, u models.User, f *multipart.FileHeader, id uint64) {
 				r.EXPECT().Update(u, f, id).Return(models.User{}, domain.ErrUpdate)
 			},
 			mockGetImageBehaviout: func(r *mockDomain.MockImageUseCase, avatar string) {},
-			expectedErrorMessage: "code=500, message=failed to update item, internal=failed to update item",
+			expectedErrorMessage:  "code=500, message=failed to update item, internal=failed to update item",
 		},
 	}
 

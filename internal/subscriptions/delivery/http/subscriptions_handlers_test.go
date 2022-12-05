@@ -386,7 +386,7 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {
 				u.EXPECT().AddAuthorSubscription(s, authorID).Return(uint64(0), domain.ErrCreate)
 			},
-			mockCreateImage:      func(u *mockDomain.MockImageUseCase, image *multipart.FileHeader, oldName string) {
+			mockCreateImage: func(u *mockDomain.MockImageUseCase, image *multipart.FileHeader, oldName string) {
 				u.EXPECT().CreateOrUpdateImage(image, oldName).Return("../../../test/test.txt", nil)
 			},
 			mockGetAvatar:        func(u *mockDomain.MockImageUseCase, filename string) {},
@@ -406,7 +406,7 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 					Avatar: "avatar",
 				}, nil)
 			},
-			mockCreateImage:      func(u *mockDomain.MockImageUseCase, image *multipart.FileHeader, oldName string) {
+			mockCreateImage: func(u *mockDomain.MockImageUseCase, image *multipart.FileHeader, oldName string) {
 				u.EXPECT().CreateOrUpdateImage(image, oldName).Return("avatar", nil)
 			},
 			mockAddAuthorSubscription: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, authorID uint64) {
@@ -489,7 +489,9 @@ func TestHandler_CreateAuthorSubscription(t *testing.T) {
 			c.SetPath("https://127.0.0.1/api/v1/posts/:post_id")
 			c.Set("bucket", "image")
 
-			f, err := c.FormFile("file")
+			f, errFile := c.FormFile("file")
+			assert.NoError(t, errFile)
+
 			test.mockCreateImage(image, f, "")
 
 			if err = handler.CreateAuthorSubscription(c); err != nil {
@@ -535,9 +537,9 @@ func TestHandler_UpdateAuthorSubscription(t *testing.T) {
 			subscription: models.AuthorSubscription{
 				Img: "../../../../test/test.txt",
 			},
-			mockCreateImage: func(u *mockDomain.MockImageUseCase, f *multipart.FileHeader, img string) {},
-			mockUpdateAuthor: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, subID uint64) {},
-			mockGetImage: func(u *mockDomain.MockImageUseCase, filename string) {},
+			mockCreateImage:      func(u *mockDomain.MockImageUseCase, f *multipart.FileHeader, img string) {},
+			mockUpdateAuthor:     func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, subID uint64) {},
+			mockGetImage:         func(u *mockDomain.MockImageUseCase, filename string) {},
 			expectedErrorMessage: "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
 		},
 		{
@@ -546,9 +548,9 @@ func TestHandler_UpdateAuthorSubscription(t *testing.T) {
 			subscription: models.AuthorSubscription{
 				Img: "../../../test/test.txt",
 			},
-			mockCreateImage: func(u *mockDomain.MockImageUseCase, f *multipart.FileHeader, img string) {},
+			mockCreateImage:  func(u *mockDomain.MockImageUseCase, f *multipart.FileHeader, img string) {},
 			mockUpdateAuthor: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, subID uint64) {},
-			mockGetImage: func(u *mockDomain.MockImageUseCase, filename string) {},
+			mockGetImage:     func(u *mockDomain.MockImageUseCase, filename string) {},
 			expectedErrorMessage: "code=400, " +
 				"message=bad request, " +
 				"internal=code=400, " +
@@ -563,8 +565,8 @@ func TestHandler_UpdateAuthorSubscription(t *testing.T) {
 			mockCreateImage: func(u *mockDomain.MockImageUseCase, f *multipart.FileHeader, img string) {
 				u.EXPECT().CreateOrUpdateImage(f, img).Return("", domain.ErrCreate)
 			},
-			mockUpdateAuthor: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, subID uint64) {},
-			mockGetImage: func(u *mockDomain.MockImageUseCase, filename string) {},
+			mockUpdateAuthor:     func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, subID uint64) {},
+			mockGetImage:         func(u *mockDomain.MockImageUseCase, filename string) {},
 			expectedErrorMessage: "code=500, message=failed to create item, internal=failed to create item",
 		},
 		{
@@ -579,7 +581,7 @@ func TestHandler_UpdateAuthorSubscription(t *testing.T) {
 			mockUpdateAuthor: func(u *mockDomain.MockSubscriptionsUseCase, s models.AuthorSubscription, subID uint64) {
 				u.EXPECT().UpdateAuthorSubscription(s, subID).Return(domain.ErrUpdate)
 			},
-			mockGetImage: func(u *mockDomain.MockImageUseCase, filename string) {},
+			mockGetImage:         func(u *mockDomain.MockImageUseCase, filename string) {},
 			expectedErrorMessage: "code=500, message=failed to update item, internal=failed to update item",
 		},
 	}
