@@ -60,7 +60,7 @@ func TestHadler_GetUser(t *testing.T) {
 					{ID: 24},
 				}, nil)
 			},
-			expectedResponseBody: "{\"id\":24,\"username\":\"themilchenko\",\"email\":\"example@ex.com\",\"avatar\":\"\",\"isAuthor\":true,\"about\":\"\",\"countSubscriptions\":1,\"countSubscribers\":1}",
+			expectedResponseBody: `{"id":24,"username":"themilchenko","email":"example@ex.com","avatar":"","isAuthor":true,"about":"","countSubscriptions":1,"countSubscribers":1}`,
 		},
 		{
 			name:                      "BadID",
@@ -287,6 +287,96 @@ func TestHandler_PutUser(t *testing.T) {
 			if err != nil {
 				assert.Equal(t, test.expectedErrorMessage, err.Error())
 			}
+		})
+	}
+}
+
+func TestHandler_GetAuthors(t *testing.T) {
+	type MockAuthors func(r *mockDomain.MockUsersUseCase, keyword string)
+	type MockSubscribers func(r *mockDomain.MockSubscribersUseCase, authorID uint64)
+
+	tests := []struct {
+		name            string
+		keyword         string
+		mockAuthors     MockAuthors
+		mockSubscribers MockSubscribers
+		responseMessage string
+		responseError   string
+	}{
+		{
+			name:    "OK",
+			keyword: "superuser",
+			mockAuthors: func(r *mockDomain.MockUsersUseCase, keyword string) {
+				r.EXPECT().FindAuthors(keyword).Return([]models.User{
+					{
+						ID:       345,
+						Username: "superuser",
+					},
+				}, nil)
+			},
+			mockSubscribers: func(r *mockDomain.MockSubscribersUseCase, authorID uint64) {
+				r.EXPECT().GetSubscribers(authorID).Return([]models.User{}, nil)
+			},
+			responseMessage: `[{"id":345,"username":"superuser","email":"","avatar":"","isAuthor":true,"about":"","countSubscriptions":0,"countSubscribers":0}]`,
+		},
+		{
+			name:    "ErrFindAuthors",
+			keyword: "superuser",
+			mockAuthors: func(r *mockDomain.MockUsersUseCase, keyword string) {
+				r.EXPECT().FindAuthors(keyword).Return([]models.User{}, domain.ErrInternal)
+			},
+			mockSubscribers: func(r *mockDomain.MockSubscribersUseCase, authorID uint64) {},
+			responseError: "code=500, message=server error, internal=server error",
+		},
+		{
+			name:    "ErrGetSubscribers",
+			keyword: "superuser",
+			mockAuthors: func(r *mockDomain.MockUsersUseCase, keyword string) {
+				r.EXPECT().FindAuthors(keyword).Return([]models.User{
+					{
+						ID:       345,
+						Username: "superuser",
+					},
+				}, nil)
+			},
+			mockSubscribers: func(r *mockDomain.MockSubscribersUseCase, authorID uint64) {
+				r.EXPECT().GetSubscribers(authorID).Return([]models.User{}, domain.ErrInternal)
+			},
+			responseError: "code=500, message=server error, internal=server error",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			user := mockDomain.NewMockUsersUseCase(ctrl)
+			auth := mockDomain.NewMockAuthUseCase(ctrl)
+			image := mockDomain.NewMockImageUseCase(ctrl)
+			subscriber := mockDomain.NewMockSubscribersUseCase(ctrl)
+			subscription := mockDomain.NewMockSubscriptionsUseCase(ctrl)
+
+			handler := NewHandler(user, auth, image, subscription, subscriber)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, "https://127.0.0.1/api/v1/users/authors?keyword="+test.keyword, nil)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetParamNames("keyword")
+			c.SetParamValues(test.keyword)
+
+			test.mockAuthors(user, test.keyword)
+			test.mockSubscribers(subscriber, 345)
+
+			err := handler.GetAuthors(c)
+			if err != nil {
+				assert.Equal(t, test.responseError, err.Error())
+			}
+
+			body, _ := io.ReadAll(rec.Body)
+
+			assert.Equal(t, test.responseMessage, strings.Trim(string(body), "\n"))
 		})
 	}
 }
