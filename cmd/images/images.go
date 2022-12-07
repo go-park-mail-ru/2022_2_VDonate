@@ -21,6 +21,16 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
 )
 
+var (
+	reg = prometheus.NewRegistry()
+
+	grpcMetrics = grpc_prometheus.NewServerMetrics()
+)
+
+func init() {
+	reg.MustRegister(grpcMetrics)
+}
+
 func main() {
 	/*----------------------------flag----------------------------*/
 	var configPath string
@@ -53,25 +63,17 @@ func main() {
 	}
 
 	/*----------------------------grpc----------------------------*/
-	lis, metricsServer := app.CreateGRPCServer(cfg.Server.Host, cfg.Server.Port)
+	metricsHTTP := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{
+		ErrorLog: log,
+	}), Addr: "0.0.0.0" + ":" + cfg.Services.Images.MetricsPort}
+
+	lis, metricsServer := app.CreateGRPCServer(cfg.Server.Host, cfg.Server.Port, grpcMetrics)
 	defer lis.Close()
 
-	/*---------------------------metric---------------------------*/
-	grpcMetrics := grpc_prometheus.NewServerMetrics()
-	gatherer := prometheus.NewRegistry()
-	gatherer.MustRegister(grpcMetrics)
-
-	grpcMetrics.InitializeMetrics(metricsServer)
-
-	metricsHTTP := &http.Server{Handler: promhttp.HandlerFor(gatherer, promhttp.HandlerOpts{
-		ErrorLog: log,
-	}), Addr: "localhost" + ":" + cfg.Services.Images.MetricsPort}
-
-	grpc_prometheus.EnableHandlingTimeHistogram()
-	grpc_prometheus.EnableClientHandlingTimeHistogram()
-
 	protobuf.RegisterImagesServer(metricsServer, grpcImages.New(r))
-	grpc_prometheus.Register(metricsServer)
+
+	/*---------------------------metric---------------------------*/
+	grpcMetrics.InitializeMetrics(metricsServer)
 
 	go func() {
 		if err = metricsHTTP.ListenAndServe(); err != nil {

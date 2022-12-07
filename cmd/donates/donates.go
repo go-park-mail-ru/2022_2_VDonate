@@ -2,23 +2,31 @@ package main
 
 import (
 	"flag"
+	donatesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/repository"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	defaultLogger "log"
 	"net/http"
-
-	donatesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/repository"
 
 	grpcDonate "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/donates/grpc"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
 
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/app"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/donates/protobuf"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/prometheus/client_golang/prometheus"
 )
+
+var (
+	reg = prometheus.NewRegistry()
+
+	grpcMetrics = grpc_prometheus.NewServerMetrics()
+)
+
+func init() {
+	reg.MustRegister(grpcMetrics)
+}
 
 func main() {
 	/*----------------------------flag----------------------------*/
@@ -44,25 +52,17 @@ func main() {
 	}
 
 	/*----------------------------grpc----------------------------*/
-	lis, metricsServer := app.CreateGRPCServer(cfg.Server.Host, cfg.Server.Port)
+	metricsHTTP := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{
+		ErrorLog: log,
+	}), Addr: "0.0.0.0" + ":" + cfg.Services.Donates.MetricsPort}
+
+	lis, metricsServer := app.CreateGRPCServer(cfg.Server.Host, cfg.Server.Port, grpcMetrics)
 	defer lis.Close()
 
-	/*---------------------------metric---------------------------*/
-	grpcMetrics := grpc_prometheus.NewServerMetrics()
-	gatherer := prometheus.NewRegistry()
-	gatherer.MustRegister(grpcMetrics)
-
-	grpcMetrics.InitializeMetrics(metricsServer)
-
-	metricsHTTP := &http.Server{Handler: promhttp.HandlerFor(gatherer, promhttp.HandlerOpts{
-		ErrorLog: log,
-	}), Addr: "localhost" + ":" + cfg.Services.Donates.MetricsPort}
-
-	grpc_prometheus.EnableHandlingTimeHistogram()
-	grpc_prometheus.EnableClientHandlingTimeHistogram()
-
 	protobuf.RegisterDonatesServer(metricsServer, grpcDonate.New(r))
-	grpc_prometheus.Register(metricsServer)
+
+	/*---------------------------metric---------------------------*/
+	grpcMetrics.InitializeMetrics(metricsServer)
 
 	go func() {
 		if err = metricsHTTP.ListenAndServe(); err != nil {
