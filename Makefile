@@ -1,7 +1,7 @@
 MAIN_PATH = ./cmd/api/main.go
 MOCKS_DESTINATION = internal/mocks
 INTERNAL_PATH = internal
-ACTIVE_PACKAGES = $(shell go list ./... | grep -v "/mocks/" | tr '\n' ',')
+ACTIVE_PACKAGES = $(shell go list ./... | grep -Ev "mocks|protobuf" | tr '\n' ',')
 PROTO_FILES = $(shell find . -iname '*.proto')
 GEN_PROTO_FILES = $(shell find . -iname "*.pb.go")
 
@@ -45,6 +45,7 @@ mocks: ## Generate mocks
 	@mockgen -source=internal/domain/images.go -destination=$(MOCKS_DESTINATION)/domain/images.go
 	@mockgen -source=internal/domain/donates.go -destination=$(MOCKS_DESTINATION)/domain/donates.go
 	@mockgen -source=internal/domain/repository.go -destination=$(MOCKS_DESTINATION)/domain/repository.go
+	@echo "OK"
 
 .PHONY: lint
 lint: ## Make linters
