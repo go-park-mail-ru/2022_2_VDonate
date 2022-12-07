@@ -1,14 +1,11 @@
 package app
 
 import (
-	"database/sql"
+	"github.com/stretchr/testify/assert"
 	"log"
 	"os/exec"
 	"strings"
 	"testing"
-	"time"
-
-	"github.com/stretchr/testify/assert"
 
 	"github.com/stretchr/testify/require"
 
@@ -21,7 +18,7 @@ func TestApp_init(t *testing.T) {
 	e := echo.New()
 
 	cfg := config.New()
-	err := cfg.Open("../../configs/config_local.yaml")
+	err := cfg.Open("../../cmd/api/configs/config_local.yaml")
 	require.NoError(t, err)
 
 	log.Println("Enabling containers with all environment...")
@@ -44,15 +41,6 @@ func TestApp_init(t *testing.T) {
 	log.Println("Successfully enabled")
 
 	log.Println("Initializing server...")
-
-	postgres, err := sql.Open(cfg.DB.Driver, cfg.DB.URL)
-	assert.NoError(t, err, "Postgres not UP")
-
-	log.Println("waiting for postgres to start")
-	for postgres.Ping() != nil {
-		log.Println("...")
-		time.Sleep(time.Second * 2)
-	}
 
 	// Change local config for all services to start
 	server := New(e, cfg)

@@ -1,5 +1,85 @@
 version: "3.7"
 services:
+  auth:
+    hostname: auth
+    container_name: vdonate-auth
+    image: zeronethunter/vdonate-auth
+    ports:
+      - "8081:8081"
+      - "9081:9081"
+    depends_on:
+      - db
+    networks:
+      - vdonate-network-test
+  donates:
+    hostname: donates
+    container_name: vdonate-donates
+    image: zeronethunter/vdonate-donates
+    ports:
+      - "8082:8082"
+      - "9082:9082"
+    depends_on:
+      - db
+    networks:
+      - vdonate-network-test
+  images:
+    hostname: images
+    container_name: vdonate-images
+    image: zeronethunter/vdonate-images
+    ports:
+      - "8083:8083"
+      - "9083:9083"
+    env_file:
+      - ../.env
+    depends_on:
+      - db
+      - s3storage
+    networks:
+      - vdonate-network-test
+  posts:
+    hostname: posts
+    container_name: vdonate-posts
+    image: zeronethunter/vdonate-posts
+    ports:
+      - "8084:8084"
+      - "9084:9084"
+    depends_on:
+      - db
+    networks:
+      - vdonate-network-test
+  subscribers:
+    hostname: subscribers
+    container_name: vdonate-subscribers
+    image: zeronethunter/vdonate-subscribers
+    ports:
+      - "8085:8085"
+      - "9085:9085"
+    depends_on:
+      - db
+    networks:
+      - vdonate-network-test
+  subscriptions:
+    hostname: subscriptions
+    container_name: vdonate-subscriptions
+    image: zeronethunter/vdonate-subscriptions
+    ports:
+      - "8086:8086"
+      - "9086:9086"
+    depends_on:
+      - db
+    networks:
+      - vdonate-network-test
+  users:
+    hostname: users
+    container_name: vdonate-users
+    image: zeronethunter/vdonate-users
+    ports:
+      - "8087:8087"
+      - "9087:9087"
+    depends_on:
+      - db
+    networks:
+      - vdonate-network-test
   db:
     hostname: postgresql
     container_name: vdonate-db
