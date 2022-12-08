@@ -37,6 +37,13 @@ func New(authRepo domain.AuthRepository) protobuf.AuthServer {
 	}
 }
 
+func NewWithCookieCreator(authRepo domain.AuthRepository, c cookieCreator) protobuf.AuthServer {
+	return &Auth{
+		authRepo:      authRepo,
+		cookieCreator: c,
+	}
+}
+
 func (m *Auth) CreateSession(_ context.Context, in *protobuf.Session) (*protobuf.SessionID, error) {
 	session, err := m.authRepo.CreateSession(m.cookieCreator(in.GetUserId()))
 	if err != nil {

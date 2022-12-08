@@ -11,11 +11,13 @@ test: ## Run all the tests
 
 .PHONY: cover_out
 cover_out: test ## Run all the tests and opens the coverage report
-	go tool cover -func=c.out
+	cat c.out | grep -v "cmd" > tmp.out
+	go tool cover -func=tmp.out
 
 .PHONY: cover_html
 cover_html: test ## Run all the tests and opens the coverage report in HTML
-	go tool cover -html=c.out
+	cat c.out | grep -v "cmd" > tmp.out
+	go tool cover -html=tmp.out
 
 .PHONY: ci
 ci: lint test ## Run all the tests and code checks
