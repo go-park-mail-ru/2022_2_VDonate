@@ -47,6 +47,9 @@ mocks: ## Generate mocks
 	@mockgen -source=internal/domain/images.go -destination=$(MOCKS_DESTINATION)/domain/images.go
 	@mockgen -source=internal/domain/donates.go -destination=$(MOCKS_DESTINATION)/domain/donates.go
 	@mockgen -source=internal/domain/repository.go -destination=$(MOCKS_DESTINATION)/domain/repository.go
+	@mockgen -source=internal/microservices/auth/protobuf/auth_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/auth_client.go
+	@mockgen -source=internal/microservices/users/protobuf/users_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/users_client.go
+	@mockgen -source=internal/microservices/donates/protobuf/donates_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/donates_client.go
 	@echo "OK"
 
 .PHONY: lint
