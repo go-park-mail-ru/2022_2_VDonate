@@ -360,7 +360,7 @@ func TestHandler_CreatePost(t *testing.T) {
 			user := mockDomain.NewMockUsersUseCase(ctrl)
 			image := mockDomain.NewMockImageUseCase(ctrl)
 
-			test.mockBehaviorCreate(post, test.inputPost, uint64(test.inputPost.UserID))
+			test.mockBehaviorCreate(post, test.inputPost, test.inputPost.UserID)
 			test.mockBehaviorCookie(user, test.sessionID)
 
 			handler := NewHandler(post, user, image)
@@ -496,7 +496,7 @@ func TestHandler_PutPost(t *testing.T) {
 			c := e.NewContext(req, rec)
 			c.SetPath("https://127.0.0.1/api/v1/posts/:postID")
 			c.SetParamNames("id")
-			c.SetParamValues(strconv.FormatInt(int64(test.postID), 10))
+			c.SetParamValues(strconv.FormatInt(test.postID, 10))
 
 			if err = handler.PutPost(c); err != nil {
 				assert.Equal(t, test.expectedErrorMessage, err.Error())

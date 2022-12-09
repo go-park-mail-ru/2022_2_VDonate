@@ -50,6 +50,11 @@ mocks: ## Generate mocks
 	@mockgen -source=internal/microservices/auth/protobuf/auth_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/auth_client.go
 	@mockgen -source=internal/microservices/users/protobuf/users_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/users_client.go
 	@mockgen -source=internal/microservices/donates/protobuf/donates_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/donates_client.go
+	@mockgen -source=internal/microservices/images/protobuf/images_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/images_client.go
+	@mockgen -source=internal/microservices/post/protobuf/posts_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/post_client.go
+	@mockgen -source=internal/microservices/subscribers/protobuf/subscribers_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/subscribers_client.go
+	@mockgen -source=internal/microservices/subscriptions/protobuf/subscriptions_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/subscriptions_client.go
+	@mockgen -source=internal/microservices/users/protobuf/users_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/users_client.go
 	@echo "OK"
 
 .PHONY: lint
