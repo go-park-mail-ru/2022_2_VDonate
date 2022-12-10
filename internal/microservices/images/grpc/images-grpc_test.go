@@ -2,12 +2,13 @@ package grpcImages
 
 import (
 	"context"
+	"testing"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/images/protobuf"
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestImagesService_Create(t *testing.T) {

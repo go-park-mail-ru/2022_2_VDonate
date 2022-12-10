@@ -2,9 +2,11 @@ package main
 
 import (
 	"flag"
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-	defaultLogger "log"
 	"net/http"
+
+	grpcPrometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+
+	defaultLogger "log"
 
 	"github.com/prometheus/client_golang/prometheus"
 
@@ -23,14 +25,12 @@ import (
 var (
 	reg = prometheus.NewRegistry()
 
-	grpcMetrics = grpc_prometheus.NewServerMetrics()
+	grpcMetrics = grpcPrometheus.NewServerMetrics()
 )
 
-func init() {
-	reg.MustRegister(grpcMetrics)
-}
-
 func main() {
+	reg.MustRegister(grpcMetrics)
+
 	/*----------------------------flag----------------------------*/
 	var configPath string
 	config.PathFlag(&configPath)

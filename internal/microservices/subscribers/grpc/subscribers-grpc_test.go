@@ -2,6 +2,8 @@ package grpcSubscribers
 
 import (
 	"context"
+	"testing"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscribers/protobuf"
 	userProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
@@ -9,7 +11,6 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestConvertToModel(t *testing.T) {
@@ -75,7 +76,6 @@ func TestSubscribersService_GetSubscribers(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.GetSubscribers(context.Background(), &userProto.UserID{UserId: test.input})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
@@ -133,7 +133,6 @@ func TestSubscribersService_Subscribe(t *testing.T) {
 				SubscriberID:         test.sub.SubscriberID,
 				AuthorSubscriptionID: test.sub.AuthorSubscriptionID,
 			})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
@@ -184,7 +183,6 @@ func TestSubscribersService_Unsubscribe(t *testing.T) {
 				UserId:   test.userID,
 				AuthorId: test.authorID,
 			})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}

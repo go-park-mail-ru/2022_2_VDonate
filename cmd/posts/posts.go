@@ -2,10 +2,13 @@ package main
 
 import (
 	"flag"
-	postsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	defaultLogger "log"
 	"net/http"
+
+	postsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	defaultLogger "log"
 
 	grpcPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/post/grpc"
 
@@ -26,11 +29,9 @@ var (
 	grpcMetrics = grpc_prometheus.NewServerMetrics()
 )
 
-func init() {
-	reg.MustRegister(grpcMetrics)
-}
-
 func main() {
+	reg.MustRegister(grpcMetrics)
+
 	/*----------------------------flag----------------------------*/
 	var configPath string
 	config.PathFlag(&configPath)

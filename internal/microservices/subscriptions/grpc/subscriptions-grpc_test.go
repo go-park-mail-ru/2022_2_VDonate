@@ -2,6 +2,8 @@ package grpcSubscriptions
 
 import (
 	"context"
+	"testing"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscriptions/protobuf"
 	userProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
@@ -9,7 +11,6 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestConvertToModel(t *testing.T) {
@@ -129,7 +130,6 @@ func TestSubscriptionsService_AddSubscription(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.AddSubscription(context.Background(), ConvertToProto(test.input))
-
 			if err != nil {
 				assert.Equal(t, test.expectedErr, err.Error())
 			}
@@ -174,7 +174,6 @@ func TestSubscriptionsService_DeleteSubscription(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.DeleteSubscription(context.Background(), &protobuf.AuthorSubscriptionID{ID: test.id})
-
 			if err != nil {
 				assert.Equal(t, test.expectedErr, err.Error())
 			}
@@ -229,7 +228,6 @@ func TestSubscriptionsService_GetSubscriptionByID(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.GetSubscriptionByID(context.Background(), &protobuf.AuthorSubscriptionID{ID: test.id})
-
 			if err != nil {
 				assert.Equal(t, test.expectedErr, err.Error())
 			}
@@ -290,7 +288,6 @@ func TestSubscriptionsService_GetSubscriptionByUserAndAuthorID(t *testing.T) {
 				UserId:   test.userID,
 				AuthorId: test.authorID,
 			})
-
 			if err != nil {
 				assert.Equal(t, test.expectedErr, err.Error())
 			}
@@ -347,7 +344,6 @@ func TestSubscriptionsService_GetSubscriptionsByAuthorID(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.GetSubscriptionsByAuthorID(context.Background(), &userProto.UserID{UserId: test.authorID})
-
 			if err != nil {
 				assert.Equal(t, test.expectedErr, err.Error())
 			}
@@ -404,7 +400,6 @@ func TestSubscriptionsService_GetSubscriptionsByUserID(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.GetSubscriptionsByUserID(context.Background(), &userProto.UserID{UserId: test.userID})
-
 			if err != nil {
 				assert.Equal(t, test.expectedErr, err.Error())
 			}
@@ -473,7 +468,6 @@ func TestSubscriptionsService_UpdateSubscription(t *testing.T) {
 				Text:     test.subscription.Text,
 				Price:    test.subscription.Price,
 			})
-
 			if err != nil {
 				assert.Equal(t, test.expectedErr, err.Error())
 			}

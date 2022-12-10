@@ -2,6 +2,8 @@ package grpcDonate
 
 import (
 	"context"
+	"testing"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/donates/protobuf"
 	userProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
@@ -10,7 +12,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestConvertToModel(t *testing.T) {

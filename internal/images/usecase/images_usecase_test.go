@@ -1,9 +1,10 @@
 package images
 
 import (
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 

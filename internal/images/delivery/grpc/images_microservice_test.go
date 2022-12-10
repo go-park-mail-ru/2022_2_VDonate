@@ -4,6 +4,10 @@ import (
 	"context"
 	"testing"
 
+	"google.golang.org/grpc/codes"
+
+	"google.golang.org/grpc/status"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/images/protobuf"
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"github.com/golang/mock/gomock"
@@ -43,10 +47,10 @@ func TestImagesClient_Create(t *testing.T) {
 			size:     4,
 			oldName:  "test",
 			mock: func(r *mockDomain.MockImagesClient, c context.Context, in *protobuf.Image, opts ...grpc.CallOption) {
-				r.EXPECT().Create(c, in).Return(&protobuf.Filename{Filename: "test"}, grpc.ErrClientConnClosing)
+				r.EXPECT().Create(c, in).Return(&protobuf.Filename{Filename: "test"}, status.Error(codes.Canceled, "canceled"))
 			},
 			want:    "",
-			wantErr: grpc.ErrClientConnClosing,
+			wantErr: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 
@@ -97,10 +101,10 @@ func TestImagesClient_Get(t *testing.T) {
 			name:     "Error",
 			filename: "test",
 			mock: func(r *mockDomain.MockImagesClient, c context.Context, in *protobuf.Filename, opts ...grpc.CallOption) {
-				r.EXPECT().Get(c, in).Return(&protobuf.URL{Url: "test"}, grpc.ErrClientConnClosing)
+				r.EXPECT().Get(c, in).Return(&protobuf.URL{Url: "test"}, status.Error(codes.Canceled, "canceled"))
 			},
 			want:    "",
-			wantErr: grpc.ErrClientConnClosing,
+			wantErr: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 

@@ -2,6 +2,8 @@ package grpcUsers
 
 import (
 	"context"
+	"testing"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	authProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
@@ -10,7 +12,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"testing"
 )
 
 func TestConvertToProto(t *testing.T) {
@@ -232,7 +233,6 @@ func TestUserService_Update(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.Update(context.Background(), test.input)
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}

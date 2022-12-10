@@ -264,11 +264,11 @@ func TestSubscriptionsClient_AddSubscription(t *testing.T) {
 			},
 			mock: func(r *mockDomain.MockSubscriptionsClient, c context.Context, in *protobuf.AuthorSubscription, opts ...interface{}) {
 				r.EXPECT().AddSubscription(c, in).Return(&protobuf.AuthorSubscriptionID{
-					ID:       1,
+					ID: 1,
 				}, nil)
 			},
 			response: 1,
-			err: nil,
+			err:      nil,
 		},
 		{
 			name: "Error",
@@ -279,7 +279,7 @@ func TestSubscriptionsClient_AddSubscription(t *testing.T) {
 			mock: func(r *mockDomain.MockSubscriptionsClient, c context.Context, in *protobuf.AuthorSubscription, opts ...interface{}) {
 				r.EXPECT().AddSubscription(c, in).Return(nil, errors.New("error"))
 			},
-			err:      errors.New("error"),
+			err: errors.New("error"),
 		},
 	}
 
@@ -322,7 +322,7 @@ func TestSubscriptionsClient_UpdateSubscription(t *testing.T) {
 				r.EXPECT().UpdateSubscription(c, in).Return(&emptypb.Empty{}, nil)
 			},
 			response: 1,
-			err: nil,
+			err:      nil,
 		},
 		{
 			name: "Error",
@@ -333,7 +333,7 @@ func TestSubscriptionsClient_UpdateSubscription(t *testing.T) {
 			mock: func(r *mockDomain.MockSubscriptionsClient, c context.Context, in *protobuf.AuthorSubscription, opts ...interface{}) {
 				r.EXPECT().UpdateSubscription(c, in).Return(nil, errors.New("error"))
 			},
-			err:      errors.New("error"),
+			err: errors.New("error"),
 		},
 	}
 
@@ -372,7 +372,7 @@ func TestSubscriptionsClient_DeleteSubscription(t *testing.T) {
 				r.EXPECT().DeleteSubscription(c, in).Return(&emptypb.Empty{}, nil)
 			},
 			response: 1,
-			err: nil,
+			err:      nil,
 		},
 		{
 			name:  "Error",
@@ -380,7 +380,7 @@ func TestSubscriptionsClient_DeleteSubscription(t *testing.T) {
 			mock: func(r *mockDomain.MockSubscriptionsClient, c context.Context, in *protobuf.AuthorSubscriptionID, opts ...interface{}) {
 				r.EXPECT().DeleteSubscription(c, in).Return(nil, errors.New("error"))
 			},
-			err:      errors.New("error"),
+			err: errors.New("error"),
 		},
 	}
 

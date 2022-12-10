@@ -1,7 +1,5 @@
 package models
 
-import "mime/multipart"
-
 type EmptyStruct struct{}
 
 type Error struct {
@@ -15,7 +13,7 @@ type ImageMpfd struct {
 type PostMpfd struct {
 	Title string `json:"title" form:"title" db:"title" validate:"required" example:"some title"`
 	Text  string `json:"text" form:"text" db:"text" validate:"required" example:"some text"`
-	File  multipart.File
+	File  []byte
 }
 
 type UserMpfd struct {

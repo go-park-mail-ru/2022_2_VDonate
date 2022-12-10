@@ -24,4 +24,11 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             sudo docker pull zeronethunter/vdonate-api
+            sudo docker pull zeronethunter/vdonate-auth
+            sudo docker pull zeronethunter/vdonate-donates
+            sudo docker pull zeronethunter/vdonate-images
+            sudo docker pull zeronethunter/vdonate-posts
+            sudo docker pull zeronethunter/vdonate-subscribers
+            sudo docker pull zeronethunter/vdonate-subscriptions
+            sudo docker pull zeronethunter/vdonate-users
             cd ~/backend/deployments && sudo docker-compose up -d

@@ -4,6 +4,9 @@ import (
 	"context"
 	"testing"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	authProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
 	userProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
@@ -37,9 +40,9 @@ func TestUsersMicroservice_Update(t *testing.T) {
 		{
 			name: "Error",
 			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.User, opts ...grpc.CallOption) {
-				s.EXPECT().Update(c, in).Return(&emptypb.Empty{}, grpc.ErrClientConnClosing)
+				s.EXPECT().Update(c, in).Return(&emptypb.Empty{}, status.Error(codes.Canceled, "canceled"))
 			},
-			err: grpc.ErrClientConnClosing,
+			err: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 
@@ -84,9 +87,9 @@ func TestUsersMicroservice_Create(t *testing.T) {
 		{
 			name: "Error",
 			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.User, opts ...grpc.CallOption) {
-				s.EXPECT().Create(c, in).Return(&userProto.UserID{}, grpc.ErrClientConnClosing)
+				s.EXPECT().Create(c, in).Return(&userProto.UserID{}, status.Error(codes.Canceled, "canceled"))
 			},
-			err: grpc.ErrClientConnClosing,
+			err: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 
@@ -134,9 +137,9 @@ func TestUsersMicroservice_GetAuthorByUsername(t *testing.T) {
 		{
 			name: "Error",
 			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.Keyword, opts ...grpc.CallOption) {
-				s.EXPECT().GetAuthorByUsername(c, in).Return(&userProto.UsersArray{}, grpc.ErrClientConnClosing)
+				s.EXPECT().GetAuthorByUsername(c, in).Return(&userProto.UsersArray{}, status.Error(codes.Canceled, "canceled"))
 			},
-			err: grpc.ErrClientConnClosing,
+			err: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 
@@ -181,9 +184,9 @@ func TestUsersMicroservice_GetAllAuthors(t *testing.T) {
 		{
 			name: "Error",
 			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *emptypb.Empty, opts ...grpc.CallOption) {
-				s.EXPECT().GetAllAuthors(c, in).Return(&userProto.UsersArray{}, grpc.ErrClientConnClosing)
+				s.EXPECT().GetAllAuthors(c, in).Return(&userProto.UsersArray{}, status.Error(codes.Canceled, "canceled"))
 			},
-			err: grpc.ErrClientConnClosing,
+			err: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 
@@ -224,9 +227,9 @@ func TestUsersMicroservice_GetByID(t *testing.T) {
 		{
 			name: "Error",
 			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.UserID, opts ...grpc.CallOption) {
-				s.EXPECT().GetByID(c, in).Return(&userProto.User{}, grpc.ErrClientConnClosing)
+				s.EXPECT().GetByID(c, in).Return(&userProto.User{}, status.Error(codes.Canceled, "canceled"))
 			},
-			err: grpc.ErrClientConnClosing,
+			err: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 
@@ -269,9 +272,9 @@ func TestUsersMicroservice_GetBySessionID(t *testing.T) {
 		{
 			name: "Error",
 			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *authProto.SessionID, opts ...grpc.CallOption) {
-				s.EXPECT().GetBySessionID(c, in).Return(&userProto.User{}, grpc.ErrClientConnClosing)
+				s.EXPECT().GetBySessionID(c, in).Return(&userProto.User{}, status.Error(codes.Canceled, "canceled"))
 			},
-			err: grpc.ErrClientConnClosing,
+			err: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 
@@ -314,9 +317,9 @@ func TestUsersMicroservice_GetByEmail(t *testing.T) {
 		{
 			name: "Error",
 			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.Email, opts ...grpc.CallOption) {
-				s.EXPECT().GetByEmail(c, in).Return(&userProto.User{}, grpc.ErrClientConnClosing)
+				s.EXPECT().GetByEmail(c, in).Return(&userProto.User{}, status.Error(codes.Canceled, "canceled"))
 			},
-			err: grpc.ErrClientConnClosing,
+			err: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 
@@ -359,9 +362,9 @@ func TestUsersMicroservice_GetByUsername(t *testing.T) {
 		{
 			name: "Error",
 			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.Username, opts ...grpc.CallOption) {
-				s.EXPECT().GetByUsername(c, in).Return(&userProto.User{}, grpc.ErrClientConnClosing)
+				s.EXPECT().GetByUsername(c, in).Return(&userProto.User{}, status.Error(codes.Canceled, "canceled"))
 			},
-			err: grpc.ErrClientConnClosing,
+			err: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 
@@ -404,9 +407,9 @@ func TestUsersMicroservice_GetUserByPostID(t *testing.T) {
 		{
 			name: "Error",
 			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.PostID, opts ...grpc.CallOption) {
-				s.EXPECT().GetUserByPostID(c, in).Return(&userProto.User{}, grpc.ErrClientConnClosing)
+				s.EXPECT().GetUserByPostID(c, in).Return(&userProto.User{}, status.Error(codes.Canceled, "canceled"))
 			},
-			err: grpc.ErrClientConnClosing,
+			err: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 

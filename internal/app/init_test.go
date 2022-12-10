@@ -1,12 +1,12 @@
 package app
 
 import (
-	"github.com/stretchr/testify/assert"
 	"log"
 	"os/exec"
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
@@ -39,6 +39,23 @@ func TestApp_init(t *testing.T) {
 	}
 
 	log.Println("Successfully enabled")
+
+	log.Println("Check running containers...")
+
+	cmd = exec.Command("docker", "ps")
+
+	out, err = cmd.CombinedOutput()
+
+	log.Println("\n" + string(out))
+
+	if err != nil {
+		exitErr, ok := err.(*exec.ExitError)
+		if ok {
+			assert.NoError(t, err, string(exitErr.Stderr))
+		} else {
+			log.Fatalf("cmd.Wait: %v", err)
+		}
+	}
 
 	log.Println("Initializing server...")
 

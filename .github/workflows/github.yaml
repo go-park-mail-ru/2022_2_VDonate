@@ -4,7 +4,7 @@ on: [ push ]
 jobs:
   build:
     name: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/setup-go@v3
         with:
@@ -15,7 +15,7 @@ jobs:
   golangci-lint:
     name: lint
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
@@ -26,53 +26,202 @@ jobs:
         with:
           version: latest
           args: -c configs/.golangci.yaml
-#  test:
-#    name: test
-#    needs: golangci-lint
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/setup-go@v3
-#        with:
-#          go-version: 1.19
-#      - uses: actions/checkout@v3
-#      - name: Installing mockgen
-#        run: go install github.com/golang/mock/mockgen@v1.6.0
-#      - name: Setup mocks
-#        run: make mocks
-#      - name: Testing
-#        run: make cover_out
-#      - name: Coverage check
-#        env:
-#          TESTCOVERAGE_THRESHOLD: 10
-#        run: |
-#          echo "Checking test coverage is above threshold..."
-#          echo "Threshold             : $TESTCOVERAGE_THRESHOLD %"
-#          totalCoverage=`make cover_out | grep total | grep -Eo '[0-9]+\.[0-9]+'`
-#          echo "Current test coverage : $totalCoverage %"
-#          if (( $(echo "$totalCoverage $TESTCOVERAGE_THRESHOLD" | awk '{print ($1 > $2)}') )); then
-#              echo "OK"
-#          else
-#              echo "Current test coverage is below threshold. Please add more tests or adjust threshold to a lower value."
-#              echo "Failed"
-#              exit 1
-#          fi
-#  build_push_api:
-#    name: build and push api
-#    needs: test
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#      - name: Set up Docker Buildx
-#        uses: docker/setup-buildx-action@v2
-#      - name: Login to Docker Hub
-#        uses: docker/login-action@v2
-#        with:
-#          username: ${{ secrets.DOCKERHUB_USERNAME }}
-#          password: ${{ secrets.DOCKERHUB_TOKEN }}
-#      - name: Build and push
-#        uses: docker/build-push-action@v3
-#        with:
-#          context: .
-#          file: ./deployments/deploy/api/Dockerfile
-#          push: true
-#          tags: zeronethunter/vdonate-api:latest
+  test:
+    name: test
+    needs: golangci-lint
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - uses: actions/checkout@v3
+      - name: Installing mockgen
+        run: go install github.com/golang/mock/mockgen@v1.6.0
+      - name: Setup mocks
+        run: make mocks
+      - name: Testing
+        run: make cover_out
+      - name: Coverage check
+        env:
+          TESTCOVERAGE_THRESHOLD: 50
+        run: |
+          echo "Checking test coverage is above threshold..."
+          echo "Threshold             : $TESTCOVERAGE_THRESHOLD %"
+          totalCoverage=`make cover_out | grep total | grep -Eo '[0-9]+\.[0-9]+'`
+          echo "Current test coverage : $totalCoverage %"
+          if (( $(echo "$totalCoverage $TESTCOVERAGE_THRESHOLD" | awk '{print ($1 > $2)}') )); then
+              echo "OK"
+          else
+              echo "Current test coverage is below threshold. Please add more tests or adjust threshold to a lower value."
+              echo "Failed"
+              exit 1
+          fi
+
+  build_push_api:
+    name: build and push api
+    needs: test
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./deployments/api/Dockerfile
+          push: true
+          tags: zeronethunter/vdonate-api:latest
+
+  build_push_auth:
+    name: build and push auth
+    needs: test
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./deployments/auth/Dockerfile
+          push: true
+          tags: zeronethunter/vdonate-auth:latest
+
+  build_push_donates:
+    name: build and push donates
+    needs: test
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./deployments/donates/Dockerfile
+          push: true
+          tags: zeronethunter/vdonate-donates:latest
+
+  build_push_images:
+    name: build and push images
+    needs: test
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./deployments/images/Dockerfile
+          push: true
+          tags: zeronethunter/vdonate-images:latest
+
+  build_push_posts:
+    name: build and push posts
+    needs: test
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./deployments/posts/Dockerfile
+          push: true
+          tags: zeronethunter/vdonate-posts:latest
+
+  build_push_subscribers:
+    name: build and push subscribers
+    needs: test
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./deployments/subscribers/Dockerfile
+          push: true
+          tags: zeronethunter/vdonate-subscribers:latest
+
+  build_push_subscriptions:
+    name: build and push subscriptions
+    needs: test
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./deployments/subscriptions/Dockerfile
+          push: true
+          tags: zeronethunter/vdonate-subscriptions:latest
+
+  build_push_users:
+    name: build and push users
+    needs: test
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./deployments/users/Dockerfile
+          push: true
+          tags: zeronethunter/vdonate-users:latest
+

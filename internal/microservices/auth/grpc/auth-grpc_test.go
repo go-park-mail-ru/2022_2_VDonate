@@ -2,6 +2,9 @@ package grpcAuth
 
 import (
 	"context"
+	"testing"
+	"time"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf"
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
@@ -9,8 +12,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"testing"
-	"time"
 )
 
 func TestAuth_CreateSession(t *testing.T) {
@@ -122,7 +123,6 @@ func TestAuth_DeleteBySessionID(t *testing.T) {
 			_, err := s.DeleteBySessionID(context.Background(), &protobuf.SessionID{
 				SessionId: test.input,
 			})
-
 			if err != nil {
 				require.Equal(t, test.expectedErr, err.Error())
 			}

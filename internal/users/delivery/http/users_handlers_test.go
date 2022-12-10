@@ -326,7 +326,7 @@ func TestHandler_GetAuthors(t *testing.T) {
 				r.EXPECT().FindAuthors(keyword).Return([]models.User{}, domain.ErrInternal)
 			},
 			mockSubscribers: func(r *mockDomain.MockSubscribersUseCase, authorID uint64) {},
-			responseError: "code=500, message=server error, internal=server error",
+			responseError:   "code=500, message=server error, internal=server error",
 		},
 		{
 			name:    "ErrGetSubscribers",

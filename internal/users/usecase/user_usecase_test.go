@@ -272,8 +272,8 @@ func TestUsecase_FindAuthors(t *testing.T) {
 			mockAllAuthors: func(r *mockDomain.MockUsersMicroservice) {
 				r.EXPECT().GetAllAuthors().Return([]models.User{}, errors.New("empty word"))
 			},
-			mockAuthors: func(r *mockDomain.MockUsersMicroservice, word string) {},
-			mockImages: func(r *mockDomain.MockImageUseCase, avatar string) {},
+			mockAuthors:   func(r *mockDomain.MockUsersMicroservice, word string) {},
+			mockImages:    func(r *mockDomain.MockImageUseCase, avatar string) {},
 			expectedError: "empty word",
 		},
 	}

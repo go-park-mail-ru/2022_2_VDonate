@@ -4,6 +4,10 @@ import (
 	"context"
 	"testing"
 
+	"google.golang.org/grpc/codes"
+
+	"google.golang.org/grpc/status"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscribers/protobuf"
 	userProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
@@ -41,9 +45,9 @@ func TestSubscribersClient_GetSubscribers(t *testing.T) {
 		{
 			name: "Error",
 			mock: func(r *mockDomain.MockSubscribersClient, c context.Context, in *userProto.UserID, opts ...grpc.CallOption) {
-				r.EXPECT().GetSubscribers(c, in).Return(nil, grpc.ErrClientConnClosing)
+				r.EXPECT().GetSubscribers(c, in).Return(nil, status.Error(codes.Canceled, "canceled"))
 			},
-			err: grpc.ErrClientConnClosing,
+			err: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 
@@ -69,16 +73,16 @@ func TestSubscribersClient_Subscribe(t *testing.T) {
 	type mockSubscribe func(r *mockDomain.MockSubscribersClient, c context.Context, in *protobuf.Subscriber, opts ...grpc.CallOption)
 
 	tests := []struct {
-		name      string
+		name         string
 		subscription models.Subscription
-		mock      mockSubscribe
-		response  bool
-		err       error
+		mock         mockSubscribe
+		response     bool
+		err          error
 	}{
 		{
 			name: "OK",
 			subscription: models.Subscription{
-				AuthorID: 1,
+				AuthorID:     1,
 				SubscriberID: 2,
 			},
 			mock: func(r *mockDomain.MockSubscribersClient, c context.Context, in *protobuf.Subscriber, opts ...grpc.CallOption) {
@@ -90,9 +94,9 @@ func TestSubscribersClient_Subscribe(t *testing.T) {
 		{
 			name: "Error",
 			mock: func(r *mockDomain.MockSubscribersClient, c context.Context, in *protobuf.Subscriber, opts ...grpc.CallOption) {
-				r.EXPECT().Subscribe(c, in).Return(nil, grpc.ErrClientConnClosing)
+				r.EXPECT().Subscribe(c, in).Return(nil, status.Error(codes.Canceled, "canceled"))
 			},
-			err: grpc.ErrClientConnClosing,
+			err: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 
@@ -103,7 +107,7 @@ func TestSubscribersClient_Subscribe(t *testing.T) {
 			mock := mockDomain.NewMockSubscribersClient(ctrl)
 
 			test.mock(mock, context.Background(), &protobuf.Subscriber{
-				AuthorID: test.subscription.AuthorID,
+				AuthorID:     test.subscription.AuthorID,
 				SubscriberID: test.subscription.SubscriberID,
 			})
 
@@ -118,16 +122,16 @@ func TestSubscribersClient_Unsubscribe(t *testing.T) {
 	type mockUnsubscribe func(r *mockDomain.MockSubscribersClient, c context.Context, in *userProto.UserAuthorPair, opts ...grpc.CallOption)
 
 	tests := []struct {
-		name      string
+		name         string
 		subscription models.Subscription
-		mock      mockUnsubscribe
-		response  bool
-		err       error
+		mock         mockUnsubscribe
+		response     bool
+		err          error
 	}{
 		{
 			name: "OK",
 			subscription: models.Subscription{
-				AuthorID: 1,
+				AuthorID:     1,
 				SubscriberID: 2,
 			},
 			mock: func(r *mockDomain.MockSubscribersClient, c context.Context, in *userProto.UserAuthorPair, opts ...grpc.CallOption) {
@@ -139,9 +143,9 @@ func TestSubscribersClient_Unsubscribe(t *testing.T) {
 		{
 			name: "Error",
 			mock: func(r *mockDomain.MockSubscribersClient, c context.Context, in *userProto.UserAuthorPair, opts ...grpc.CallOption) {
-				r.EXPECT().Unsubscribe(c, in).Return(nil, grpc.ErrClientConnClosing)
+				r.EXPECT().Unsubscribe(c, in).Return(nil, status.Error(codes.Canceled, "canceled"))
 			},
-			err: grpc.ErrClientConnClosing,
+			err: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 
@@ -152,7 +156,7 @@ func TestSubscribersClient_Unsubscribe(t *testing.T) {
 			mock := mockDomain.NewMockSubscribersClient(ctrl)
 
 			test.mock(mock, context.Background(), &userProto.UserAuthorPair{
-				UserId: test.subscription.SubscriberID,
+				UserId:   test.subscription.SubscriberID,
 				AuthorId: test.subscription.AuthorID,
 			})
 

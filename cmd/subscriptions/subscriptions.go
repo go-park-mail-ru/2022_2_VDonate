@@ -26,11 +26,9 @@ var (
 	grpcMetrics = grpc_prometheus.NewServerMetrics()
 )
 
-func init() {
-	reg.MustRegister(grpcMetrics)
-}
-
 func main() {
+	reg.MustRegister(grpcMetrics)
+
 	/*----------------------------flag----------------------------*/
 	var configPath string
 	config.PathFlag(&configPath)

@@ -2,6 +2,9 @@ package grpcPosts
 
 import (
 	"context"
+	"testing"
+	"time"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/post/protobuf"
 	userProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
@@ -10,8 +13,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"testing"
-	"time"
 )
 
 func TestConvertToModel(t *testing.T) {
@@ -286,7 +287,6 @@ func TestPostsService_Create(t *testing.T) {
 				},
 				Tags: test.post.Tags,
 			})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
@@ -361,7 +361,6 @@ func TestPostsService_Update(t *testing.T) {
 				},
 				Tags: test.post.Tags,
 			})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
@@ -406,7 +405,6 @@ func TestPostsService_DeleteByID(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.DeleteByID(context.Background(), &protobuf.PostID{PostID: test.id})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
@@ -462,7 +460,6 @@ func TestPostsService_GetPostsBySubscriptions(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.GetPostsBySubscriptions(context.Background(), &userProto.UserID{UserId: test.userID})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
@@ -516,7 +513,6 @@ func TestPostsService_GetLikeByUserAndPostID(t *testing.T) {
 				UserID: test.userID,
 				PostID: test.postID,
 			})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
@@ -566,7 +562,6 @@ func TestPostsService_GetAllLikesByPostID(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.GetAllLikesByPostID(context.Background(), &protobuf.PostID{PostID: test.postID})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
@@ -617,7 +612,6 @@ func TestPostsService_CreateLike(t *testing.T) {
 				UserID: test.userID,
 				PostID: test.postID,
 			})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
@@ -668,7 +662,6 @@ func TestPostsService_DeleteLikeByID(t *testing.T) {
 				UserID: test.userID,
 				PostID: test.postID,
 			})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
@@ -716,7 +709,6 @@ func TestPostsService_CreateTag(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.CreateTag(context.Background(), &protobuf.TagName{TagName: test.tag})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
@@ -763,7 +755,6 @@ func TestPostsService_GetTagById(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.GetTagById(context.Background(), &protobuf.TagID{TagID: test.tagID})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
@@ -810,7 +801,6 @@ func TestPostsService_GetTagByName(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.GetTagByName(context.Background(), &protobuf.TagName{TagName: test.tagName})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
@@ -858,7 +848,6 @@ func TestPostsService_CreateDepTag(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.CreateDepTag(context.Background(), &protobuf.TagDep{TagID: test.tagID, PostID: test.postID})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
@@ -908,7 +897,6 @@ func TestPostsService_GetTagDepsByPostId(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.GetTagDepsByPostId(context.Background(), &protobuf.PostID{PostID: test.postID})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
@@ -962,7 +950,6 @@ func TestPostsService_DeleteDepTag(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.DeleteDepTag(context.Background(), &protobuf.TagDep{TagID: test.tagID, PostID: test.postID})
-
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}

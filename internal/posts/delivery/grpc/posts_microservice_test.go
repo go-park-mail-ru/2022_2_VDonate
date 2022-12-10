@@ -6,6 +6,9 @@ import (
 	"testing"
 	"time"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/post/protobuf"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
@@ -52,10 +55,10 @@ func TestPostsClient_GetAllByUserID(t *testing.T) {
 			name:   "Error",
 			userID: 1,
 			mock: func(r *mockDomain.MockPostsClient, c context.Context, in *userProto.UserID, opts ...grpc.CallOption) {
-				r.EXPECT().GetAllByUserID(c, in).Return(nil, grpc.ErrClientConnClosing)
+				r.EXPECT().GetAllByUserID(c, in).Return(nil, status.Error(codes.Canceled, "canceled"))
 			},
 			want:    nil,
-			wantErr: grpc.ErrClientConnClosing,
+			wantErr: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 
@@ -108,10 +111,10 @@ func TestPostClient_GetPostByID(t *testing.T) {
 			name:   "Error",
 			postID: 1,
 			mock: func(r *mockDomain.MockPostsClient, c context.Context, in *protobuf.PostID, opts ...grpc.CallOption) {
-				r.EXPECT().GetPostByID(c, in).Return(nil, grpc.ErrClientConnClosing)
+				r.EXPECT().GetPostByID(c, in).Return(nil, status.Error(codes.Canceled, "canceled"))
 			},
 			want:    models.Post{},
-			wantErr: grpc.ErrClientConnClosing,
+			wantErr: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 
@@ -165,9 +168,9 @@ func TestPostClient_CreatePost(t *testing.T) {
 				UserID: 1,
 			},
 			mock: func(r *mockDomain.MockPostsClient, c context.Context, in *protobuf.Post, opts ...grpc.CallOption) {
-				r.EXPECT().Create(c, in).Return(nil, grpc.ErrClientConnClosing)
+				r.EXPECT().Create(c, in).Return(nil, status.Error(codes.Canceled, "canceled"))
 			},
-			wantErr: grpc.ErrClientConnClosing,
+			wantErr: status.Error(codes.Canceled, "canceled"),
 		},
 	}
 
@@ -882,7 +885,7 @@ func TestPostsClient_DeleteDepTag(t *testing.T) {
 				client: mock,
 			}
 			err := m.DeleteDepTag(models.TagDep{
-				TagID: test.tagID, 
+				TagID:  test.tagID,
 				PostID: test.postID,
 			})
 			require.Equal(t, err, test.wantErr)

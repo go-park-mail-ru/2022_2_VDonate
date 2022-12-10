@@ -2,10 +2,13 @@ package main
 
 import (
 	"flag"
-	donatesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/repository"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	defaultLogger "log"
 	"net/http"
+
+	donatesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/repository"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	defaultLogger "log"
 
 	grpcDonate "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/donates/grpc"
 
@@ -14,7 +17,9 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/app"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/donates/protobuf"
+
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -24,11 +29,9 @@ var (
 	grpcMetrics = grpc_prometheus.NewServerMetrics()
 )
 
-func init() {
-	reg.MustRegister(grpcMetrics)
-}
-
 func main() {
+	reg.MustRegister(grpcMetrics)
+
 	/*----------------------------flag----------------------------*/
 	var configPath string
 	config.PathFlag(&configPath)
