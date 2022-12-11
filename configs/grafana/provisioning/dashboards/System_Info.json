@@ -24,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 10,
+  "id": 8,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -97,7 +97,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "#052B51",
+                  "fixedColor": "dark-blue",
                   "mode": "fixed"
                 }
               }
@@ -202,7 +202,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "#5195CE",
+                  "fixedColor": "red",
                   "mode": "fixed"
                 }
               }
@@ -990,6 +990,7 @@
       "type": "timeseries"
     }
   ],
+  "refresh": "5s",
   "schemaVersion": 37,
   "style": "dark",
   "tags": [],
@@ -1004,6 +1005,6 @@
   "timezone": "",
   "title": "System Info",
   "uid": "be9YEsFVz",
-  "version": 6,
+  "version": 3,
   "weekStart": ""
 }
