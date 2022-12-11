@@ -19,6 +19,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/swaggo/echo-swagger v1.3.5
 	github.com/swaggo/swag v1.8.7
+	github.com/zhashkevych/go-sqlxmock v1.5.1
 	golang.org/x/exp v0.0.0-20221114191408-850992195362
 	google.golang.org/grpc v1.51.0
 	google.golang.org/protobuf v1.28.1
