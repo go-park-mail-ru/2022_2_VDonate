@@ -15,14 +15,13 @@ import (
 
 func ConvertToProto(p models.Post) *protobuf.Post {
 	return &protobuf.Post{
-		ID:              p.ID,
-		UserID:          p.UserID,
-		ContentTemplate: p.ContentTemplate,
-		Content:         p.Content,
-		Tier:            p.Tier,
-		IsAllowed:       p.IsAllowed,
-		DateCreated:     timestamppb.New(p.DateCreated),
-		Tags:            p.Tags,
+		ID:          p.ID,
+		UserID:      p.UserID,
+		Content:     p.Content,
+		Tier:        p.Tier,
+		IsAllowed:   p.IsAllowed,
+		DateCreated: timestamppb.New(p.DateCreated),
+		Tags:        p.Tags,
 		Author: &usersProto.LessUser{
 			Id:       p.Author.UserID,
 			Username: p.Author.Username,
@@ -35,14 +34,13 @@ func ConvertToProto(p models.Post) *protobuf.Post {
 
 func ConvertToModel(p *protobuf.Post) models.Post {
 	return models.Post{
-		ID:              p.ID,
-		UserID:          p.UserID,
-		ContentTemplate: p.ContentTemplate,
-		Content:         p.Content,
-		Tier:            p.Tier,
-		IsAllowed:       p.IsAllowed,
-		DateCreated:     p.DateCreated.AsTime(),
-		Tags:            p.Tags,
+		ID:          p.ID,
+		UserID:      p.UserID,
+		Content:     p.Content,
+		Tier:        p.Tier,
+		IsAllowed:   p.IsAllowed,
+		DateCreated: p.DateCreated.AsTime(),
+		Tags:        p.Tags,
 		Author: models.ResponseImageUsers{
 			UserID:   p.Author.GetId(),
 			Username: p.Author.GetUsername(),

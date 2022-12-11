@@ -157,9 +157,6 @@ definitions:
       content:
         example: Hello <img src=...>
         type: string
-      contentTemplate:
-        example: Hello [img|vdonate/path/to/img]
-        type: string
       dateCreated:
         example: "2022-11-11"
         type: string
@@ -188,7 +185,6 @@ definitions:
     required:
     - author
     - content
-    - contentTemplate
     - isLiked
     - likesNum
     type: object
@@ -197,15 +193,11 @@ definitions:
       content:
         example: <img src="">
         type: string
-      contentTemplate:
-        example: '[img|vdonate.ml...]'
-        type: string
       postID:
         example: 25
         type: integer
     required:
     - content
-    - contentTemplate
     - postID
     type: object
   models.ResponseImageSubscription:
@@ -575,6 +567,11 @@ paths:
       description: Create post by user cookie
       operationId: create_post
       parameters:
+      - in: formData
+        items:
+          type: integer
+        name: file
+        type: array
       - example: some text
         in: formData
         name: text
@@ -715,6 +712,11 @@ paths:
         name: id
         required: true
         type: integer
+      - in: formData
+        items:
+          type: integer
+        name: file
+        type: array
       - example: some text
         in: formData
         name: text

@@ -266,7 +266,7 @@ func TestUsecase_Login(t *testing.T) {
 				r.EXPECT().GetByEmail(email).Return(models.User{}, domain.ErrNotFound)
 			},
 			mockBehaviourAuthRepo: func(r *mockDomain.MockAuthMicroservice, id uint64) {},
-			responseError:         errors.New("username or email not exists: failed to find item"),
+			responseError:         errors.New("username or email not exists"),
 		},
 		{
 			name: "NotEqualPasswords",
