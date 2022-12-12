@@ -60,6 +60,11 @@ func TestSanitizeContent(t *testing.T) {
 			name:  "iframe",
 			input: `<iframe src="javascript:alert('Wufff!');"></iframe>`,
 		},
+		{
+			name:     "real_img",
+			input:    `<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/e4da3b7fbbce2345d7772b0674a318d5/7c95af43-de59-4c34-b2f6-19cd5b134a65.png" class="post-content__image">`,
+			expected: "<img src=\"https://wsrv.nl/?url=http://95.163.209.195:9000/e4da3b7fbbce2345d7772b0674a318d5/7c95af43-de59-4c34-b2f6-19cd5b134a65.png\" class=\"post-content__image\">",
+		},
 	}
 
 	for _, test := range tests {

@@ -49,6 +49,8 @@ func blurContent(content string) string {
 func SanitizeContent(content string, blur bool) string {
 	p := bluemonday.UGCPolicy()
 
+	p.AllowAttrs("class").OnElements("img")
+
 	if blur {
 		content = blurContent(content)
 	}
