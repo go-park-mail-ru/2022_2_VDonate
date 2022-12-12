@@ -193,11 +193,15 @@ definitions:
       content:
         example: <img src="">
         type: string
+      dateCreated:
+        example: "2020-01-01 00:00:00"
+        type: string
       postID:
         example: 25
         type: integer
     required:
     - content
+    - dateCreated
     - postID
     type: object
   models.ResponseImageSubscription:

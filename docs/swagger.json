@@ -2006,12 +2006,17 @@
             "type": "object",
             "required": [
                 "content",
+                "dateCreated",
                 "postID"
             ],
             "properties": {
                 "content": {
                     "type": "string",
                     "example": "\u003cimg src=\"\"\u003e"
+                },
+                "dateCreated": {
+                    "type": "string",
+                    "example": "2020-01-01 00:00:00"
                 },
                 "postID": {
                     "type": "integer",

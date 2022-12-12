@@ -218,8 +218,9 @@ func (h Handler) CreatePost(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, models.ResponseImagePosts{
-		PostID:  post.ID,
-		Content: post.Content,
+		PostID:      post.ID,
+		Content:     post.Content,
+		DateCreated: post.DateCreated,
 	})
 }
 
