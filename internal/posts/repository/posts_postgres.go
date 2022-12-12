@@ -3,7 +3,6 @@ package postsRepository
 import (
 	"database/sql"
 	"errors"
-	"time"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
@@ -65,12 +64,11 @@ func (r Postgres) Create(post models.Post) (uint64, error) {
 	var postID uint64
 	err := r.DB.QueryRowx(
 		`
-		INSERT INTO posts (user_id, content, tier, date_created) 
-		VALUES ($1, $2, $3, $4) RETURNING post_id;`,
+		INSERT INTO posts (user_id, content, tier) 
+		VALUES ($1, $2, $3) RETURNING post_id;`,
 		post.UserID,
 		post.Content,
 		post.Tier,
-		time.Now(),
 	).Scan(&postID)
 	if err != nil {
 		return 0, err
