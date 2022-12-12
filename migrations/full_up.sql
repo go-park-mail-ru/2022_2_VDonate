@@ -42,11 +42,11 @@ CREATE TABLE IF NOT EXISTS user_info
 */
 CREATE TABLE IF NOT EXISTS posts
 (
-    post_id          bigserial not null primary key,
-    user_id          bigserial not null references users (id) on delete cascade,
-    content          text      not null,
-    date_created     timestamp not null default now(),
-    tier             int default 0
+    post_id      bigserial not null primary key,
+    user_id      bigserial not null references users (id) on delete cascade,
+    content      text      not null,
+    date_created timestamp not null default now(),
+    tier         int                default 0
 );
 
 /*
@@ -134,11 +134,15 @@ CREATE TABLE IF NOT EXISTS post_tags
     https://vk.com/mozgitreski
     https://vk.com/kinoartmag
 */
-INSERT INTO users (username, email) VALUES ('АМДЭВС', 'amdevs@mail.ru');
-INSERT INTO user_info (user_id, password, is_author, avatar, about) VALUES (1, 'amdevs', true, '430fd690-ad80-49bc-b46e-f3b547367781.jpg', 'у нас тут новая искренность');
+INSERT INTO users (username, email)
+VALUES ('АМДЭВС', 'amdevs@mail.ru');
+INSERT INTO user_info (user_id, password, is_author, avatar, about)
+VALUES (1, 'amdevs', true, '430fd690-ad80-49bc-b46e-f3b547367781.jpg', 'у нас тут новая искренность');
 
-INSERT INTO users (username, email) VALUES ('Типичный программист', 'programist@mail.ru');
-INSERT INTO user_info (user_id, password, is_author, avatar, about) VALUES (2, 'programist', true, 'd42ab69a-e22b-4cad-8538-83bd4457a047.jpg', 'Tproger — издание о разработке и обо всём, что с ней связано.
+INSERT INTO users (username, email)
+VALUES ('Типичный программист', 'programist@mail.ru');
+INSERT INTO user_info (user_id, password, is_author, avatar, about)
+VALUES (2, 'programist', true, 'd42ab69a-e22b-4cad-8538-83bd4457a047.jpg', 'Tproger — издание о разработке и обо всём, что с ней связано.
 
 Читайте нас в Telegram: https://t.me/tproger_official
 
@@ -149,8 +153,10 @@ HR-брендинг: https://tprg.ru/L2IJ
 Яндекс.Дзен: https://zen.yandex.ru/tproger
 ');
 
-INSERT INTO users (username, email) VALUES ('Мозги трески', 'brains@mail.ru');
-INSERT INTO user_info (user_id, password, is_author, avatar, about) VALUES (3, 'brains', true, '4a28db1c-1696-4650-932f-f2b530c0af4d.jpg', 'Мозги трески - это смешные комикс-стрипы обо всём на свете: бытовые зарисовки, пародии на кино и игры, всякие безумные ситуации - в общем, все, что взбредет в голову автору.
+INSERT INTO users (username, email)
+VALUES ('Мозги трески', 'brains@mail.ru');
+INSERT INTO user_info (user_id, password, is_author, avatar, about)
+VALUES (3, 'brains', true, '4a28db1c-1696-4650-932f-f2b530c0af4d.jpg', 'Мозги трески - это смешные комикс-стрипы обо всём на свете: бытовые зарисовки, пародии на кино и игры, всякие безумные ситуации - в общем, все, что взбредет в голову автору.
 
 Новый комикс каждый понедельник в 21:00 и иногда ВНЕЗАПНО в другие дни.
 
@@ -160,22 +166,112 @@ INSERT INTO user_info (user_id, password, is_author, avatar, about) VALUES (3, '
 
 А еще у меня вышел комикс-игра «Домашние монстры» про мальчика, обнаружившего в своей комнате монстров. Экземпляр можно купить в любых книжных магазинах и комикс-шопах страны.');
 
-INSERT INTO users (username, email) VALUES ('Искусство кино', 'art@mail.ru');
-INSERT INTO user_info (user_id, password, is_author, avatar, about) VALUES (4, 'art', true, '0c3b90e0-801d-4936-9e88-f51bfbee4bd8.jpg', '«Искусство кино» — журнал о кино, который издается с января 1931 года и остается одним из старейших в мире периодических изданий о кино. Каждый номер освещает актуальные вопросы кинематографа и визуальной культуры, а также включает в себя редкие архивные публикации, обзоры крупнейших международных кинофестивалей, русскую и зарубежную кинопрозу и другие материалы.');
+INSERT INTO users (username, email)
+VALUES ('Искусство кино', 'art@mail.ru');
+INSERT INTO user_info (user_id, password, is_author, avatar, about)
+VALUES (4, 'art', true, '0c3b90e0-801d-4936-9e88-f51bfbee4bd8.jpg',
+        '«Искусство кино» — журнал о кино, который издается с января 1931 года и остается одним из старейших в мире периодических изданий о кино. Каждый номер освещает актуальные вопросы кинематографа и визуальной культуры, а также включает в себя редкие архивные публикации, обзоры крупнейших международных кинофестивалей, русскую и зарубежную кинопрозу и другие материалы.');
 
-INSERT INTO posts (user_id, content, date_created, tier) VALUES (1, '<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/e4da3b7fbbce2345d7772b0674a318d5/e97ca124-4237-4076-83b4-3484f93794f5.jpg" class="post-content__image">', now(), 1);
-INSERT INTO posts (user_id, content, date_created, tier) VALUES (1, '<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/1679091c5a880faf6fb5e6087eb1b2dc/7dfae8ba-c70e-446d-b1b4-080b62fad7f6.jpg" class="post-content__image">', now(), 1);
-INSERT INTO posts (user_id, content, date_created, tier) VALUES (1, '<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/4a8a08f09d37b73795649038408b5f33/c3c5d321-4028-4f21-afaa-572436d76c7c.jpg" class="post-content__image">', now(), 1);
-INSERT INTO posts (user_id, content, date_created, tier) VALUES (1, '<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/0cc175b9c0f1b6a831c399e269772661/fc1e28e8-742e-4ae4-9ad5-c7eacf50824a.jpg" class="post-content__image">', now(), 1);
-INSERT INTO posts (user_id, content, date_created, tier) VALUES (1, '<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/e1671797c52e15f763380b45e841ec32/35aae3f0-cfd5-4f73-b8da-33fc451f3a2e.jpg" class="post-content__image">', now(), 1);
+INSERT INTO posts (user_id, content, date_created, tier)
+VALUES (1,
+        '<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/e4da3b7fbbce2345d7772b0674a318d5/e97ca124-4237-4076-83b4-3484f93794f5.jpg" class="post-content__image">',
+        now(), 1);
+INSERT INTO posts (user_id, content, date_created, tier)
+VALUES (1,
+        '<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/1679091c5a880faf6fb5e6087eb1b2dc/7dfae8ba-c70e-446d-b1b4-080b62fad7f6.jpg" class="post-content__image">',
+        now(), 1);
+INSERT INTO posts (user_id, content, date_created, tier)
+VALUES (1,
+        '<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/4a8a08f09d37b73795649038408b5f33/c3c5d321-4028-4f21-afaa-572436d76c7c.jpg" class="post-content__image">',
+        now(), 1);
+INSERT INTO posts (user_id, content, date_created, tier)
+VALUES (1,
+        '<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/0cc175b9c0f1b6a831c399e269772661/fc1e28e8-742e-4ae4-9ad5-c7eacf50824a.jpg" class="post-content__image">',
+        now(), 1);
+INSERT INTO posts (user_id, content, date_created, tier)
+VALUES (1,
+        '<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/e1671797c52e15f763380b45e841ec32/35aae3f0-cfd5-4f73-b8da-33fc451f3a2e.jpg" class="post-content__image">',
+        now(), 1);
 
-INSERT INTO author_subscriptions (author_id, img, tier, title, text, price) VALUES (1, 'a5293e04-74a4-4ca2-98b3-baf7425e1741.jpg', 1, 'Мемы', 'Обычная подписка на мемы АНДЭВС', 1990);
+INSERT INTO author_subscriptions (author_id, img, tier, title, text, price)
+VALUES (1, 'a5293e04-74a4-4ca2-98b3-baf7425e1741.jpg', 1, 'Мемы', 'Обычная подписка на мемы АНДЭВС', 1990);
 
-INSERT INTO posts (user_id, content, date_created, tier) VALUES (2, '<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/e4da3b7fbbce2345d7772b0674a318d5/e97ca124-4237-4076-83b4-3484f93794f5.jpg" class="post-content__image">', now(), 1);
-INSERT INTO posts (user_id, content, date_created, tier) VALUES (2, '<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/1679091c5a880faf6fb5e6087eb1b2dc/7dfae8ba-c70e-446d-b1b4-080b62fad7f6.jpg" class="post-content__image">', now(), 1);
-INSERT INTO posts (user_id, content, date_created, tier) VALUES (2, '<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/4a8a08f09d37b73795649038408b5f33/c3c5d321-4028-4f21-afaa-572436d76c7c.jpg" class="post-content__image">', now(), 2);
-INSERT INTO posts (user_id, content, date_created, tier) VALUES (2, '<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/0cc175b9c0f1b6a831c399e269772661/fc1e28e8-742e-4ae4-9ad5-c7eacf50824a.jpg" class="post-content__image">', now(), 2);
-INSERT INTO posts (user_id, content, date_created, tier) VALUES (2, '<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/e1671797c52e15f763380b45e841ec32/35aae3f0-cfd5-4f73-b8da-33fc451f3a2e.jpg" class="post-content__image">', now(), 3);
+INSERT INTO posts (user_id, content, date_created, tier)
+VALUES (2,
+        'Каналы по конкретным направлениям разработки, подборки полезных ресурсов, канал для начинающих, новости, мемы — в экосистеме Tproger есть канал для каждого разработчика.<div><br></div><img src="https://wsrv.nl/?url=http://95.163.209.195:9000/92eb5ffee6ae2fec3ad71c777531578f/69176f42-a6b9-4305-80c0-667642b916db.jpg" class="post-content__image"><div><br></div>Если ещё не подписаны на какой-то из каналов по интересующей вас теме, то исправляйте это: https://t.me/tproger_channels<div><br></div>',
+        now(), 1);
+INSERT INTO posts (user_id, content, date_created, tier)
+VALUES (2,
+        '<h1>«Я попробовал, не получилось»: Mail отказался от собственного поискового движка, теперь за поиск отвечают алгоритмы «Яндекса».</h1><div><br></div><img src="https://wsrv.nl/?url=http://95.163.209.195:9000/e1671797c52e15f763380b45e841ec32/c9c10784-f6ea-41bd-b667-1dac9f0bba5e.jpg" class="post-content__image"><div><br></div>Mail с 2013 года пытался развивать собственные поисковые технологии. Но развитие поискового движка не вошло в новую стратегию компании. В Холдинге VK решили сделать упор на развитие контентных сервисов: «Мы постарались сохранить привычный для пользователей интерфейс с использованием поиска от „Яндекс“ и надеемся, что опыт использования нового решения будет результативным и приятным»
 
-INSERT INTO author_subscriptions (author_id, img, tier, title, text, price) VALUES (2, 'a5293e04-74a4-4ca2-98b3-baf7425e1741.jpg', 1, 'Мемы', 'Обычная подписка на мемы АНДЭВС', 1990);
+К слову, поиск Mail потерял не многое — его доля составляла всего 0,21% от российского рынка. Сейчас в лидерах — «Яндекс» (51,86%) и по-прежнему Google (45,1%).
 
+Где теперь искать, как удалить браузер Амиго?',
+        now(), 1);
+INSERT INTO posts (user_id, content, date_created, tier)
+VALUES (2,
+        '<h1>Что делать, если у вас команде человек «Всё — г… но»?</h1><div><br></div><img src="https://wsrv.nl/?url=http://95.163.209.195:9000/45c48cce2e2d7fbdea1afc51c7c6ad26/a04462a2-5cde-49b5-80a5-b1b251c47b39.jpg" class="post-content__image"><div><br></div>Наверное, каждый из нас сталкивался с людьми, которым в компании почти ничего не нравится. Они выступают против большинства инициатив. А когда к ним обращаются за помощью, они топят встречными вопросами или просто очень медленно выполняют задачу. Да и вообще, «вокруг одни долбоящеры, процессы дебильные, а про менеджмент лучше промолчать».
+
+Интересная статья на Хабре, в которой рассказали, как нейтрализовать такого коллегу или вовсе обратить его суперсилу на пользу делу. И что делать, когда вы узнали такого коллегу в себе: https://habr.com/ru/company/jetinfosystems/blog/699940/',
+        now(), 2);
+INSERT INTO posts (user_id, content, date_created, tier)
+VALUES (2,
+        '<h1>Главное, чтобы прямо там не отправил пилота на тренинги по повышению мотивации.</h1><div><br></div><img src="https://wsrv.nl/?url=http://95.163.209.195:9000/4a8a08f09d37b73795649038408b5f33/5d1caccb-ddd6-4759-b89f-fc62215aa5dc.jpg" class="post-content__image"><div><br></div>',
+        now(), 2);
+INSERT INTO posts (user_id, content, date_created, tier)
+VALUES (2,
+        '<h1>Подборка актуальных вакансий:</h1><div><br></div>
+
+— Hadoop-администратор: https://tprg.ru/6qIu<div><br></div>
+Где: Москва, можно удалённо<div><br></div>
+Опыт: от 1 года<div><br></div>
+
+— Java-разработчик: https://tprg.ru/bSVW<div><br></div>
+Где: Москва, можно удалённо<div><br></div>
+Опыт: от 3 лет<div><br></div>
+
+— Прикладной администратор по поддержке фронтальных систем: https://tprg.ru/axXA<div><br></div>
+Где: Москва, можно удалённо<div><br></div>
+Опыт: от 3 лет<div><br></div>
+
+— Middle DBA: https://tprg.ru/mx4R<div><br></div>
+Где: Москва, можно удалённо<div><br></div>
+Опыт: от 3 лет<div><br></div>
+
+— Разработчик 1C (Senior / Lead): https://tprg.ru/TdXe<div><br></div>
+Где: Москва, Санкт-Петербург, Ростов-на-Дону<div><br></div>
+Опыт: от 3 лет<div><br></div>
+
+— Senior Golang-разработчик: https://tprg.ru/AwNE<div><br></div>
+Где: удалённо<div><br></div>
+Опыт: от 3 лет<div><br></div>
+
+— Ведущий Java-разработчик: https://tprg.ru/AR3q<div><br></div>
+Где: удалённо<div><br></div>
+Опыт: от 3 лет<div><br></div>
+
+— Главный разработчик: https://tprg.ru/LEAF<div><br></div>
+Где: Москва, можно удалённо<div><br></div>
+Опыт: от 3 лет<div><br></div>
+
+— Тимлид разработки: https://tprg.ru/kP9n<div><br></div>
+Где: Москва, можно удалённо<div><br></div>
+Опыт: от 3 лет<div><br></div>
+
+— Руководитель разработки: https://tprg.ru/74xk<div><br></div>
+Где: Москва, можно удалённо<div><br></div>
+Опыт: от 4 лет<div><br></div>
+
+— Senior Application Security Engineer: https://tprg.ru/CqRc<div><br></div>
+Где: Москва, можно удалённо<div><br></div>
+Опыт: от 5 лет<div><br></div>',
+        now(), 3);
+
+INSERT INTO author_subscriptions (author_id, img, tier, title, text, price)
+VALUES (2, '4819996a-9f74-42bb-afcc-bf8ffddd85df.jpg', 1, 'Новости', 'Подписка на IT новости.', 100);
+
+INSERT INTO author_subscriptions (author_id, img, tier, title, text, price)
+VALUES (2, 'bbdef463-c60d-41d4-8a87-25c5526d3c15.jpg', 2, 'Мемы', 'Подписка на IT мемы.', 500);
+
+INSERT INTO author_subscriptions (author_id, img, tier, title, text, price)
+VALUES (2, 'bbdef463-c60d-41d4-8a87-25c5526d3c15.jpg', 3, 'Вакансии', 'Еженедельные подборки вакансий.', 1990);
