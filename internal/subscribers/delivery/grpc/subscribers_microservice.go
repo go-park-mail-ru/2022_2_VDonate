@@ -3,6 +3,8 @@ package subscribersMicroservice
 import (
 	"context"
 
+	"github.com/ztrue/tracerr"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscribers/protobuf"
 
@@ -25,7 +27,7 @@ func (m SubscribersMicroservice) GetSubscribers(userID uint64) ([]uint64, error)
 		UserId: userID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 
 	res := make([]uint64, 0)
@@ -43,7 +45,7 @@ func (m SubscribersMicroservice) Subscribe(subscriber models.Subscription) error
 		AuthorSubscriptionID: subscriber.AuthorSubscriptionID,
 	})
 
-	return err
+	return tracerr.Wrap(err)
 }
 
 func (m SubscribersMicroservice) Unsubscribe(subscriber models.Subscription) error {
@@ -52,5 +54,5 @@ func (m SubscribersMicroservice) Unsubscribe(subscriber models.Subscription) err
 		AuthorId: subscriber.AuthorID,
 	})
 
-	return err
+	return tracerr.Wrap(err)
 }

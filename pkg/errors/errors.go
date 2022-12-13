@@ -2,22 +2,38 @@ package errorHandling
 
 import (
 	"net/http"
-	"strings"
+
+	"google.golang.org/grpc/status"
+
+	"github.com/ztrue/tracerr"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/labstack/echo/v4"
 )
 
 func WrapEcho(errHTTP, errInternal error) error {
-	switch errInternal {
-	case domain.ErrUsernameOrEmailNotExist:
-		return echo.NewHTTPError(http.StatusNotFound, errInternal.Error()).SetInternal(errInternal)
-	case domain.ErrPasswordsNotEqual, domain.ErrBadRequest:
-		return echo.NewHTTPError(http.StatusBadRequest, errInternal.Error()).SetInternal(errInternal)
-	case domain.ErrEmailExist, domain.ErrUsernameExist:
-		return echo.NewHTTPError(http.StatusConflict, errInternal.Error()).SetInternal(errInternal)
-	case domain.ErrNoLikes:
-		return echo.NewHTTPError(http.StatusNoContent, errInternal.Error()).SetInternal(errInternal)
+	if grpcError, ok := status.FromError(tracerr.Unwrap(errInternal)); ok {
+		switch grpcError.Message() {
+		case domain.ErrUsernameOrEmailNotExist.Error():
+			return echo.NewHTTPError(http.StatusNotFound, grpcError.Message()).SetInternal(errInternal)
+		case domain.ErrPasswordsNotEqual.Error(), domain.ErrBadRequest.Error():
+			return echo.NewHTTPError(http.StatusBadRequest, grpcError.Message()).SetInternal(errInternal)
+		case domain.ErrEmailExist.Error(), domain.ErrUsernameExist.Error(), domain.ErrUnknownFormat.Error():
+			return echo.NewHTTPError(http.StatusConflict, grpcError.Message()).SetInternal(errInternal)
+		case domain.ErrNoLikes.Error():
+			return echo.NewHTTPError(http.StatusNoContent, grpcError.Message()).SetInternal(errInternal)
+		}
+	} else {
+		switch errInternal.Error() {
+		case domain.ErrUsernameOrEmailNotExist.Error():
+			return echo.NewHTTPError(http.StatusNotFound, errInternal.Error()).SetInternal(errInternal)
+		case domain.ErrPasswordsNotEqual.Error(), domain.ErrBadRequest.Error():
+			return echo.NewHTTPError(http.StatusBadRequest, errInternal.Error()).SetInternal(errInternal)
+		case domain.ErrEmailExist.Error(), domain.ErrUsernameExist.Error(), domain.ErrUnknownFormat.Error():
+			return echo.NewHTTPError(http.StatusConflict, errInternal.Error()).SetInternal(errInternal)
+		case domain.ErrNoLikes.Error():
+			return echo.NewHTTPError(http.StatusNoContent, errInternal.Error()).SetInternal(errInternal)
+		}
 	}
 
 	switch errHTTP {
@@ -45,11 +61,4 @@ func WrapEcho(errHTTP, errInternal error) error {
 	default:
 		return echo.NewHTTPError(http.StatusInternalServerError, errHTTP.Error()).SetInternal(errInternal)
 	}
-}
-
-func CutCode(err error) string {
-	if err == nil {
-		return ""
-	}
-	return err.Error()[strings.Index(err.Error(), " ")+1:]
 }

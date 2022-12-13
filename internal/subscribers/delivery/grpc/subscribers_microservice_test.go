@@ -64,7 +64,9 @@ func TestSubscribersClient_GetSubscribers(t *testing.T) {
 			client := New(mock)
 			response, err := client.GetSubscribers(test.authorID)
 			assert.Equal(t, test.response, response)
-			assert.Equal(t, test.err, err)
+			if err != nil {
+				assert.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -113,7 +115,9 @@ func TestSubscribersClient_Subscribe(t *testing.T) {
 
 			client := New(mock)
 			err := client.Subscribe(test.subscription)
-			assert.Equal(t, test.err, err)
+			if err != nil {
+				assert.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -162,7 +166,9 @@ func TestSubscribersClient_Unsubscribe(t *testing.T) {
 
 			client := New(mock)
 			err := client.Unsubscribe(test.subscription)
-			assert.Equal(t, test.err, err)
+			if err != nil {
+				assert.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }

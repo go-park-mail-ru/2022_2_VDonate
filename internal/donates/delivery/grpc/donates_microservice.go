@@ -3,6 +3,8 @@ package donatesMicroservice
 import (
 	"context"
 
+	"github.com/ztrue/tracerr"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 
 	grpcDonate "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/donates/grpc"
@@ -24,7 +26,7 @@ func New(c protobuf.DonatesClient) domain.DonatesMicroservice {
 func (m DonatesMicroservice) SendDonate(donate models.Donate) (models.Donate, error) {
 	newDonate, err := m.client.SendDonate(context.Background(), grpcDonate.ConvertToProto(donate))
 	if err != nil {
-		return models.Donate{}, err
+		return models.Donate{}, tracerr.Wrap(err)
 	}
 
 	return grpcDonate.ConvertToModel(newDonate), nil
@@ -35,7 +37,7 @@ func (m DonatesMicroservice) GetDonatesByUserID(userID uint64) ([]models.Donate,
 		UserId: userID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 
 	result := make([]models.Donate, 0)
@@ -52,7 +54,7 @@ func (m DonatesMicroservice) GetDonateByID(donateID uint64) (models.Donate, erro
 		Id: donateID,
 	})
 	if err != nil {
-		return models.Donate{}, err
+		return models.Donate{}, tracerr.Wrap(err)
 	}
 
 	return grpcDonate.ConvertToModel(d), nil

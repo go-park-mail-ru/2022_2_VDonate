@@ -4,6 +4,9 @@ import (
 	"context"
 	"testing"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/images/protobuf"
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
@@ -46,7 +49,7 @@ func TestImagesService_Create(t *testing.T) {
 			mockBehaviorCreateOrUpdateImage: func(r *mockDomain.MockImagesRepository, filename string, content []byte, size int64, oldFilename string) {
 				r.EXPECT().CreateOrUpdateImage(filename, content, size, oldFilename).Return("", domain.ErrInternal)
 			},
-			expectedErr: "server error",
+			expectedErr: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -101,7 +104,7 @@ func TestImagesService_Get(t *testing.T) {
 			mockBehaviorGetPermanentImage: func(r *mockDomain.MockImagesRepository, filename string) {
 				r.EXPECT().GetPermanentImage(filename).Return("", domain.ErrInternal)
 			},
-			expectedErr: "server error",
+			expectedErr: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 

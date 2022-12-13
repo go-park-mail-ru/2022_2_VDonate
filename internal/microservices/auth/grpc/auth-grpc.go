@@ -2,7 +2,11 @@ package grpcAuth
 
 import (
 	"context"
+	"database/sql"
 	"time"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -47,7 +51,7 @@ func NewWithCookieCreator(authRepo domain.AuthRepository, c cookieCreator) proto
 func (m *Auth) CreateSession(_ context.Context, in *protobuf.Session) (*protobuf.SessionID, error) {
 	session, err := m.authRepo.CreateSession(m.cookieCreator(in.GetUserId()))
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &protobuf.SessionID{
 		SessionId: session.Value,
@@ -57,15 +61,15 @@ func (m *Auth) CreateSession(_ context.Context, in *protobuf.Session) (*protobuf
 func (m *Auth) DeleteBySessionID(_ context.Context, in *protobuf.SessionID) (*emptypb.Empty, error) {
 	err := m.authRepo.DeleteBySessionID(in.GetSessionId())
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &emptypb.Empty{}, nil
 }
 
 func (m *Auth) GetBySessionID(_ context.Context, in *protobuf.SessionID) (*protobuf.Session, error) {
 	cookie, err := m.authRepo.GetBySessionID(in.GetSessionId())
-	if err != nil {
-		return nil, err
+	if err != nil && err != sql.ErrNoRows {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &protobuf.Session{
 		SessionId: cookie.Value,

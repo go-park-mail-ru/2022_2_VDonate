@@ -2,6 +2,10 @@ package grpcPosts
 
 import (
 	"context"
+	"database/sql"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -64,8 +68,8 @@ func New(p domain.PostsRepository) protobuf.PostsServer {
 
 func (s PostsService) GetAllByUserID(_ context.Context, userID *usersProto.UserID) (*protobuf.PostArray, error) {
 	posts, err := s.postsRepo.GetAllByUserID(userID.GetUserId())
-	if err != nil {
-		return nil, err
+	if err != nil && err != sql.ErrNoRows {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	result := make([]*protobuf.Post, 0)
@@ -78,8 +82,8 @@ func (s PostsService) GetAllByUserID(_ context.Context, userID *usersProto.UserI
 
 func (s PostsService) GetPostByID(_ context.Context, postID *protobuf.PostID) (*protobuf.Post, error) {
 	post, err := s.postsRepo.GetPostByID(postID.GetPostID())
-	if err != nil {
-		return nil, err
+	if err != nil && err != sql.ErrNoRows {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return ConvertToProto(post), nil
@@ -88,7 +92,7 @@ func (s PostsService) GetPostByID(_ context.Context, postID *protobuf.PostID) (*
 func (s PostsService) Create(_ context.Context, post *protobuf.Post) (*protobuf.PostID, error) {
 	id, err := s.postsRepo.Create(ConvertToModel(post))
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &protobuf.PostID{PostID: id}, nil
@@ -97,7 +101,7 @@ func (s PostsService) Create(_ context.Context, post *protobuf.Post) (*protobuf.
 func (s PostsService) Update(_ context.Context, post *protobuf.Post) (*emptypb.Empty, error) {
 	err := s.postsRepo.Update(ConvertToModel(post))
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil
@@ -106,7 +110,7 @@ func (s PostsService) Update(_ context.Context, post *protobuf.Post) (*emptypb.E
 func (s PostsService) DeleteByID(_ context.Context, postID *protobuf.PostID) (*emptypb.Empty, error) {
 	err := s.postsRepo.DeleteByID(postID.GetPostID())
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil
@@ -114,8 +118,8 @@ func (s PostsService) DeleteByID(_ context.Context, postID *protobuf.PostID) (*e
 
 func (s PostsService) GetPostsBySubscriptions(_ context.Context, userID *usersProto.UserID) (*protobuf.PostArray, error) {
 	posts, err := s.postsRepo.GetPostsBySubscriptions(userID.GetUserId())
-	if err != nil {
-		return nil, err
+	if err != nil && err != sql.ErrNoRows {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 	result := make([]*protobuf.Post, 0)
 	for _, post := range posts {
@@ -127,8 +131,8 @@ func (s PostsService) GetPostsBySubscriptions(_ context.Context, userID *usersPr
 
 func (s PostsService) GetLikeByUserAndPostID(_ context.Context, postUserIDs *protobuf.PostUserIDs) (*protobuf.Like, error) {
 	like, err := s.postsRepo.GetLikeByUserAndPostID(postUserIDs.UserID, postUserIDs.PostID)
-	if err != nil {
-		return nil, err
+	if err != nil && err != sql.ErrNoRows {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &protobuf.Like{
@@ -139,8 +143,8 @@ func (s PostsService) GetLikeByUserAndPostID(_ context.Context, postUserIDs *pro
 
 func (s PostsService) GetAllLikesByPostID(_ context.Context, postID *protobuf.PostID) (*protobuf.Likes, error) {
 	likes, err := s.postsRepo.GetAllLikesByPostID(postID.GetPostID())
-	if err != nil {
-		return nil, err
+	if err != nil && err != sql.ErrNoRows {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	result := make([]*protobuf.Like, 0)
@@ -157,7 +161,7 @@ func (s PostsService) GetAllLikesByPostID(_ context.Context, postID *protobuf.Po
 func (s PostsService) CreateLike(_ context.Context, postUserIDs *protobuf.PostUserIDs) (*emptypb.Empty, error) {
 	err := s.postsRepo.CreateLike(postUserIDs.UserID, postUserIDs.PostID)
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil
@@ -166,7 +170,7 @@ func (s PostsService) CreateLike(_ context.Context, postUserIDs *protobuf.PostUs
 func (s PostsService) DeleteLikeByID(_ context.Context, postUserIDs *protobuf.PostUserIDs) (*emptypb.Empty, error) {
 	err := s.postsRepo.DeleteLikeByID(postUserIDs.UserID, postUserIDs.PostID)
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil
@@ -175,7 +179,7 @@ func (s PostsService) DeleteLikeByID(_ context.Context, postUserIDs *protobuf.Po
 func (s PostsService) CreateTag(_ context.Context, tagName *protobuf.TagName) (*protobuf.TagID, error) {
 	id, err := s.postsRepo.CreateTag(tagName.GetTagName())
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &protobuf.TagID{TagID: id}, nil
@@ -183,8 +187,8 @@ func (s PostsService) CreateTag(_ context.Context, tagName *protobuf.TagName) (*
 
 func (s PostsService) GetTagById(_ context.Context, tagID *protobuf.TagID) (*protobuf.Tag, error) {
 	tag, err := s.postsRepo.GetTagById(tagID.GetTagID())
-	if err != nil {
-		return nil, err
+	if err != nil && err != sql.ErrNoRows {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &protobuf.Tag{
@@ -195,8 +199,8 @@ func (s PostsService) GetTagById(_ context.Context, tagID *protobuf.TagID) (*pro
 
 func (s PostsService) GetTagByName(_ context.Context, tagName *protobuf.TagName) (*protobuf.Tag, error) {
 	tag, err := s.postsRepo.GetTagByName(tagName.GetTagName())
-	if err != nil {
-		return nil, err
+	if err != nil && err != sql.ErrNoRows {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &protobuf.Tag{
@@ -208,7 +212,7 @@ func (s PostsService) GetTagByName(_ context.Context, tagName *protobuf.TagName)
 func (s PostsService) CreateDepTag(_ context.Context, tagDep *protobuf.TagDep) (*emptypb.Empty, error) {
 	err := s.postsRepo.CreateDepTag(tagDep.PostID, tagDep.TagID)
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil
@@ -216,8 +220,8 @@ func (s PostsService) CreateDepTag(_ context.Context, tagDep *protobuf.TagDep) (
 
 func (s PostsService) GetTagDepsByPostId(_ context.Context, postID *protobuf.PostID) (*protobuf.TagDeps, error) {
 	tagDeps, err := s.postsRepo.GetTagDepsByPostId(postID.GetPostID())
-	if err != nil {
-		return nil, err
+	if err != nil && err != sql.ErrNoRows {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	result := make([]*protobuf.TagDep, 0)
@@ -238,7 +242,7 @@ func (s PostsService) DeleteDepTag(_ context.Context, tagDep *protobuf.TagDep) (
 		TagID:  tagDep.GetTagID(),
 	})
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil

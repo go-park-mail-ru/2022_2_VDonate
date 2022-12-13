@@ -3,6 +3,8 @@ package usersMicroservice
 import (
 	"context"
 
+	"github.com/ztrue/tracerr"
+
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
@@ -29,13 +31,13 @@ func New(c protobuf.UsersClient) domain.UsersMicroservice {
 func (m UsersMicroservice) Update(user models.User) error {
 	_, err := m.client.Update(context.Background(), grpcUsers.ConvertToProto(user))
 
-	return err
+	return tracerr.Wrap(err)
 }
 
 func (m UsersMicroservice) Create(user models.User) (uint64, error) {
 	id, err := m.client.Create(context.Background(), grpcUsers.ConvertToProto(user))
 	if err != nil {
-		return 0, err
+		return 0, tracerr.Wrap(err)
 	}
 
 	return id.GetUserId(), nil
@@ -46,7 +48,7 @@ func (m UsersMicroservice) GetAuthorByUsername(keyword string) ([]models.User, e
 		Keyword: keyword,
 	})
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 
 	result := make([]models.User, 0)
@@ -61,7 +63,7 @@ func (m UsersMicroservice) GetAuthorByUsername(keyword string) ([]models.User, e
 func (m UsersMicroservice) GetAllAuthors() ([]models.User, error) {
 	authors, err := m.client.GetAllAuthors(context.Background(), &emptypb.Empty{})
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 
 	result := make([]models.User, 0)
@@ -76,7 +78,7 @@ func (m UsersMicroservice) GetAllAuthors() ([]models.User, error) {
 func (m UsersMicroservice) GetByID(id uint64) (models.User, error) {
 	user, err := m.client.GetByID(context.Background(), &protobuf.UserID{UserId: id})
 	if err != nil {
-		return models.User{}, err
+		return models.User{}, tracerr.Wrap(err)
 	}
 
 	return grpcUsers.ConvertToModel(user), nil
@@ -87,7 +89,7 @@ func (m UsersMicroservice) GetBySessionID(sessionID string) (models.User, error)
 		SessionId: sessionID,
 	})
 	if err != nil {
-		return models.User{}, err
+		return models.User{}, tracerr.Wrap(err)
 	}
 
 	return grpcUsers.ConvertToModel(user), nil
@@ -98,7 +100,7 @@ func (m UsersMicroservice) GetByEmail(email string) (models.User, error) {
 		Email: email,
 	})
 	if err != nil {
-		return models.User{}, err
+		return models.User{}, tracerr.Wrap(err)
 	}
 
 	return grpcUsers.ConvertToModel(user), nil
@@ -109,7 +111,7 @@ func (m UsersMicroservice) GetByUsername(username string) (models.User, error) {
 		Username: username,
 	})
 	if err != nil {
-		return models.User{}, err
+		return models.User{}, tracerr.Wrap(err)
 	}
 
 	return grpcUsers.ConvertToModel(user), nil
@@ -120,7 +122,7 @@ func (m UsersMicroservice) GetUserByPostID(postID uint64) (models.User, error) {
 		PostID: postID,
 	})
 	if err != nil {
-		return models.User{}, err
+		return models.User{}, tracerr.Wrap(err)
 	}
 
 	return grpcUsers.ConvertToModel(user), nil

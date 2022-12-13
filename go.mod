@@ -20,6 +20,7 @@ require (
 	github.com/swaggo/echo-swagger v1.3.5
 	github.com/swaggo/swag v1.8.7
 	github.com/zhashkevych/go-sqlxmock v1.5.1
+	github.com/ztrue/tracerr v0.3.0
 	golang.org/x/exp v0.0.0-20221114191408-850992195362
 	google.golang.org/grpc v1.51.0
 	google.golang.org/protobuf v1.28.1
@@ -39,6 +40,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
+	github.com/logrusorgru/aurora v0.0.0-20181002194514-a7b3b318ed4e // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect

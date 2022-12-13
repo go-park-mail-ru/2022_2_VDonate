@@ -3,6 +3,8 @@ package authMicroservice
 import (
 	"context"
 
+	"github.com/ztrue/tracerr"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
@@ -24,7 +26,7 @@ func (m AuthMicroservice) CreateSession(userID uint64) (string, error) {
 		UserId: userID,
 	})
 	if err != nil {
-		return string(""), err
+		return "", tracerr.Wrap(err)
 	}
 
 	return sessionID.GetSessionId(), nil
@@ -34,7 +36,7 @@ func (m AuthMicroservice) DeleteBySessionID(sessionID string) error {
 	_, err := m.authClient.DeleteBySessionID(context.Background(), &protobuf.SessionID{
 		SessionId: sessionID,
 	})
-	return err
+	return tracerr.Wrap(err)
 }
 
 func (m AuthMicroservice) GetBySessionID(sessionID string) (models.Cookie, error) {
@@ -42,7 +44,7 @@ func (m AuthMicroservice) GetBySessionID(sessionID string) (models.Cookie, error
 		SessionId: sessionID,
 	})
 	if err != nil {
-		return models.Cookie{}, err
+		return models.Cookie{}, tracerr.Wrap(err)
 	}
 
 	return models.Cookie{

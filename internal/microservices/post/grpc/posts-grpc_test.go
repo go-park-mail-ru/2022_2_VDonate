@@ -5,6 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/post/protobuf"
 	userProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
@@ -118,7 +121,7 @@ func TestPostsService_GetAllByUserID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, authorID uint64) {
 				r.EXPECT().GetAllByUserID(authorID).Return(nil, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -187,7 +190,7 @@ func TestPostsService_GetPostByID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, postID uint64) {
 				r.EXPECT().GetPostByID(postID).Return(models.Post{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -250,7 +253,7 @@ func TestPostsService_Create(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, post models.Post) {
 				r.EXPECT().Create(post).Return(post.UserID, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -321,7 +324,7 @@ func TestPostsService_Update(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, post models.Post) {
 				r.EXPECT().Update(post).Return(domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -376,7 +379,7 @@ func TestPostsService_DeleteByID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, id uint64) {
 				r.EXPECT().DeleteByID(id).Return(domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -430,7 +433,7 @@ func TestPostsService_GetPostsBySubscriptions(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, userID uint64) {
 				r.EXPECT().GetPostsBySubscriptions(userID).Return(nil, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -480,7 +483,7 @@ func TestPostsService_GetLikeByUserAndPostID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, userID, postID uint64) {
 				r.EXPECT().GetLikeByUserAndPostID(userID, postID).Return(models.Like{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -532,7 +535,7 @@ func TestPostsService_GetAllLikesByPostID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, postID uint64) {
 				r.EXPECT().GetAllLikesByPostID(postID).Return(nil, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -579,7 +582,7 @@ func TestPostsService_CreateLike(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, userID, postID uint64) {
 				r.EXPECT().CreateLike(userID, postID).Return(domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -629,7 +632,7 @@ func TestPostsService_DeleteLikeByID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, userID, postID uint64) {
 				r.EXPECT().DeleteLikeByID(userID, postID).Return(domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -679,7 +682,7 @@ func TestPostsService_CreateTag(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, tag string, tagID uint64) {
 				r.EXPECT().CreateTag(tag).Return(tagID, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -725,7 +728,7 @@ func TestPostsService_GetTagById(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, tagID uint64) {
 				r.EXPECT().GetTagById(tagID).Return(models.Tag{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -771,7 +774,7 @@ func TestPostsService_GetTagByName(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, tagName string) {
 				r.EXPECT().GetTagByName(tagName).Return(models.Tag{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -818,7 +821,7 @@ func TestPostsService_CreateDepTag(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, tagID uint64, postID uint64) {
 				r.EXPECT().CreateDepTag(tagID, postID).Return(domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -867,7 +870,7 @@ func TestPostsService_GetTagDepsByPostId(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, postID uint64) {
 				r.EXPECT().GetTagDepsByPostId(postID).Return([]models.TagDep{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -920,7 +923,7 @@ func TestPostsService_DeleteDepTag(t *testing.T) {
 					TagID:  tagID,
 				}).Return(domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 

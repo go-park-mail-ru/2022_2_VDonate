@@ -30,7 +30,7 @@ var (
 var (
 	ErrNoLikes                 = errors.New("no likes were found")
 	ErrLikeExist               = errors.New("like alredy exist")
-	ErrFileOpen                = errors.New("failed to open file")
+	ErrUnknownFormat           = errors.New("image: unknown format")
 	ErrUsernameExist           = errors.New("username exists")
 	ErrEmailExist              = errors.New("email exists")
 	ErrUsernameOrEmailNotExist = errors.New("username or email not exists")

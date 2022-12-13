@@ -2,6 +2,10 @@ package grpcDonate
 
 import (
 	"context"
+	"database/sql"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 
@@ -42,7 +46,7 @@ func ConvertToProto(d models.Donate) *protobuf.Donate {
 func (s DonateService) SendDonate(_ context.Context, donate *protobuf.Donate) (*protobuf.Donate, error) {
 	d, err := s.donateRepo.SendDonate(ConvertToModel(donate))
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return ConvertToProto(d), nil
@@ -50,8 +54,8 @@ func (s DonateService) SendDonate(_ context.Context, donate *protobuf.Donate) (*
 
 func (s DonateService) GetDonatesByUserID(_ context.Context, userID *userProto.UserID) (*protobuf.DonateArray, error) {
 	d, err := s.donateRepo.GetDonatesByUserID(userID.GetUserId())
-	if err != nil {
-		return nil, err
+	if err != nil && err != sql.ErrNoRows {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	result := make([]*protobuf.Donate, 0)
@@ -67,8 +71,8 @@ func (s DonateService) GetDonatesByUserID(_ context.Context, userID *userProto.U
 
 func (s DonateService) GetDonateByID(_ context.Context, donateID *protobuf.DonateID) (*protobuf.Donate, error) {
 	d, err := s.donateRepo.GetDonateByID(donateID.GetId())
-	if err != nil {
-		return nil, err
+	if err != nil && err != sql.ErrNoRows {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return ConvertToProto(d), nil

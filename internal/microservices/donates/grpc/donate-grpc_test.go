@@ -4,6 +4,9 @@ import (
 	"context"
 	"testing"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/donates/protobuf"
 	userProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
@@ -93,7 +96,7 @@ func TestDonate_SendDonate(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockDonatesRepository, d models.Donate) {
 				r.EXPECT().SendDonate(d).Return(d, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -158,7 +161,7 @@ func TestDonate_GetDonatesByUserID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockDonatesRepository, userID uint64) {
 				r.EXPECT().GetDonatesByUserID(userID).Return([]models.Donate{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -217,7 +220,7 @@ func TestDonate_GetDonateByID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockDonatesRepository, donateID uint64) {
 				r.EXPECT().GetDonateByID(donateID).Return(models.Donate{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
