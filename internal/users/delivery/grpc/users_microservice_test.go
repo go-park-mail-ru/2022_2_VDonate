@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -58,7 +60,9 @@ func TestUsersMicroservice_Update(t *testing.T) {
 
 			client := New(mock)
 			err := client.Update(test.users)
-			assert.Equal(t, test.err, err)
+			if err != nil {
+				assert.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -105,7 +109,9 @@ func TestUsersMicroservice_Create(t *testing.T) {
 
 			client := New(mock)
 			id, err := client.Create(test.users)
-			assert.Equal(t, test.err, err)
+			if err != nil {
+				assert.Equal(t, test.err.Error(), err.Error())
+			}
 			assert.Equal(t, test.users.ID, id)
 		})
 	}
@@ -155,7 +161,9 @@ func TestUsersMicroservice_GetAuthorByUsername(t *testing.T) {
 
 			client := New(mock)
 			_, err := client.GetAuthorByUsername(test.keyword)
-			assert.Equal(t, test.err, err)
+			if err != nil {
+				assert.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -200,7 +208,9 @@ func TestUsersMicroservice_GetAllAuthors(t *testing.T) {
 
 			client := New(mock)
 			_, err := client.GetAllAuthors()
-			assert.Equal(t, test.err, err)
+			if err != nil {
+				assert.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -245,7 +255,9 @@ func TestUsersMicroservice_GetByID(t *testing.T) {
 
 			client := New(mock)
 			_, err := client.GetByID(test.id)
-			assert.Equal(t, test.err, err)
+			if err != nil {
+				assert.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -290,7 +302,9 @@ func TestUsersMicroservice_GetBySessionID(t *testing.T) {
 
 			client := New(mock)
 			_, err := client.GetBySessionID(test.session)
-			assert.Equal(t, test.err, err)
+			if err != nil {
+				assert.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -335,7 +349,9 @@ func TestUsersMicroservice_GetByEmail(t *testing.T) {
 
 			client := New(mock)
 			_, err := client.GetByEmail(test.email)
-			assert.Equal(t, test.err, err)
+			if err != nil {
+				assert.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -362,9 +378,9 @@ func TestUsersMicroservice_GetByUsername(t *testing.T) {
 		{
 			name: "Error",
 			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.Username, opts ...grpc.CallOption) {
-				s.EXPECT().GetByUsername(c, in).Return(&userProto.User{}, status.Error(codes.Canceled, "canceled"))
+				s.EXPECT().GetByUsername(c, in).Return(&userProto.User{}, domain.ErrInternal)
 			},
-			err: status.Error(codes.Canceled, "canceled"),
+			err: domain.ErrInternal,
 		},
 	}
 
@@ -380,7 +396,9 @@ func TestUsersMicroservice_GetByUsername(t *testing.T) {
 
 			client := New(mock)
 			_, err := client.GetByUsername(test.username)
-			assert.Equal(t, test.err, err)
+			if err != nil {
+				assert.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -407,9 +425,9 @@ func TestUsersMicroservice_GetUserByPostID(t *testing.T) {
 		{
 			name: "Error",
 			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.PostID, opts ...grpc.CallOption) {
-				s.EXPECT().GetUserByPostID(c, in).Return(&userProto.User{}, status.Error(codes.Canceled, "canceled"))
+				s.EXPECT().GetUserByPostID(c, in).Return(&userProto.User{}, domain.ErrInternal)
 			},
-			err: status.Error(codes.Canceled, "canceled"),
+			err: domain.ErrInternal,
 		},
 	}
 
@@ -425,7 +443,9 @@ func TestUsersMicroservice_GetUserByPostID(t *testing.T) {
 
 			client := New(mock)
 			_, err := client.GetUserByPostID(test.postID)
-			assert.Equal(t, test.err, err)
+			if err != nil {
+				assert.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }

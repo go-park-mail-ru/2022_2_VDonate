@@ -69,7 +69,9 @@ func TestSubscriptionsClient_GetSubscriptionsByUserID(t *testing.T) {
 			client := New(mock)
 			res, err := client.GetSubscriptionsByUserID(test.authorID)
 			require.Equal(t, test.response, res)
-			require.Equal(t, test.err, err)
+			if err != nil {
+				require.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -129,7 +131,9 @@ func TestSubscriptionsClient_GetSubscriptionsByAuthorID(t *testing.T) {
 			client := New(mock)
 			res, err := client.GetSubscriptionsByAuthorID(test.authorID)
 			require.Equal(t, test.response, res)
-			require.Equal(t, test.err, err)
+			if err != nil {
+				require.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -183,7 +187,9 @@ func TestSubscriptionsClient_GetSubscriptionByID(t *testing.T) {
 			client := New(mock)
 			res, err := client.GetSubscriptionByID(test.subID)
 			require.Equal(t, test.response, res)
-			require.Equal(t, test.err, err)
+			if err != nil {
+				require.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -241,7 +247,9 @@ func TestSubscriptionsClient_GetSubscriptionByUserAndAuthorID(t *testing.T) {
 			client := New(mock)
 			res, err := client.GetSubscriptionByUserAndAuthorID(test.userID, test.authorID)
 			require.Equal(t, test.response, res)
-			require.Equal(t, test.err, err)
+			if err != nil {
+				require.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -297,7 +305,9 @@ func TestSubscriptionsClient_AddSubscription(t *testing.T) {
 			client := New(mock)
 			res, err := client.AddSubscription(test.sub)
 			require.Equal(t, test.response, res)
-			require.Equal(t, test.err, err)
+			if err != nil {
+				require.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -350,7 +360,9 @@ func TestSubscriptionsClient_UpdateSubscription(t *testing.T) {
 
 			client := New(mock)
 			err := client.UpdateSubscription(test.sub)
-			require.Equal(t, test.err, err)
+			if err != nil {
+				require.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -396,7 +408,9 @@ func TestSubscriptionsClient_DeleteSubscription(t *testing.T) {
 
 			client := New(mock)
 			err := client.DeleteSubscription(test.subID)
-			require.Equal(t, test.err, err)
+			if err != nil {
+				require.Equal(t, test.err.Error(), err.Error())
+			}
 		})
 	}
 }

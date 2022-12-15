@@ -186,8 +186,6 @@ func easyjsonDc9e8747DecodeGithubComGoParkMailRu20222VDonateInternalModels2(in *
 			out.ID = uint64(in.Uint64())
 		case "userID":
 			out.UserID = uint64(in.Uint64())
-		case "contentTemplate":
-			out.ContentTemplate = string(in.String())
 		case "content":
 			out.Content = string(in.String())
 		case "tier":
@@ -250,11 +248,6 @@ func easyjsonDc9e8747EncodeGithubComGoParkMailRu20222VDonateInternalModels2(out 
 		const prefix string = ",\"userID\":"
 		out.RawString(prefix)
 		out.Uint64(uint64(in.UserID))
-	}
-	{
-		const prefix string = ",\"contentTemplate\":"
-		out.RawString(prefix)
-		out.String(string(in.ContentTemplate))
 	}
 	{
 		const prefix string = ",\"content\":"

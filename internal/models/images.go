@@ -1,9 +1,11 @@
 package models
 
+import "time"
+
 type ResponseImagePosts struct {
-	PostID          uint64 `json:"postID" validate:"required" example:"25"`
-	ContentTemplate string `json:"contentTemplate" validate:"required" example:"[img|vdonate.ml...]"`
-	Content         string `json:"content" validate:"required" example:"<img src=\"\">"`
+	PostID      uint64    `json:"postID" validate:"required" example:"25"`
+	Content     string    `json:"content" validate:"required" example:"<img src=\"\">"`
+	DateCreated time.Time `json:"dateCreated" validate:"required" example:"2020-01-01 00:00:00"`
 }
 
 type ResponseImageSubscription struct {

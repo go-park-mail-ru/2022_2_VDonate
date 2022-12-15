@@ -4,6 +4,9 @@ import (
 	"context"
 	"testing"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscriptions/protobuf"
 	userProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
@@ -115,7 +118,7 @@ func TestSubscriptionsService_AddSubscription(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockSubscriptionsRepository, input models.AuthorSubscription) {
 				r.EXPECT().AddSubscription(input).Return(input.ID, domain.ErrInternal)
 			},
-			expectedErr: domain.ErrInternal.Error(),
+			expectedErr: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -159,7 +162,7 @@ func TestSubscriptionsService_DeleteSubscription(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockSubscriptionsRepository, id uint64) {
 				r.EXPECT().DeleteSubscription(id).Return(domain.ErrInternal)
 			},
-			expectedErr: domain.ErrInternal.Error(),
+			expectedErr: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -213,7 +216,7 @@ func TestSubscriptionsService_GetSubscriptionByID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockSubscriptionsRepository, id uint64) {
 				r.EXPECT().GetSubscriptionByID(id).Return(models.AuthorSubscription{}, domain.ErrInternal)
 			},
-			expectedErr: domain.ErrInternal.Error(),
+			expectedErr: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -270,7 +273,7 @@ func TestSubscriptionsService_GetSubscriptionByUserAndAuthorID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockSubscriptionsRepository, userID, authorID uint64) {
 				r.EXPECT().GetSubscriptionByUserAndAuthorID(userID, authorID).Return(models.AuthorSubscription{}, domain.ErrInternal)
 			},
-			expectedErr: domain.ErrInternal.Error(),
+			expectedErr: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -329,7 +332,7 @@ func TestSubscriptionsService_GetSubscriptionsByAuthorID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockSubscriptionsRepository, authorID uint64) {
 				r.EXPECT().GetSubscriptionsByAuthorID(authorID).Return([]models.AuthorSubscription{}, domain.ErrInternal)
 			},
-			expectedErr: domain.ErrInternal.Error(),
+			expectedErr: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -385,7 +388,7 @@ func TestSubscriptionsService_GetSubscriptionsByUserID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockSubscriptionsRepository, userID uint64) {
 				r.EXPECT().GetSubscriptionsByUserID(userID).Return([]models.AuthorSubscription{}, domain.ErrInternal)
 			},
-			expectedErr: domain.ErrInternal.Error(),
+			expectedErr: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -445,7 +448,7 @@ func TestSubscriptionsService_UpdateSubscription(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockSubscriptionsRepository, subscription models.AuthorSubscription) {
 				r.EXPECT().UpdateSubscription(subscription).Return(domain.ErrInternal)
 			},
-			expectedErr: domain.ErrInternal.Error(),
+			expectedErr: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 

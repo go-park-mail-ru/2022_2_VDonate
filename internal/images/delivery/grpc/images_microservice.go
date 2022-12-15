@@ -3,6 +3,8 @@ package imagesMicroservice
 import (
 	"context"
 
+	"github.com/ztrue/tracerr"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/images/protobuf"
@@ -26,7 +28,7 @@ func (m ImagesMicroservice) Create(filename string, file []byte, size int64, old
 		OldFilename: oldFilename,
 	})
 	if err != nil {
-		return "", err
+		return "", tracerr.Wrap(err)
 	}
 
 	return name.GetFilename(), nil
@@ -37,7 +39,7 @@ func (m ImagesMicroservice) Get(filename string) (string, error) {
 		Filename: filename,
 	})
 	if err != nil {
-		return "", err
+		return "", tracerr.Wrap(err)
 	}
 
 	return url.GetUrl(), nil

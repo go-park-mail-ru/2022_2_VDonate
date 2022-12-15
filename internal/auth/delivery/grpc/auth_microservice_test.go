@@ -56,7 +56,9 @@ func TestAuthClient_CreateSession(t *testing.T) {
 			sessionID, err := authClient.CreateSession(test.userID)
 
 			assert.Equal(t, sessionID, test.response)
-			assert.Equal(t, err, test.err)
+			if err != nil {
+				assert.Equal(t, err.Error(), test.err.Error())
+			}
 		})
 	}
 }
@@ -99,8 +101,9 @@ func TestAuthClient_DeleteBySessionID(t *testing.T) {
 			test.mock(mock, context.Background(), &protobuf.SessionID{SessionId: test.session})
 			authClient := AuthMicroservice{authClient: mock}
 			err := authClient.DeleteBySessionID(test.session)
-
-			assert.Equal(t, err, test.err)
+			if err != nil {
+				assert.Equal(t, err.Error(), test.err.Error())
+			}
 		})
 	}
 }
@@ -152,7 +155,9 @@ func TestAuthClient_GetUserIDBySessionID(t *testing.T) {
 			userID, err := authClient.GetBySessionID(test.session)
 
 			assert.Equal(t, userID, test.response)
-			assert.Equal(t, err, test.err)
+			if err != nil {
+				assert.Equal(t, err.Error(), test.err.Error())
+			}
 		})
 	}
 }

@@ -74,7 +74,9 @@ func TestImagesClient_Create(t *testing.T) {
 			got, err := m.Create(test.filename, test.file, test.size, test.oldName)
 
 			require.Equal(t, test.want, got)
-			require.Equal(t, test.wantErr, err)
+			if err != nil {
+				require.Equal(t, test.wantErr.Error(), err.Error())
+			}
 		})
 	}
 }
@@ -123,7 +125,9 @@ func TestImagesClient_Get(t *testing.T) {
 			got, err := m.Get(test.filename)
 
 			require.Equal(t, test.want, got)
-			require.Equal(t, test.wantErr, err)
+			if err != nil {
+				require.Equal(t, test.wantErr.Error(), err.Error())
+			}
 		})
 	}
 }

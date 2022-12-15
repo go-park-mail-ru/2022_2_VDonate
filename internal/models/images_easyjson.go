@@ -205,8 +205,6 @@ func easyjsonB7188a36DecodeGithubComGoParkMailRu20222VDonateInternalModels2(in *
 		switch key {
 		case "postID":
 			out.PostID = uint64(in.Uint64())
-		case "contentTemplate":
-			out.ContentTemplate = string(in.String())
 		case "content":
 			out.Content = string(in.String())
 		default:
@@ -227,11 +225,6 @@ func easyjsonB7188a36EncodeGithubComGoParkMailRu20222VDonateInternalModels2(out 
 		const prefix string = ",\"postID\":"
 		out.RawString(prefix[1:])
 		out.Uint64(uint64(in.PostID))
-	}
-	{
-		const prefix string = ",\"contentTemplate\":"
-		out.RawString(prefix)
-		out.String(string(in.ContentTemplate))
 	}
 	{
 		const prefix string = ",\"content\":"

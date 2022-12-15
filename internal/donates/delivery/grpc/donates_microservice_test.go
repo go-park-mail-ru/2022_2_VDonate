@@ -67,7 +67,9 @@ func TestDonatesClient_SendDonate(t *testing.T) {
 			donate, err := donatesClient.SendDonate(test.donate)
 
 			assert.Equal(t, donate, test.response)
-			assert.Equal(t, err, test.err)
+			if err != nil {
+				assert.Equal(t, err.Error(), test.err.Error())
+			}
 		})
 	}
 }
@@ -128,7 +130,9 @@ func TestDonatesCLient_GetDonatesByUserID(t *testing.T) {
 			donates, err := donatesClient.GetDonatesByUserID(test.userID)
 
 			assert.Equal(t, donates, test.response)
-			assert.Equal(t, err, test.err)
+			if err != nil {
+				assert.Equal(t, err.Error(), test.err.Error())
+			}
 		})
 	}
 }
@@ -184,7 +188,9 @@ func TestDonatesClient_GetDonateByID(t *testing.T) {
 			donate, err := donatesClient.GetDonateByID(test.donateID)
 
 			assert.Equal(t, donate, test.response)
-			assert.Equal(t, err, test.err)
+			if err != nil {
+				assert.Equal(t, err.Error(), test.err.Error())
+			}
 		})
 	}
 }

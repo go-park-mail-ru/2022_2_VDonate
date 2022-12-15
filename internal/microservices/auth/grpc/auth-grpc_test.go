@@ -5,6 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf"
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
@@ -50,7 +53,7 @@ func TestAuth_CreateSession(t *testing.T) {
 			mockBehaviorCreateSession: func(r *mockDomain.MockAuthRepository, id uint64) {
 				r.EXPECT().CreateSession(cc(id)).Return(models.Cookie{}, domain.ErrInternal)
 			},
-			expectedErr: "server error",
+			expectedErr: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -106,7 +109,7 @@ func TestAuth_DeleteBySessionID(t *testing.T) {
 			mockBehaviorDeleteSession: func(r *mockDomain.MockAuthRepository, id string) {
 				r.EXPECT().DeleteBySessionID(id).Return(domain.ErrInternal)
 			},
-			expectedErr: "server error",
+			expectedErr: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -159,7 +162,7 @@ func TestAuth_GetBySessionID(t *testing.T) {
 			mockBehaviorGetBySessionID: func(r *mockDomain.MockAuthRepository, id string) {
 				r.EXPECT().GetBySessionID(id).Return(models.Cookie{}, domain.ErrInternal)
 			},
-			expectedErr: "server error",
+			expectedErr: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 

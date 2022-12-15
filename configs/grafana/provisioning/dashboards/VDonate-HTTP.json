@@ -24,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 8,
+  "id": 10,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -114,8 +114,8 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "sum by(job) (rate(echo_requests_total[2m]))",
-          "legendFormat": "{{job}}",
+          "expr": "sum by(job) (rate(echo_requests_total{url=~\"/api/v1/.*\"}[2m]))",
+          "legendFormat": "Full RPS",
           "range": true,
           "refId": "RPS"
         }
@@ -209,7 +209,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "sum by(method, url, job) (rate(echo_requests_total{job=\"api\"}[2m]))",
+          "expr": "sum by(method, url, job) (rate(echo_requests_total{job=\"api\", url=~\"/api/v1/.*\", method!=\"OPTIONS\"}[2m]))",
           "legendFormat": "{{job}} - {{method}} - {{url}}",
           "range": true,
           "refId": "RPS by Method"
@@ -303,9 +303,9 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by(job, code) (rate(echo_requests_total{code=~\"2..\"}[2m]))",
+          "expr": "sum by(job, code) (rate(echo_requests_total{code=~\"2..\", url=~\"/api/v1/.*\"}[2m]))",
           "format": "time_series",
           "instant": false,
           "legendFormat": "{{job}} - {{code}}",
@@ -494,8 +494,8 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "builder",
-          "expr": "sum by(job, code) (rate(echo_requests_total{code=~\"4..\"}[2m]))",
+          "editorMode": "code",
+          "expr": "sum by(job, code) (rate(echo_requests_total{code=~\"4..\", url=~\"/api/v1/.*\"}[2m]))",
           "legendFormat": "{{job}} - {{code}}",
           "range": true,
           "refId": "RPS - 4XX"
@@ -589,7 +589,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "sum by(code, url, job) (rate(echo_requests_total{code=~\"4..\"}[2m]))",
+          "expr": "sum by(code, url, job) (rate(echo_requests_total{code=~\"4..\", url=~\"/api/v1/.*\"}[2m]))",
           "legendFormat": "{{job}} - {{code}} - {{url}}",
           "range": true,
           "refId": "RPS 4XX by Method"
@@ -681,8 +681,8 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "builder",
-          "expr": "sum by(code, job) (rate(echo_requests_total{code=~\"5..\"}[2m]))",
+          "editorMode": "code",
+          "expr": "sum by(code, job) (rate(echo_requests_total{code=~\"5..\", url=~\"/api/v1/.*\"}[2m]))",
           "legendFormat": "{{job}} - {{code}}",
           "range": true,
           "refId": "RPS - 5XX"
@@ -775,7 +775,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "sum by(job, code, url) (rate(echo_requests_total{code=~\"5..\"}[2m]))",
+          "expr": "sum by(job, code, url) (rate(echo_requests_total{code=~\"5..\", url=~\"/api/v1/.*\"}[2m]))",
           "legendFormat": "{{job}} - {{code}} - {{url}}",
           "range": true,
           "refId": "RPS - 5XX by Method"
@@ -871,7 +871,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "avg by(url) (rate(echo_request_duration_seconds_count{job=\"api\"}[2m]))",
+          "expr": "avg by(url) (rate(echo_request_duration_seconds_count{job=\"api\", url=~\"/api/v1/.*\"}[2m]))",
           "legendFormat": "{{method}}",
           "range": true,
           "refId": "Latency"
@@ -964,7 +964,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "sum by(method, url) (rate(echo_request_duration_seconds_sum{job=\"api\", url=~\"/api/v1/.*\"}[2m]))",
+          "expr": "sum by(method, url) (rate(echo_request_duration_seconds_sum{job=\"api\", url=~\"/api/v1/.*\", method!=\"OPTIONS\"}[2m]))",
           "legendFormat": "{{method}} {{url}}",
           "range": true,
           "refId": "Latency by Method + URL"
@@ -975,7 +975,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": false,
+  "refresh": "5s",
   "schemaVersion": 37,
   "style": "dark",
   "tags": [],
@@ -990,6 +990,6 @@
   "timezone": "",
   "title": "VDonate-HTTP",
   "uid": "9ry2uBFVm",
-  "version": 14,
+  "version": 4,
   "weekStart": ""
 }

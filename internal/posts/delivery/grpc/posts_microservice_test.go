@@ -76,7 +76,9 @@ func TestPostsClient_GetAllByUserID(t *testing.T) {
 			got, err := m.GetAllByUserID(test.userID)
 
 			require.Equal(t, got, test.want)
-			require.Equal(t, err, test.wantErr)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
 		})
 	}
 }
@@ -132,7 +134,9 @@ func TestPostClient_GetPostByID(t *testing.T) {
 			got, err := m.GetPostByID(test.postID)
 
 			require.Equal(t, got, test.want)
-			require.Equal(t, err, test.wantErr)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
 		})
 	}
 }
@@ -193,7 +197,9 @@ func TestPostClient_CreatePost(t *testing.T) {
 			got, err := m.Create(test.post)
 
 			require.Equal(t, got, test.want)
-			require.Equal(t, err, test.wantErr)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
 		})
 	}
 }
@@ -237,7 +243,9 @@ func TestPostClient_UpdatePost(t *testing.T) {
 				client: mock,
 			}
 			err := m.Update(test.post)
-			require.Equal(t, err, test.wantErr)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
 		})
 	}
 }
@@ -273,8 +281,9 @@ func TestPostClient_DeleteByID(t *testing.T) {
 				client: mock,
 			}
 			err := m.DeleteByID(test.postID)
-
-			require.Equal(t, err, test.wantErr)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
 		})
 	}
 }
@@ -336,7 +345,9 @@ func TestPostsClient_GetPostsBySubscriptions(t *testing.T) {
 			got, err := m.GetPostsBySubscriptions(test.id)
 
 			require.Equal(t, got, test.want)
-			require.Equal(t, err, test.wantErr)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
 		})
 	}
 }
@@ -400,7 +411,9 @@ func TestPostsClient_GetLikeByUserAndPostID(t *testing.T) {
 			got, err := m.GetLikeByUserAndPostID(test.like.PostID, test.like.UserID)
 
 			require.Equal(t, got, test.want)
-			require.Equal(t, err, test.wantErr)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
 		})
 	}
 }
@@ -461,7 +474,9 @@ func TestPostsClient_GetAllLikesByPostID(t *testing.T) {
 			got, err := m.GetAllLikesByPostID(test.postID)
 
 			require.Equal(t, got, test.want)
-			require.Equal(t, err, test.wantErr)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
 		})
 	}
 }
@@ -520,7 +535,9 @@ func TestPostsClient_CreateLike(t *testing.T) {
 				client: mock,
 			}
 			err := m.CreateLike(test.like.UserID, test.like.PostID)
-			require.Equal(t, err, test.wantErr)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
 		})
 	}
 }
@@ -573,7 +590,9 @@ func TestPostsClient_DeleteLikeByID(t *testing.T) {
 				client: mock,
 			}
 			err := m.DeleteLikeByID(test.like.UserID, test.like.PostID)
-			require.Equal(t, err, test.wantErr)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
 		})
 	}
 }
@@ -624,7 +643,9 @@ func TestPostsClient_CreateTag(t *testing.T) {
 			}
 			got, err := m.CreateTag(test.tag.TagName)
 			require.Equal(t, got, test.want)
-			require.Equal(t, err, test.wantErr)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
 		})
 	}
 }
@@ -675,7 +696,9 @@ func TestPostsClient_GetTagByID(t *testing.T) {
 			}
 			got, err := m.GetTagById(test.tagID)
 			require.Equal(t, got, test.want)
-			require.Equal(t, err, test.wantErr)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
 		})
 	}
 }
@@ -726,7 +749,9 @@ func TestPostsClient_GetTagByName(t *testing.T) {
 			}
 			got, err := m.GetTagByName(test.tagName)
 			require.Equal(t, got, test.want)
-			require.Equal(t, err, test.wantErr)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
 		})
 	}
 }
@@ -779,7 +804,9 @@ func TestPostsClient_CreateDepTag(t *testing.T) {
 				client: mock,
 			}
 			err := m.CreateDepTag(test.postID, test.tagID)
-			require.Equal(t, err, test.wantErr)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
 		})
 	}
 }
@@ -832,7 +859,9 @@ func TestPostsClient_GetTagDepsByPostId(t *testing.T) {
 			}
 			got, err := m.GetTagDepsByPostId(test.postID)
 			require.Equal(t, got, test.want)
-			require.Equal(t, err, test.wantErr)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
 		})
 	}
 }
@@ -888,7 +917,9 @@ func TestPostsClient_DeleteDepTag(t *testing.T) {
 				TagID:  test.tagID,
 				PostID: test.postID,
 			})
-			require.Equal(t, err, test.wantErr)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
 		})
 	}
 }

@@ -5,6 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/post/protobuf"
 	userProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
@@ -17,25 +20,23 @@ import (
 
 func TestConvertToModel(t *testing.T) {
 	input := &protobuf.Post{
-		ID:              1,
-		UserID:          1,
-		ContentTemplate: "test",
-		Content:         "test",
-		Tier:            1,
-		IsAllowed:       true,
-		DateCreated:     timestamppb.New(time.Time{}),
-		Tags:            []string{"test"},
+		ID:          1,
+		UserID:      1,
+		Content:     "test",
+		Tier:        1,
+		IsAllowed:   true,
+		DateCreated: timestamppb.New(time.Time{}),
+		Tags:        []string{"test"},
 	}
 
 	expected := models.Post{
-		ID:              1,
-		UserID:          1,
-		ContentTemplate: "test",
-		Content:         "test",
-		Tier:            1,
-		IsAllowed:       true,
-		DateCreated:     time.Time{},
-		Tags:            []string{"test"},
+		ID:          1,
+		UserID:      1,
+		Content:     "test",
+		Tier:        1,
+		IsAllowed:   true,
+		DateCreated: time.Time{},
+		Tags:        []string{"test"},
 	}
 
 	actual := ConvertToModel(input)
@@ -45,26 +46,24 @@ func TestConvertToModel(t *testing.T) {
 
 func TestConvertToProto(t *testing.T) {
 	input := models.Post{
-		ID:              1,
-		UserID:          1,
-		ContentTemplate: "test",
-		Content:         "test",
-		Tier:            1,
-		IsAllowed:       true,
-		DateCreated:     time.Time{},
-		Tags:            []string{"test"},
+		ID:          1,
+		UserID:      1,
+		Content:     "test",
+		Tier:        1,
+		IsAllowed:   true,
+		DateCreated: time.Time{},
+		Tags:        []string{"test"},
 	}
 
 	expected := &protobuf.Post{
-		ID:              1,
-		UserID:          1,
-		ContentTemplate: "test",
-		Content:         "test",
-		Tier:            1,
-		IsAllowed:       true,
-		DateCreated:     timestamppb.New(time.Time{}),
-		Tags:            []string{"test"},
-		Author:          &userProto.LessUser{},
+		ID:          1,
+		UserID:      1,
+		Content:     "test",
+		Tier:        1,
+		IsAllowed:   true,
+		DateCreated: timestamppb.New(time.Time{}),
+		Tags:        []string{"test"},
+		Author:      &userProto.LessUser{},
 	}
 
 	actual := ConvertToProto(input)
@@ -88,26 +87,24 @@ func TestPostsService_GetAllByUserID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, authorID uint64) {
 				r.EXPECT().GetAllByUserID(authorID).Return([]models.Post{
 					{
-						ID:              1,
-						UserID:          1,
-						ContentTemplate: "test",
-						Content:         "test",
-						Tier:            1,
-						IsAllowed:       true,
-						DateCreated:     time.Unix(0, 0),
-						Tags:            []string{"test"},
+						ID:          1,
+						UserID:      1,
+						Content:     "test",
+						Tier:        1,
+						IsAllowed:   true,
+						DateCreated: time.Unix(0, 0),
+						Tags:        []string{"test"},
 					},
 				}, nil)
 			},
 			expectedPosts: &protobuf.PostArray{
 				Posts: []*protobuf.Post{
 					{
-						ID:              1,
-						UserID:          1,
-						ContentTemplate: "test",
-						Content:         "test",
-						Tier:            1,
-						IsAllowed:       true,
+						ID:        1,
+						UserID:    1,
+						Content:   "test",
+						Tier:      1,
+						IsAllowed: true,
 						DateCreated: &timestamppb.Timestamp{
 							Seconds: 0,
 							Nanos:   0,
@@ -124,7 +121,7 @@ func TestPostsService_GetAllByUserID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, authorID uint64) {
 				r.EXPECT().GetAllByUserID(authorID).Return(nil, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -164,23 +161,21 @@ func TestPostsService_GetPostByID(t *testing.T) {
 			postID: 1,
 			mockBehavior: func(r *mock_domain.MockPostsRepository, postID uint64) {
 				r.EXPECT().GetPostByID(postID).Return(models.Post{
-					ID:              1,
-					UserID:          1,
-					ContentTemplate: "test",
-					Content:         "test",
-					Tier:            1,
-					IsAllowed:       true,
-					DateCreated:     time.Unix(0, 0),
-					Tags:            []string{"test"},
+					ID:          1,
+					UserID:      1,
+					Content:     "test",
+					Tier:        1,
+					IsAllowed:   true,
+					DateCreated: time.Unix(0, 0),
+					Tags:        []string{"test"},
 				}, nil)
 			},
 			expectedPosts: &protobuf.Post{
-				ID:              1,
-				UserID:          1,
-				ContentTemplate: "test",
-				Content:         "test",
-				Tier:            1,
-				IsAllowed:       true,
+				ID:        1,
+				UserID:    1,
+				Content:   "test",
+				Tier:      1,
+				IsAllowed: true,
 				DateCreated: &timestamppb.Timestamp{
 					Seconds: 0,
 					Nanos:   0,
@@ -195,7 +190,7 @@ func TestPostsService_GetPostByID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, postID uint64) {
 				r.EXPECT().GetPostByID(postID).Return(models.Post{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -232,14 +227,13 @@ func TestPostsService_Create(t *testing.T) {
 		{
 			name: "OK",
 			post: models.Post{
-				ID:              1,
-				UserID:          1,
-				ContentTemplate: "test",
-				Content:         "test",
-				Tier:            1,
-				IsAllowed:       true,
-				DateCreated:     time.Time{},
-				Tags:            []string{"test"},
+				ID:          1,
+				UserID:      1,
+				Content:     "test",
+				Tier:        1,
+				IsAllowed:   true,
+				DateCreated: time.Time{},
+				Tags:        []string{"test"},
 			},
 			mockBehavior: func(r *mock_domain.MockPostsRepository, post models.Post) {
 				r.EXPECT().Create(post).Return(post.UserID, nil)
@@ -248,19 +242,18 @@ func TestPostsService_Create(t *testing.T) {
 		{
 			name: "Error",
 			post: models.Post{
-				ID:              1,
-				UserID:          1,
-				ContentTemplate: "test",
-				Content:         "test",
-				Tier:            1,
-				IsAllowed:       true,
-				DateCreated:     time.Time{},
-				Tags:            []string{"test"},
+				ID:          1,
+				UserID:      1,
+				Content:     "test",
+				Tier:        1,
+				IsAllowed:   true,
+				DateCreated: time.Time{},
+				Tags:        []string{"test"},
 			},
 			mockBehavior: func(r *mock_domain.MockPostsRepository, post models.Post) {
 				r.EXPECT().Create(post).Return(post.UserID, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -275,12 +268,11 @@ func TestPostsService_Create(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.Create(context.Background(), &protobuf.Post{
-				ID:              test.post.ID,
-				UserID:          test.post.UserID,
-				ContentTemplate: test.post.ContentTemplate,
-				Content:         test.post.Content,
-				Tier:            test.post.Tier,
-				IsAllowed:       test.post.IsAllowed,
+				ID:        test.post.ID,
+				UserID:    test.post.UserID,
+				Content:   test.post.Content,
+				Tier:      test.post.Tier,
+				IsAllowed: test.post.IsAllowed,
 				DateCreated: &timestamppb.Timestamp{
 					Seconds: test.post.DateCreated.Unix(),
 					Nanos:   int32(test.post.DateCreated.Nanosecond()),
@@ -306,14 +298,13 @@ func TestPostsService_Update(t *testing.T) {
 		{
 			name: "OK",
 			post: models.Post{
-				ID:              1,
-				UserID:          1,
-				ContentTemplate: "test",
-				Content:         "test",
-				Tier:            1,
-				IsAllowed:       true,
-				DateCreated:     time.Time{},
-				Tags:            []string{"test"},
+				ID:          1,
+				UserID:      1,
+				Content:     "test",
+				Tier:        1,
+				IsAllowed:   true,
+				DateCreated: time.Time{},
+				Tags:        []string{"test"},
 			},
 			mockBehavior: func(r *mock_domain.MockPostsRepository, post models.Post) {
 				r.EXPECT().Update(post).Return(nil)
@@ -322,19 +313,18 @@ func TestPostsService_Update(t *testing.T) {
 		{
 			name: "Error",
 			post: models.Post{
-				ID:              1,
-				UserID:          1,
-				ContentTemplate: "test",
-				Content:         "test",
-				Tier:            1,
-				IsAllowed:       true,
-				DateCreated:     time.Time{},
-				Tags:            []string{"test"},
+				ID:          1,
+				UserID:      1,
+				Content:     "test",
+				Tier:        1,
+				IsAllowed:   true,
+				DateCreated: time.Time{},
+				Tags:        []string{"test"},
 			},
 			mockBehavior: func(r *mock_domain.MockPostsRepository, post models.Post) {
 				r.EXPECT().Update(post).Return(domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -349,12 +339,11 @@ func TestPostsService_Update(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.Update(context.Background(), &protobuf.Post{
-				ID:              test.post.ID,
-				UserID:          test.post.UserID,
-				ContentTemplate: test.post.ContentTemplate,
-				Content:         test.post.Content,
-				Tier:            test.post.Tier,
-				IsAllowed:       test.post.IsAllowed,
+				ID:        test.post.ID,
+				UserID:    test.post.UserID,
+				Content:   test.post.Content,
+				Tier:      test.post.Tier,
+				IsAllowed: test.post.IsAllowed,
 				DateCreated: &timestamppb.Timestamp{
 					Seconds: test.post.DateCreated.Unix(),
 					Nanos:   int32(test.post.DateCreated.Nanosecond()),
@@ -390,7 +379,7 @@ func TestPostsService_DeleteByID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, id uint64) {
 				r.EXPECT().DeleteByID(id).Return(domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -427,14 +416,13 @@ func TestPostsService_GetPostsBySubscriptions(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, userID uint64) {
 				r.EXPECT().GetPostsBySubscriptions(userID).Return([]models.Post{
 					{
-						ID:              1,
-						UserID:          1,
-						ContentTemplate: "test",
-						Content:         "test",
-						Tier:            1,
-						IsAllowed:       true,
-						DateCreated:     time.Time{},
-						Tags:            []string{"test"},
+						ID:          1,
+						UserID:      1,
+						Content:     "test",
+						Tier:        1,
+						IsAllowed:   true,
+						DateCreated: time.Time{},
+						Tags:        []string{"test"},
 					},
 				}, nil)
 			},
@@ -445,7 +433,7 @@ func TestPostsService_GetPostsBySubscriptions(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, userID uint64) {
 				r.EXPECT().GetPostsBySubscriptions(userID).Return(nil, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -495,7 +483,7 @@ func TestPostsService_GetLikeByUserAndPostID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, userID, postID uint64) {
 				r.EXPECT().GetLikeByUserAndPostID(userID, postID).Return(models.Like{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -547,7 +535,7 @@ func TestPostsService_GetAllLikesByPostID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, postID uint64) {
 				r.EXPECT().GetAllLikesByPostID(postID).Return(nil, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -594,7 +582,7 @@ func TestPostsService_CreateLike(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, userID, postID uint64) {
 				r.EXPECT().CreateLike(userID, postID).Return(domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -644,7 +632,7 @@ func TestPostsService_DeleteLikeByID(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, userID, postID uint64) {
 				r.EXPECT().DeleteLikeByID(userID, postID).Return(domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -694,7 +682,7 @@ func TestPostsService_CreateTag(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, tag string, tagID uint64) {
 				r.EXPECT().CreateTag(tag).Return(tagID, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -740,7 +728,7 @@ func TestPostsService_GetTagById(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, tagID uint64) {
 				r.EXPECT().GetTagById(tagID).Return(models.Tag{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -786,7 +774,7 @@ func TestPostsService_GetTagByName(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, tagName string) {
 				r.EXPECT().GetTagByName(tagName).Return(models.Tag{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -833,7 +821,7 @@ func TestPostsService_CreateDepTag(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, tagID uint64, postID uint64) {
 				r.EXPECT().CreateDepTag(tagID, postID).Return(domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -882,7 +870,7 @@ func TestPostsService_GetTagDepsByPostId(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockPostsRepository, postID uint64) {
 				r.EXPECT().GetTagDepsByPostId(postID).Return([]models.TagDep{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -935,7 +923,7 @@ func TestPostsService_DeleteDepTag(t *testing.T) {
 					TagID:  tagID,
 				}).Return(domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 

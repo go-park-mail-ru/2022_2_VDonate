@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
+	"github.com/ztrue/tracerr"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
@@ -232,7 +232,7 @@ func Middleware() echo.MiddlewareFunc {
 
 			bytesIn := req.Header.Get(echo.HeaderContentLength)
 
-			message := errorHandling.CutCode(err)
+			errInternal, _ := err.(*echo.HTTPError)
 
 			ctxLog := GetInstance().Logrus.WithFields(map[string]interface{}{
 				"remote_ip":     c.RealIP(),
@@ -240,7 +240,10 @@ func Middleware() echo.MiddlewareFunc {
 				"uri":           req.RequestURI,
 				"method":        req.Method,
 				"path":          p,
-				"error":         message,
+				"http_message":  errInternal.Message,
+				"error_code":    errInternal.Code,
+				"error":         errInternal.Internal,
+				"error_cause":   tracerr.StackTrace(errInternal.Internal)[0],
 				"referer":       req.Referer(),
 				"user_agent":    req.UserAgent(),
 				"status":        res.Status,

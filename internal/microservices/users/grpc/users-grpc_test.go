@@ -4,6 +4,9 @@ import (
 	"context"
 	"testing"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	authProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
@@ -112,7 +115,7 @@ func TestUserService_GetAllAuthors(t *testing.T) {
 			mockBehaviorGetAllAuthors: func(r *mock_domain.MockUsersRepository) {
 				r.EXPECT().GetAllAuthors().Return(nil, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -167,7 +170,7 @@ func TestUserService_Create(t *testing.T) {
 			mockBehaviorCreate: func(r *mock_domain.MockUsersRepository, user models.User) {
 				r.EXPECT().Create(user).Return(uint64(0), domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -218,7 +221,7 @@ func TestUserService_Update(t *testing.T) {
 			mockBehaviorUpdate: func(r *mock_domain.MockUsersRepository, user models.User) {
 				r.EXPECT().Update(user).Return(domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -280,7 +283,7 @@ func TestUserService_GetAuthorByUsername(t *testing.T) {
 			mockBehaviorGetAuthorByUsername: func(r *mock_domain.MockUsersRepository, keyword string) {
 				r.EXPECT().GetAuthorByUsername(keyword).Return(nil, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -337,7 +340,7 @@ func TestUserService_GetUserByPostID(t *testing.T) {
 			mockBehaviorGetUserByPostID: func(r *mock_domain.MockUsersRepository, postID uint64) {
 				r.EXPECT().GetUserByPostID(postID).Return(models.User{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -394,7 +397,7 @@ func TestUserService_GetByID(t *testing.T) {
 			mockBehaviorGetByID: func(r *mock_domain.MockUsersRepository, id uint64) {
 				r.EXPECT().GetByID(id).Return(models.User{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -451,7 +454,7 @@ func TestUserService_GetBySessionID(t *testing.T) {
 			mockBehaviorGetBySessionID: func(r *mock_domain.MockUsersRepository, sessionID string) {
 				r.EXPECT().GetBySessionID(sessionID).Return(models.User{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -508,7 +511,7 @@ func TestUserService_GetByEmail(t *testing.T) {
 			mockBehaviorGetByEmail: func(r *mock_domain.MockUsersRepository, email string) {
 				r.EXPECT().GetByEmail(email).Return(models.User{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -565,7 +568,7 @@ func TestUserService_GetByUsername(t *testing.T) {
 			mockBehaviorGetByUsername: func(r *mock_domain.MockUsersRepository, username string) {
 				r.EXPECT().GetByUsername(username).Return(models.User{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 

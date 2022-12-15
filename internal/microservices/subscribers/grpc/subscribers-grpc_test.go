@@ -4,6 +4,9 @@ import (
 	"context"
 	"testing"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscribers/protobuf"
 	userProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
@@ -61,7 +64,7 @@ func TestSubscribersService_GetSubscribers(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockSubscribersRepository, id uint64) {
 				r.EXPECT().GetSubscribers(id).Return([]uint64{}, domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -114,7 +117,7 @@ func TestSubscribersService_Subscribe(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockSubscribersRepository, sub models.Subscription) {
 				r.EXPECT().Subscribe(sub).Return(domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
@@ -165,7 +168,7 @@ func TestSubscribersService_Unsubscribe(t *testing.T) {
 			mockBehavior: func(r *mock_domain.MockSubscribersRepository, userID, authorID uint64) {
 				r.EXPECT().Unsubscribe(userID, authorID).Return(domain.ErrInternal)
 			},
-			expectedError: domain.ErrInternal.Error(),
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
 	}
 
