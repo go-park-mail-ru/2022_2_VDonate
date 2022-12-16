@@ -10,7 +10,7 @@ import (
 	userRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/repository"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	grpcPrometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -23,7 +23,7 @@ import (
 var (
 	reg = prometheus.NewRegistry()
 
-	grpcMetrics = grpc_prometheus.NewServerMetrics()
+	grpcMetrics = grpcPrometheus.NewServerMetrics()
 )
 
 func main() {
@@ -56,13 +56,13 @@ func main() {
 		ErrorLog: log,
 	}), Addr: "0.0.0.0" + ":" + cfg.Services.Users.MetricsPort}
 
-	lis, metricsServer := app.CreateGRPCServer(cfg.Server.Host, cfg.Server.Port, grpcMetrics)
-	defer lis.Close()
+	listener, grpcServer := app.CreateGRPCServer(cfg.Server.Host, cfg.Server.Port, grpcMetrics)
+	defer listener.Close()
 
-	protobuf.RegisterUsersServer(metricsServer, grpcUsers.New(r))
+	protobuf.RegisterUsersServer(grpcServer, grpcUsers.New(r))
 
 	/*---------------------------metric---------------------------*/
-	grpcMetrics.InitializeMetrics(metricsServer)
+	grpcMetrics.InitializeMetrics(grpcServer)
 
 	go func() {
 		if err = metricsHTTP.ListenAndServe(); err != nil {
@@ -71,7 +71,7 @@ func main() {
 	}()
 
 	/*---------------------------server---------------------------*/
-	if err = metricsServer.Serve(lis); err != nil {
+	if err = grpcServer.Serve(listener); err != nil {
 		log.Warnf("subscriptions: %s", "service image stopped")
 	}
 }

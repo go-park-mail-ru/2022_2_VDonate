@@ -58,13 +58,13 @@ func main() {
 		ErrorLog: log,
 	}), Addr: "0.0.0.0" + ":" + cfg.Services.Auth.MetricsPort}
 
-	lis, metricsServer := app.CreateGRPCServer(cfg.Server.Host, cfg.Server.Port, grpcMetrics)
-	defer lis.Close()
+	listener, grpcServer := app.CreateGRPCServer(cfg.Server.Host, cfg.Server.Port, grpcMetrics)
+	defer listener.Close()
 
-	protobuf.RegisterAuthServer(metricsServer, grpcAuth.New(r))
+	protobuf.RegisterAuthServer(grpcServer, grpcAuth.New(r))
 
 	/*---------------------------metric---------------------------*/
-	grpcMetrics.InitializeMetrics(metricsServer)
+	grpcMetrics.InitializeMetrics(grpcServer)
 
 	go func() {
 		if err = metricsHTTP.ListenAndServe(); err != nil {
@@ -73,7 +73,7 @@ func main() {
 	}()
 
 	/*---------------------------server---------------------------*/
-	if err = metricsServer.Serve(lis); err != nil {
+	if err = grpcServer.Serve(listener); err != nil {
 		log.Warnf("auth: %s", "service image stopped")
 	}
 }
