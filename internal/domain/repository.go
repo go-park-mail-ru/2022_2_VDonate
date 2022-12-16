@@ -74,3 +74,8 @@ type ImagesRepository interface {
 	CreateOrUpdateImage(filename string, file []byte, size int64, oldFilename string) (string, error)
 	GetPermanentImage(filename string) (string, error)
 }
+
+type NotificationsRepository interface {
+	GetNotificationsByUserID(userID uint64) ([]models.Notification, error)
+	DeleteNotificationByUserID(userID uint64) error
+}

@@ -104,7 +104,7 @@ func (u usecase) SignUp(user models.User) (string, error) {
 	}
 
 	if user.Password, err = u.hashCreator(user.Password); err != nil {
-		return "", domain.ErrInternal
+		return "", err
 	}
 
 	if user.ID, err = u.usersMicroservice.Create(user); err != nil {

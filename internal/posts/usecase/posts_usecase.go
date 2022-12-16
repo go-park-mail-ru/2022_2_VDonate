@@ -2,9 +2,9 @@ package posts
 
 import (
 	"bytes"
+	"fmt"
 	"regexp"
 	"sort"
-	"strings"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
@@ -34,16 +34,16 @@ func New(p domain.PostsMicroservice, u domain.UsersMicroservice, i domain.ImageU
 func blurContent(content string) string {
 	r := regexp.MustCompile(`"https://wsrv\.nl/\?url=.{100}.?"`)
 
-	images := r.FindAll([]byte(content), -1)
+	img := r.Find([]byte(content))
 
-	for _, img := range images {
-		idx := bytes.LastIndex(img, []byte(`/`))
-		toReplace := string(img[:idx+1]) + "blur_" + string(img[idx+1:])
-
-		content = strings.ReplaceAll(content, string(img), toReplace)
+	if len(img) == 0 {
+		return ""
 	}
 
-	return content
+	idx := bytes.LastIndex(img, []byte(`/`))
+	toReplace := string(img[:idx+1]) + "blur_" + string(img[idx+1:])
+
+	return fmt.Sprintf(`<img src=%s class="post-content__image">`, toReplace)
 }
 
 func SanitizeContent(content string, blur bool) string {
@@ -242,7 +242,7 @@ func (u usecase) GetLikesNum(postID uint64) (uint64, error) {
 }
 
 func (u usecase) IsPostLiked(userID, postID uint64) bool {
-	if _, err := u.GetLikeByUserAndPostID(userID, postID); err != nil {
+	if l, err := u.GetLikeByUserAndPostID(userID, postID); err != nil || l == (models.Like{}) {
 		return false
 	}
 	return true

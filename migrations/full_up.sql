@@ -128,6 +128,92 @@ CREATE TABLE IF NOT EXISTS post_tags
 );
 
 
+CREATE TABLE IF NOT EXISTS notification
+(
+    name      varchar   NOT NULL,
+    data      jsonb     NOT NULL,
+    timestamp timestamp NOT NULL DEFAULT now()
+);
+
+CREATE OR REPLACE FUNCTION notify_event_like() RETURNS TRIGGER AS
+$$
+
+DECLARE
+    data jsonb;
+    author_id bigint;
+
+BEGIN
+    SELECT posts.user_id FROM posts WHERE post_id = NEW.post_id INTO author_id;
+
+    data = jsonb_build_object(
+        'user_id', author_id,
+        'post_id', new.post_id
+        );
+    INSERT INTO notification(name, data) VALUES ('like', data);
+
+    RETURN NULL;
+END;
+
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION notify_event_posts() RETURNS TRIGGER AS
+$$
+
+DECLARE
+    data jsonb;
+    var bigint;
+
+BEGIN
+    FOR var IN SELECT subscriber_id FROM subscriptions WHERE author_id = NEW.user_id LOOP
+        data = jsonb_build_object(
+            'user_id', var,
+            'author_id', new.user_id,
+            'post_id', new.post_id
+            );
+        INSERT INTO notification(name, data) VALUES ('posts', data);
+    END LOOP;
+
+    RETURN NULL;
+END;
+
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION notify_event_subscriber() RETURNS TRIGGER AS
+$$
+
+DECLARE
+    data jsonb;
+
+BEGIN
+    data = jsonb_build_object(
+            'user_id', new.author_id,
+            'subscriber_id', new.subscriber_id
+        );
+    INSERT INTO notification(name, data) VALUES ('subscriber', data);
+
+    RETURN NULL;
+END;
+
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER new_like_notify
+    AFTER INSERT
+    ON likes
+    FOR EACH ROW
+EXECUTE PROCEDURE notify_event_like();
+
+CREATE TRIGGER new_posts_notify
+    AFTER INSERT
+    ON posts
+    FOR EACH ROW
+EXECUTE PROCEDURE notify_event_posts();
+
+CREATE TRIGGER new_subscribers_notify
+    AFTER INSERT
+    ON subscriptions
+    FOR EACH ROW
+EXECUTE PROCEDURE notify_event_subscriber();
+
 /*
     https://vk.com/abstract_memes
     https://vk.com/tproger
