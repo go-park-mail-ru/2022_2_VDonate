@@ -10,7 +10,7 @@ import (
 	subscribersRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/repository"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	grpcPrometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -20,7 +20,15 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
 )
 
+var (
+	reg = prometheus.NewRegistry()
+
+	grpcMetrics = grpcPrometheus.NewServerMetrics()
+)
+
 func main() {
+	reg.MustRegister(grpcMetrics)
+
 	/*----------------------------flag----------------------------*/
 	var configPath string
 	config.PathFlag(&configPath)
@@ -44,25 +52,17 @@ func main() {
 	}
 
 	/*----------------------------grpc----------------------------*/
-	lis, metricsServer := app.CreateGRPCServer(cfg.Server.Host, cfg.Server.Port)
-	defer lis.Close()
+	metricsHTTP := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{
+		ErrorLog: log,
+	}), Addr: "0.0.0.0" + ":" + cfg.Services.Subscribers.MetricsPort}
+
+	listener, grpcServer := app.CreateGRPCServer(cfg.Server.Host, cfg.Server.Port, grpcMetrics)
+	defer listener.Close()
+
+	protobuf.RegisterSubscribersServer(grpcServer, grpcSubscribers.New(r))
 
 	/*---------------------------metric---------------------------*/
-	grpcMetrics := grpc_prometheus.NewServerMetrics()
-	gatherer := prometheus.NewRegistry()
-	gatherer.MustRegister(grpcMetrics)
-
-	grpcMetrics.InitializeMetrics(metricsServer)
-
-	metricsHTTP := &http.Server{Handler: promhttp.HandlerFor(gatherer, promhttp.HandlerOpts{
-		ErrorLog: log,
-	}), Addr: "localhost" + cfg.Services.Subscribers.MetricsPort}
-
-	grpc_prometheus.EnableHandlingTimeHistogram()
-	grpc_prometheus.EnableClientHandlingTimeHistogram()
-
-	protobuf.RegisterSubscribersServer(metricsServer, grpcSubscribers.New(r))
-	grpc_prometheus.Register(metricsServer)
+	grpcMetrics.InitializeMetrics(grpcServer)
 
 	go func() {
 		if err = metricsHTTP.ListenAndServe(); err != nil {
@@ -71,7 +71,7 @@ func main() {
 	}()
 
 	/*---------------------------server---------------------------*/
-	if err = metricsServer.Serve(lis); err != nil {
+	if err = grpcServer.Serve(listener); err != nil {
 		log.Warnf("subscribers: %s", "service image stopped")
 	}
 }

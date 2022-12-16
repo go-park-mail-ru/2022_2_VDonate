@@ -3,6 +3,9 @@ package grpcSubscribers
 import (
 	"context"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -35,7 +38,7 @@ func New(s domain.SubscribersRepository) protobuf.SubscribersServer {
 func (s SubscribersService) GetSubscribers(_ context.Context, id *userProto.UserID) (*userProto.UserIDs, error) {
 	sub, err := s.subscribersRepo.GetSubscribers(id.GetUserId())
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	result := make([]*userProto.UserID, 0)
@@ -51,7 +54,7 @@ func (s SubscribersService) GetSubscribers(_ context.Context, id *userProto.User
 func (s SubscribersService) Subscribe(_ context.Context, sub *protobuf.Subscriber) (*emptypb.Empty, error) {
 	err := s.subscribersRepo.Subscribe(ConvertToModel(sub))
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil
@@ -60,7 +63,7 @@ func (s SubscribersService) Subscribe(_ context.Context, sub *protobuf.Subscribe
 func (s SubscribersService) Unsubscribe(_ context.Context, pair *userProto.UserAuthorPair) (*emptypb.Empty, error) {
 	err := s.subscribersRepo.Unsubscribe(pair.GetUserId(), pair.GetAuthorId())
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil

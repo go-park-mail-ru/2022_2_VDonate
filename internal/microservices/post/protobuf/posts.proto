@@ -11,7 +11,6 @@ import "internal/microservices/users/protobuf/users.proto";
 message Post {
   uint64 ID = 1;
   uint64 UserID = 2;
-  string ContentTemplate = 3;
   string Content = 4;
   uint64 Tier = 5;
   bool IsAllowed = 6;

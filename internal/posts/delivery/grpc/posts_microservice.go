@@ -3,6 +3,8 @@ package postsMicroservice
 import (
 	"context"
 
+	"github.com/ztrue/tracerr"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 
 	grpcPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/post/grpc"
@@ -25,7 +27,7 @@ func New(c protobuf.PostsClient) domain.PostsMicroservice {
 func (m PostsMicroservice) GetAllByUserID(userID uint64) ([]models.Post, error) {
 	posts, err := m.client.GetAllByUserID(context.Background(), &userProto.UserID{UserId: userID})
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 
 	result := make([]models.Post, 0)
@@ -42,7 +44,7 @@ func (m PostsMicroservice) GetPostByID(postID uint64) (models.Post, error) {
 		PostID: postID,
 	})
 	if err != nil {
-		return models.Post{}, err
+		return models.Post{}, tracerr.Wrap(err)
 	}
 
 	return grpcPosts.ConvertToModel(post), nil
@@ -51,7 +53,7 @@ func (m PostsMicroservice) GetPostByID(postID uint64) (models.Post, error) {
 func (m PostsMicroservice) Create(post models.Post) (uint64, error) {
 	id, err := m.client.Create(context.Background(), grpcPosts.ConvertToProto(post))
 	if err != nil {
-		return 0, err
+		return 0, tracerr.Wrap(err)
 	}
 
 	return id.GetPostID(), nil
@@ -60,19 +62,19 @@ func (m PostsMicroservice) Create(post models.Post) (uint64, error) {
 func (m PostsMicroservice) Update(post models.Post) error {
 	_, err := m.client.Update(context.Background(), grpcPosts.ConvertToProto(post))
 
-	return err
+	return tracerr.Wrap(err)
 }
 
 func (m PostsMicroservice) DeleteByID(postID uint64) error {
 	_, err := m.client.DeleteByID(context.Background(), &protobuf.PostID{PostID: postID})
 
-	return err
+	return tracerr.Wrap(err)
 }
 
 func (m PostsMicroservice) GetPostsBySubscriptions(userID uint64) ([]models.Post, error) {
 	posts, err := m.client.GetPostsBySubscriptions(context.Background(), &userProto.UserID{UserId: userID})
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 
 	result := make([]models.Post, 0)
@@ -90,7 +92,7 @@ func (m PostsMicroservice) GetLikeByUserAndPostID(userID, postID uint64) (models
 		UserID: userID,
 	})
 	if err != nil {
-		return models.Like{}, err
+		return models.Like{}, tracerr.Wrap(err)
 	}
 
 	return models.Like{
@@ -104,7 +106,7 @@ func (m PostsMicroservice) GetAllLikesByPostID(postID uint64) ([]models.Like, er
 		PostID: postID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 
 	result := make([]models.Like, 0)
@@ -125,7 +127,7 @@ func (m PostsMicroservice) CreateLike(userID, postID uint64) error {
 		UserID: userID,
 	})
 
-	return err
+	return tracerr.Wrap(err)
 }
 
 func (m PostsMicroservice) DeleteLikeByID(userID, postID uint64) error {
@@ -134,7 +136,7 @@ func (m PostsMicroservice) DeleteLikeByID(userID, postID uint64) error {
 		UserID: userID,
 	})
 
-	return err
+	return tracerr.Wrap(err)
 }
 
 func (m PostsMicroservice) CreateTag(tagName string) (uint64, error) {
@@ -142,7 +144,7 @@ func (m PostsMicroservice) CreateTag(tagName string) (uint64, error) {
 		TagName: tagName,
 	})
 	if err != nil {
-		return 0, err
+		return 0, tracerr.Wrap(err)
 	}
 
 	return id.GetTagID(), nil
@@ -153,7 +155,7 @@ func (m PostsMicroservice) GetTagById(tagID uint64) (models.Tag, error) {
 		TagID: tagID,
 	})
 	if err != nil {
-		return models.Tag{}, err
+		return models.Tag{}, tracerr.Wrap(err)
 	}
 
 	return models.Tag{
@@ -167,7 +169,7 @@ func (m PostsMicroservice) GetTagByName(tagName string) (models.Tag, error) {
 		TagName: tagName,
 	})
 	if err != nil {
-		return models.Tag{}, err
+		return models.Tag{}, tracerr.Wrap(err)
 	}
 
 	return models.Tag{
@@ -182,7 +184,7 @@ func (m PostsMicroservice) CreateDepTag(postID, tagID uint64) error {
 		TagID:  tagID,
 	})
 
-	return err
+	return tracerr.Wrap(err)
 }
 
 func (m PostsMicroservice) GetTagDepsByPostId(postID uint64) ([]models.TagDep, error) {
@@ -190,7 +192,7 @@ func (m PostsMicroservice) GetTagDepsByPostId(postID uint64) ([]models.TagDep, e
 		PostID: postID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 
 	result := make([]models.TagDep, 0)
@@ -211,5 +213,5 @@ func (m PostsMicroservice) DeleteDepTag(tagDep models.TagDep) error {
 		TagID:  tagDep.TagID,
 	})
 
-	return err
+	return tracerr.Wrap(err)
 }

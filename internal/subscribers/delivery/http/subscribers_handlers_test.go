@@ -71,10 +71,7 @@ func TestHandler_CreateSubscriber(t *testing.T) {
 				}, nil)
 			},
 			mockSubscribe: func(u *mock_domain.MockSubscribersUseCase, s models.Subscription, userID uint64) {},
-			responseError: "code=400, " +
-				"message=bad request, " +
-				"internal=code=400, " +
-				"message=Unmarshal type error: expected=uint64, got=number -1, field=authorID, offset=14, internal=json: cannot unmarshal number -1 into Go struct field Subscription.authorID of type uint64",
+			responseError: "code=400, message=bad request, internal=code=400, message=parse error: strconv.ParseUint: parsing \"-1\": invalid syntax near offset 12 of '-1', internal=parse error: strconv.ParseUint: parsing \"-1\": invalid syntax near offset 12 of '-1'",
 		},
 		{
 			name:      "ErrorBadRequest",
@@ -281,10 +278,7 @@ func TestHandler_DeleteSubscriber(t *testing.T) {
 				u.EXPECT().GetBySessionID(sessionID).Return(models.User{ID: userID}, nil)
 			},
 			mockSubscribe: func(u *mock_domain.MockSubscribersUseCase, s models.Subscription, userID uint64) {},
-			responseError: "code=400, " +
-				"message=bad request, " +
-				"internal=code=400, " +
-				"message=Unmarshal type error: expected=uint64, got=number -1, field=authorID, offset=14, internal=json: cannot unmarshal number -1 into Go struct field Subscription.authorID of type uint64",
+			responseError: "code=400, message=bad request, internal=code=400, message=parse error: strconv.ParseUint: parsing \"-1\": invalid syntax near offset 12 of '-1', internal=parse error: strconv.ParseUint: parsing \"-1\": invalid syntax near offset 12 of '-1'",
 		},
 		{
 			name:      "ErrorBadRequest",

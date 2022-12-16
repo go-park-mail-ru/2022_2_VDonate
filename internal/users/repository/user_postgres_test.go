@@ -24,10 +24,10 @@ func (g getID) RowsAffected() (int64, error) {
 
 func TestPostPostgres_Create(t *testing.T) {
 	db, mock, err := sqlmock.Newx()
+
 	assert.NoError(t, err)
 
 	r := &Postgres{DB: db}
-
 	require.NoError(t, err)
 
 	type MockBehaviour func(user models.User, id uint64)
@@ -51,17 +51,13 @@ func TestPostPostgres_Create(t *testing.T) {
 			mockBehaviour: func(user models.User, id uint64) {
 				mock.ExpectBegin()
 
-				mock.ExpectExec("INSERT INTO users").
+				mock.ExpectQuery("INSERT INTO users").
 					WithArgs(user.Username, user.Email).
-					WillReturnResult(
-						getID{
-							id:     1,
-							efRows: 1,
-						},
-					)
+					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(id))
+
 				mock.ExpectExec("INSERT INTO user_info").
 					WithArgs(
-						1,
+						2,
 						user.Avatar,
 						user.Password,
 						user.IsAuthor,

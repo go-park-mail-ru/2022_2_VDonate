@@ -8,8 +8,8 @@ import (
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
+	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/jinzhu/copier"
 	"golang.org/x/exp/slices"
@@ -31,57 +31,31 @@ func New(p domain.PostsMicroservice, u domain.UsersMicroservice, i domain.ImageU
 	}
 }
 
-func (u usecase) RenderHTML(content []byte, blur bool) (string, error) {
-	r := regexp.MustCompile(`\[img\|.{121}.?]`)
-	bytesImages := r.FindAll(content, -1)
+func blurContent(content string) string {
+	r := regexp.MustCompile(`"https://wsrv\.nl/\?url=.{100}.?"`)
 
-	if len(bytesImages) == 0 && blur {
-		return "", nil
+	images := r.FindAll([]byte(content), -1)
+
+	for _, img := range images {
+		idx := bytes.LastIndex(img, []byte(`/`))
+		toReplace := string(img[:idx+1]) + "blur_" + string(img[idx+1:])
+
+		content = strings.ReplaceAll(content, string(img), toReplace)
 	}
 
-	if len(bytesImages) == 0 && !blur {
-		return string(content), nil
-	}
+	return content
+}
 
-	m := regexp.MustCompile(`wsrv.nl`)
+func SanitizeContent(content string, blur bool) string {
+	p := bluemonday.UGCPolicy()
+
+	p.AllowAttrs("class").OnElements("img")
+
 	if blur {
-		img := bytesImages[0]
-		if !m.Match(img) {
-			// make special error for this
-			return "", domain.ErrBadRequest
-		}
-		img = img[5 : len(img)-1]
-		if img[len(img)-1] == '/' {
-			img = img[:len(img)-1]
-		}
-
-		idx := strings.LastIndex(string(img[:len(img)-1]), "/")
-		if idx == -1 {
-			return "", domain.ErrBadRequest
-		}
-
-		tmp := append([]byte("blur_"), img[idx+1:]...)
-		img = append(img[:idx+1], tmp...)
-		img = append(append([]byte(`<img src="`), img...), []byte(`" class="post-content__image">`)...)
-
-		return string(img), nil
+		content = blurContent(content)
 	}
 
-	for i, img := range bytesImages {
-		if !m.Match(img) {
-			// make special error for this
-			return "", domain.ErrBadRequest
-		}
-		img = img[5 : len(img)-1]
-		if img[len(img)-1] == '/' {
-			img = img[:len(img)-1]
-		}
-		img = append(append([]byte(`<img src="`), img...), []byte(`" class="post-content__image">`)...)
-
-		content = bytes.ReplaceAll(content, bytesImages[i], img)
-	}
-
-	return string(content), nil
+	return p.Sanitize(content)
 }
 
 func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error) {
@@ -120,9 +94,7 @@ func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error
 			r[i].IsAllowed = true
 		}
 
-		if r[i].Content, err = u.RenderHTML([]byte(r[i].ContentTemplate), !r[i].IsAllowed); err != nil {
-			return nil, err
-		}
+		r[i].Content = SanitizeContent(post.Content, !r[i].IsAllowed)
 
 		author, errGetAuthor := u.userMicroservice.GetByID(post.UserID)
 		if errGetAuthor != nil {
@@ -175,9 +147,7 @@ func (u usecase) GetPostByID(postID, userID uint64) (models.Post, error) {
 		r.IsAllowed = true
 	}
 
-	if r.Content, err = u.RenderHTML([]byte(r.ContentTemplate), !r.IsAllowed); err != nil {
-		return models.Post{}, err
-	}
+	r.Content = SanitizeContent(r.Content, !r.IsAllowed)
 
 	tags, err := u.GetTagsByPostID(r.ID)
 	if err != nil {
@@ -213,9 +183,7 @@ func (u usecase) Create(post models.Post, userID uint64) (models.Post, error) {
 		return models.Post{}, err
 	}
 
-	if post.Content, err = u.RenderHTML([]byte(post.ContentTemplate), false); err != nil {
-		return models.Post{}, err
-	}
+	post.Content = SanitizeContent(post.Content, false)
 
 	return post, nil
 }
@@ -236,9 +204,7 @@ func (u usecase) Update(post models.Post, postID uint64) (models.Post, error) {
 		return models.Post{}, err
 	}
 
-	if updatePost.Content, err = u.RenderHTML([]byte(updatePost.ContentTemplate), false); err != nil {
-		return models.Post{}, err
-	}
+	updatePost.Content = SanitizeContent(updatePost.Content, false)
 
 	return updatePost, u.postsMicroservice.Update(updatePost)
 }

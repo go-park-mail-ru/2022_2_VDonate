@@ -2,6 +2,10 @@ package grpcSubscriptions
 
 import (
 	"context"
+	"database/sql"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"google.golang.org/protobuf/types/known/emptypb"
 
@@ -53,8 +57,8 @@ func ConvertToModel(s *protobuf.AuthorSubscription) models.AuthorSubscription {
 
 func (s SubscriptionsService) GetSubscriptionsByUserID(_ context.Context, id *usersProto.UserID) (*protobuf.SubArray, error) {
 	sub, err := s.subscriptionsRepo.GetSubscriptionsByUserID(id.GetUserId())
-	if err != nil {
-		return nil, err
+	if err != nil && err != sql.ErrNoRows {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	result := make([]*protobuf.AuthorSubscription, 0)
@@ -68,8 +72,8 @@ func (s SubscriptionsService) GetSubscriptionsByUserID(_ context.Context, id *us
 
 func (s SubscriptionsService) GetSubscriptionsByAuthorID(_ context.Context, id *usersProto.UserID) (*protobuf.SubArray, error) {
 	sub, err := s.subscriptionsRepo.GetSubscriptionsByAuthorID(id.GetUserId())
-	if err != nil {
-		return nil, err
+	if err != nil && err != sql.ErrNoRows {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	result := make([]*protobuf.AuthorSubscription, 0)
@@ -83,8 +87,8 @@ func (s SubscriptionsService) GetSubscriptionsByAuthorID(_ context.Context, id *
 
 func (s SubscriptionsService) GetSubscriptionByID(_ context.Context, id *protobuf.AuthorSubscriptionID) (*protobuf.AuthorSubscription, error) {
 	sub, err := s.subscriptionsRepo.GetSubscriptionByID(id.GetID())
-	if err != nil {
-		return nil, err
+	if err != nil && err != sql.ErrNoRows {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return ConvertToProto(sub), nil
@@ -92,8 +96,8 @@ func (s SubscriptionsService) GetSubscriptionByID(_ context.Context, id *protobu
 
 func (s SubscriptionsService) GetSubscriptionByUserAndAuthorID(_ context.Context, pair *usersProto.UserAuthorPair) (*protobuf.AuthorSubscription, error) {
 	sub, err := s.subscriptionsRepo.GetSubscriptionByUserAndAuthorID(pair.GetUserId(), pair.GetAuthorId())
-	if err != nil {
-		return nil, err
+	if err != nil && err != sql.ErrNoRows {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return ConvertToProto(sub), nil
@@ -103,7 +107,7 @@ func (s SubscriptionsService) AddSubscription(_ context.Context, sub *protobuf.A
 	subscription := ConvertToModel(sub)
 	id, err := s.subscriptionsRepo.AddSubscription(subscription)
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &protobuf.AuthorSubscriptionID{ID: id}, nil
@@ -112,7 +116,7 @@ func (s SubscriptionsService) AddSubscription(_ context.Context, sub *protobuf.A
 func (s SubscriptionsService) UpdateSubscription(_ context.Context, sub *protobuf.AuthorSubscription) (*emptypb.Empty, error) {
 	err := s.subscriptionsRepo.UpdateSubscription(ConvertToModel(sub))
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil
@@ -121,7 +125,7 @@ func (s SubscriptionsService) UpdateSubscription(_ context.Context, sub *protobu
 func (s SubscriptionsService) DeleteSubscription(_ context.Context, sub *protobuf.AuthorSubscriptionID) (*emptypb.Empty, error) {
 	err := s.subscriptionsRepo.DeleteSubscription(sub.GetID())
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil

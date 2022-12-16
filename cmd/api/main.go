@@ -2,14 +2,15 @@ package main
 
 import (
 	"flag"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
 
 	_ "github.com/go-park-mail-ru/2022_2_VDonate/docs"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/app"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
+	echoJSON "github.com/go-park-mail-ru/2022_2_VDonate/pkg/echo-json"
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // @title       VDonate API
@@ -32,6 +33,7 @@ import (
 // @in                         header
 // @name                       Authorization
 // @description                Authorization via Cookie
+
 func main() {
 	/*----------------------------flag----------------------------*/
 	var configPath string
@@ -46,6 +48,7 @@ func main() {
 
 	/*-----------------------------echo---------------------------*/
 	e := echo.New()
+	e.JSONSerializer = echoJSON.Serializer{}
 	eProtheus := echo.New()
 
 	/*--------------------------prometheus------------------------*/

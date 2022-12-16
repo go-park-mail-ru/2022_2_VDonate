@@ -1,15 +1,12 @@
 package app
 
 import (
-	"database/sql"
 	"log"
 	"os/exec"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
-
 	"github.com/stretchr/testify/require"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
@@ -21,7 +18,7 @@ func TestApp_init(t *testing.T) {
 	e := echo.New()
 
 	cfg := config.New()
-	err := cfg.Open("../../configs/config_local.yaml")
+	err := cfg.Open("../../cmd/api/configs/config_local.yaml")
 	require.NoError(t, err)
 
 	log.Println("Enabling containers with all environment...")
@@ -43,16 +40,24 @@ func TestApp_init(t *testing.T) {
 
 	log.Println("Successfully enabled")
 
-	log.Println("Initializing server...")
+	log.Println("Check running containers...")
 
-	postgres, err := sql.Open(cfg.DB.Driver, cfg.DB.URL)
-	assert.NoError(t, err, "Postgres not UP")
+	cmd = exec.Command("docker", "ps")
 
-	log.Println("waiting for postgres to start")
-	for postgres.Ping() != nil {
-		log.Println("...")
-		time.Sleep(time.Second * 2)
+	out, err = cmd.CombinedOutput()
+
+	log.Println("\n" + string(out))
+
+	if err != nil {
+		exitErr, ok := err.(*exec.ExitError)
+		if ok {
+			assert.NoError(t, err, string(exitErr.Stderr))
+		} else {
+			log.Fatalf("cmd.Wait: %v", err)
+		}
 	}
+
+	log.Println("Initializing server...")
 
 	// Change local config for all services to start
 	server := New(e, cfg)

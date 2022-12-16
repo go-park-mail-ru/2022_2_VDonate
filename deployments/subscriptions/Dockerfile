@@ -7,6 +7,7 @@ WORKDIR ../build
 COPY / .
 RUN go mod download
 EXPOSE 8086
+EXPOSE 9086
 RUN CGO_ENABLED=0 go build -a -installsuffix cgo cmd/subscriptions/subscriptions.go
 
 FROM alpine:latest

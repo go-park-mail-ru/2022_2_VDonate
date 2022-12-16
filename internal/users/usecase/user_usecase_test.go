@@ -14,16 +14,18 @@ import (
 
 func TestUsecase_Update(t *testing.T) {
 	type mockBehaviourGet func(r *mockDomain.MockUsersRepository, userID uint64)
-
 	type mockBehaviourUpdate func(r *mockDomain.MockUsersRepository, user models.User)
+	type mockImage func(r *mockDomain.MockImageUseCase, file *multipart.FileHeader, avatar string)
 
 	tests := []struct {
 		name                string
 		inputUser           models.User
 		mockBehaviourGet    mockBehaviourGet
 		mockBehaviourUpdate mockBehaviourUpdate
+		mockImage           mockImage
 		responseError       string
 	}{
+		// FIXME this case depends on images microsrevices. Need to fix it
 		{
 			name: "OK",
 			inputUser: models.User{
@@ -41,6 +43,9 @@ func TestUsecase_Update(t *testing.T) {
 			mockBehaviourUpdate: func(r *mockDomain.MockUsersRepository, user models.User) {
 				r.EXPECT().Update(user).Return(nil)
 			},
+			mockImage: func(r *mockDomain.MockImageUseCase, file *multipart.FileHeader, avatar string) {
+				r.EXPECT().CreateOrUpdateImage(file, avatar).Return("", nil)
+			},
 		},
 		{
 			name: "NotFound",
@@ -53,6 +58,7 @@ func TestUsecase_Update(t *testing.T) {
 				r.EXPECT().GetByID(userID).Return(models.User{}, errors.New("not found"))
 			},
 			mockBehaviourUpdate: func(r *mockDomain.MockUsersRepository, user models.User) {},
+			mockImage:           func(r *mockDomain.MockImageUseCase, file *multipart.FileHeader, avatar string) {},
 			responseError:       "not found",
 		},
 	}
@@ -67,6 +73,8 @@ func TestUsecase_Update(t *testing.T) {
 
 			test.mockBehaviourGet(userMock, test.inputUser.ID)
 			test.mockBehaviourUpdate(userMock, test.inputUser)
+
+			test.mockImage(imgMock, &multipart.FileHeader{}, "")
 
 			usecase := WithHashCreator(
 				userMock,
@@ -83,127 +91,6 @@ func TestUsecase_Update(t *testing.T) {
 			if err != nil {
 				require.EqualError(t, err, test.responseError)
 			}
-		})
-	}
-}
-
-func TestUsecase_DeleteByUsername(t *testing.T) {
-	type mockBehaviourGet func(r *mockDomain.MockUsersRepository, username string)
-
-	type mockBehaviourDelete func(r *mockDomain.MockUsersRepository, userID uint64)
-
-	tests := []struct {
-		name                string
-		userID              uint64
-		usernmae            string
-		mockBehaviourGet    mockBehaviourGet
-		mockBehaviourDelete mockBehaviourDelete
-		responseError       error
-	}{
-		{
-			name:     "OK",
-			userID:   123,
-			usernmae: "user",
-			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, username string) {
-				r.EXPECT().GetByUsername(username).Return(models.User{
-					ID:       123,
-					Username: username,
-				}, nil)
-			},
-			mockBehaviourDelete: func(r *mockDomain.MockUsersRepository, userID uint64) {
-				r.EXPECT().DeleteByID(userID).Return(nil)
-			},
-			responseError: nil,
-		},
-		{
-			name:     "UserNotFound",
-			userID:   123,
-			usernmae: "user",
-			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, username string) {
-				r.EXPECT().GetByUsername(username).Return(models.User{}, errors.New("user not found"))
-			},
-			mockBehaviourDelete: func(r *mockDomain.MockUsersRepository, userID uint64) {},
-			responseError:       errors.New("user not found"),
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// defer ctrl.Finish()
-			//
-			// userMock := mockDomain.NewMockUsersRepository(ctrl)
-			// imgMock := mockDomain.NewMockImageUseCase(ctrl)
-			//
-			// test.mockBehaviourGet(userMock, test.usernmae)
-			// test.mockBehaviourDelete(userMock, test.userID)
-			//
-			// usecase := New(userMock, imgMock)
-			//
-			// err := usecase.DeleteByUsername(test.usernmae)
-			//
-			// require.Equal(t, err, test.responseError)
-		})
-	}
-}
-
-func TestUsecase_DeleteByEmail(t *testing.T) {
-	type mockBehaviourGet func(r *mockDomain.MockUsersRepository, email string)
-
-	type mockBehaviourDelete func(r *mockDomain.MockUsersRepository, userID uint64)
-
-	tests := []struct {
-		name                string
-		userID              uint64
-		email               string
-		mockBehaviourGet    mockBehaviourGet
-		mockBehaviourDelete mockBehaviourDelete
-		responseError       error
-	}{
-		{
-			name:   "OK",
-			userID: 200,
-			email:  "ex@mail.ru",
-			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, email string) {
-				r.EXPECT().GetByEmail(email).Return(models.User{
-					ID:       200,
-					Username: "user",
-					Email:    email,
-				}, nil)
-			},
-			mockBehaviourDelete: func(r *mockDomain.MockUsersRepository, userID uint64) {
-				r.EXPECT().DeleteByID(userID).Return(nil)
-			},
-			responseError: nil,
-		},
-		{
-			name:   "UserNotExist",
-			userID: 200,
-			email:  "ex@mail.ru",
-			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, email string) {
-				r.EXPECT().GetByEmail(email).Return(models.User{}, errors.New("user not found"))
-			},
-			mockBehaviourDelete: func(r *mockDomain.MockUsersRepository, userID uint64) {},
-			responseError:       errors.New("user not found"),
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// defer ctrl.Finish()
-			//
-			// userMock := mockDomain.NewMockUsersRepository(ctrl)
-			// imgMock := mockDomain.NewMockImageUseCase(ctrl)
-			//
-			// test.mockBehaviourGet(userMock, test.email)
-			// test.mockBehaviourDelete(userMock, test.userID)
-			//
-			// usecase := New(userMock, imgMock)
-			//
-			// err := usecase.DeleteByEmail(test.email)
-			//
-			// require.Equal(t, err, test.responseError)
 		})
 	}
 }
@@ -338,6 +225,79 @@ func TestUsecase_IsExistUsernameAndEmail(t *testing.T) {
 			isExist := usecase.IsExistUsernameAndEmail(test.username, test.email)
 
 			require.Equal(t, isExist, test.response)
+		})
+	}
+}
+
+func TestUsecase_FindAuthors(t *testing.T) {
+	type mockImages func(r *mockDomain.MockImageUseCase, avatar string)
+	type mockAuthors func(r *mockDomain.MockUsersMicroservice, word string)
+	type mockAllAuthors func(r *mockDomain.MockUsersMicroservice)
+
+	tests := []struct {
+		name           string
+		word           string
+		img            string
+		mockImages     mockImages
+		mockAuthors    mockAuthors
+		mockAllAuthors mockAllAuthors
+		response       []models.User
+		expectedError  string
+	}{
+		{
+			name: "OK",
+			word: "user",
+			img:  "",
+			mockAuthors: func(r *mockDomain.MockUsersMicroservice, word string) {
+				r.EXPECT().GetAuthorByUsername(word).Return([]models.User{
+					{
+						Username: "user",
+					},
+				}, nil)
+			},
+			mockImages: func(r *mockDomain.MockImageUseCase, avatar string) {
+				r.EXPECT().GetImage(avatar).Return("image", nil)
+			},
+			mockAllAuthors: func(r *mockDomain.MockUsersMicroservice) {},
+			response: []models.User{
+				{
+					Username: "user",
+					Avatar:   "image",
+				},
+			},
+		},
+		{
+			name: "ErrEmptyWord",
+			word: "",
+			mockAllAuthors: func(r *mockDomain.MockUsersMicroservice) {
+				r.EXPECT().GetAllAuthors().Return([]models.User{}, errors.New("empty word"))
+			},
+			mockAuthors:   func(r *mockDomain.MockUsersMicroservice, word string) {},
+			mockImages:    func(r *mockDomain.MockImageUseCase, avatar string) {},
+			expectedError: "empty word",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			imgMock := mockDomain.NewMockImageUseCase(ctrl)
+			userMicro := mockDomain.NewMockUsersMicroservice(ctrl)
+
+			test.mockImages(imgMock, "")
+			test.mockAuthors(userMicro, "%"+test.word+"%")
+			test.mockAllAuthors(userMicro)
+
+			usecase := New(userMicro, imgMock)
+
+			authors, err := usecase.FindAuthors(test.word)
+			if err != nil {
+				require.Equal(t, err.Error(), "empty word")
+			}
+
+			require.Equal(t, authors, test.response)
 		})
 	}
 }

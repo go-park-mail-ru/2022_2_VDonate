@@ -7,6 +7,7 @@ WORKDIR ../build
 COPY / .
 RUN go mod download
 EXPOSE 8083
+EXPOSE 9083
 RUN CGO_ENABLED=0 go build -a -installsuffix cgo cmd/images/images.go
 
 FROM alpine:latest

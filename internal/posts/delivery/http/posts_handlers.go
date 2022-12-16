@@ -174,9 +174,8 @@ func (h Handler) PutPost(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, models.ResponseImagePosts{
-		PostID:          postID,
-		Content:         prevPost.Content,
-		ContentTemplate: prevPost.ContentTemplate,
+		PostID:  postID,
+		Content: prevPost.Content,
 	})
 }
 
@@ -219,9 +218,9 @@ func (h Handler) CreatePost(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, models.ResponseImagePosts{
-		PostID:          post.ID,
-		ContentTemplate: post.ContentTemplate,
-		Content:         post.Content,
+		PostID:      post.ID,
+		Content:     post.Content,
+		DateCreated: post.DateCreated,
 	})
 }
 

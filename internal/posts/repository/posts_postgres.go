@@ -3,7 +3,6 @@ package postsRepository
 import (
 	"database/sql"
 	"errors"
-	"time"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
@@ -65,13 +64,11 @@ func (r Postgres) Create(post models.Post) (uint64, error) {
 	var postID uint64
 	err := r.DB.QueryRowx(
 		`
-		INSERT INTO posts (user_id, content_template, content, tier, date_created) 
-		VALUES ($1, $2, $3, $4, $5) RETURNING post_id;`,
+		INSERT INTO posts (user_id, content, tier) 
+		VALUES ($1, $2, $3) RETURNING post_id;`,
 		post.UserID,
-		post.ContentTemplate,
 		post.Content,
 		post.Tier,
-		time.Now(),
 	).Scan(&postID)
 	if err != nil {
 		return 0, err
@@ -85,7 +82,6 @@ func (r Postgres) Update(post models.Post) error {
 		`
                 UPDATE posts
                 SET user_id=:user_id,
-                    content_template=:content_template,
                     content=:content,
                     tier=:tier
                 WHERE post_id = :post_id`, &post)
@@ -96,7 +92,7 @@ func (r Postgres) Update(post models.Post) error {
 func (r Postgres) GetPostsBySubscriptions(userID uint64) ([]models.Post, error) {
 	posts := make([]models.Post, 0)
 	if err := r.DB.Select(&posts, `
-		SELECT p.post_id, p.user_id, p.content_template, p.content, p.tier, p.date_created
+		SELECT p.post_id, p.user_id, p.content, p.tier, p.date_created
 		FROM subscriptions s
 		JOIN posts p on s.author_id = p.user_id
 		JOIN author_subscriptions "as" on "as".id = s.subscription_id

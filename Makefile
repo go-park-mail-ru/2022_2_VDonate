@@ -1,7 +1,7 @@
 MAIN_PATH = ./cmd/api/main.go
 MOCKS_DESTINATION = internal/mocks
 INTERNAL_PATH = internal
-ACTIVE_PACKAGES = $(shell go list ./... | grep -v "/mocks/" | tr '\n' ',')
+ACTIVE_PACKAGES = $(shell go list ./... | grep -Ev "mocks|protobuf" | tr '\n' ',')
 PROTO_FILES = $(shell find . -iname '*.proto')
 GEN_PROTO_FILES = $(shell find . -iname "*.pb.go")
 
@@ -11,14 +11,16 @@ test: ## Run all the tests
 
 .PHONY: cover_out
 cover_out: test ## Run all the tests and opens the coverage report
-	go tool cover -func=c.out
+	cat c.out | grep -v "cmd" | grep -v "easyjson" > tmp.out
+	go tool cover -func=tmp.out
 
 .PHONY: cover_html
 cover_html: test ## Run all the tests and opens the coverage report in HTML
-	go tool cover -html=c.out
+	cat c.out | grep -v "cmd" | grep -v "easyjson" > tmp.out
+	go tool cover -html=tmp.out
 
 .PHONY: ci
-ci: lint test ## Run all the tests and code checks
+ci: lint cover_out ## Run all the tests and code checks
 
 .PHONY: local_build
 local_build: ## Build locally
@@ -45,6 +47,15 @@ mocks: ## Generate mocks
 	@mockgen -source=internal/domain/images.go -destination=$(MOCKS_DESTINATION)/domain/images.go
 	@mockgen -source=internal/domain/donates.go -destination=$(MOCKS_DESTINATION)/domain/donates.go
 	@mockgen -source=internal/domain/repository.go -destination=$(MOCKS_DESTINATION)/domain/repository.go
+	@mockgen -source=internal/microservices/auth/protobuf/auth_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/auth_client.go -package mock_domain
+	@mockgen -source=internal/microservices/users/protobuf/users_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/users_client.go -package mock_domain
+	@mockgen -source=internal/microservices/donates/protobuf/donates_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/donates_client.go -package mock_domain
+	@mockgen -source=internal/microservices/images/protobuf/images_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/images_client.go -package mock_domain
+	@mockgen -source=internal/microservices/post/protobuf/posts_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/post_client.go -package mock_domain
+	@mockgen -source=internal/microservices/subscribers/protobuf/subscribers_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/subscribers_client.go -package mock_domain
+	@mockgen -source=internal/microservices/subscriptions/protobuf/subscriptions_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/subscriptions_client.go -package mock_domain
+	@mockgen -source=internal/microservices/users/protobuf/users_grpc.pb.go -destination=$(MOCKS_DESTINATION)/domain/users_client.go -package mock_domain
+	@echo "OK"
 
 .PHONY: lint
 lint: ## Make linters

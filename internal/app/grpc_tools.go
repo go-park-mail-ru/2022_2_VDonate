@@ -8,14 +8,18 @@ import (
 	"google.golang.org/grpc"
 )
 
-func CreateGRPCServer(host, port string) (net.Listener, *grpc.Server) {
+func CreateGRPCServer(host, port string, grpcMetrics *grpc_prometheus.ServerMetrics) (net.Listener, *grpc.Server) {
 	listen, err := net.Listen("tcp", host+":"+port)
 	if err != nil {
 		log.Fatalf("%s:%s: %s", host, port, err)
 	}
 
-	return listen, grpc.NewServer(
-		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
-		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
+	metricsServer := grpc.NewServer(
+		grpc.StreamInterceptor(grpcMetrics.StreamServerInterceptor()),
+		grpc.UnaryInterceptor(grpcMetrics.UnaryServerInterceptor()),
 	)
+
+	grpcMetrics.EnableHandlingTimeHistogram()
+
+	return listen, metricsServer
 }

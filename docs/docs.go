@@ -424,6 +424,14 @@ const docTemplate = `{
                 "operationId": "create_post",
                 "parameters": [
                     {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "name": "file",
+                        "in": "formData"
+                    },
+                    {
                         "type": "string",
                         "example": "some text",
                         "name": "text",
@@ -570,6 +578,14 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "name": "file",
+                        "in": "formData"
                     },
                     {
                         "type": "string",
@@ -1946,7 +1962,6 @@ const docTemplate = `{
             "required": [
                 "author",
                 "content",
-                "contentTemplate",
                 "isLiked",
                 "likesNum"
             ],
@@ -1957,10 +1972,6 @@ const docTemplate = `{
                 "content": {
                     "type": "string",
                     "example": "Hello \u003cimg src=...\u003e"
-                },
-                "contentTemplate": {
-                    "type": "string",
-                    "example": "Hello [img|vdonate/path/to/img]"
                 },
                 "dateCreated": {
                     "type": "string",
@@ -2002,7 +2013,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "content",
-                "contentTemplate",
+                "dateCreated",
                 "postID"
             ],
             "properties": {
@@ -2010,9 +2021,9 @@ const docTemplate = `{
                     "type": "string",
                     "example": "\u003cimg src=\"\"\u003e"
                 },
-                "contentTemplate": {
+                "dateCreated": {
                     "type": "string",
-                    "example": "[img|vdonate.ml...]"
+                    "example": "2020-01-01 00:00:00"
                 },
                 "postID": {
                     "type": "integer",

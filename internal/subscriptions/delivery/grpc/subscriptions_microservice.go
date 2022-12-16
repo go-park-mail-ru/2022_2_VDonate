@@ -3,6 +3,8 @@ package subscriptionsMicroservice
 import (
 	"context"
 
+	"github.com/ztrue/tracerr"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 
 	grpcSubscriptions "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscriptions/grpc"
@@ -25,7 +27,7 @@ func New(c protobuf.SubscriptionsClient) domain.SubscriptionMicroservice {
 func (m SubscriptionsMicroservice) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscription, error) {
 	s, err := m.client.GetSubscriptionsByUserID(context.Background(), &usersProto.UserID{UserId: userID})
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 
 	result := make([]models.AuthorSubscription, 0)
@@ -39,7 +41,7 @@ func (m SubscriptionsMicroservice) GetSubscriptionsByUserID(userID uint64) ([]mo
 func (m SubscriptionsMicroservice) GetSubscriptionsByAuthorID(authorID uint64) ([]models.AuthorSubscription, error) {
 	s, err := m.client.GetSubscriptionsByAuthorID(context.Background(), &usersProto.UserID{UserId: authorID})
 	if err != nil {
-		return nil, err
+		return nil, tracerr.Wrap(err)
 	}
 
 	result := make([]models.AuthorSubscription, 0)
@@ -53,7 +55,7 @@ func (m SubscriptionsMicroservice) GetSubscriptionsByAuthorID(authorID uint64) (
 func (m SubscriptionsMicroservice) GetSubscriptionByID(id uint64) (models.AuthorSubscription, error) {
 	s, err := m.client.GetSubscriptionByID(context.Background(), &protobuf.AuthorSubscriptionID{ID: id})
 	if err != nil {
-		return models.AuthorSubscription{}, err
+		return models.AuthorSubscription{}, tracerr.Wrap(err)
 	}
 
 	return grpcSubscriptions.ConvertToModel(s), nil
@@ -65,7 +67,7 @@ func (m SubscriptionsMicroservice) GetSubscriptionByUserAndAuthorID(userID, auth
 		AuthorId: authorID,
 	})
 	if err != nil {
-		return models.AuthorSubscription{}, err
+		return models.AuthorSubscription{}, tracerr.Wrap(err)
 	}
 
 	return grpcSubscriptions.ConvertToModel(s), nil
@@ -74,7 +76,7 @@ func (m SubscriptionsMicroservice) GetSubscriptionByUserAndAuthorID(userID, auth
 func (m SubscriptionsMicroservice) AddSubscription(subscription models.AuthorSubscription) (uint64, error) {
 	id, err := m.client.AddSubscription(context.Background(), grpcSubscriptions.ConvertToProto(subscription))
 	if err != nil {
-		return 0, err
+		return 0, tracerr.Wrap(err)
 	}
 
 	return id.GetID(), nil
@@ -83,7 +85,7 @@ func (m SubscriptionsMicroservice) AddSubscription(subscription models.AuthorSub
 func (m SubscriptionsMicroservice) UpdateSubscription(subscription models.AuthorSubscription) error {
 	_, err := m.client.UpdateSubscription(context.Background(), grpcSubscriptions.ConvertToProto(subscription))
 
-	return err
+	return tracerr.Wrap(err)
 }
 
 func (m SubscriptionsMicroservice) DeleteSubscription(id uint64) error {
@@ -91,5 +93,5 @@ func (m SubscriptionsMicroservice) DeleteSubscription(id uint64) error {
 		ID: id,
 	})
 
-	return err
+	return tracerr.Wrap(err)
 }

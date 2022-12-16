@@ -7,25 +7,25 @@ server:
 services:
   auth:
     port: 8081
-    host: auth
+    host: 0.0.0.0
   donates:
     port: 8082
-    host: donates
+    host: 0.0.0.0
   images:
     port: 8083
-    host: images
+    host: 0.0.0.0
   posts:
     port: 8084
-    host: posts
+    host: 0.0.0.0
   subscribers:
     port: 8085
-    host: subscribers
+    host: 0.0.0.0
   subscriptions:
     port: 8086
-    host: subscriptions
+    host: 0.0.0.0
   users:
     port: 8087
-    host: users
+    host: 0.0.0.0
 
 logger:
   level: info
