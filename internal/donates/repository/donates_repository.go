@@ -3,7 +3,6 @@ package donatesRepository
 import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
 )
 
 type Postgres struct {

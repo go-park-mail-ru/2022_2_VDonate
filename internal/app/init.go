@@ -1,58 +1,29 @@
 package app
 
 import (
-	"net/http"
-
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-
-	"google.golang.org/grpc/credentials/insecure"
-
-	imagesMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/delivery/grpc"
-
-	donatesMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery/grpc"
-
-	subscribersMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/delivery/grpc"
-
-	subscriptionsMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/delivery/grpc"
-
-	authMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/grpc"
-	postsMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery/grpc"
-
-	usersMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery/grpc"
-
-	authProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf"
-	donatesProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/donates/protobuf"
-	imagesProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/images/protobuf"
-	postProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/post/protobuf"
-	subscribersProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscribers/protobuf"
-	subscriptionsProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscriptions/protobuf"
-	usersProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
-
-	"google.golang.org/grpc"
-
-	httpSubscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/delivery/http"
-
-	httpDonates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery/http"
-
-	httpImages "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/delivery/http"
-
-	httpPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery/http"
-
-	httpSubscriptions "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/delivery/http"
-
-	httpUsers "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery/http"
-
-	authMiddlewares "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http/middlewares"
-
-	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
+	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery"
+	authMiddlewares "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/middlewares"
+	sessionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/repository"
 	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	httpdonates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery"
+	donatesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/repository"
 	donates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/usecase"
+	imagesMiddleware "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/middlewares"
+	imagesRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/repository"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
+	httpPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/delivery"
+	postsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/repository"
 	posts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/usecase"
+	httpsubscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/delivery"
+	subscribersRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/repository"
 	subscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/usecase"
+	httpSubscriptions "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/delivery"
+	subscriptionsRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/repository"
 	subscriptions "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/usecase"
+	httpUsers "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery"
+	userRepository "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/repository"
 	users "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
 	"github.com/labstack/echo/v4"
@@ -65,39 +36,27 @@ type Server struct {
 
 	Config *config.Config
 
-	UserMicroservice         domain.UsersMicroservice
-	PostsMicroservice        domain.PostsMicroservice
-	AuthMicroservice         domain.AuthMicroservice
-	SubscriptionMicroservice domain.SubscriptionMicroservice
-	SubscribersMicroservice  domain.SubscribersMicroservice
-	DonatesMicroservice      domain.DonatesMicroservice
-	ImagesMicroservice       domain.ImageMicroservice
-
-	UserUseCase         domain.UsersUseCase
-	PostsUseCase        domain.PostsUseCase
-	AuthUseCase         domain.AuthUseCase
-	SubscriptionUseCase domain.SubscriptionsUseCase
-	SubscribersUseCase  domain.SubscribersUseCase
-	DonatesUseCase      domain.DonatesUseCase
-	ImagesUseCase       domain.ImageUseCase
+	UserService         domain.UsersUseCase
+	PostsService        domain.PostsUseCase
+	AuthService         domain.AuthUseCase
+	SubscriptionService domain.SubscriptionsUseCase
+	SubscribersService  domain.SubscribersUseCase
+	DonatesService      domain.DonatesUseCase
+	ImagesService       domain.ImageUseCase
 
 	authHandler          *httpAuth.Handler
 	userHandler          *httpUsers.Handler
 	postsHandler         *httpPosts.Handler
 	subscriptionsHandler *httpSubscriptions.Handler
-	subscribersHandler   *httpSubscribers.Handler
-	donatesHandler       *httpDonates.Handler
-	imagesHandler        *httpImages.Handler
+	subscribersHandler   *httpsubscribers.Handler
+	donatesHandler       *httpdonates.Handler
 
 	authMiddleware *authMiddlewares.Middlewares
 }
 
 func (s *Server) init() error {
 	s.makeEchoLogger()
-	if err := s.makeGRPCClients(); err != nil {
-		return err
-	}
-	if err := s.makeUseCase(); err != nil {
+	if err := s.makeUseCase(s.Config.DB.URL); err != nil {
 		return err
 	}
 	s.makeMiddlewares()
@@ -130,134 +89,75 @@ func (s *Server) StartTLS() error {
 	)
 }
 
-func makeAddress(host, port string) string {
-	return host + ":" + port
-}
-
-func (s *Server) makeGRPCClients() error {
-	//----------------------connection----------------------//
-	userConnection, err := grpc.Dial(
-		makeAddress(s.Config.Services.Users.Host, s.Config.Services.Users.Port),
-		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
-		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
+func (s *Server) makeUseCase(url string) error {
+	//-------------------------repo-------------------------//
+	sessionRepo, err := sessionsRepository.NewPostgres(url)
+	if err != nil {
+		return err
+	}
+	userRepo, err := userRepository.NewPostgres(url)
+	if err != nil {
+		return err
+	}
+	postsRepo, err := postsRepository.NewPostgres(url)
+	if err != nil {
+		return err
+	}
+	subscriptionsRepo, err := subscriptionsRepository.NewPostgres(url)
+	if err != nil {
+		return err
+	}
+	subscribersRepo, err := subscribersRepository.NewPostgres(url)
+	if err != nil {
+		return err
+	}
+	imagesRepo, err := imagesRepository.New(
+		s.Config.S3.Endpoint,
+		s.Config.S3.AccessKeyID,
+		s.Config.S3.SecretAccessKey,
+		s.Config.S3.UseSSL,
+		s.Config.S3.Buckets,
 	)
 	if err != nil {
 		return err
 	}
-
-	postsConnection, err := grpc.Dial(
-		makeAddress(s.Config.Services.Posts.Host, s.Config.Services.Posts.Port),
-		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
-		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
+	donatesRepo, err := donatesRepository.NewPostgres(url)
 	if err != nil {
-		return err
+		s.Echo.Logger.Error(err)
 	}
-
-	authConnection, err := grpc.Dial(
-		makeAddress(s.Config.Services.Auth.Host, s.Config.Services.Auth.Port),
-		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
-		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-	if err != nil {
-		return err
-	}
-
-	subscriptionConnection, err := grpc.Dial(
-		makeAddress(s.Config.Services.Subscriptions.Host, s.Config.Services.Subscriptions.Port),
-		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
-		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-	if err != nil {
-		return err
-	}
-
-	subscribersConnection, err := grpc.Dial(
-		makeAddress(s.Config.Services.Subscribers.Host, s.Config.Services.Subscribers.Port),
-		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
-		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-	if err != nil {
-		return err
-	}
-
-	donatesConnection, err := grpc.Dial(
-		makeAddress(s.Config.Services.Donates.Host, s.Config.Services.Donates.Port),
-		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
-		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-	if err != nil {
-		return err
-	}
-
-	imagesConnection, err := grpc.Dial(
-		makeAddress(s.Config.Services.Images.Host, s.Config.Services.Images.Port),
-		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
-		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-	if err != nil {
-		return err
-	}
-
-	//---------------------microservice---------------------//
-	s.UserMicroservice = usersMicroservice.New(usersProto.NewUsersClient(userConnection))
-
-	s.PostsMicroservice = postsMicroservice.New(postProto.NewPostsClient(postsConnection))
-
-	s.AuthMicroservice = authMicroservice.New(authProto.NewAuthClient(authConnection))
-
-	s.SubscriptionMicroservice = subscriptionsMicroservice.New(subscriptionsProto.NewSubscriptionsClient(subscriptionConnection))
-
-	s.SubscribersMicroservice = subscribersMicroservice.New(subscribersProto.NewSubscribersClient(subscribersConnection))
-
-	s.DonatesMicroservice = donatesMicroservice.New(donatesProto.NewDonatesClient(donatesConnection))
-
-	s.ImagesMicroservice = imagesMicroservice.New(imagesProto.NewImagesClient(imagesConnection))
-
-	return nil
-}
-
-func (s *Server) makeUseCase() error {
-	//------------------------images------------------------//
-	s.ImagesUseCase = images.New(s.ImagesMicroservice)
 
 	//-----------------------sessions-----------------------//
-	s.AuthUseCase = auth.New(s.AuthMicroservice, s.UserMicroservice)
+	s.AuthService = auth.New(sessionRepo, userRepo)
 
 	//-------------------------user-------------------------//
-	s.UserUseCase = users.New(s.UserMicroservice, s.ImagesUseCase)
+	s.UserService = users.New(userRepo)
 
 	//-------------------------post-------------------------//
-	s.PostsUseCase = posts.New(s.PostsMicroservice, s.UserMicroservice, s.ImagesUseCase, s.SubscriptionMicroservice)
+	s.PostsService = posts.New(postsRepo)
 
 	//----------------------subscriber----------------------//
-	s.SubscribersUseCase = subscribers.New(s.SubscribersMicroservice, s.UserMicroservice)
+	s.SubscribersService = subscribers.New(subscribersRepo, userRepo)
 
 	//---------------------subscription---------------------//
-	s.SubscriptionUseCase = subscriptions.New(s.SubscriptionMicroservice, s.UserMicroservice, s.ImagesUseCase)
+	s.SubscriptionService = subscriptions.New(subscriptionsRepo)
 
 	//-----------------------donates------------------------//
-	s.DonatesUseCase = donates.New(s.DonatesMicroservice, s.UserMicroservice)
+	s.DonatesService = donates.New(donatesRepo, userRepo)
+
+	//------------------------images------------------------//
+	s.ImagesService = images.New(imagesRepo)
 
 	return nil
 }
 
 func (s *Server) makeHandlers() {
-	s.authHandler = httpAuth.NewHandler(s.AuthUseCase, s.UserUseCase)
+	s.authHandler = httpAuth.NewHandler(s.AuthService, s.UserService)
 
-	s.imagesHandler = httpImages.NewHandler(s.ImagesUseCase)
-	s.donatesHandler = httpDonates.NewHandler(s.DonatesUseCase, s.UserUseCase)
-	s.postsHandler = httpPosts.NewHandler(s.PostsUseCase, s.UserUseCase, s.ImagesUseCase)
-	s.userHandler = httpUsers.NewHandler(s.UserUseCase, s.AuthUseCase, s.ImagesUseCase, s.SubscriptionUseCase, s.SubscribersUseCase)
-	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionUseCase, s.UserUseCase, s.ImagesUseCase)
-	s.subscribersHandler = httpSubscribers.NewHandler(s.SubscribersUseCase, s.UserUseCase)
+	s.donatesHandler = httpdonates.NewHandler(s.DonatesService, s.UserService)
+	s.postsHandler = httpPosts.NewHandler(s.PostsService, s.UserService, s.ImagesService)
+	s.userHandler = httpUsers.NewHandler(s.UserService, s.AuthService, s.ImagesService, s.SubscriptionService, s.SubscribersService)
+	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionService, s.UserService, s.ImagesService)
+	s.subscribersHandler = httpsubscribers.NewHandler(s.SubscribersService, s.UserService)
 }
 
 func (s *Server) makeEchoLogger() {
@@ -275,6 +175,8 @@ func (s *Server) makeRouter() {
 	s.Echo.Use(middleware.Secure())
 	v1 := s.Echo.Group("/api/v1")
 
+	v1.Use(imagesMiddleware.BucketManager)
+
 	v1.POST("/login", s.authHandler.Login)
 	v1.GET("/auth", s.authHandler.Auth)
 	v1.DELETE("/logout", s.authHandler.Logout, s.authMiddleware.LoginRequired)
@@ -285,11 +187,6 @@ func (s *Server) makeRouter() {
 
 	user.GET("", s.userHandler.GetUser)
 	user.PUT("", s.userHandler.PutUser)
-
-	search := v1.Group("/search")
-	search.Use(s.authMiddleware.LoginRequired)
-
-	search.GET("", s.userHandler.GetAuthors)
 
 	post := v1.Group("/posts")
 	post.Use(s.authMiddleware.LoginRequired)
@@ -330,9 +227,6 @@ func (s *Server) makeRouter() {
 	donate.GET("/:id", s.donatesHandler.GetDonate)
 	donate.GET("", s.donatesHandler.GetDonates)
 	donate.POST("", s.donatesHandler.CreateDonate)
-
-	image := v1.Group("/image")
-	image.POST("", s.imagesHandler.CreateOrUpdateImage)
 }
 
 func (s *Server) makeCORS() {
@@ -346,19 +240,17 @@ func (s *Server) makeCORS() {
 
 func (s *Server) makeCSRF() {
 	s.Echo.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		TokenLength:    s.Config.CSRF.TokenLength,
-		TokenLookup:    "header:" + echo.HeaderXCSRFToken,
-		ContextKey:     s.Config.CSRF.ContextKey,
-		CookieName:     s.Config.CSRF.ContextName,
-		CookieMaxAge:   s.Config.CSRF.MaxAge,
-		CookiePath:     "/",
-		CookieSameSite: http.SameSiteNoneMode,
-		CookieSecure:   true,
+		TokenLength:  s.Config.CSRF.TokenLength,
+		TokenLookup:  "header:" + echo.HeaderXCSRFToken,
+		ContextKey:   s.Config.CSRF.ContextKey,
+		CookieName:   s.Config.CSRF.ContextName,
+		CookieMaxAge: s.Config.CSRF.MaxAge,
+		CookiePath:   "/",
 	}))
 }
 
 func (s *Server) makeMiddlewares() {
-	s.authMiddleware = authMiddlewares.New(s.AuthUseCase, s.UserUseCase, s.PostsUseCase)
+	s.authMiddleware = authMiddlewares.New(s.AuthService, s.UserService, s.PostsService)
 }
 
 func New(echo *echo.Echo, c *config.Config) *Server {

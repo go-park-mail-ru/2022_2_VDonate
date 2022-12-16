@@ -5,9 +5,12 @@ import (
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
+	"github.com/golang/mock/gomock"
 )
 
 func TestUsecase_GetSubscribers(t *testing.T) {
@@ -56,22 +59,22 @@ func TestUsecase_GetSubscribers(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// defer ctrl.Finish()
-			//
-			// subMock := mockDomain.NewMockSubscribersRepository(ctrl)
-			// userMock := mockDomain.NewMockUsersRepository(ctrl)
-			//
-			// test.mockBehaviourGetSub(subMock, uint64(test.authorID))
-			// for _, id := range test.userIDs {
-			// 	test.mockBehaviourGetUser(userMock, id)
-			// }
-			//
-			// usecase := New(subMock, userMock)
-			// _, err := usecase.GetSubscribers(uint64(test.authorID))
-			// if err != nil {
-			// 	assert.Equal(t, err.Error(), test.responseError)
-			// }
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			subMock := mockDomain.NewMockSubscribersRepository(ctrl)
+			userMock := mockDomain.NewMockUsersRepository(ctrl)
+
+			test.mockBehaviourGetSub(subMock, uint64(test.authorID))
+			for _, id := range test.userIDs {
+				test.mockBehaviourGetUser(userMock, id)
+			}
+
+			usecase := New(subMock, userMock)
+			_, err := usecase.GetSubscribers(uint64(test.authorID))
+			if err != nil {
+				assert.Equal(t, err.Error(), test.responseError)
+			}
 		})
 	}
 }
@@ -112,19 +115,19 @@ func TestUsecase_Subscribe(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// defer ctrl.Finish()
-			//
-			// subMock := mockDomain.NewMockSubscribersRepository(ctrl)
-			// userMock := mockDomain.NewMockUsersRepository(ctrl)
-			//
-			// test.mockBehaviourSubscribe(subMock, test.sub)
-			//
-			// usecase := New(subMock, userMock)
-			// err := usecase.Subscribe(test.sub, test.sub.SubscriberID)
-			// if err != nil {
-			// 	assert.Equal(t, err.Error(), test.responseError)
-			// }
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			subMock := mockDomain.NewMockSubscribersRepository(ctrl)
+			userMock := mockDomain.NewMockUsersRepository(ctrl)
+
+			test.mockBehaviourSubscribe(subMock, test.sub)
+
+			usecase := New(subMock, userMock)
+			err := usecase.Subscribe(test.sub, test.sub.SubscriberID)
+			if err != nil {
+				assert.Equal(t, err.Error(), test.responseError)
+			}
 		})
 	}
 }
@@ -165,19 +168,19 @@ func TestUsecase_Unsubscribe(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// defer ctrl.Finish()
-			//
-			// subMock := mockDomain.NewMockSubscribersRepository(ctrl)
-			// userMock := mockDomain.NewMockUsersRepository(ctrl)
-			//
-			// test.mockBehaviourUnsubscribe(subMock, test.sub.SubscriberID, test.sub.AuthorID)
-			//
-			// usecase := New(subMock, userMock)
-			// err := usecase.Unsubscribe(test.sub.SubscriberID, test.sub.AuthorID)
-			// if err != nil {
-			// 	assert.Equal(t, err.Error(), test.responseError)
-			// }
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			subMock := mockDomain.NewMockSubscribersRepository(ctrl)
+			userMock := mockDomain.NewMockUsersRepository(ctrl)
+
+			test.mockBehaviourUnsubscribe(subMock, test.sub.SubscriberID, test.sub.AuthorID)
+
+			usecase := New(subMock, userMock)
+			err := usecase.Unsubscribe(test.sub.SubscriberID, test.sub.AuthorID)
+			if err != nil {
+				assert.Equal(t, err.Error(), test.responseError)
+			}
 		})
 	}
 }
@@ -234,19 +237,19 @@ func TestUsecase_IsSubscriber(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// defer ctrl.Finish()
-			//
-			// subRepo := mockDomain.NewMockSubscribersRepository(ctrl)
-			// userRepo := mockDomain.NewMockUsersRepository(ctrl)
-			//
-			// test.mockBehaviourGetSub(subRepo, test.sub.SubscriberID, test.sub.AuthorID)
-			//
-			// usecase := New(subRepo, userRepo)
-			// _, err := usecase.IsSubscriber(test.sub.SubscriberID, test.sub.AuthorID)
-			// if err != nil {
-			// 	assert.Equal(t, err.Error(), test.responseError)
-			// }
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			subRepo := mockDomain.NewMockSubscribersRepository(ctrl)
+			userRepo := mockDomain.NewMockUsersRepository(ctrl)
+
+			test.mockBehaviourGetSub(subRepo, test.sub.SubscriberID, test.sub.AuthorID)
+
+			usecase := New(subRepo, userRepo)
+			_, err := usecase.IsSubscriber(test.sub.SubscriberID, test.sub.AuthorID)
+			if err != nil {
+				assert.Equal(t, err.Error(), test.responseError)
+			}
 		})
 	}
 }

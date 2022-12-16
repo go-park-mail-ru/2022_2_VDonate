@@ -3,8 +3,6 @@ package auth
 import (
 	"time"
 
-	"github.com/pkg/errors"
-
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
@@ -17,8 +15,8 @@ type (
 )
 
 type usecase struct {
-	authMicroservice  domain.AuthMicroservice
-	usersMicroservice domain.UsersMicroservice
+	authRepo  domain.AuthRepository
+	usersRepo domain.UsersRepository
 
 	// cookieCreator is func for creation cookie,
 	// so you can test random sessionID
@@ -29,29 +27,29 @@ type usecase struct {
 	hashCreator hashCreator
 }
 
-func New(authMicroservice domain.AuthMicroservice, usersMicroservice domain.UsersMicroservice) domain.AuthUseCase {
+func New(authRepo domain.AuthRepository, usersRepo domain.UsersRepository) domain.AuthUseCase {
 	return &usecase{
-		authMicroservice:  authMicroservice,
-		usersMicroservice: usersMicroservice,
-		cookieCreator:     createCookie,
-		hashCreator:       utils.HashPassword,
+		authRepo:      authRepo,
+		usersRepo:     usersRepo,
+		cookieCreator: createCookie,
+		hashCreator:   utils.HashPassword,
 	}
 }
 
-func WithCookieCreator(authMicroservice domain.AuthMicroservice, usersMicroservice domain.UsersMicroservice, cookieCreator cookieCreator) domain.AuthUseCase {
+func WithCookieCreator(authRepo domain.AuthRepository, usersRepo domain.UsersRepository, cookieCreator cookieCreator) domain.AuthUseCase {
 	return &usecase{
-		authMicroservice:  authMicroservice,
-		usersMicroservice: usersMicroservice,
-		cookieCreator:     cookieCreator,
+		authRepo:      authRepo,
+		usersRepo:     usersRepo,
+		cookieCreator: cookieCreator,
 	}
 }
 
-func WithCreators(authMicroservice domain.AuthMicroservice, usersMicroservice domain.UsersMicroservice, cookieCreator cookieCreator, hashCreator hashCreator) domain.AuthUseCase {
+func WithCreators(authRepo domain.AuthRepository, usersRepo domain.UsersRepository, cookieCreator cookieCreator, hashCreator hashCreator) domain.AuthUseCase {
 	return &usecase{
-		authMicroservice:  authMicroservice,
-		usersMicroservice: usersMicroservice,
-		cookieCreator:     cookieCreator,
-		hashCreator:       hashCreator,
+		authRepo:      authRepo,
+		usersRepo:     usersRepo,
+		cookieCreator: cookieCreator,
+		hashCreator:   hashCreator,
 	}
 }
 
@@ -64,11 +62,11 @@ func createCookie(id uint64) models.Cookie {
 }
 
 func (u usecase) Login(login, password string) (string, error) {
-	user, err := u.usersMicroservice.GetByUsername(login)
+	user, err := u.usersRepo.GetByUsername(login)
 	if err != nil {
-		user, err = u.usersMicroservice.GetByEmail(login)
+		user, err = u.usersRepo.GetByEmail(login)
 		if err != nil {
-			return "", errors.Wrap(err, domain.ErrUsernameOrEmailNotExist.Error())
+			return "", domain.ErrUsernameOrEmailNotExist
 		}
 	}
 
@@ -78,16 +76,16 @@ func (u usecase) Login(login, password string) (string, error) {
 		return "", domain.ErrPasswordsNotEqual
 	}
 
-	s, err := u.authMicroservice.CreateSession(user.ID)
+	s, err := u.authRepo.CreateSession(u.cookieCreator(user.ID))
 	if err != nil {
 		return "", err
 	}
 
-	return s, nil
+	return s.Value, nil
 }
 
 func (u usecase) Auth(sessionID string) (bool, error) {
-	_, err := u.authMicroservice.GetBySessionID(sessionID)
+	_, err := u.authRepo.GetBySessionID(sessionID)
 	if err != nil {
 		return false, err
 	}
@@ -96,12 +94,12 @@ func (u usecase) Auth(sessionID string) (bool, error) {
 }
 
 func (u usecase) SignUp(user models.User) (string, error) {
-	_, err := u.usersMicroservice.GetByUsername(user.Username)
+	_, err := u.usersRepo.GetByUsername(user.Username)
 	if err == nil {
 		return "", domain.ErrUsernameExist
 	}
 
-	if _, err = u.usersMicroservice.GetByEmail(user.Email); err == nil {
+	if _, err = u.usersRepo.GetByEmail(user.Email); err == nil {
 		return "", domain.ErrEmailExist
 	}
 
@@ -109,20 +107,20 @@ func (u usecase) SignUp(user models.User) (string, error) {
 		return "", domain.ErrInternal
 	}
 
-	if user.ID, err = u.usersMicroservice.Create(user); err != nil {
+	if user.ID, err = u.usersRepo.Create(user); err != nil {
 		return "", err
 	}
 
-	s, err := u.authMicroservice.CreateSession(user.ID)
+	s, err := u.authRepo.CreateSession(u.cookieCreator(user.ID))
 	if err != nil {
 		return "", err
 	}
 
-	return s, nil
+	return s.Value, nil
 }
 
 func (u usecase) Logout(sessionID string) (bool, error) {
-	if err := u.authMicroservice.DeleteBySessionID(sessionID); err != nil {
+	if err := u.authRepo.DeleteBySessionID(sessionID); err != nil {
 		return false, err
 	}
 
@@ -130,7 +128,7 @@ func (u usecase) Logout(sessionID string) (bool, error) {
 }
 
 func (u usecase) IsSameSession(sessionID string, userID uint64) bool {
-	user, err := u.usersMicroservice.GetBySessionID(sessionID)
+	user, err := u.usersRepo.GetBySessionID(sessionID)
 	if err != nil {
 		return false
 	}

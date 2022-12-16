@@ -8,10 +8,6 @@ type Error struct {
 	Message string
 }
 
-type ImageMpfd struct {
-	URL string `json:"url" validate:"required" example:"path/to/img"`
-}
-
 type PostMpfd struct {
 	Title string `json:"title" form:"title" db:"title" validate:"required" example:"some title"`
 	Text  string `json:"text" form:"text" db:"text" validate:"required" example:"some text"`

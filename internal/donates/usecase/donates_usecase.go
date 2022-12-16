@@ -6,14 +6,14 @@ import (
 )
 
 type usecase struct {
-	donatesMicroservice domain.DonatesMicroservice
-	userMicroservice    domain.UsersMicroservice
+	donatesRepo domain.DonatesRepository
+	userRepo    domain.UsersRepository
 }
 
-func New(d domain.DonatesMicroservice, u domain.UsersMicroservice) domain.DonatesUseCase {
+func New(d domain.DonatesRepository, u domain.UsersRepository) domain.DonatesUseCase {
 	return usecase{
-		donatesMicroservice: d,
-		userMicroservice:    u,
+		donatesRepo: d,
+		userRepo:    u,
 	}
 }
 
@@ -23,13 +23,13 @@ func (u usecase) SendDonate(userID, authorID, price uint64) (models.Donate, erro
 		AuthorID: authorID,
 		Price:    price,
 	}
-	return u.donatesMicroservice.SendDonate(donate)
+	return u.donatesRepo.SendDonate(donate)
 }
 
 func (u usecase) GetDonateByID(id uint64) (models.Donate, error) {
-	return u.donatesMicroservice.GetDonateByID(id)
+	return u.donatesRepo.GetDonateByID(id)
 }
 
 func (u usecase) GetDonatesByUserID(userID uint64) ([]models.Donate, error) {
-	return u.donatesMicroservice.GetDonatesByUserID(userID)
+	return u.donatesRepo.GetDonatesByUserID(userID)
 }

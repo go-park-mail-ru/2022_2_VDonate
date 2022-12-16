@@ -1,9 +1,8 @@
 package models
 
 type ResponseImagePosts struct {
-	PostID          uint64 `json:"postID" validate:"required" example:"25"`
-	ContentTemplate string `json:"contentTemplate" validate:"required" example:"[img|vdonate.ml...]"`
-	Content         string `json:"content" validate:"required" example:"<img src=\"\">"`
+	PostID  uint64 `json:"postID" validate:"required" example:"25"`
+	ImgPath string `json:"imgPath" validate:"required" example:"/path/to/image.jpeg"`
 }
 
 type ResponseImageSubscription struct {
@@ -15,7 +14,6 @@ type ResponseImageSubscription struct {
 }
 
 type ResponseImageUsers struct {
-	UserID   uint64 `json:"userID" validate:"required" example:"25"`
-	Username string `json:"username" validate:"required" example:"leo"`
-	ImgPath  string `json:"imgPath" validate:"required" example:"/path/to/image.jpeg"`
+	UserID  uint64 `json:"userID" validate:"required" example:"25"`
+	ImgPath string `json:"imgPath" validate:"required" example:"/path/to/image.jpeg"`
 }

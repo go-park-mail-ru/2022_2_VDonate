@@ -1,6 +1,7 @@
 package images
 
 import (
+	"errors"
 	"mime/multipart"
 	"strings"
 
@@ -10,52 +11,47 @@ import (
 )
 
 type usecase struct {
-	ImageMicroservice domain.ImageMicroservice
+	ImageRepo domain.ImagesRepository
 }
 
-func New(i domain.ImageMicroservice) domain.ImageUseCase {
+func New(imageRepo domain.ImagesRepository) domain.ImageUseCase {
 	return &usecase{
-		ImageMicroservice: i,
+		ImageRepo: imageRepo,
 	}
 }
 
-func (u usecase) CreateOrUpdateImage(image *multipart.FileHeader, oldFilename string) (string, error) {
-	idx := strings.IndexByte(image.Filename, '.')
-	if idx == -1 {
-		return "", domain.ErrBadRequest
-	}
-	image.Filename = uuid.New().String() + image.Filename[idx:]
-
-	file, err := image.Open()
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-
-	buffer := make([]byte, image.Size)
-	if _, err = file.Read(buffer); err != nil {
-		return "", err
-	}
-
-	return u.ImageMicroservice.Create(image.Filename, buffer, image.Size, oldFilename)
+func (u usecase) CreateImage(image *multipart.FileHeader, bucket string) (string, error) {
+	image.Filename = uuid.New().String() + image.Filename[strings.IndexByte(image.Filename, '.'):]
+	return u.ImageRepo.CreateImage(image, bucket)
 }
 
-func (u usecase) GetImage(filename string) (string, error) {
-	if len(filename) == 0 {
+func (u usecase) GetImage(bucket, name string) (string, error) {
+	if len(name) == 0 {
 		return "", nil
 	}
+	switch bucket {
+	case "image":
+		newURL, err := u.ImageRepo.GetImage(bucket, name)
+		if err != nil {
+			return "", err
+		}
 
-	newURL, err := u.ImageMicroservice.Get(filename)
-	if err != nil {
-		return "", err
+		fullURL := "https://wsrv.nl/?url=" +
+			strings.ReplaceAll(strings.ReplaceAll(newURL.String(), "?", "%3F"), "&", "%26")
+
+		return fullURL, nil
+	case "avatar":
+		newURL, err := u.ImageRepo.GetPermanentImage(bucket, name)
+		if err != nil {
+			return "", err
+		}
+
+		newURL = "https://wsrv.nl/?url=" + newURL
+
+		return newURL, nil
+	default:
+		return "", errors.New("bad url")
 	}
-
-	return "https://wsrv.nl/?url=" + strings.ReplaceAll(newURL, "vdonate.ml", "95.163.209.195"), nil
-}
-
-func (u usecase) GetBlurredImage(filename string) (string, error) {
-	filename = "blur_" + filename
-	return u.GetImage(filename)
 }
 
 func GetFileFromContext(c echo.Context) (*multipart.FileHeader, error) {

@@ -214,50 +214,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/image": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Create image POST request",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "images"
-                ],
-                "summary": "Create image",
-                "operationId": "create_image",
-                "responses": {
-                    "200": {
-                        "description": "Posts were successfully received",
-                        "schema": {
-                            "$ref": "#/definitions/models.ImageMpfd"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "401": {
-                        "description": "No session provided",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
         "/login": {
             "post": {
                 "description": "Authorization of ` + "`" + `User` + "`" + `",
@@ -361,8 +317,15 @@ const docTemplate = `{
                 "operationId": "get_posts",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
                         "type": "string",
-                        "description": "filter to use to get posts. Filters: subscriptions, user_id(as digit)",
+                        "description": "filter to use to get posts. Filters: subscriptions",
                         "name": "filter",
                         "in": "query",
                         "required": true
@@ -774,15 +737,6 @@ const docTemplate = `{
                 ],
                 "summary": "Create like",
                 "operationId": "create_like",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Post id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Likes were successfully create",
@@ -822,7 +776,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Delete like on post",
+                "description": "Create like on post",
                 "produces": [
                     "application/json"
                 ],
@@ -867,56 +821,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/search": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Search author by keyword",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Search author",
-                "operationId": "search_author",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Keyword",
-                        "name": "keyword",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "User was successfully updated",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.UserMpfd"
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "No session provided",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal error / failed to search author",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -1104,7 +1008,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.AuthorSubscription"
+                                "$ref": "#/definitions/models.AuthorSubscriptionMpfd"
                             }
                         }
                     },
@@ -1783,10 +1687,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "admin@mail.ru"
                 },
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
                 "isAuthor": {
                     "type": "boolean",
                     "example": true
@@ -1794,53 +1694,6 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "example": "admin"
-                }
-            }
-        },
-        "models.AuthorSubscription": {
-            "type": "object",
-            "required": [
-                "price",
-                "text",
-                "tier",
-                "title"
-            ],
-            "properties": {
-                "authorAvatar": {
-                    "type": "string",
-                    "example": "path/to/img"
-                },
-                "authorID": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "authorName": {
-                    "type": "string",
-                    "example": "leo"
-                },
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "img": {
-                    "type": "string",
-                    "example": "filename.jpeg"
-                },
-                "price": {
-                    "type": "integer",
-                    "example": 2999
-                },
-                "text": {
-                    "type": "string",
-                    "example": "some text"
-                },
-                "tier": {
-                    "type": "integer",
-                    "example": 15
-                },
-                "title": {
-                    "type": "string",
-                    "example": "some title"
                 }
             }
         },
@@ -1912,18 +1765,6 @@ const docTemplate = `{
         "models.EmptyStruct": {
             "type": "object"
         },
-        "models.ImageMpfd": {
-            "type": "object",
-            "required": [
-                "url"
-            ],
-            "properties": {
-                "url": {
-                    "type": "string",
-                    "example": "path/to/img"
-                }
-            }
-        },
         "models.Like": {
             "type": "object",
             "required": [
@@ -1944,31 +1785,16 @@ const docTemplate = `{
         "models.Post": {
             "type": "object",
             "required": [
-                "author",
-                "content",
-                "contentTemplate",
+                "img",
                 "isLiked",
-                "likesNum"
+                "likesNum",
+                "text",
+                "title"
             ],
             "properties": {
-                "author": {
-                    "$ref": "#/definitions/models.ResponseImageUsers"
-                },
-                "content": {
+                "img": {
                     "type": "string",
-                    "example": "Hello \u003cimg src=...\u003e"
-                },
-                "contentTemplate": {
-                    "type": "string",
-                    "example": "Hello [img|vdonate/path/to/img]"
-                },
-                "dateCreated": {
-                    "type": "string",
-                    "example": "2022-11-11"
-                },
-                "isAllowed": {
-                    "type": "boolean",
-                    "example": true
+                    "example": "path/to/image.jpeg"
                 },
                 "isLiked": {
                     "type": "boolean",
@@ -1982,15 +1808,13 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "text": {
+                    "type": "string",
+                    "example": "some text"
                 },
-                "tier": {
-                    "type": "integer",
-                    "example": 5
+                "title": {
+                    "type": "string",
+                    "example": "some title"
                 },
                 "userID": {
                     "type": "integer",
@@ -2001,18 +1825,13 @@ const docTemplate = `{
         "models.ResponseImagePosts": {
             "type": "object",
             "required": [
-                "content",
-                "contentTemplate",
+                "imgPath",
                 "postID"
             ],
             "properties": {
-                "content": {
+                "imgPath": {
                     "type": "string",
-                    "example": "\u003cimg src=\"\"\u003e"
-                },
-                "contentTemplate": {
-                    "type": "string",
-                    "example": "[img|vdonate.ml...]"
+                    "example": "/path/to/image.jpeg"
                 },
                 "postID": {
                     "type": "integer",
@@ -2051,8 +1870,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "imgPath",
-                "userID",
-                "username"
+                "userID"
             ],
             "properties": {
                 "imgPath": {
@@ -2062,10 +1880,6 @@ const docTemplate = `{
                 "userID": {
                     "type": "integer",
                     "example": 25
-                },
-                "username": {
-                    "type": "string",
-                    "example": "leo"
                 }
             }
         },

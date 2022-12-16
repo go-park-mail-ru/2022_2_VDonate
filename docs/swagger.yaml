@@ -33,9 +33,6 @@ definitions:
       email:
         example: admin@mail.ru
         type: string
-      id:
-        example: 1
-        type: integer
       isAuthor:
         example: true
         type: boolean
@@ -46,41 +43,6 @@ definitions:
     - email
     - isAuthor
     - username
-    type: object
-  models.AuthorSubscription:
-    properties:
-      authorAvatar:
-        example: path/to/img
-        type: string
-      authorID:
-        example: 1
-        type: integer
-      authorName:
-        example: leo
-        type: string
-      id:
-        example: 1
-        type: integer
-      img:
-        example: filename.jpeg
-        type: string
-      price:
-        example: 2999
-        type: integer
-      text:
-        example: some text
-        type: string
-      tier:
-        example: 15
-        type: integer
-      title:
-        example: some title
-        type: string
-    required:
-    - price
-    - text
-    - tier
-    - title
     type: object
   models.AuthorSubscriptionMpfd:
     properties:
@@ -130,14 +92,6 @@ definitions:
     type: object
   models.EmptyStruct:
     type: object
-  models.ImageMpfd:
-    properties:
-      url:
-        example: path/to/img
-        type: string
-    required:
-    - url
-    type: object
   models.Like:
     properties:
       postID:
@@ -152,20 +106,9 @@ definitions:
     type: object
   models.Post:
     properties:
-      author:
-        $ref: '#/definitions/models.ResponseImageUsers'
-      content:
-        example: Hello <img src=...>
+      img:
+        example: path/to/image.jpeg
         type: string
-      contentTemplate:
-        example: Hello [img|vdonate/path/to/img]
-        type: string
-      dateCreated:
-        example: "2022-11-11"
-        type: string
-      isAllowed:
-        example: true
-        type: boolean
       isLiked:
         example: true
         type: boolean
@@ -175,37 +118,32 @@ definitions:
       postID:
         example: 1
         type: integer
-      tags:
-        items:
-          type: string
-        type: array
-      tier:
-        example: 5
-        type: integer
+      text:
+        example: some text
+        type: string
+      title:
+        example: some title
+        type: string
       userID:
         example: 1
         type: integer
     required:
-    - author
-    - content
-    - contentTemplate
+    - img
     - isLiked
     - likesNum
+    - text
+    - title
     type: object
   models.ResponseImagePosts:
     properties:
-      content:
-        example: <img src="">
-        type: string
-      contentTemplate:
-        example: '[img|vdonate.ml...]'
+      imgPath:
+        example: /path/to/image.jpeg
         type: string
       postID:
         example: 25
         type: integer
     required:
-    - content
-    - contentTemplate
+    - imgPath
     - postID
     type: object
   models.ResponseImageSubscription:
@@ -236,13 +174,9 @@ definitions:
       userID:
         example: 25
         type: integer
-      username:
-        example: leo
-        type: string
     required:
     - imgPath
     - userID
-    - username
     type: object
   models.Subscription:
     properties:
@@ -445,34 +379,6 @@ paths:
       summary: Get donates
       tags:
       - donates
-  /image:
-    post:
-      description: Create image POST request
-      operationId: create_image
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Posts were successfully received
-          schema:
-            $ref: '#/definitions/models.ImageMpfd'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: No session provided
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Create image
-      tags:
-      - images
   /login:
     post:
       consumes:
@@ -533,8 +439,12 @@ paths:
       description: Get posts with provided filters
       operationId: get_posts
       parameters:
-      - description: 'filter to use to get posts. Filters: subscriptions, user_id(as
-          digit)'
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      - description: 'filter to use to get posts. Filters: subscriptions'
         in: query
         name: filter
         required: true
@@ -763,7 +673,7 @@ paths:
       - posts
   /posts/{id}/likes:
     delete:
-      description: Delete like on post
+      description: Create like on post
       operationId: delete_like
       parameters:
       - description: Post id
@@ -841,12 +751,6 @@ paths:
     post:
       description: Create like on post
       operationId: create_like
-      parameters:
-      - description: Post id
-        in: path
-        name: id
-        required: true
-        type: integer
       produces:
       - application/json
       responses:
@@ -875,38 +779,6 @@ paths:
       summary: Create like
       tags:
       - posts
-  /search:
-    get:
-      description: Search author by keyword
-      operationId: search_author
-      parameters:
-      - description: Keyword
-        in: query
-        name: keyword
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: User was successfully updated
-          schema:
-            items:
-              $ref: '#/definitions/models.UserMpfd'
-            type: array
-        "401":
-          description: No session provided
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal error / failed to search author
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Search author
-      tags:
-      - users
   /subscribers:
     delete:
       consumes:
@@ -1020,7 +892,7 @@ paths:
           description: Successfully received subscriptions
           schema:
             items:
-              $ref: '#/definitions/models.AuthorSubscription'
+              $ref: '#/definitions/models.AuthorSubscriptionMpfd'
             type: array
         "400":
           description: Bad request

@@ -1,9 +1,6 @@
 package subscriptionsRepository
 
 import (
-	"database/sql"
-	"errors"
-
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -24,24 +21,6 @@ func NewPostgres(url string) (*Postgres, error) {
 	}
 
 	return &Postgres{DB: db}, nil
-}
-
-func (p Postgres) GetSubscriptionByUserAndAuthorID(userID, authorID uint64) (models.AuthorSubscription, error) {
-	var s models.AuthorSubscription
-	if err := p.DB.Get(&s, `
-		SELECT "as".id, "as".author_id, "as".tier, "as".text, "as".title, "as".price, "as".img
-		FROM subscriptions s 
-		JOIN author_subscriptions "as" on "as".id = s.subscription_id
-		WHERE s.subscriber_id = $1 
-		AND s.author_id = $2
-		`,
-		userID,
-		authorID,
-	); err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return models.AuthorSubscription{}, err
-	}
-
-	return s, nil
 }
 
 func (p Postgres) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscription, error) {

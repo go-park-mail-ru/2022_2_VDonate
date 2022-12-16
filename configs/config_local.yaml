@@ -1,0 +1,52 @@
+server:
+  host: 0.0.0.0
+  port: 8080
+  cert_path: ""
+  key_path: ""
+
+db:
+  driver: postgres
+  url: host=localhost port=5432 user=ubuntu password=secretkey dbname=dev sslmode=disable
+
+logger:
+  level: info
+
+deploy:
+  mode: false
+
+cors:
+  allow_methods: [
+                   "POST",
+                   "GET",
+                   "DELETE",
+                   "PUT",
+  ]
+  allow_origins: [
+                   "https://vdonate.ml",
+                   "http://localhost:8080",
+                   "https://localhost:8080",
+                   "http://localhost:4200",
+  ]
+  allow_credentials: true
+  allow_headers: [
+                   "Content-Type",
+                   "Content-length",
+  ]
+
+csrf:
+  enabled: false
+  token_length: 32
+  context_key: csrf
+  context_name: csrf_token
+  max_age: 86400
+
+s3:
+  endpoint: localhost:9000
+  access_key_id: admin
+  secret_access_key: secretkey
+  use_ssl: false
+  buckets:
+    # Declare polices of buckets here
+    "image": ""
+    "avatar": >-
+      {"Version": "2012-10-17","Statement": [{"Action": ["s3:GetObject"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::avatar/*"],"Sid": ""}]}

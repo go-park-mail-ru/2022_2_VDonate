@@ -2,7 +2,6 @@ package users
 
 import (
 	"errors"
-	"mime/multipart"
 	"testing"
 
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
@@ -63,14 +62,12 @@ func TestUsecase_Update(t *testing.T) {
 			defer ctrl.Finish()
 
 			userMock := mockDomain.NewMockUsersRepository(ctrl)
-			imgMock := mockDomain.NewMockImageUseCase(ctrl)
 
 			test.mockBehaviourGet(userMock, test.inputUser.ID)
 			test.mockBehaviourUpdate(userMock, test.inputUser)
 
 			usecase := WithHashCreator(
 				userMock,
-				imgMock,
 				func(password string) (string, error) {
 					if len(password) == 0 {
 						return "", errors.New("empty password")
@@ -79,7 +76,7 @@ func TestUsecase_Update(t *testing.T) {
 				},
 			)
 
-			_, err := usecase.Update(test.inputUser, &multipart.FileHeader{}, test.inputUser.ID)
+			err := usecase.Update(test.inputUser, test.inputUser.ID)
 			if err != nil {
 				require.EqualError(t, err, test.responseError)
 			}
@@ -129,20 +126,18 @@ func TestUsecase_DeleteByUsername(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// defer ctrl.Finish()
-			//
-			// userMock := mockDomain.NewMockUsersRepository(ctrl)
-			// imgMock := mockDomain.NewMockImageUseCase(ctrl)
-			//
-			// test.mockBehaviourGet(userMock, test.usernmae)
-			// test.mockBehaviourDelete(userMock, test.userID)
-			//
-			// usecase := New(userMock, imgMock)
-			//
-			// err := usecase.DeleteByUsername(test.usernmae)
-			//
-			// require.Equal(t, err, test.responseError)
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			userMock := mockDomain.NewMockUsersRepository(ctrl)
+			test.mockBehaviourGet(userMock, test.usernmae)
+			test.mockBehaviourDelete(userMock, test.userID)
+
+			usecase := New(userMock)
+
+			err := usecase.DeleteByUsername(test.usernmae)
+
+			require.Equal(t, err, test.responseError)
 		})
 	}
 }
@@ -190,20 +185,18 @@ func TestUsecase_DeleteByEmail(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// defer ctrl.Finish()
-			//
-			// userMock := mockDomain.NewMockUsersRepository(ctrl)
-			// imgMock := mockDomain.NewMockImageUseCase(ctrl)
-			//
-			// test.mockBehaviourGet(userMock, test.email)
-			// test.mockBehaviourDelete(userMock, test.userID)
-			//
-			// usecase := New(userMock, imgMock)
-			//
-			// err := usecase.DeleteByEmail(test.email)
-			//
-			// require.Equal(t, err, test.responseError)
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			userMock := mockDomain.NewMockUsersRepository(ctrl)
+			test.mockBehaviourGet(userMock, test.email)
+			test.mockBehaviourDelete(userMock, test.userID)
+
+			usecase := New(userMock)
+
+			err := usecase.DeleteByEmail(test.email)
+
+			require.Equal(t, err, test.responseError)
 		})
 	}
 }
@@ -251,11 +244,9 @@ func TestUsecase_CheckIDAndPassword(t *testing.T) {
 			defer ctrl.Finish()
 
 			userMock := mockDomain.NewMockUsersRepository(ctrl)
-			imgMock := mockDomain.NewMockImageUseCase(ctrl)
-
 			test.mockBehaviourGet(userMock, test.userID)
 
-			usecase := New(userMock, imgMock)
+			usecase := New(userMock)
 
 			isRight := usecase.CheckIDAndPassword(test.userID, test.password)
 
@@ -328,12 +319,10 @@ func TestUsecase_IsExistUsernameAndEmail(t *testing.T) {
 			defer ctrl.Finish()
 
 			userMock := mockDomain.NewMockUsersRepository(ctrl)
-			imgMock := mockDomain.NewMockImageUseCase(ctrl)
-
 			test.mockBehaviourGetByUsername(userMock, test.username)
 			test.mockBehaviourGetByEmail(userMock, test.email)
 
-			usecase := New(userMock, imgMock)
+			usecase := New(userMock)
 
 			isExist := usecase.IsExistUsernameAndEmail(test.username, test.email)
 

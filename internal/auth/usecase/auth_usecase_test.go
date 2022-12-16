@@ -13,7 +13,7 @@ import (
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/golang/mock/gomock"
-	// "github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUsecase_SignUp(t *testing.T) {
@@ -164,33 +164,33 @@ func TestUsecase_SignUp(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			// userMock := mockDomain.NewMockUsersRepository(ctrl)
-			// authMock := mockDomain.NewMockAuthRepository(ctrl)
+			userMock := mockDomain.NewMockUsersRepository(ctrl)
+			authMock := mockDomain.NewMockAuthRepository(ctrl)
 
-			// test.mockBehaviourUsername(userMock, test.user.Username, test.user.Password)
-			// test.mockBehaviourEmail(userMock, test.user.Email, test.user.Password)
-			// test.mockBehaviourCreate(userMock, test.user)
-			// test.mockBehaviourAuthRepo(authMock, test.cookie)
+			test.mockBehaviourUsername(userMock, test.user.Username, test.user.Password)
+			test.mockBehaviourEmail(userMock, test.user.Email, test.user.Password)
+			test.mockBehaviourCreate(userMock, test.user)
+			test.mockBehaviourAuthRepo(authMock, test.cookie)
 
-			// usecase := WithCreators(
-			// 	authMock,
-			// 	userMock,
-			// 	func(id uint64) models.Cookie {
-			// 		return test.cookie
-			// 	},
-			// 	func(password string) (string, error) {
-			// 		if len(password) == 0 {
-			// 			return "", domain.ErrInternal
-			// 		}
-			// 		return password, nil
-			// 	},
-			// )
-			// sessionID, err := usecase.SignUp(test.user)
-			// if err != nil {
-			// 	require.EqualError(t, err, test.responseError.Error())
-			// } else {
-			// 	require.Equal(t, sessionID, test.cookie.Value)
-			// }
+			usecase := WithCreators(
+				authMock,
+				userMock,
+				func(id uint64) models.Cookie {
+					return test.cookie
+				},
+				func(password string) (string, error) {
+					if len(password) == 0 {
+						return "", domain.ErrInternal
+					}
+					return password, nil
+				},
+			)
+			sessionID, err := usecase.SignUp(test.user)
+			if err != nil {
+				require.EqualError(t, err, test.responseError.Error())
+			} else {
+				require.Equal(t, sessionID, test.cookie.Value)
+			}
 		})
 	}
 }
@@ -315,25 +315,25 @@ func TestUsecase_Login(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// defer ctrl.Finish()
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
 
-			// userMock := mockDomain.NewMockUsersRepository(ctrl)
-			// authMock := mockDomain.NewMockAuthRepository(ctrl)
+			userMock := mockDomain.NewMockUsersRepository(ctrl)
+			authMock := mockDomain.NewMockAuthRepository(ctrl)
 
-			// test.mockBehaviourUsername(userMock, test.username, test.password)
-			// test.mockBehaviourEmail(userMock, test.username, test.password)
-			// test.mockBehaviourAuthRepo(authMock, test.cookie)
+			test.mockBehaviourUsername(userMock, test.username, test.password)
+			test.mockBehaviourEmail(userMock, test.username, test.password)
+			test.mockBehaviourAuthRepo(authMock, test.cookie)
 
-			// usecase := WithCookieCreator(authMock, userMock, func(id uint64) models.Cookie {
-			// 	return test.cookie
-			// })
-			// sessionID, err := usecase.Login(test.username, test.password)
-			// if err != nil {
-			// 	require.EqualError(t, err, test.responseError.Error())
-			// } else {
-			// 	require.Equal(t, sessionID, test.cookie.Value)
-			// }
+			usecase := WithCookieCreator(authMock, userMock, func(id uint64) models.Cookie {
+				return test.cookie
+			})
+			sessionID, err := usecase.Login(test.username, test.password)
+			if err != nil {
+				require.EqualError(t, err, test.responseError.Error())
+			} else {
+				require.Equal(t, sessionID, test.cookie.Value)
+			}
 		})
 	}
 }
@@ -372,21 +372,21 @@ func TestUsecase_Auth(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// defer ctrl.Finish()
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
 
-			// userMock := mockDomain.NewMockUsersRepository(ctrl)
-			// authMock := mockDomain.NewMockAuthRepository(ctrl)
+			userMock := mockDomain.NewMockUsersRepository(ctrl)
+			authMock := mockDomain.NewMockAuthRepository(ctrl)
 
-			// test.mockBehaviourDelete(authMock, test.sessionID)
+			test.mockBehaviourDelete(authMock, test.sessionID)
 
-			// usecase := New(authMock, userMock)
-			// isAuth, err := usecase.Auth(test.sessionID)
-			// if err != nil {
-			// 	require.EqualError(t, err, test.responseError.Error())
-			// }
+			usecase := New(authMock, userMock)
+			isAuth, err := usecase.Auth(test.sessionID)
+			if err != nil {
+				require.EqualError(t, err, test.responseError.Error())
+			}
 
-			// require.Equal(t, test.response, isAuth)
+			require.Equal(t, test.response, isAuth)
 		})
 	}
 }
@@ -421,21 +421,21 @@ func TestUsecase_Logout(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// defer ctrl.Finish()
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
 
-			// userMock := mockDomain.NewMockUsersRepository(ctrl)
-			// authMock := mockDomain.NewMockAuthRepository(ctrl)
+			userMock := mockDomain.NewMockUsersRepository(ctrl)
+			authMock := mockDomain.NewMockAuthRepository(ctrl)
 
-			// test.mockBehaviourDelete(authMock, test.sessionID)
+			test.mockBehaviourDelete(authMock, test.sessionID)
 
-			// usecase := New(authMock, userMock)
-			// isAuth, err := usecase.Logout(test.sessionID)
-			// if err != nil {
-			// 	assert.EqualError(t, err, test.responseError.Error())
-			// } else {
-			// 	assert.Equal(t, test.response, isAuth)
-			// }
+			usecase := New(authMock, userMock)
+			isAuth, err := usecase.Logout(test.sessionID)
+			if err != nil {
+				assert.EqualError(t, err, test.responseError.Error())
+			} else {
+				assert.Equal(t, test.response, isAuth)
+			}
 		})
 	}
 }
@@ -475,18 +475,18 @@ func TestUsecase_IsSameSession(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// defer ctrl.Finish()
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
 
-			// userMock := mockDomain.NewMockUsersRepository(ctrl)
-			// authMock := mockDomain.NewMockAuthRepository(ctrl)
+			userMock := mockDomain.NewMockUsersRepository(ctrl)
+			authMock := mockDomain.NewMockAuthRepository(ctrl)
 
-			// test.mockBehaviourGet(userMock, test.sessionID)
+			test.mockBehaviourGet(userMock, test.sessionID)
 
-			// usecase := New(authMock, userMock)
-			// isSame := usecase.IsSameSession(test.sessionID, test.userID)
+			usecase := New(authMock, userMock)
+			isSame := usecase.IsSameSession(test.sessionID, test.userID)
 
-			// require.Equal(t, test.response, isSame)
+			require.Equal(t, test.response, isSame)
 		})
 	}
 }

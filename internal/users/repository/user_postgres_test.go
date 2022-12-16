@@ -9,19 +9,6 @@ import (
 	sqlmock "github.com/zhashkevych/go-sqlxmock"
 )
 
-type getID struct {
-	id     int64
-	efRows int64
-}
-
-func (g getID) LastInsertId() (int64, error) {
-	return g.id, nil
-}
-
-func (g getID) RowsAffected() (int64, error) {
-	return g.efRows, nil
-}
-
 func TestPostPostgres_Create(t *testing.T) {
 	db, mock, err := sqlmock.Newx()
 	assert.NoError(t, err)
@@ -49,30 +36,10 @@ func TestPostPostgres_Create(t *testing.T) {
 			},
 			id: 2,
 			mockBehaviour: func(user models.User, id uint64) {
-				mock.ExpectBegin()
-
-				mock.ExpectExec("INSERT INTO users").
-					WithArgs(user.Username, user.Email).
-					WillReturnResult(
-						getID{
-							id:     1,
-							efRows: 1,
-						},
-					)
-				mock.ExpectExec("INSERT INTO user_info").
-					WithArgs(
-						1,
-						user.Avatar,
-						user.Password,
-						user.IsAuthor,
-						user.About,
-					).
-					WillReturnResult(
-						getID{
-							id:     0,
-							efRows: 1,
-						},
-					)
+				rows := sqlmock.NewRows([]string{"id"}).AddRow(id)
+				mock.ExpectQuery("INSERT INTO users").
+					WithArgs(user.Username, user.Avatar, user.Email, user.Password, user.IsAuthor, user.About).
+					WillReturnRows(rows)
 				mock.ExpectCommit()
 			},
 		},
