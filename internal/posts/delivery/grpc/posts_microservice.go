@@ -218,9 +218,9 @@ func (m PostsMicroservice) DeleteDepTag(tagDep models.TagDep) error {
 
 func (m PostsMicroservice) CreateComment(comment models.Comment) (models.Comment, error) {
 	com, err := m.client.CreateComment(context.Background(), &protobuf.Comment{
-		PostID:   comment.PostID,
-		UserID:   comment.UserID,
-		Content:  comment.Content,
+		PostID:  comment.PostID,
+		UserID:  comment.UserID,
+		Content: comment.Content,
 	})
 	if err != nil {
 		return models.Comment{}, err
@@ -277,10 +277,10 @@ func (m PostsMicroservice) GetCommentsByPostID(postID uint64) ([]models.Comment,
 
 func (m PostsMicroservice) UpdateComment(comment models.Comment) error {
 	_, err := m.client.UpdateComment(context.Background(), &protobuf.Comment{
-		ID:       comment.ID,
-		PostID:   comment.PostID,
-		UserID:   comment.UserID,
-		Content:  comment.Content,
+		ID:      comment.ID,
+		PostID:  comment.PostID,
+		UserID:  comment.UserID,
+		Content: comment.Content,
 	})
 	return err
 }

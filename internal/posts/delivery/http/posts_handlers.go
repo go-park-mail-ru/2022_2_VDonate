@@ -388,8 +388,8 @@ func (h Handler) PostComment(c echo.Context) error {
 	}
 
 	var comment models.Comment
-	if err := c.Bind(&comment); err != nil {
-		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	if errBind := c.Bind(&comment); errBind != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, errBind)
 	}
 	comment.UserID = user.ID
 	comment.PostID = postID
@@ -423,8 +423,8 @@ func (h Handler) PutComment(c echo.Context) error {
 	}
 
 	var comment models.Comment
-	if err := c.Bind(&comment); err != nil {
-		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	if errBind := c.Bind(&comment); errBind != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, errBind)
 	}
 	comment.ID = commentID
 

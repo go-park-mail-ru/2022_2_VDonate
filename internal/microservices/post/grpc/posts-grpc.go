@@ -305,10 +305,10 @@ func (s PostsService) GetCommentsByPostID(_ context.Context, postID *protobuf.Po
 
 func (s PostsService) UpdateComment(_ context.Context, comment *protobuf.Comment) (*emptypb.Empty, error) {
 	err := s.postsRepo.UpdateComment(models.Comment{
-		ID:          comment.GetID(),
-		PostID:      comment.GetPostID(),
-		UserID:      comment.GetUserID(),
-		Content:     comment.GetContent(),
+		ID:      comment.GetID(),
+		PostID:  comment.GetPostID(),
+		UserID:  comment.GetUserID(),
+		Content: comment.GetContent(),
 	})
 	if err != nil {
 		return nil, err

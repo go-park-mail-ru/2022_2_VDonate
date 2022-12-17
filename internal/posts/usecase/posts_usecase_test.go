@@ -335,6 +335,8 @@ func TestUsecase_GetPostsByFilter(t *testing.T) {
 	type mockImg func(s *mockDomain.MockImageUseCase, img string)
 	type mockLike func(s *mockDomain.MockPostsMicroservice, postID uint64)
 	type mockIsLike func(s *mockDomain.MockPostsMicroservice, userID, postID uint64)
+	type mockComment func(s *mockDomain.MockPostsMicroservice, postID uint64)
+	type mockGetPost func(s *mockDomain.MockPostsMicroservice, postID uint64)
 
 	tests := []struct {
 		name                 string
@@ -350,6 +352,8 @@ func TestUsecase_GetPostsByFilter(t *testing.T) {
 		mockImg              mockImg
 		mockLike             mockLike
 		mockIsLike           mockIsLike
+		mockComment          mockComment
+		mockGetPost          mockGetPost
 		response             []models.Post
 		responseErrorMessage string
 	}{
@@ -408,6 +412,20 @@ func TestUsecase_GetPostsByFilter(t *testing.T) {
 					PostID: 1,
 				}, nil)
 			},
+			mockComment: func(s *mockDomain.MockPostsMicroservice, postID uint64) {
+				s.EXPECT().GetCommentsByPostID(postID).Return([]models.Comment{
+					{
+						UserID: 100,
+						PostID: 1,
+					},
+				}, nil)
+			},
+			mockGetPost: func(s *mockDomain.MockPostsMicroservice, postID uint64) {
+				s.EXPECT().GetPostByID(postID).Return(models.Post{
+					ID:     1,
+					UserID: 200,
+				}, nil)
+			},
 			response: []models.Post{
 				{
 					ID:        1,
@@ -417,9 +435,10 @@ func TestUsecase_GetPostsByFilter(t *testing.T) {
 						UserID:  100,
 						ImgPath: "img",
 					},
-					Tags:     []string{""},
-					LikesNum: 1,
-					IsLiked:  true,
+					Tags:        []string{""},
+					LikesNum:    1,
+					IsLiked:     true,
+					CommentsNum: 1,
 				},
 			},
 		},
@@ -444,6 +463,8 @@ func TestUsecase_GetPostsByFilter(t *testing.T) {
 			test.mockImg(imgMock, "img")
 			test.mockLike(postMock, test.postID)
 			test.mockIsLike(postMock, test.userID, test.postID)
+			test.mockComment(postMock, test.postID)
+			test.mockGetPost(postMock, test.postID)
 
 			usecase := New(postMock, userMock, imgMock, subscriptionMock)
 
