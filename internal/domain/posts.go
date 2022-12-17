@@ -1,6 +1,9 @@
 package domain
 
-import "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+import (
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+	"google.golang.org/protobuf/types/known/timestamppb"
+)
 
 type PostsMicroservice interface {
 	GetAllByUserID(authorID uint64) ([]models.Post, error)
@@ -19,6 +22,11 @@ type PostsMicroservice interface {
 	GetTagById(tagID uint64) (models.Tag, error)
 	GetTagDepsByPostId(postID uint64) ([]models.TagDep, error)
 	GetTagByName(tagName string) (models.Tag, error)
+	CreateComment(comment models.Comment) (uint64, *timestamppb.Timestamp, error)
+	GetCommentByID(commentID uint64) (models.Comment, error)
+	GetCommentsByPostID(postID uint64) ([]models.Comment, error)
+	UpdateComment(comment models.Comment) error
+	DeleteCommentByID(commentID uint64) error
 }
 
 type PostsUseCase interface {
@@ -38,4 +46,9 @@ type PostsUseCase interface {
 	DeleteTagDeps(postID uint64) error
 	UpdateTags(tagNames []string, postID uint64) error
 	ConvertTagsToStrSlice(tags []models.Tag) []string
+	CreateComment(comment models.Comment) (models.Comment, error)
+	GetCommentsByPostID(postID uint64) ([]models.Comment, error)
+	GetCommentByID(commentID uint64) (models.Comment, error)
+	UpdateComment(commentID uint64, commentMsg string) (models.Comment, error)
+	DeleteComment(commentID uint64) error
 }

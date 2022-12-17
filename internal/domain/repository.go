@@ -2,6 +2,7 @@ package domain
 
 import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type AuthRepository interface {
@@ -32,6 +33,11 @@ type PostsRepository interface {
 	GetTagById(tagID uint64) (models.Tag, error)
 	GetTagDepsByPostId(postID uint64) ([]models.TagDep, error)
 	GetTagByName(tagName string) (models.Tag, error)
+	CreateComment(comment models.Comment) (uint64, *timestamppb.Timestamp, error)
+	GetCommentByID(commentID uint64) (models.Comment, error)
+	GetCommentsByPostId(postID uint64) ([]models.Comment, error)
+	UpdateComment(comment models.Comment) error
+	DeleteCommentByID(commentID uint64) error
 }
 
 type SubscribersRepository interface {

@@ -50,17 +50,17 @@ services:
       - s3storage
     networks:
       - vdonate-network-api
-  posts:
-    hostname: posts
-    container_name: vdonate-posts
-    image: zeronethunter/vdonate-posts
-    ports:
-      - "8084:8084"
-      - "9084:9084"
-    depends_on:
-      - db
-    networks:
-      - vdonate-network-api
+  # posts:
+  #   hostname: posts
+  #   container_name: vdonate-posts
+  #   image: zeronethunter/vdonate-posts
+  #   ports:
+  #     - "8084:8084"
+  #     - "9084:9084"
+  #   depends_on:
+  #     - db
+  #   networks:
+  #     - vdonate-network-api
   subscribers:
     hostname: subscribers
     container_name: vdonate-subscribers

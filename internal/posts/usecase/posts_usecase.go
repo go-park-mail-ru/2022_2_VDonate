@@ -120,6 +120,14 @@ func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error
 		r[i].IsLiked = u.IsPostLiked(userID, post.ID)
 	}
 
+	for index, post := range r {
+		comments, err := u.GetCommentsByPostID(post.ID)
+		if err != nil {
+			return nil, err
+		}
+		r[index].CommentsNum = uint64(len(comments))
+	}
+
 	sort.Slice(r, func(i, j int) bool {
 		return r[i].ID < r[j].ID
 	})
@@ -165,8 +173,13 @@ func (u usecase) GetPostByID(postID, userID uint64) (models.Post, error) {
 	if r.LikesNum, err = u.GetLikesNum(postID); err != nil {
 		return models.Post{}, errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
-
 	r.IsLiked = u.IsPostLiked(userID, postID)
+
+	comments, err := u.GetCommentsByPostID(postID)
+	if err != nil {
+		return models.Post{}, err
+	}
+	r.CommentsNum = uint64(len(comments))
 
 	return r, nil
 }
@@ -335,4 +348,39 @@ func (u usecase) ConvertTagsToStrSlice(tags []models.Tag) []string {
 		tagsStr = append(tagsStr, tag.TagName)
 	}
 	return tagsStr
+}
+
+func (u usecase) CreateComment(comment models.Comment) (models.Comment, error) {
+	id, date, err := u.postsMicroservice.CreateComment(comment)
+	if err != nil {
+		return models.Comment{}, err
+	}
+	comment.ID = id
+	comment.DateCreated = date
+	return comment, nil
+}
+
+func (u usecase) GetCommentsByPostID(postID uint64) ([]models.Comment, error) {
+	return u.postsMicroservice.GetCommentsByPostID(postID)
+}
+
+func (u usecase) GetCommentByID(commentID uint64) (models.Comment, error) {
+	return u.postsMicroservice.GetCommentByID(commentID)
+}
+
+func (u usecase) UpdateComment(commentID uint64, commentMsg string) (models.Comment, error) {
+	comment, err := u.GetCommentByID(commentID)
+	if err != nil {
+		return models.Comment{}, err
+	}
+	comment.Content = commentMsg
+	err = u.postsMicroservice.UpdateComment(comment)
+	if err != nil {
+		return models.Comment{}, err
+	}
+	return comment, nil
+}
+
+func (u usecase) DeleteComment(commentID uint64) error {
+	return u.postsMicroservice.DeleteCommentByID(commentID)
 }

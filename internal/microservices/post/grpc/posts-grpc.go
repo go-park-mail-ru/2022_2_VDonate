@@ -247,3 +247,76 @@ func (s PostsService) DeleteDepTag(_ context.Context, tagDep *protobuf.TagDep) (
 
 	return &emptypb.Empty{}, nil
 }
+
+func (s PostsService) CreateComment(_ context.Context, comment *protobuf.Comment) (*protobuf.CommentPairIdDate, error) {
+	id, dateCreated, err := s.postsRepo.CreateComment(models.Comment{
+		PostID:  comment.GetPostID(),
+		UserID:  comment.GetUserID(),
+		Content: comment.GetContent(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &protobuf.CommentPairIdDate{CommentID: id, DateCreated: dateCreated}, nil
+}
+
+func (s PostsService) GetCommentById(_ context.Context, commentID *protobuf.CommentID) (*protobuf.Comment, error) {
+	comment, err := s.postsRepo.GetCommentByID(commentID.GetCommentID())
+	if err != nil {
+		return nil, err
+	}
+
+	return &protobuf.Comment{
+		ID:          comment.ID,
+		PostID:      comment.PostID,
+		UserID:      comment.UserID,
+		Content:     comment.Content,
+		DateCreated: comment.DateCreated,
+	}, nil
+}
+
+func (s PostsService) GetCommentsByPostId(_ context.Context, postID *protobuf.PostID) (*protobuf.CommentArray, error) {
+	comments, err := s.postsRepo.GetCommentsByPostId(postID.GetPostID())
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*protobuf.Comment, 0)
+
+	for _, comment := range comments {
+		result = append(result, &protobuf.Comment{
+			ID:          comment.ID,
+			PostID:      comment.PostID,
+			UserID:      comment.UserID,
+			Content:     comment.Content,
+			DateCreated: comment.DateCreated,
+		})
+	}
+
+	return &protobuf.CommentArray{Comments: result}, nil
+}
+
+func (s PostsService) UpdateComment(_ context.Context, comment *protobuf.Comment) (*emptypb.Empty, error) {
+	err := s.postsRepo.UpdateComment(models.Comment{
+		ID:          comment.GetID(),
+		PostID:      comment.GetPostID(),
+		UserID:      comment.GetUserID(),
+		Content:     comment.GetContent(),
+		DateCreated: comment.GetDateCreated(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (s PostsService) DeleteCommentById(_ context.Context, commentID *protobuf.CommentID) (*emptypb.Empty, error) {
+	err := s.postsRepo.DeleteCommentByID(commentID.GetCommentID())
+	if err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
+}

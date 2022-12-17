@@ -66,6 +66,31 @@ message TagID {
   uint64 tagID = 1;
 }
 
+message Comment {
+  uint64 ID = 1;
+  uint64 UserID = 2;
+  uint64 PostID = 3;
+  string Content = 4;
+  google.protobuf.Timestamp DateCreated = 5;
+}
+
+message CommentID {
+  uint64 commentID = 1;
+}
+
+message CommentPairIdDate {
+  uint64 commentID = 1;
+  google.protobuf.Timestamp dateCreated = 2;
+}
+
+message CommentContent {
+  string content = 1;
+}
+
+message CommentArray {
+  repeated Comment comments = 1;
+}
+
 service Posts {
   rpc GetAllByUserID(user.UserID) returns(PostArray);
   rpc GetPostByID(PostID) returns(Post);
@@ -81,8 +106,15 @@ service Posts {
 
   rpc CreateTag(TagName) returns(TagID);
   rpc GetTagById(TagID) returns(Tag);
-  rpc GetTagByName(TagName) returns(Tag);rpc CreateDepTag(TagDep) returns(google.protobuf.Empty);
+  rpc GetTagByName(TagName) returns(Tag);
+  rpc CreateDepTag(TagDep) returns(google.protobuf.Empty);
 
   rpc GetTagDepsByPostId(PostID) returns(TagDeps);
   rpc DeleteDepTag(TagDep) returns(google.protobuf.Empty);
+
+  rpc CreateComment(Comment) returns(CommentPairIdDate);
+  rpc GetCommentByID(CommentID) returns(Comment);
+  rpc GetCommentsByPostID(PostID) returns(CommentArray);
+  rpc UpdateComment(Comment) returns(google.protobuf.Empty);
+  rpc DeleteCommentByID(CommentID) returns(google.protobuf.Empty);
 }

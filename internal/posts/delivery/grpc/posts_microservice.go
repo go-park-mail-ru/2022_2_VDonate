@@ -6,6 +6,7 @@ import (
 	"github.com/ztrue/tracerr"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	grpcPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/post/grpc"
 
@@ -214,4 +215,76 @@ func (m PostsMicroservice) DeleteDepTag(tagDep models.TagDep) error {
 	})
 
 	return tracerr.Wrap(err)
+}
+
+func (m PostsMicroservice) CreateComment(comment models.Comment) (uint64, *timestamppb.Timestamp, error) {
+	idDatePair, err := m.client.CreateComment(context.Background(), &protobuf.Comment{
+		PostID:  comment.PostID,
+		UserID:  comment.UserID,
+		Content: comment.Content,
+	})
+	if err != nil {
+		return 0, nil, err
+	}
+
+	return idDatePair.GetCommentID(), idDatePair.GetDateCreated(), nil
+}
+
+func (m PostsMicroservice) GetCommentByID(commentID uint64) (models.Comment, error) {
+	comment, err := m.client.GetCommentByID(context.Background(), &protobuf.CommentID{
+		CommentID: commentID,
+	})
+	if err != nil {
+		return models.Comment{}, err
+	}
+
+	return models.Comment{
+		ID:        comment.GetID(),
+		PostID:    comment.GetPostID(),
+		UserID:    comment.GetUserID(),
+		Content:   comment.GetContent(),
+		DateCreated: comment.GetDateCreated(),
+	}, nil
+}
+
+func (m PostsMicroservice) GetCommentsByPostID(postID uint64) ([]models.Comment, error) {
+	comments, err := m.client.GetCommentsByPostID(context.Background(), &protobuf.PostID{
+		PostID: postID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]models.Comment, 0)
+
+	for _, comment := range comments.GetComments() {
+		result = append(result, models.Comment{
+			ID:        comment.GetID(),
+			PostID:    comment.GetPostID(),
+			UserID:    comment.GetUserID(),
+			Content:   comment.GetContent(),
+			DateCreated: comment.GetDateCreated(),
+		})
+	}
+
+	return result, nil
+}
+
+func (m PostsMicroservice) UpdateComment(comment models.Comment) error {
+	_, err := m.client.UpdateComment(context.Background(), &protobuf.Comment{
+		ID:        comment.ID,
+		PostID:    comment.PostID,
+		UserID:    comment.UserID,
+		Content:   comment.Content,
+		DateCreated: comment.DateCreated,
+	})
+	return err
+}
+
+func (m PostsMicroservice) DeleteCommentByID(commentID uint64) error {
+	_, err := m.client.DeleteCommentByID(context.Background(), &protobuf.CommentID{
+		CommentID: commentID,
+	})
+
+	return err
 }
