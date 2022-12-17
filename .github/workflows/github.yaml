@@ -99,27 +99,6 @@ jobs:
           push: true
           tags: zeronethunter/vdonate-auth:latest
 
-  build_push_donates:
-    name: build and push donates
-    needs: test
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: ./deployments/donates/Dockerfile
-          push: true
-          tags: zeronethunter/vdonate-donates:latest
-
   build_push_images:
     name: build and push images
     needs: test
