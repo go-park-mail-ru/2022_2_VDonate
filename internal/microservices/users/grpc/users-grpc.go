@@ -92,7 +92,7 @@ func (s UserService) Update(_ context.Context, user *protobuf.User) (*emptypb.Em
 
 func (s UserService) GetAuthorByUsername(_ context.Context, key *protobuf.Keyword) (*protobuf.UsersArray, error) {
 	users, err := s.userRepo.GetAuthorByUsername(key.GetKeyword())
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -106,7 +106,7 @@ func (s UserService) GetAuthorByUsername(_ context.Context, key *protobuf.Keywor
 
 func (s UserService) GetUserByPostID(_ context.Context, postID *protobuf.PostID) (*protobuf.User, error) {
 	user, err := s.userRepo.GetUserByPostID(postID.GetPostID())
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -115,7 +115,7 @@ func (s UserService) GetUserByPostID(_ context.Context, postID *protobuf.PostID)
 
 func (s UserService) GetByID(_ context.Context, id *protobuf.UserID) (*protobuf.User, error) {
 	user, err := s.userRepo.GetByID(id.GetUserId())
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -124,7 +124,7 @@ func (s UserService) GetByID(_ context.Context, id *protobuf.UserID) (*protobuf.
 
 func (s UserService) GetBySessionID(_ context.Context, sessionID *authProto.SessionID) (*protobuf.User, error) {
 	user, err := s.userRepo.GetBySessionID(sessionID.GetSessionId())
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 

@@ -38,6 +38,26 @@ func (m *MockSubscribersClient) EXPECT() *MockSubscribersClientMockRecorder {
 	return m.recorder
 }
 
+// ChangePaymentStatus mocks base method.
+func (m *MockSubscribersClient) ChangePaymentStatus(ctx context.Context, in *protobuf.StatusAndID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ChangePaymentStatus", varargs...)
+	ret0, _ := ret[0].(*emptypb.Empty)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ChangePaymentStatus indicates an expected call of ChangePaymentStatus.
+func (mr *MockSubscribersClientMockRecorder) ChangePaymentStatus(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangePaymentStatus", reflect.TypeOf((*MockSubscribersClient)(nil).ChangePaymentStatus), varargs...)
+}
+
 // GetSubscribers mocks base method.
 func (m *MockSubscribersClient) GetSubscribers(ctx context.Context, in *protobuf0.UserID, opts ...grpc.CallOption) (*protobuf0.UserIDs, error) {
 	m.ctrl.T.Helper()
@@ -59,7 +79,7 @@ func (mr *MockSubscribersClientMockRecorder) GetSubscribers(ctx, in interface{},
 }
 
 // Subscribe mocks base method.
-func (m *MockSubscribersClient) Subscribe(ctx context.Context, in *protobuf.Subscriber, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (m *MockSubscribersClient) Subscribe(ctx context.Context, in *protobuf.Payment, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
@@ -121,6 +141,21 @@ func (m *MockSubscribersServer) EXPECT() *MockSubscribersServerMockRecorder {
 	return m.recorder
 }
 
+// ChangePaymentStatus mocks base method.
+func (m *MockSubscribersServer) ChangePaymentStatus(arg0 context.Context, arg1 *protobuf.StatusAndID) (*emptypb.Empty, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ChangePaymentStatus", arg0, arg1)
+	ret0, _ := ret[0].(*emptypb.Empty)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ChangePaymentStatus indicates an expected call of ChangePaymentStatus.
+func (mr *MockSubscribersServerMockRecorder) ChangePaymentStatus(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangePaymentStatus", reflect.TypeOf((*MockSubscribersServer)(nil).ChangePaymentStatus), arg0, arg1)
+}
+
 // GetSubscribers mocks base method.
 func (m *MockSubscribersServer) GetSubscribers(arg0 context.Context, arg1 *protobuf0.UserID) (*protobuf0.UserIDs, error) {
 	m.ctrl.T.Helper()
@@ -137,7 +172,7 @@ func (mr *MockSubscribersServerMockRecorder) GetSubscribers(arg0, arg1 interface
 }
 
 // Subscribe mocks base method.
-func (m *MockSubscribersServer) Subscribe(arg0 context.Context, arg1 *protobuf.Subscriber) (*emptypb.Empty, error) {
+func (m *MockSubscribersServer) Subscribe(arg0 context.Context, arg1 *protobuf.Payment) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Subscribe", arg0, arg1)
 	ret0, _ := ret[0].(*emptypb.Empty)

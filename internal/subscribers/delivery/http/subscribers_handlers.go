@@ -15,14 +15,16 @@ import (
 )
 
 type Handler struct {
-	subscribersUsecase domain.SubscribersUseCase
-	userUsecase        domain.UsersUseCase
+	subscribersUsecase   domain.SubscribersUseCase
+	subscriptionsUsecase domain.SubscriptionsUseCase
+	userUsecase          domain.UsersUseCase
 }
 
-func NewHandler(s domain.SubscribersUseCase, u domain.UsersUseCase) *Handler {
+func NewHandler(s domain.SubscribersUseCase, u domain.UsersUseCase, as domain.SubscriptionsUseCase) *Handler {
 	return &Handler{
-		subscribersUsecase: s,
-		userUsecase:        u,
+		subscribersUsecase:   s,
+		userUsecase:          u,
+		subscriptionsUsecase: as,
 	}
 }
 
@@ -58,10 +60,10 @@ func (h Handler) GetSubscribers(c echo.Context) error {
 // @ID          create_subscriber
 // @Tags        subscribers
 // @Produce     json
-// @Param       Subscription body     models.SubscriptionMpfd true "Subscription info with required AuthorID and Subscription ID"
-// @Success     200          {object} models.Subscription     "Successfully subscribed"
-// @Failure     400          {object} echo.HTTPError          "Bad request"
-// @Failure     500          {object} echo.HTTPError          "Not created"
+// @Param       Subscription body     models.QiwiPaymentStatus true "Payment response, documentation: https://developer.qiwi.com/ru/p2p-payments/?shell#create"
+// @Success     200          {object} models.Subscription      "Successfully subscribed"
+// @Failure     400          {object} echo.HTTPError           "Bad request"
+// @Failure     500          {object} echo.HTTPError           "Not created"
 // @Security    ApiKeyAuth
 // @Router      /subscribers [post]
 func (h Handler) CreateSubscriber(c echo.Context) error {
@@ -80,11 +82,17 @@ func (h Handler) CreateSubscriber(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	if err = h.subscribersUsecase.Subscribe(s, u.ID); err != nil {
+	sub, err := h.subscriptionsUsecase.GetAuthorSubscriptionByID(s.AuthorSubscriptionID)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	response, err := h.subscribersUsecase.Subscribe(s, u.ID, sub)
+	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 
-	return c.JSON(http.StatusOK, s)
+	return c.JSON(http.StatusOK, response)
 }
 
 // DeleteSubscriber godoc

@@ -6,6 +6,7 @@ option go_package = "github.com/go-park-mail-ru/2022_2_VDonate/internal/microser
 
 import "internal/microservices/users/protobuf/users.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 message Subscriber {
   uint64 AuthorID = 1;
@@ -13,8 +14,23 @@ message Subscriber {
   uint64 AuthorSubscriptionID = 3;
 }
 
+message Payment {
+  string ID = 1;
+  uint64 FromID = 2;
+  uint64 ToID = 3;
+  uint64 SubID = 4;
+  uint64 Price = 5;
+  google.protobuf.Timestamp Time = 6;
+}
+
+message StatusAndID {
+  string status = 1;
+  string id = 2;
+}
+
 service Subscribers {
-    rpc GetSubscribers(user.UserID) returns(user.UserIDs);
-    rpc Subscribe(Subscriber) returns(google.protobuf.Empty);
-    rpc Unsubscribe(user.UserAuthorPair) returns(google.protobuf.Empty);
+  rpc GetSubscribers(user.UserID) returns(user.UserIDs);
+  rpc Subscribe(Payment) returns(google.protobuf.Empty);
+  rpc Unsubscribe(user.UserAuthorPair) returns(google.protobuf.Empty);
+  rpc ChangePaymentStatus(StatusAndID) returns(google.protobuf.Empty);
 }

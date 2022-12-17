@@ -46,167 +46,6 @@
                 }
             }
         },
-        "/donate": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Send donate to author",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "donates"
-                ],
-                "summary": "Create donate",
-                "operationId": "create_donate",
-                "parameters": [
-                    {
-                        "description": "Donate Fields",
-                        "name": "post",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.DonateMpfd"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Donate was successfully created",
-                        "schema": {
-                            "$ref": "#/definitions/models.Donate"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "401": {
-                        "description": "No session provided",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Post not found",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/donate/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get donate by id",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "donates"
-                ],
-                "summary": "Get donate",
-                "operationId": "get_donate",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Post ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Donate was successfully create",
-                        "schema": {
-                            "$ref": "#/definitions/models.Donate"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "401": {
-                        "description": "No session provided",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/donates": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get donates of user",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "donates"
-                ],
-                "summary": "Get donates",
-                "operationId": "get_donates",
-                "responses": {
-                    "200": {
-                        "description": "Donates were successfully recieved",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Donate"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "401": {
-                        "description": "No session provided",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
         "/image": {
             "post": {
                 "security": [
@@ -1206,12 +1045,12 @@
                 "operationId": "create_subscriber",
                 "parameters": [
                     {
-                        "description": "Subscription info with required AuthorID and Subscription ID",
+                        "description": "Payment response, documentation: https://developer.qiwi.com/ru/p2p-payments/?shell#create",
                         "name": "Subscription",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.SubscriptionMpfd"
+                            "$ref": "#/definitions/models.QiwiPaymentStatus"
                         }
                     }
                 ],
@@ -2173,40 +2012,6 @@
                 }
             }
         },
-        "models.Donate": {
-            "type": "object",
-            "properties": {
-                "authorId": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "price": {
-                    "type": "integer"
-                },
-                "userId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.DonateMpfd": {
-            "type": "object",
-            "required": [
-                "authorID",
-                "price"
-            ],
-            "properties": {
-                "authorID": {
-                    "type": "integer",
-                    "example": 12
-                },
-                "price": {
-                    "type": "integer",
-                    "example": 3000
-                }
-            }
-        },
         "models.EmptyStruct": {
             "type": "object"
         },
@@ -2293,6 +2098,82 @@
                 "userID": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "models.QiwiPaymentStatus": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "object",
+                    "properties": {
+                        "currency": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "billId": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "creationDateTime": {
+                    "type": "string"
+                },
+                "customFields": {
+                    "type": "object",
+                    "properties": {
+                        "paySourcesFilter": {
+                            "type": "string"
+                        },
+                        "themeCode": {
+                            "type": "string"
+                        },
+                        "yourParam1": {
+                            "type": "string"
+                        },
+                        "yourParam2": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "customer": {
+                    "type": "object",
+                    "properties": {
+                        "account": {
+                            "type": "string"
+                        },
+                        "email": {
+                            "type": "string"
+                        },
+                        "phone": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "expirationDateTime": {
+                    "type": "string"
+                },
+                "payUrl": {
+                    "type": "string"
+                },
+                "siteId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "object",
+                    "properties": {
+                        "changedDateTime": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    }
                 }
             }
         },

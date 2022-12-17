@@ -93,7 +93,7 @@ func TestUsecase_Subscribe(t *testing.T) {
 				AuthorSubscriptionID: 3,
 			},
 			mockBehaviourSubscribe: func(r *mockDomain.MockSubscribersRepository, s models.Subscription) {
-				r.EXPECT().Subscribe(s).Return(nil)
+				r.EXPECT().PayAndSubscribe(s).Return(nil)
 			},
 		},
 		{
@@ -104,7 +104,7 @@ func TestUsecase_Subscribe(t *testing.T) {
 				AuthorSubscriptionID: 3,
 			},
 			mockBehaviourSubscribe: func(r *mockDomain.MockSubscribersRepository, s models.Subscription) {
-				r.EXPECT().Subscribe(s).Return(domain.ErrInternal)
+				r.EXPECT().PayAndSubscribe(s).Return(domain.ErrInternal)
 			},
 			responseError: "server error",
 		},

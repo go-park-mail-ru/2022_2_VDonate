@@ -35,4 +35,5 @@ var (
 	ErrEmailExist              = errors.New("email exists")
 	ErrUsernameOrEmailNotExist = errors.New("username or email not exists")
 	ErrPasswordsNotEqual       = errors.New("passwords not the same")
+	ErrCreatePayment           = errors.New("failed to create payment")
 )
