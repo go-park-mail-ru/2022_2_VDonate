@@ -65,17 +65,18 @@ func (mr *MockSubscribersUseCaseMockRecorder) IsSubscriber(userID, authorID inte
 }
 
 // Subscribe mocks base method.
-func (m *MockSubscribersUseCase) Subscribe(subscription models.Subscription, userID uint64) error {
+func (m *MockSubscribersUseCase) Subscribe(subscription models.Subscription, userID uint64, as models.AuthorSubscription) (interface{}, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Subscribe", subscription, userID)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "Subscribe", subscription, userID, as)
+	ret0, _ := ret[0].(interface{})
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Subscribe indicates an expected call of Subscribe.
-func (mr *MockSubscribersUseCaseMockRecorder) Subscribe(subscription, userID interface{}) *gomock.Call {
+func (mr *MockSubscribersUseCaseMockRecorder) Subscribe(subscription, userID, as interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockSubscribersUseCase)(nil).Subscribe), subscription, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockSubscribersUseCase)(nil).Subscribe), subscription, userID, as)
 }
 
 // Unsubscribe mocks base method.
@@ -131,17 +132,15 @@ func (mr *MockSubscribersMicroserviceMockRecorder) GetSubscribers(authorID inter
 }
 
 // Subscribe mocks base method.
-func (m *MockSubscribersMicroservice) Subscribe(subscription models.Subscription) error {
+func (m *MockSubscribersMicroservice) Subscribe(payment models.Payment) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Subscribe", subscription)
-	ret0, _ := ret[0].(error)
-	return ret0
+	m.ctrl.Call(m, "Subscribe", payment)
 }
 
 // Subscribe indicates an expected call of Subscribe.
-func (mr *MockSubscribersMicroserviceMockRecorder) Subscribe(subscription interface{}) *gomock.Call {
+func (mr *MockSubscribersMicroserviceMockRecorder) Subscribe(payment interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockSubscribersMicroservice)(nil).Subscribe), subscription)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockSubscribersMicroservice)(nil).Subscribe), payment)
 }
 
 // Unsubscribe mocks base method.

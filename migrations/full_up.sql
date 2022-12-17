@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS author_subscriptions
     text      varchar(128) not null,
     price     integer      not null check ( price >= 0 ),
 
-    unique (author_id, tier),
+    unique (price, tier),
     unique (author_id, title),
     unique (author_id, price)
 );
@@ -84,8 +84,9 @@ CREATE TABLE IF NOT EXISTS subscriptions
 (
     author_id       bigserial not null references users (id) on delete cascade,
     subscriber_id   bigserial not null references users (id) on delete cascade,
-    subscription_id bigserial not null references author_subscriptions (id) on delete restrict,
-    primary key (author_id, subscriber_id)
+    subscription_id bigserial not null references author_subscriptions (id) on delete cascade,
+    primary key (author_id, subscriber_id),
+    primary key (subscriber_id, subscription_id)
 );
 
 /*
@@ -96,17 +97,6 @@ CREATE TABLE IF NOT EXISTS likes
     user_id bigserial not null references users (id) on delete cascade,
     post_id bigserial not null references posts (post_id) on delete cascade,
     primary key (user_id, post_id)
-);
-
-/*
-    {id} -> {author_id, user_id, price}
-*/
-CREATE TABLE IF NOT EXISTS donates
-(
-    id        bigserial NOT NULL PRIMARY KEY,
-    author_id bigserial not null references users (id) on delete cascade,
-    user_id   bigserial not null references users (id) on delete cascade,
-    price     integer   not null default 0 check ( price >= 0 )
 );
 
 /*
@@ -135,19 +125,31 @@ CREATE TABLE IF NOT EXISTS notification
     timestamp timestamp NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS payments
+(
+    id      varchar   NOT NULL PRIMARY KEY,
+    from_id bigserial NOT NULL REFERENCES users (id) ON DELETE NO ACTION,
+    to_id   bigserial NOT NULL REFERENCES users (id) ON DELETE NO ACTION,
+    sub_id  bigserial NOT NULL REFERENCES author_subscriptions (id) ON DELETE NO ACTION,
+    status  varchar   default 'WAITING',
+    time    timestamp NOT NULL DEFAULT now(),
+
+    unique (from_id, to_id, sub_id)
+);
+
 CREATE OR REPLACE FUNCTION notify_event_like() RETURNS TRIGGER AS
 $$
 
 DECLARE
-    data jsonb;
+    data      jsonb;
     author_id bigint;
 
 BEGIN
     SELECT posts.user_id FROM posts WHERE post_id = NEW.post_id INTO author_id;
 
     data = jsonb_build_object(
-        'user_id', author_id,
-        'post_id', new.post_id
+            'user_id', author_id,
+            'post_id', new.post_id
         );
     INSERT INTO notification(name, data) VALUES ('like', data);
 
@@ -161,17 +163,20 @@ $$
 
 DECLARE
     data jsonb;
-    var bigint;
+    var  bigint;
+    author_name varchar;
 
 BEGIN
-    FOR var IN SELECT subscriber_id FROM subscriptions WHERE author_id = NEW.user_id LOOP
-        data = jsonb_build_object(
-            'user_id', var,
-            'author_id', new.user_id,
-            'post_id', new.post_id
-            );
-        INSERT INTO notification(name, data) VALUES ('posts', data);
-    END LOOP;
+    FOR var IN SELECT subscriber_id FROM subscriptions WHERE author_id = NEW.user_id
+        LOOP
+            SELECT username FROM users WHERE id = new.user_id INTO author_name;
+            data = jsonb_build_object(
+                    'user_id', var,
+                    'author_id', new.user_id,
+                    'author_name', author_name
+                );
+            INSERT INTO notification(name, data) VALUES ('posts', data);
+        END LOOP;
 
     RETURN NULL;
 END;
@@ -183,11 +188,15 @@ $$
 
 DECLARE
     data jsonb;
+    subscriber_name varchar;
 
 BEGIN
+    SELECT username FROM users WHERE id = NEW.subscriber_id INTO subscriber_name;
+
     data = jsonb_build_object(
             'user_id', new.author_id,
-            'subscriber_id', new.subscriber_id
+            'subscriber_id', new.subscriber_id,
+            'subscriberName', subscriber_name
         );
     INSERT INTO notification(name, data) VALUES ('subscriber', data);
 
@@ -195,6 +204,36 @@ BEGIN
 END;
 
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION notify_event_payment() RETURNS TRIGGER AS
+$$
+
+DECLARE
+    data jsonb;
+
+BEGIN
+    data = jsonb_build_object(
+            'user_id', new.from_id,
+            'author_id', new.to_id,
+            'sub_id', new.sub_id,
+            'status', new.status
+        );
+    if TG_OP = 'INSERT' then
+        INSERT INTO notification(name, data) VALUES ('payment', data);
+    elsif TG_OP = 'UPDATE' then
+        INSERT INTO notification(name, data) VALUES ('payment', data);
+    end if;
+
+    RETURN NULL;
+END;
+
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER new_payment
+    AFTER INSERT OR UPDATE
+    ON payments
+    FOR EACH ROW
+EXECUTE PROCEDURE notify_event_payment();
 
 CREATE TRIGGER new_like_notify
     AFTER INSERT

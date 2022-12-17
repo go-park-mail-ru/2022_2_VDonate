@@ -9,8 +9,6 @@ import (
 
 	imagesMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/delivery/grpc"
 
-	donatesMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery/grpc"
-
 	subscribersMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/delivery/grpc"
 
 	subscriptionsMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscriptions/delivery/grpc"
@@ -21,7 +19,6 @@ import (
 	usersMicroservice "github.com/go-park-mail-ru/2022_2_VDonate/internal/users/delivery/grpc"
 
 	authProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/auth/protobuf"
-	donatesProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/donates/protobuf"
 	imagesProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/images/protobuf"
 	postProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/post/protobuf"
 	subscribersProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscribers/protobuf"
@@ -31,8 +28,6 @@ import (
 	"google.golang.org/grpc"
 
 	httpSubscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/delivery/http"
-
-	httpDonates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/delivery/http"
 
 	httpImages "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/delivery/http"
 
@@ -48,7 +43,6 @@ import (
 	auth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/config"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-	donates "github.com/go-park-mail-ru/2022_2_VDonate/internal/donates/usecase"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	posts "github.com/go-park-mail-ru/2022_2_VDonate/internal/posts/usecase"
 	subscribers "github.com/go-park-mail-ru/2022_2_VDonate/internal/subscribers/usecase"
@@ -70,7 +64,6 @@ type Server struct {
 	AuthMicroservice         domain.AuthMicroservice
 	SubscriptionMicroservice domain.SubscriptionMicroservice
 	SubscribersMicroservice  domain.SubscribersMicroservice
-	DonatesMicroservice      domain.DonatesMicroservice
 	ImagesMicroservice       domain.ImageMicroservice
 
 	UserUseCase         domain.UsersUseCase
@@ -78,7 +71,6 @@ type Server struct {
 	AuthUseCase         domain.AuthUseCase
 	SubscriptionUseCase domain.SubscriptionsUseCase
 	SubscribersUseCase  domain.SubscribersUseCase
-	DonatesUseCase      domain.DonatesUseCase
 	ImagesUseCase       domain.ImageUseCase
 
 	authHandler          *httpAuth.Handler
@@ -86,7 +78,6 @@ type Server struct {
 	postsHandler         *httpPosts.Handler
 	subscriptionsHandler *httpSubscriptions.Handler
 	subscribersHandler   *httpSubscribers.Handler
-	donatesHandler       *httpDonates.Handler
 	imagesHandler        *httpImages.Handler
 
 	authMiddleware *authMiddlewares.Middlewares
@@ -186,16 +177,6 @@ func (s *Server) makeGRPCClients() error {
 		return err
 	}
 
-	donatesConnection, err := grpc.Dial(
-		makeAddress(s.Config.Services.Donates.Host, s.Config.Services.Donates.Port),
-		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
-		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-	if err != nil {
-		return err
-	}
-
 	imagesConnection, err := grpc.Dial(
 		makeAddress(s.Config.Services.Images.Host, s.Config.Services.Images.Port),
 		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
@@ -216,8 +197,6 @@ func (s *Server) makeGRPCClients() error {
 	s.SubscriptionMicroservice = subscriptionsMicroservice.New(subscriptionsProto.NewSubscriptionsClient(subscriptionConnection))
 
 	s.SubscribersMicroservice = subscribersMicroservice.New(subscribersProto.NewSubscribersClient(subscribersConnection))
-
-	s.DonatesMicroservice = donatesMicroservice.New(donatesProto.NewDonatesClient(donatesConnection))
 
 	s.ImagesMicroservice = imagesMicroservice.New(imagesProto.NewImagesClient(imagesConnection))
 
@@ -243,9 +222,6 @@ func (s *Server) makeUseCase() error {
 	//---------------------subscription---------------------//
 	s.SubscriptionUseCase = subscriptions.New(s.SubscriptionMicroservice, s.UserMicroservice, s.ImagesUseCase)
 
-	//-----------------------donates------------------------//
-	s.DonatesUseCase = donates.New(s.DonatesMicroservice, s.UserMicroservice)
-
 	return nil
 }
 
@@ -253,11 +229,10 @@ func (s *Server) makeHandlers() {
 	s.authHandler = httpAuth.NewHandler(s.AuthUseCase, s.UserUseCase)
 
 	s.imagesHandler = httpImages.NewHandler(s.ImagesUseCase)
-	s.donatesHandler = httpDonates.NewHandler(s.DonatesUseCase, s.UserUseCase)
 	s.postsHandler = httpPosts.NewHandler(s.PostsUseCase, s.UserUseCase, s.ImagesUseCase)
 	s.userHandler = httpUsers.NewHandler(s.UserUseCase, s.AuthUseCase, s.ImagesUseCase, s.SubscriptionUseCase, s.SubscribersUseCase)
 	s.subscriptionsHandler = httpSubscriptions.NewHandler(s.SubscriptionUseCase, s.UserUseCase, s.ImagesUseCase)
-	s.subscribersHandler = httpSubscribers.NewHandler(s.SubscribersUseCase, s.UserUseCase)
+	s.subscribersHandler = httpSubscribers.NewHandler(s.SubscribersUseCase, s.UserUseCase, s.SubscriptionUseCase)
 }
 
 func (s *Server) makeEchoLogger() {
@@ -323,13 +298,6 @@ func (s *Server) makeRouter() {
 	subscriber.GET("/:author_id", s.subscribersHandler.GetSubscribers)
 	subscriber.POST("", s.subscribersHandler.CreateSubscriber)
 	subscriber.DELETE("", s.subscribersHandler.DeleteSubscriber)
-
-	donate := v1.Group("/donates")
-	donate.Use(s.authMiddleware.LoginRequired)
-
-	donate.GET("/:id", s.donatesHandler.GetDonate)
-	donate.GET("", s.donatesHandler.GetDonates)
-	donate.POST("", s.donatesHandler.CreateDonate)
 
 	image := v1.Group("/image")
 	image.POST("", s.imagesHandler.CreateOrUpdateImage)

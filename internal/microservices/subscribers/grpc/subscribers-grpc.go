@@ -51,8 +51,14 @@ func (s SubscribersService) GetSubscribers(_ context.Context, id *userProto.User
 	return &userProto.UserIDs{Ids: result}, err
 }
 
-func (s SubscribersService) Subscribe(_ context.Context, sub *protobuf.Subscriber) (*emptypb.Empty, error) {
-	err := s.subscribersRepo.Subscribe(ConvertToModel(sub))
+func (s SubscribersService) Subscribe(_ context.Context, payment *protobuf.Payment) (*emptypb.Empty, error) {
+	err := s.subscribersRepo.PayAndSubscribe(models.Payment{
+		ID:     payment.GetID(),
+		ToID:   payment.GetToID(),
+		FromID: payment.GetFromID(),
+		SubID:  payment.GetSubID(),
+		Price:  payment.GetPrice(),
+	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -62,6 +68,15 @@ func (s SubscribersService) Subscribe(_ context.Context, sub *protobuf.Subscribe
 
 func (s SubscribersService) Unsubscribe(_ context.Context, pair *userProto.UserAuthorPair) (*emptypb.Empty, error) {
 	err := s.subscribersRepo.Unsubscribe(pair.GetUserId(), pair.GetAuthorId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (s SubscribersService) ChangePaymentStatus(_ context.Context, statusWithID *protobuf.StatusAndID) (*emptypb.Empty, error) {
+	err := s.subscribersRepo.UpdateStatus(statusWithID.GetStatus(), statusWithID.GetId())
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}

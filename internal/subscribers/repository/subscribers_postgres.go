@@ -38,21 +38,6 @@ func (p Postgres) GetSubscribers(authorID uint64) ([]uint64, error) {
 	return subscribers, nil
 }
 
-func (p Postgres) Subscribe(subscription models.Subscription) error {
-	_, err := p.DB.Exec(`
-		INSERT INTO subscriptions (author_id, subscriber_id, subscription_id) 
-		VALUES ($1, $2, $3)`,
-		subscription.AuthorID,
-		subscription.SubscriberID,
-		subscription.AuthorSubscriptionID,
-	)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (p Postgres) Unsubscribe(userID, authorID uint64) error {
 	_, err := p.DB.Exec(`
 		DELETE FROM subscriptions 
@@ -65,4 +50,51 @@ func (p Postgres) Unsubscribe(userID, authorID uint64) error {
 	}
 
 	return nil
+}
+
+func (p Postgres) PayAndSubscribe(payment models.Payment) error {
+	tx, err := p.DB.Begin()
+	if err != nil {
+		return err
+	}
+
+	if err = tx.QueryRow(
+		"INSERT INTO payments (id, to_id, from_id, sub_id) VALUES ($1, $2, $3, $4) RETURNING time;",
+		payment.ID,
+		payment.ToID,
+		payment.FromID,
+		payment.SubID,
+	).Scan(&payment.Time); err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(`
+		INSERT INTO subscriptions (author_id, subscriber_id, subscription_id) 
+		VALUES ($1, $2, $3)`,
+		payment.ToID,
+		payment.FromID,
+		payment.SubID,
+	)
+	if err != nil {
+		if errRollback := tx.Rollback(); errRollback != nil {
+			return errRollback
+		}
+
+		return err
+	}
+
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p Postgres) UpdateStatus(status string, id string) error {
+	return p.DB.QueryRow(
+		`
+		UPDATE payments
+		SET status=$1
+		WHERE id=$2`, status, id,
+	).Err()
 }

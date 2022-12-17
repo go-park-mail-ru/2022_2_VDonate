@@ -36,8 +36,9 @@ type PostsRepository interface {
 
 type SubscribersRepository interface {
 	GetSubscribers(authorID uint64) ([]uint64, error)
-	Subscribe(subscription models.Subscription) error
+	PayAndSubscribe(payment models.Payment) error
 	Unsubscribe(userID, authorID uint64) error
+	UpdateStatus(status, id string) error
 }
 
 type SubscriptionsRepository interface {
@@ -62,12 +63,6 @@ type UsersRepository interface {
 	GetAuthorByUsername(username string) ([]models.User, error)
 	GetAllAuthors() ([]models.User, error)
 	Close() error
-}
-
-type DonatesRepository interface {
-	SendDonate(donate models.Donate) (models.Donate, error)
-	GetDonatesByUserID(userID uint64) ([]models.Donate, error)
-	GetDonateByID(donateID uint64) (models.Donate, error)
 }
 
 type ImagesRepository interface {
