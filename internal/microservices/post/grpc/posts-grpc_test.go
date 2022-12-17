@@ -236,7 +236,7 @@ func TestPostsService_Create(t *testing.T) {
 				Tags:        []string{"test"},
 			},
 			mockBehavior: func(r *mock_domain.MockPostsRepository, post models.Post) {
-				r.EXPECT().Create(post).Return(post.UserID, nil)
+				r.EXPECT().Create(post).Return(post, nil)
 			},
 		},
 		{
@@ -251,7 +251,7 @@ func TestPostsService_Create(t *testing.T) {
 				Tags:        []string{"test"},
 			},
 			mockBehavior: func(r *mock_domain.MockPostsRepository, post models.Post) {
-				r.EXPECT().Create(post).Return(post.UserID, domain.ErrInternal)
+				r.EXPECT().Create(post).Return(post, domain.ErrInternal)
 			},
 			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},

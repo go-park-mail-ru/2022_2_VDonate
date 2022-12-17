@@ -1191,6 +1191,47 @@ paths:
       summary: Delete Author subscription
       tags:
       - subscriptions
+    get:
+      description: Get Author subscription by id
+      operationId: get_author_subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully received subscription
+          schema:
+            $ref: '#/definitions/models.AuthorSubscriptionMpfd'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: You are not supposed to make this requests
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Subscription not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Author subscription
+      tags:
+      - subscriptions
     put:
       consumes:
       - multipart/form-data
@@ -1256,48 +1297,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update Author subscription
-      tags:
-      - subscriptions
-  /subscriptions/author{id}:
-    get:
-      description: Get Author subscription by id
-      operationId: get_author_subscription
-      parameters:
-      - description: Subscription ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully received subscription
-          schema:
-            $ref: '#/definitions/models.AuthorSubscriptionMpfd'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: No session
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "403":
-          description: You are not supposed to make this requests
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Subscription not found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Get Author subscription
       tags:
       - subscriptions
   /users:

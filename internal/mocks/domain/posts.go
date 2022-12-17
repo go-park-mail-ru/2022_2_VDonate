@@ -35,10 +35,10 @@ func (m *MockPostsMicroservice) EXPECT() *MockPostsMicroserviceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockPostsMicroservice) Create(post models.Post) (uint64, error) {
+func (m *MockPostsMicroservice) Create(post models.Post) (models.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", post)
-	ret0, _ := ret[0].(uint64)
+	ret0, _ := ret[0].(models.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
