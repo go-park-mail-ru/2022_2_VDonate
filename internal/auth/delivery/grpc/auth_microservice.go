@@ -46,6 +46,9 @@ func (m AuthMicroservice) GetBySessionID(sessionID string) (models.Cookie, error
 	if err != nil {
 		return models.Cookie{}, tracerr.Wrap(err)
 	}
+	if len(session.SessionId) == 0 {
+		return models.Cookie{}, tracerr.Wrap(domain.ErrNoSession)
+	}
 
 	return models.Cookie{
 		UserID:  session.GetUserId(),

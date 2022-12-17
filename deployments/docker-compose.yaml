@@ -191,6 +191,20 @@ services:
     networks:
       - vdonate-network-api
 
+  notifications:
+    hostname: notifications
+    container_name: vdonate-notifications
+    image: zeronethunter/vdonate-notifications
+    ports:
+      - "1234:1234"
+    depends_on:
+      - db
+      # - posts
+      - users
+      - subscribers
+    networks:
+      - vdonate-network-api
+
 networks:
   vdonate-network-api:
     name: "vdonate-network-api"

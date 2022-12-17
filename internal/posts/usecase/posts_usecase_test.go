@@ -25,7 +25,12 @@ func TestBlurContent(t *testing.T) {
 		{
 			name:     "multiple images",
 			input:    `<h1>3-ий пост</h1><div>фото первое:</div><img src="https://wsrv.nl/?url=http://95.163.209.195:9000/45c48cce2e2d7fbdea1afc51c7c6ad26/952eff70-5545-4d9c-a4a1-3101039cdd09.jpg" class="post-content__image"><div>фото 2-ое:</div><img src="https://wsrv.nl/?url=http://95.163.209.195:9000/45c48cce2e2d7fbdea1afc51c7c6ad26/bf66f759-60fb-4202-9c0f-0fcd06c173d9.jpg" class="post-content__image"><div>и 3-е с 4-ым:</div><img src="https://wsrv.nl/?url=http://95.163.209.195:9000/8f14e45fceea167a5a36dedd4bea2543/98141f7f-f33e-4fae-9fb0-205be040b8a7.jpg" class="post-content__image"><img src="https://wsrv.nl/?url=http://95.163.209.195:9000/e1671797c52e15f763380b45e841ec32/05792d15-51a0-4bb3-a925-3c707e0eeade.jpg" class="post-content__image">`,
-			expected: `<h1>3-ий пост</h1><div>фото первое:</div><img src="https://wsrv.nl/?url=http://95.163.209.195:9000/45c48cce2e2d7fbdea1afc51c7c6ad26/blur_952eff70-5545-4d9c-a4a1-3101039cdd09.jpg" class="post-content__image"><div>фото 2-ое:</div><img src="https://wsrv.nl/?url=http://95.163.209.195:9000/45c48cce2e2d7fbdea1afc51c7c6ad26/blur_bf66f759-60fb-4202-9c0f-0fcd06c173d9.jpg" class="post-content__image"><div>и 3-е с 4-ым:</div><img src="https://wsrv.nl/?url=http://95.163.209.195:9000/8f14e45fceea167a5a36dedd4bea2543/blur_98141f7f-f33e-4fae-9fb0-205be040b8a7.jpg" class="post-content__image"><img src="https://wsrv.nl/?url=http://95.163.209.195:9000/e1671797c52e15f763380b45e841ec32/blur_05792d15-51a0-4bb3-a925-3c707e0eeade.jpg" class="post-content__image">`,
+			expected: `<img src="https://wsrv.nl/?url=http://95.163.209.195:9000/45c48cce2e2d7fbdea1afc51c7c6ad26/blur_952eff70-5545-4d9c-a4a1-3101039cdd09.jpg" class="post-content__image">`,
+		},
+		{
+			name:     "no images",
+			input:    `<h1>3-ий пост</h1><div>фото первое:</div><div>фото 2-ое:</div><div>и 3-е с 4-ым:</div>`,
+			expected: ``,
 		},
 	}
 
@@ -330,6 +335,8 @@ func TestUsecase_GetPostsByFilter(t *testing.T) {
 	type mockImg func(s *mockDomain.MockImageUseCase, img string)
 	type mockLike func(s *mockDomain.MockPostsMicroservice, postID uint64)
 	type mockIsLike func(s *mockDomain.MockPostsMicroservice, userID, postID uint64)
+	type mockComment func(s *mockDomain.MockPostsMicroservice, postID uint64)
+	type mockGetPost func(s *mockDomain.MockPostsMicroservice, postID uint64)
 
 	tests := []struct {
 		name                 string
@@ -345,6 +352,8 @@ func TestUsecase_GetPostsByFilter(t *testing.T) {
 		mockImg              mockImg
 		mockLike             mockLike
 		mockIsLike           mockIsLike
+		mockComment          mockComment
+		mockGetPost          mockGetPost
 		response             []models.Post
 		responseErrorMessage string
 	}{
@@ -403,6 +412,20 @@ func TestUsecase_GetPostsByFilter(t *testing.T) {
 					PostID: 1,
 				}, nil)
 			},
+			mockComment: func(s *mockDomain.MockPostsMicroservice, postID uint64) {
+				s.EXPECT().GetCommentsByPostID(postID).Return([]models.Comment{
+					{
+						UserID: 100,
+						PostID: 1,
+					},
+				}, nil)
+			},
+			mockGetPost: func(s *mockDomain.MockPostsMicroservice, postID uint64) {
+				s.EXPECT().GetPostByID(postID).Return(models.Post{
+					ID:     1,
+					UserID: 200,
+				}, nil)
+			},
 			response: []models.Post{
 				{
 					ID:        1,
@@ -412,9 +435,10 @@ func TestUsecase_GetPostsByFilter(t *testing.T) {
 						UserID:  100,
 						ImgPath: "img",
 					},
-					Tags:     []string{""},
-					LikesNum: 1,
-					IsLiked:  true,
+					Tags:        []string{""},
+					LikesNum:    1,
+					IsLiked:     true,
+					CommentsNum: 1,
 				},
 			},
 		},
@@ -439,6 +463,8 @@ func TestUsecase_GetPostsByFilter(t *testing.T) {
 			test.mockImg(imgMock, "img")
 			test.mockLike(postMock, test.postID)
 			test.mockIsLike(postMock, test.userID, test.postID)
+			test.mockComment(postMock, test.postID)
+			test.mockGetPost(postMock, test.postID)
 
 			usecase := New(postMock, userMock, imgMock, subscriptionMock)
 

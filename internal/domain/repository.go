@@ -17,7 +17,7 @@ type AuthRepository interface {
 type PostsRepository interface {
 	GetAllByUserID(authorID uint64) ([]models.Post, error)
 	GetPostByID(postID uint64) (models.Post, error)
-	Create(post models.Post) (uint64, error)
+	Create(post models.Post) (models.Post, error)
 	Update(post models.Post) error
 	DeleteByID(postID uint64) error
 	Close() error
@@ -32,6 +32,11 @@ type PostsRepository interface {
 	GetTagById(tagID uint64) (models.Tag, error)
 	GetTagDepsByPostId(postID uint64) ([]models.TagDep, error)
 	GetTagByName(tagName string) (models.Tag, error)
+	CreateComment(comment models.Comment) (models.Comment, error)
+	GetCommentByID(commentID uint64) (models.Comment, error)
+	GetCommentsByPostId(postID uint64) ([]models.Comment, error)
+	UpdateComment(comment models.Comment) error
+	DeleteCommentByID(commentID uint64) error
 }
 
 type SubscribersRepository interface {
@@ -73,4 +78,9 @@ type DonatesRepository interface {
 type ImagesRepository interface {
 	CreateOrUpdateImage(filename string, file []byte, size int64, oldFilename string) (string, error)
 	GetPermanentImage(filename string) (string, error)
+}
+
+type NotificationsRepository interface {
+	GetNotificationsByUserID(userID uint64) ([]models.Notification, error)
+	DeleteNotificationByUserID(userID uint64) error
 }

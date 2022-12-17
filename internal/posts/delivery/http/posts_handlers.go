@@ -326,3 +326,138 @@ func (h Handler) DeleteLike(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, models.EmptyStruct{})
 }
+
+// GetComments godoc
+// @Summary     Get comments
+// @Description Get all comments by post id
+// @ID          get_posts_comments
+// @Tags        posts
+// @Param       id path integer true "Post id"
+// @Produce     json
+// @Success     200 {object} []models.Comment "Comments were successfully recieved"
+// @Failure     400 {object} echo.HTTPError   "Bad request"
+// @Failure     401 {object} echo.HTTPError   "No session provided"
+// @Failure     404 {object} echo.HTTPError   "Post not found"
+// @Failure     500 {object} echo.HTTPError   "Internal error"
+// @Security    ApiKeyAuth
+// @Router      /posts/{id}/comments [get]
+func (h Handler) GetComments(c echo.Context) error {
+	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	allComments, err := h.postsUseCase.GetCommentsByPostID(postID)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNotFound, err)
+	}
+	if len(allComments) == 0 {
+		return c.JSON(http.StatusOK, []models.Comment{})
+	}
+	return c.JSON(http.StatusOK, allComments)
+}
+
+// PostComment godoc
+// @Summary     Post comment
+// @Description Post comment on post
+// @ID          post_comment
+// @Tags        posts
+// @Param       id      path integer        true "Post id"
+// @Param       comment body models.Comment true "Comment"
+// @Produce     json
+// @Success     200 {object} integer        "Comment was successfully put"
+// @Failure     400 {object} echo.HTTPError "Bad request"
+// @Failure     401 {object} echo.HTTPError "No session provided"
+// @Failure     404 {object} echo.HTTPError "Post not found"
+// @Failure     500 {object} echo.HTTPError "Internal error"
+// @Security    ApiKeyAuth
+// @Router      /posts/{id}/comments [post]
+func (h Handler) PostComment(c echo.Context) error {
+	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+	cookie, err := httpAuth.GetCookie(c)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+	}
+
+	user, err := h.usersUseCase.GetBySessionID(cookie.Value)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+	}
+
+	var comment models.Comment
+	if errBind := c.Bind(&comment); errBind != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, errBind)
+	}
+	comment.UserID = user.ID
+	comment.PostID = postID
+
+	if comment, err = h.postsUseCase.CreateComment(comment); err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, comment)
+}
+
+// PutComment godoc
+// @Summary     Put comment
+// @Description Put comment on post
+// @ID          put_comment
+// @Tags        posts
+// @Param       id      path integer        true "Comment id"
+// @Param       comment body models.Comment true "Comment"
+// @Produce     json
+// @Success     200 {object} integer        "Comment was successfully put"
+// @Failure     400 {object} echo.HTTPError "Bad request"
+// @Failure     401 {object} echo.HTTPError "No session provided"
+// @Failure     404 {object} echo.HTTPError "Post not found"
+// @Failure     500 {object} echo.HTTPError "Internal error"
+// @Security    ApiKeyAuth
+// @Router      /posts/comments/:id [put]
+func (h Handler) PutComment(c echo.Context) error {
+	commentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	var comment models.Comment
+	if errBind := c.Bind(&comment); errBind != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, errBind)
+	}
+	comment.ID = commentID
+
+	if comment, err = h.postsUseCase.UpdateComment(comment.ID, comment.Content); err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, comment)
+}
+
+// DeleteComment godoc
+// @Summary     Delete comment
+// @Description Delete comment on post
+// @ID          delete_comment
+// @Tags        posts
+// @Param       id path integer true "Comment id"
+// @Produce     json
+// @Success     200 {object} integer        "Comment was successfully deleted"
+// @Failure     400 {object} echo.HTTPError "Bad request"
+// @Failure     401 {object} echo.HTTPError "No session provided"
+// @Failure     404 {object} echo.HTTPError "Post not found"
+// @Failure     500 {object} echo.HTTPError "Internal error"
+// @Security    ApiKeyAuth
+// @Router      /posts/comments/{id} [delete]
+func (h Handler) DeleteComment(c echo.Context) error {
+	commentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	if err = h.postsUseCase.DeleteComment(commentID); err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, models.EmptyStruct{})
+}

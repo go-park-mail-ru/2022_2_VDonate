@@ -148,7 +148,7 @@ func TestPostClient_CreatePost(t *testing.T) {
 		name    string
 		post    models.Post
 		mock    mockCreatePost
-		want    uint64
+		want    models.Post
 		wantErr error
 	}{
 		{
@@ -158,11 +158,13 @@ func TestPostClient_CreatePost(t *testing.T) {
 				UserID: 1,
 			},
 			mock: func(r *mockDomain.MockPostsClient, c context.Context, in *protobuf.Post, opts ...grpc.CallOption) {
-				r.EXPECT().Create(c, in).Return(&protobuf.PostID{
-					PostID: 1,
+				r.EXPECT().Create(c, in).Return(&protobuf.Post{
+					ID:          1,
+					UserID:      1,
+					DateCreated: timestamppb.New(time.Time{}),
 				}, nil)
 			},
-			want:    1,
+			want:    models.Post{ID: 1, UserID: 1},
 			wantErr: nil,
 		},
 		{

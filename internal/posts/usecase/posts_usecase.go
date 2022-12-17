@@ -2,9 +2,9 @@ package posts
 
 import (
 	"bytes"
+	"fmt"
 	"regexp"
 	"sort"
-	"strings"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
@@ -34,16 +34,16 @@ func New(p domain.PostsMicroservice, u domain.UsersMicroservice, i domain.ImageU
 func blurContent(content string) string {
 	r := regexp.MustCompile(`"https://wsrv\.nl/\?url=.{100}.?"`)
 
-	images := r.FindAll([]byte(content), -1)
+	img := r.Find([]byte(content))
 
-	for _, img := range images {
-		idx := bytes.LastIndex(img, []byte(`/`))
-		toReplace := string(img[:idx+1]) + "blur_" + string(img[idx+1:])
-
-		content = strings.ReplaceAll(content, string(img), toReplace)
+	if len(img) == 0 {
+		return ""
 	}
 
-	return content
+	idx := bytes.LastIndex(img, []byte(`/`))
+	toReplace := string(img[:idx+1]) + "blur_" + string(img[idx+1:])
+
+	return fmt.Sprintf(`<img src=%s class="post-content__image">`, toReplace)
 }
 
 func SanitizeContent(content string, blur bool) string {
@@ -118,6 +118,12 @@ func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error
 			return nil, domain.ErrInternal
 		}
 		r[i].IsLiked = u.IsPostLiked(userID, post.ID)
+
+		comments, err := u.GetCommentsByPostID(post.ID)
+		if err != nil {
+			return nil, err
+		}
+		r[i].CommentsNum = uint64(len(comments))
 	}
 
 	sort.Slice(r, func(i, j int) bool {
@@ -165,8 +171,13 @@ func (u usecase) GetPostByID(postID, userID uint64) (models.Post, error) {
 	if r.LikesNum, err = u.GetLikesNum(postID); err != nil {
 		return models.Post{}, errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
-
 	r.IsLiked = u.IsPostLiked(userID, postID)
+
+	comments, err := u.GetCommentsByPostID(postID)
+	if err != nil {
+		return models.Post{}, err
+	}
+	r.CommentsNum = uint64(len(comments))
 
 	return r, nil
 }
@@ -174,7 +185,7 @@ func (u usecase) GetPostByID(postID, userID uint64) (models.Post, error) {
 func (u usecase) Create(post models.Post, userID uint64) (models.Post, error) {
 	post.UserID = userID
 	var err error
-	post.ID, err = u.postsMicroservice.Create(post)
+	post, err = u.postsMicroservice.Create(post)
 	if err != nil {
 		return models.Post{}, err
 	}
@@ -242,7 +253,7 @@ func (u usecase) GetLikesNum(postID uint64) (uint64, error) {
 }
 
 func (u usecase) IsPostLiked(userID, postID uint64) bool {
-	if _, err := u.GetLikeByUserAndPostID(userID, postID); err != nil {
+	if l, err := u.GetLikeByUserAndPostID(userID, postID); err != nil || l == (models.Like{}) {
 		return false
 	}
 	return true
@@ -335,4 +346,56 @@ func (u usecase) ConvertTagsToStrSlice(tags []models.Tag) []string {
 		tagsStr = append(tagsStr, tag.TagName)
 	}
 	return tagsStr
+}
+
+func (u usecase) CreateComment(comment models.Comment) (models.Comment, error) {
+	comment, err := u.postsMicroservice.CreateComment(comment)
+	if err != nil {
+		return models.Comment{}, err
+	}
+
+	post, err := u.postsMicroservice.GetPostByID(comment.PostID)
+	if err != nil {
+		return models.Comment{}, err
+	}
+	comment.AuthorID = post.UserID
+
+	return comment, nil
+}
+
+func (u usecase) GetCommentsByPostID(postID uint64) ([]models.Comment, error) {
+	comments, err := u.postsMicroservice.GetCommentsByPostID(postID)
+	if err != nil {
+		return nil, err
+	}
+
+	for i, comment := range comments {
+		post, err := u.postsMicroservice.GetPostByID(comment.PostID)
+		if err != nil {
+			return nil, err
+		}
+		comments[i].AuthorID = post.UserID
+	}
+	return comments, nil
+}
+
+func (u usecase) GetCommentByID(commentID uint64) (models.Comment, error) {
+	return u.postsMicroservice.GetCommentByID(commentID)
+}
+
+func (u usecase) UpdateComment(commentID uint64, commentMsg string) (models.Comment, error) {
+	comment, err := u.GetCommentByID(commentID)
+	if err != nil {
+		return models.Comment{}, err
+	}
+	comment.Content = commentMsg
+	err = u.postsMicroservice.UpdateComment(comment)
+	if err != nil {
+		return models.Comment{}, err
+	}
+	return comment, nil
+}
+
+func (u usecase) DeleteComment(commentID uint64) error {
+	return u.postsMicroservice.DeleteCommentByID(commentID)
 }

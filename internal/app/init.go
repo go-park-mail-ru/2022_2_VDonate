@@ -294,6 +294,11 @@ func (s *Server) makeRouter() {
 	post := v1.Group("/posts")
 	post.Use(s.authMiddleware.LoginRequired)
 
+	post.GET("/:id/comments", s.postsHandler.GetComments)
+	post.POST("/:id/comments", s.postsHandler.PostComment)
+	post.PUT("/comments/:id", s.postsHandler.PutComment)
+	post.DELETE("/comments/:id", s.postsHandler.DeleteComment)
+
 	post.GET("/:id/likes", s.postsHandler.GetLikes)
 	post.POST("/:id/likes", s.postsHandler.CreateLike)
 	post.DELETE("/:id/likes", s.postsHandler.DeleteLike)

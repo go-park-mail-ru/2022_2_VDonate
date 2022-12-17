@@ -3,6 +3,7 @@ package httpSubscriptions
 import (
 	"errors"
 	"net/http"
+	"sort"
 	"strconv"
 
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
@@ -82,6 +83,10 @@ func (h Handler) GetAuthorSubscriptions(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
 	}
 
+	sort.Slice(s, func(i, j int) bool {
+		return s[i].Price < s[j].Price
+	})
+
 	return c.JSON(http.StatusOK, s)
 }
 
@@ -99,7 +104,7 @@ func (h Handler) GetAuthorSubscriptions(c echo.Context) error {
 // @Failure     404 {object} echo.HTTPError                "Subscription not found"
 // @Failure     500 {object} echo.HTTPError                "Internal error"
 // @Security    ApiKeyAuth
-// @Router      /subscriptions/author{id} [get]
+// @Router      /subscriptions/author/{id} [get]
 func (h Handler) GetAuthorSubscription(c echo.Context) error {
 	subID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

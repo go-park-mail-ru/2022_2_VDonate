@@ -105,6 +105,33 @@ definitions:
     - tier
     - title
     type: object
+  models.Comment:
+    properties:
+      authorID:
+        example: 1
+        type: integer
+      content:
+        example: Looks great!
+        type: string
+      dateCreated:
+        example: "2022-11-11"
+        type: string
+      id:
+        example: 1
+        type: integer
+      postID:
+        example: 1
+        type: integer
+      userID:
+        example: 1
+        type: integer
+    required:
+    - authorID
+    - content
+    - id
+    - postID
+    - userID
+    type: object
   models.Donate:
     properties:
       authorId:
@@ -154,6 +181,9 @@ definitions:
     properties:
       author:
         $ref: '#/definitions/models.ResponseImageUsers'
+      commentsNum:
+        example: 5
+        type: integer
       content:
         example: Hello <img src=...>
         type: string
@@ -184,6 +214,7 @@ definitions:
         type: integer
     required:
     - author
+    - commentsNum
     - content
     - isLiked
     - likesNum
@@ -767,6 +798,89 @@ paths:
       summary: Update post
       tags:
       - posts
+  /posts/{id}/comments:
+    get:
+      description: Get all comments by post id
+      operationId: get_posts_comments
+      parameters:
+      - description: Post id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comments were successfully recieved
+          schema:
+            items:
+              $ref: '#/definitions/models.Comment'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get comments
+      tags:
+      - posts
+    post:
+      description: Post comment on post
+      operationId: post_comment
+      parameters:
+      - description: Post id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Comment
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/models.Comment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comment was successfully put
+          schema:
+            type: integer
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Post comment
+      tags:
+      - posts
   /posts/{id}/likes:
     delete:
       description: Delete like on post
@@ -879,6 +993,88 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Create like
+      tags:
+      - posts
+  /posts/comments/:id:
+    put:
+      description: Put comment on post
+      operationId: put_comment
+      parameters:
+      - description: Comment id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Comment
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/models.Comment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comment was successfully put
+          schema:
+            type: integer
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Put comment
+      tags:
+      - posts
+  /posts/comments/{id}:
+    delete:
+      description: Delete comment on post
+      operationId: delete_comment
+      parameters:
+      - description: Comment id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comment was successfully deleted
+          schema:
+            type: integer
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete comment
       tags:
       - posts
   /search:
@@ -1191,6 +1387,47 @@ paths:
       summary: Delete Author subscription
       tags:
       - subscriptions
+    get:
+      description: Get Author subscription by id
+      operationId: get_author_subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully received subscription
+          schema:
+            $ref: '#/definitions/models.AuthorSubscriptionMpfd'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: You are not supposed to make this requests
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Subscription not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Author subscription
+      tags:
+      - subscriptions
     put:
       consumes:
       - multipart/form-data
@@ -1256,48 +1493,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update Author subscription
-      tags:
-      - subscriptions
-  /subscriptions/author{id}:
-    get:
-      description: Get Author subscription by id
-      operationId: get_author_subscription
-      parameters:
-      - description: Subscription ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully received subscription
-          schema:
-            $ref: '#/definitions/models.AuthorSubscriptionMpfd'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: No session
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "403":
-          description: You are not supposed to make this requests
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Subscription not found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Get Author subscription
       tags:
       - subscriptions
   /users:

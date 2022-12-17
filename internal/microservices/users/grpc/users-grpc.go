@@ -133,7 +133,7 @@ func (s UserService) GetBySessionID(_ context.Context, sessionID *authProto.Sess
 
 func (s UserService) GetByEmail(_ context.Context, email *protobuf.Email) (*protobuf.User, error) {
 	user, err := s.userRepo.GetByEmail(email.GetEmail())
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -142,7 +142,7 @@ func (s UserService) GetByEmail(_ context.Context, email *protobuf.Email) (*prot
 
 func (s UserService) GetByUsername(_ context.Context, username *protobuf.Username) (*protobuf.User, error) {
 	user, err := s.userRepo.GetByUsername(username.GetUsername())
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
