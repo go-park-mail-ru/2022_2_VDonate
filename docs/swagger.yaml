@@ -132,29 +132,6 @@ definitions:
     - postID
     - userID
     type: object
-  models.Donate:
-    properties:
-      authorId:
-        type: integer
-      id:
-        type: integer
-      price:
-        type: integer
-      userId:
-        type: integer
-    type: object
-  models.DonateMpfd:
-    properties:
-      authorID:
-        example: 12
-        type: integer
-      price:
-        example: 3000
-        type: integer
-    required:
-    - authorID
-    - price
-    type: object
   models.EmptyStruct:
     type: object
   models.ImageMpfd:
@@ -218,6 +195,55 @@ definitions:
     - content
     - isLiked
     - likesNum
+    type: object
+  models.QiwiPaymentStatus:
+    properties:
+      amount:
+        properties:
+          currency:
+            type: string
+          value:
+            type: string
+        type: object
+      billId:
+        type: string
+      comment:
+        type: string
+      creationDateTime:
+        type: string
+      customFields:
+        properties:
+          paySourcesFilter:
+            type: string
+          themeCode:
+            type: string
+          yourParam1:
+            type: string
+          yourParam2:
+            type: string
+        type: object
+      customer:
+        properties:
+          account:
+            type: string
+          email:
+            type: string
+          phone:
+            type: string
+        type: object
+      expirationDateTime:
+        type: string
+      payUrl:
+        type: string
+      siteId:
+        type: string
+      status:
+        properties:
+          changedDateTime:
+            type: string
+          value:
+            type: string
+        type: object
     type: object
   models.ResponseImagePosts:
     properties:
@@ -369,109 +395,6 @@ paths:
       summary: User authentication request
       tags:
       - auth
-  /donate:
-    post:
-      description: Send donate to author
-      operationId: create_donate
-      parameters:
-      - description: Donate Fields
-        in: body
-        name: post
-        required: true
-        schema:
-          $ref: '#/definitions/models.DonateMpfd'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Donate was successfully created
-          schema:
-            $ref: '#/definitions/models.Donate'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: No session provided
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Post not found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Create donate
-      tags:
-      - donates
-  /donate/{id}:
-    get:
-      description: Get donate by id
-      operationId: get_donate
-      parameters:
-      - description: Post ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Donate was successfully create
-          schema:
-            $ref: '#/definitions/models.Donate'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: No session provided
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Get donate
-      tags:
-      - donates
-  /donates:
-    get:
-      description: Get donates of user
-      operationId: get_donates
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Donates were successfully recieved
-          schema:
-            items:
-              $ref: '#/definitions/models.Donate'
-            type: array
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: No session provided
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Get donates
-      tags:
-      - donates
   /image:
     post:
       description: Create image POST request
@@ -1147,12 +1070,12 @@ paths:
       description: Subscribe user to author with paid subscription
       operationId: create_subscriber
       parameters:
-      - description: Subscription info with required AuthorID and Subscription ID
+      - description: 'Payment response, documentation: https://developer.qiwi.com/ru/p2p-payments/?shell#create'
         in: body
         name: Subscription
         required: true
         schema:
-          $ref: '#/definitions/models.SubscriptionMpfd'
+          $ref: '#/definitions/models.QiwiPaymentStatus'
       produces:
       - application/json
       responses:
