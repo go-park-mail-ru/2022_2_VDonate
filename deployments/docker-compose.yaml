@@ -1,19 +1,19 @@
 version: "3.7"
 services:
-#  api:
-#    hostname: api
-#    container_name: vdonate-api
-#    image: zeronethunter/vdonate-api
-#    ports:
-#      - "8080:8080"
-#      - "8079:8079"
-#    env_file:
-#      - ../.env
-#    volumes:
-#      - /etc/letsencrypt/live/vdonate.ml/fullchain.pem:/etc/letsencrypt/live/vdonate.ml/fullchain.pem
-#      - /etc/letsencrypt/live/vdonate.ml/privkey.pem:/etc/letsencrypt/live/vdonate.ml/privkey.pem
-#    networks:
-#      - vdonate-network-api
+  api:
+    hostname: api
+    container_name: vdonate-api
+    image: zeronethunter/vdonate-api
+    ports:
+      - "8080:8080"
+      - "8079:8079"
+    env_file:
+      - ../.env
+    volumes:
+      - /etc/letsencrypt/live/vdonate.ml/fullchain.pem:/etc/letsencrypt/live/vdonate.ml/fullchain.pem
+      - /etc/letsencrypt/live/vdonate.ml/privkey.pem:/etc/letsencrypt/live/vdonate.ml/privkey.pem
+    networks:
+      - vdonate-network-api
   auth:
     hostname: auth
     container_name: vdonate-auth
@@ -199,7 +199,7 @@ services:
       - "1234:1234"
     depends_on:
       - db
-      - posts
+      # - posts
       - users
       - subscribers
     networks:

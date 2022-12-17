@@ -248,8 +248,8 @@ func (s PostsService) DeleteDepTag(_ context.Context, tagDep *protobuf.TagDep) (
 	return &emptypb.Empty{}, nil
 }
 
-func (s PostsService) CreateComment(_ context.Context, comment *protobuf.Comment) (*protobuf.CommentPairIdDate, error) {
-	id, dateCreated, err := s.postsRepo.CreateComment(models.Comment{
+func (s PostsService) CreateComment(_ context.Context, comment *protobuf.Comment) (*protobuf.Comment, error) {
+	com, err := s.postsRepo.CreateComment(models.Comment{
 		PostID:  comment.GetPostID(),
 		UserID:  comment.GetUserID(),
 		Content: comment.GetContent(),
@@ -258,10 +258,16 @@ func (s PostsService) CreateComment(_ context.Context, comment *protobuf.Comment
 		return nil, err
 	}
 
-	return &protobuf.CommentPairIdDate{CommentID: id, DateCreated: dateCreated}, nil
+	return &protobuf.Comment{
+		ID:          com.ID,
+		PostID:      com.PostID,
+		UserID:      com.UserID,
+		Content:     com.Content,
+		DateCreated: timestamppb.New(com.DateCreated),
+	}, nil
 }
 
-func (s PostsService) GetCommentById(_ context.Context, commentID *protobuf.CommentID) (*protobuf.Comment, error) {
+func (s PostsService) GetCommentByID(_ context.Context, commentID *protobuf.CommentID) (*protobuf.Comment, error) {
 	comment, err := s.postsRepo.GetCommentByID(commentID.GetCommentID())
 	if err != nil {
 		return nil, err
@@ -272,11 +278,11 @@ func (s PostsService) GetCommentById(_ context.Context, commentID *protobuf.Comm
 		PostID:      comment.PostID,
 		UserID:      comment.UserID,
 		Content:     comment.Content,
-		DateCreated: comment.DateCreated,
+		DateCreated: timestamppb.New(comment.DateCreated),
 	}, nil
 }
 
-func (s PostsService) GetCommentsByPostId(_ context.Context, postID *protobuf.PostID) (*protobuf.CommentArray, error) {
+func (s PostsService) GetCommentsByPostID(_ context.Context, postID *protobuf.PostID) (*protobuf.CommentArray, error) {
 	comments, err := s.postsRepo.GetCommentsByPostId(postID.GetPostID())
 	if err != nil {
 		return nil, err
@@ -290,7 +296,7 @@ func (s PostsService) GetCommentsByPostId(_ context.Context, postID *protobuf.Po
 			PostID:      comment.PostID,
 			UserID:      comment.UserID,
 			Content:     comment.Content,
-			DateCreated: comment.DateCreated,
+			DateCreated: timestamppb.New(comment.DateCreated),
 		})
 	}
 
@@ -303,7 +309,6 @@ func (s PostsService) UpdateComment(_ context.Context, comment *protobuf.Comment
 		PostID:      comment.GetPostID(),
 		UserID:      comment.GetUserID(),
 		Content:     comment.GetContent(),
-		DateCreated: comment.GetDateCreated(),
 	})
 	if err != nil {
 		return nil, err
@@ -312,7 +317,7 @@ func (s PostsService) UpdateComment(_ context.Context, comment *protobuf.Comment
 	return &emptypb.Empty{}, nil
 }
 
-func (s PostsService) DeleteCommentById(_ context.Context, commentID *protobuf.CommentID) (*emptypb.Empty, error) {
+func (s PostsService) DeleteCommentByID(_ context.Context, commentID *protobuf.CommentID) (*emptypb.Empty, error) {
 	err := s.postsRepo.DeleteCommentByID(commentID.GetCommentID())
 	if err != nil {
 		return nil, err

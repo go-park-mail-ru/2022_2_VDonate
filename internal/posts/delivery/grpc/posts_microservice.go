@@ -6,7 +6,6 @@ import (
 	"github.com/ztrue/tracerr"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	grpcPosts "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/post/grpc"
 
@@ -217,17 +216,23 @@ func (m PostsMicroservice) DeleteDepTag(tagDep models.TagDep) error {
 	return tracerr.Wrap(err)
 }
 
-func (m PostsMicroservice) CreateComment(comment models.Comment) (uint64, *timestamppb.Timestamp, error) {
-	idDatePair, err := m.client.CreateComment(context.Background(), &protobuf.Comment{
-		PostID:  comment.PostID,
-		UserID:  comment.UserID,
-		Content: comment.Content,
+func (m PostsMicroservice) CreateComment(comment models.Comment) (models.Comment, error) {
+	com, err := m.client.CreateComment(context.Background(), &protobuf.Comment{
+		PostID:   comment.PostID,
+		UserID:   comment.UserID,
+		Content:  comment.Content,
 	})
 	if err != nil {
-		return 0, nil, err
+		return models.Comment{}, err
 	}
 
-	return idDatePair.GetCommentID(), idDatePair.GetDateCreated(), nil
+	return models.Comment{
+		ID:          com.GetID(),
+		PostID:      com.GetPostID(),
+		UserID:      com.GetUserID(),
+		Content:     com.GetContent(),
+		DateCreated: com.GetDateCreated().AsTime(),
+	}, nil
 }
 
 func (m PostsMicroservice) GetCommentByID(commentID uint64) (models.Comment, error) {
@@ -239,11 +244,11 @@ func (m PostsMicroservice) GetCommentByID(commentID uint64) (models.Comment, err
 	}
 
 	return models.Comment{
-		ID:        comment.GetID(),
-		PostID:    comment.GetPostID(),
-		UserID:    comment.GetUserID(),
-		Content:   comment.GetContent(),
-		DateCreated: comment.GetDateCreated(),
+		ID:          comment.GetID(),
+		PostID:      comment.GetPostID(),
+		UserID:      comment.GetUserID(),
+		Content:     comment.GetContent(),
+		DateCreated: comment.GetDateCreated().AsTime(),
 	}, nil
 }
 
@@ -259,11 +264,11 @@ func (m PostsMicroservice) GetCommentsByPostID(postID uint64) ([]models.Comment,
 
 	for _, comment := range comments.GetComments() {
 		result = append(result, models.Comment{
-			ID:        comment.GetID(),
-			PostID:    comment.GetPostID(),
-			UserID:    comment.GetUserID(),
-			Content:   comment.GetContent(),
-			DateCreated: comment.GetDateCreated(),
+			ID:          comment.GetID(),
+			PostID:      comment.GetPostID(),
+			UserID:      comment.GetUserID(),
+			Content:     comment.GetContent(),
+			DateCreated: comment.GetDateCreated().AsTime(),
 		})
 	}
 
@@ -272,11 +277,10 @@ func (m PostsMicroservice) GetCommentsByPostID(postID uint64) ([]models.Comment,
 
 func (m PostsMicroservice) UpdateComment(comment models.Comment) error {
 	_, err := m.client.UpdateComment(context.Background(), &protobuf.Comment{
-		ID:        comment.ID,
-		PostID:    comment.PostID,
-		UserID:    comment.UserID,
-		Content:   comment.Content,
-		DateCreated: comment.DateCreated,
+		ID:       comment.ID,
+		PostID:   comment.PostID,
+		UserID:   comment.UserID,
+		Content:  comment.Content,
 	})
 	return err
 }

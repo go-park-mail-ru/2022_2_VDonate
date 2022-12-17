@@ -2,7 +2,6 @@ package domain
 
 import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type PostsMicroservice interface {
@@ -22,7 +21,7 @@ type PostsMicroservice interface {
 	GetTagById(tagID uint64) (models.Tag, error)
 	GetTagDepsByPostId(postID uint64) ([]models.TagDep, error)
 	GetTagByName(tagName string) (models.Tag, error)
-	CreateComment(comment models.Comment) (uint64, *timestamppb.Timestamp, error)
+	CreateComment(comment models.Comment) (models.Comment, error)
 	GetCommentByID(commentID uint64) (models.Comment, error)
 	GetCommentsByPostID(postID uint64) ([]models.Comment, error)
 	UpdateComment(comment models.Comment) error

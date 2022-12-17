@@ -118,14 +118,12 @@ func (u usecase) GetPostsByFilter(userID, authorID uint64) ([]models.Post, error
 			return nil, domain.ErrInternal
 		}
 		r[i].IsLiked = u.IsPostLiked(userID, post.ID)
-	}
 
-	for index, post := range r {
 		comments, err := u.GetCommentsByPostID(post.ID)
 		if err != nil {
 			return nil, err
 		}
-		r[index].CommentsNum = uint64(len(comments))
+		r[i].CommentsNum = uint64(len(comments))
 	}
 
 	sort.Slice(r, func(i, j int) bool {
@@ -351,17 +349,34 @@ func (u usecase) ConvertTagsToStrSlice(tags []models.Tag) []string {
 }
 
 func (u usecase) CreateComment(comment models.Comment) (models.Comment, error) {
-	id, date, err := u.postsMicroservice.CreateComment(comment)
+	comment, err := u.postsMicroservice.CreateComment(comment)
 	if err != nil {
 		return models.Comment{}, err
 	}
-	comment.ID = id
-	comment.DateCreated = date
+
+	post, err := u.postsMicroservice.GetPostByID(comment.PostID)
+	if err != nil {
+		return models.Comment{}, err
+	}
+	comment.AuthorID = post.UserID
+
 	return comment, nil
 }
 
 func (u usecase) GetCommentsByPostID(postID uint64) ([]models.Comment, error) {
-	return u.postsMicroservice.GetCommentsByPostID(postID)
+	comments, err := u.postsMicroservice.GetCommentsByPostID(postID)
+	if err != nil {
+		return nil, err
+	}
+
+	for i, comment := range comments {
+		post, err := u.postsMicroservice.GetPostByID(comment.PostID)
+		if err != nil {
+			return nil, err
+		}
+		comments[i].AuthorID = post.UserID
+	}
+	return comments, nil
 }
 
 func (u usecase) GetCommentByID(commentID uint64) (models.Comment, error) {

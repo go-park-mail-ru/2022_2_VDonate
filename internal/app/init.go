@@ -295,9 +295,9 @@ func (s *Server) makeRouter() {
 	post.Use(s.authMiddleware.LoginRequired)
 
 	post.GET("/:id/comments", s.postsHandler.GetComments)
-	post.POST("/:id/comments", s.postsHandler.PutComment)
-	post.PUT("/:id/comments", s.postsHandler.PutComment)
-	post.DELETE("/:id/comments", s.postsHandler.DeleteComment)
+	post.POST("/:id/comments", s.postsHandler.PostComment)
+	post.PUT("/comments/:id", s.postsHandler.PutComment)
+	post.DELETE("/comments/:id", s.postsHandler.DeleteComment)
 
 	post.GET("/:id/likes", s.postsHandler.GetLikes)
 	post.POST("/:id/likes", s.postsHandler.CreateLike)

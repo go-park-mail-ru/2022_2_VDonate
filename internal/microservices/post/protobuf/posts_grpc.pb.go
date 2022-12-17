@@ -40,7 +40,7 @@ type PostsClient interface {
 	CreateDepTag(ctx context.Context, in *TagDep, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetTagDepsByPostId(ctx context.Context, in *PostID, opts ...grpc.CallOption) (*TagDeps, error)
 	DeleteDepTag(ctx context.Context, in *TagDep, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	CreateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*CommentPairIdDate, error)
+	CreateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*Comment, error)
 	GetCommentByID(ctx context.Context, in *CommentID, opts ...grpc.CallOption) (*Comment, error)
 	GetCommentsByPostID(ctx context.Context, in *PostID, opts ...grpc.CallOption) (*CommentArray, error)
 	UpdateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -199,8 +199,8 @@ func (c *postsClient) DeleteDepTag(ctx context.Context, in *TagDep, opts ...grpc
 	return out, nil
 }
 
-func (c *postsClient) CreateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*CommentPairIdDate, error) {
-	out := new(CommentPairIdDate)
+func (c *postsClient) CreateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*Comment, error) {
+	out := new(Comment)
 	err := c.cc.Invoke(ctx, "/posts.Posts/CreateComment", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -264,7 +264,7 @@ type PostsServer interface {
 	CreateDepTag(context.Context, *TagDep) (*emptypb.Empty, error)
 	GetTagDepsByPostId(context.Context, *PostID) (*TagDeps, error)
 	DeleteDepTag(context.Context, *TagDep) (*emptypb.Empty, error)
-	CreateComment(context.Context, *Comment) (*CommentPairIdDate, error)
+	CreateComment(context.Context, *Comment) (*Comment, error)
 	GetCommentByID(context.Context, *CommentID) (*Comment, error)
 	GetCommentsByPostID(context.Context, *PostID) (*CommentArray, error)
 	UpdateComment(context.Context, *Comment) (*emptypb.Empty, error)
@@ -324,7 +324,7 @@ func (UnimplementedPostsServer) GetTagDepsByPostId(context.Context, *PostID) (*T
 func (UnimplementedPostsServer) DeleteDepTag(context.Context, *TagDep) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteDepTag not implemented")
 }
-func (UnimplementedPostsServer) CreateComment(context.Context, *Comment) (*CommentPairIdDate, error) {
+func (UnimplementedPostsServer) CreateComment(context.Context, *Comment) (*Comment, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateComment not implemented")
 }
 func (UnimplementedPostsServer) GetCommentByID(context.Context, *CommentID) (*Comment, error) {

@@ -69,18 +69,13 @@ message TagID {
 message Comment {
   uint64 ID = 1;
   uint64 UserID = 2;
-  uint64 PostID = 3;
-  string Content = 4;
-  google.protobuf.Timestamp DateCreated = 5;
+  uint64 PostID = 4;
+  string Content = 5;
+  google.protobuf.Timestamp DateCreated = 6;
 }
 
 message CommentID {
   uint64 commentID = 1;
-}
-
-message CommentPairIdDate {
-  uint64 commentID = 1;
-  google.protobuf.Timestamp dateCreated = 2;
 }
 
 message CommentContent {
@@ -112,7 +107,7 @@ service Posts {
   rpc GetTagDepsByPostId(PostID) returns(TagDeps);
   rpc DeleteDepTag(TagDep) returns(google.protobuf.Empty);
 
-  rpc CreateComment(Comment) returns(CommentPairIdDate);
+  rpc CreateComment(Comment) returns(Comment);
   rpc GetCommentByID(CommentID) returns(Comment);
   rpc GetCommentsByPostID(PostID) returns(CommentArray);
   rpc UpdateComment(Comment) returns(google.protobuf.Empty);

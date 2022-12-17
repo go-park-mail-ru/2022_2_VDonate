@@ -9,7 +9,6 @@ import (
 
 	models "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	gomock "github.com/golang/mock/gomock"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // MockPostsMicroservice is a mock of PostsMicroservice interface.
@@ -51,13 +50,12 @@ func (mr *MockPostsMicroserviceMockRecorder) Create(post interface{}) *gomock.Ca
 }
 
 // CreateComment mocks base method.
-func (m *MockPostsMicroservice) CreateComment(comment models.Comment) (uint64, *timestamppb.Timestamp, error) {
+func (m *MockPostsMicroservice) CreateComment(comment models.Comment) (models.Comment, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateComment", comment)
-	ret0, _ := ret[0].(uint64)
-	ret1, _ := ret[1].(*timestamppb.Timestamp)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
+	ret0, _ := ret[0].(models.Comment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // CreateComment indicates an expected call of CreateComment.

@@ -366,5 +366,5 @@ CREATE TABLE IF NOT EXISTS comments
     user_id      bigserial NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     post_id      bigserial NOT NULL REFERENCES posts (post_id) ON DELETE CASCADE,
     content      text NOT NULL,
-    date_created date NOT NULL
+    date_created TIMESTAMP NOT NULL DEFAULT now()
 );

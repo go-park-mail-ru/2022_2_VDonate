@@ -59,14 +59,14 @@ func (mr *MockPostsClientMockRecorder) Create(ctx, in interface{}, opts ...inter
 }
 
 // CreateComment mocks base method.
-func (m *MockPostsClient) CreateComment(ctx context.Context, in *protobuf.Comment, opts ...grpc.CallOption) (*protobuf.CommentPairIdDate, error) {
+func (m *MockPostsClient) CreateComment(ctx context.Context, in *protobuf.Comment, opts ...grpc.CallOption) (*protobuf.Comment, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "CreateComment", varargs...)
-	ret0, _ := ret[0].(*protobuf.CommentPairIdDate)
+	ret0, _ := ret[0].(*protobuf.Comment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -497,10 +497,10 @@ func (mr *MockPostsServerMockRecorder) Create(arg0, arg1 interface{}) *gomock.Ca
 }
 
 // CreateComment mocks base method.
-func (m *MockPostsServer) CreateComment(arg0 context.Context, arg1 *protobuf.Comment) (*protobuf.CommentPairIdDate, error) {
+func (m *MockPostsServer) CreateComment(arg0 context.Context, arg1 *protobuf.Comment) (*protobuf.Comment, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateComment", arg0, arg1)
-	ret0, _ := ret[0].(*protobuf.CommentPairIdDate)
+	ret0, _ := ret[0].(*protobuf.Comment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

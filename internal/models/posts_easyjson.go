@@ -225,6 +225,8 @@ func easyjsonDc9e8747DecodeGithubComGoParkMailRu20222VDonateInternalModels2(in *
 			out.LikesNum = uint64(in.Uint64())
 		case "isLiked":
 			out.IsLiked = bool(in.Bool())
+		case "commentsNum":
+			out.CommentsNum = uint64(in.Uint64())
 		default:
 			in.SkipRecursive()
 		}
@@ -299,6 +301,11 @@ func easyjsonDc9e8747EncodeGithubComGoParkMailRu20222VDonateInternalModels2(out 
 		const prefix string = ",\"isLiked\":"
 		out.RawString(prefix)
 		out.Bool(bool(in.IsLiked))
+	}
+	{
+		const prefix string = ",\"commentsNum\":"
+		out.RawString(prefix)
+		out.Uint64(uint64(in.CommentsNum))
 	}
 	out.RawByte('}')
 }
@@ -398,4 +405,107 @@ func (v *Like) UnmarshalJSON(data []byte) error {
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Like) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonDc9e8747DecodeGithubComGoParkMailRu20222VDonateInternalModels3(l, v)
+}
+func easyjsonDc9e8747DecodeGithubComGoParkMailRu20222VDonateInternalModels4(in *jlexer.Lexer, out *Comment) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "id":
+			out.ID = uint64(in.Uint64())
+		case "postID":
+			out.PostID = uint64(in.Uint64())
+		case "authorID":
+			out.AuthorID = uint64(in.Uint64())
+		case "userID":
+			out.UserID = uint64(in.Uint64())
+		case "dateCreated":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.DateCreated).UnmarshalJSON(data))
+			}
+		case "content":
+			out.Content = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonDc9e8747EncodeGithubComGoParkMailRu20222VDonateInternalModels4(out *jwriter.Writer, in Comment) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.Uint64(uint64(in.ID))
+	}
+	{
+		const prefix string = ",\"postID\":"
+		out.RawString(prefix)
+		out.Uint64(uint64(in.PostID))
+	}
+	{
+		const prefix string = ",\"authorID\":"
+		out.RawString(prefix)
+		out.Uint64(uint64(in.AuthorID))
+	}
+	{
+		const prefix string = ",\"userID\":"
+		out.RawString(prefix)
+		out.Uint64(uint64(in.UserID))
+	}
+	{
+		const prefix string = ",\"dateCreated\":"
+		out.RawString(prefix)
+		out.Raw((in.DateCreated).MarshalJSON())
+	}
+	{
+		const prefix string = ",\"content\":"
+		out.RawString(prefix)
+		out.String(string(in.Content))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v Comment) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonDc9e8747EncodeGithubComGoParkMailRu20222VDonateInternalModels4(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v Comment) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonDc9e8747EncodeGithubComGoParkMailRu20222VDonateInternalModels4(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *Comment) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonDc9e8747DecodeGithubComGoParkMailRu20222VDonateInternalModels4(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *Comment) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonDc9e8747DecodeGithubComGoParkMailRu20222VDonateInternalModels4(l, v)
 }

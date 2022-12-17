@@ -334,11 +334,11 @@ func (h Handler) DeleteLike(c echo.Context) error {
 // @Tags        posts
 // @Param       id path integer true "Post id"
 // @Produce     json
-// @Success     200 {object} []models.Comment  "Comments were successfully recieved"
-// @Failure     400 {object} echo.HTTPError "Bad request"
-// @Failure     401 {object} echo.HTTPError "No session provided"
-// @Failure     404 {object} echo.HTTPError "Post not found"
-// @Failure     500 {object} echo.HTTPError "Internal error"
+// @Success     200 {object} []models.Comment "Comments were successfully recieved"
+// @Failure     400 {object} echo.HTTPError   "Bad request"
+// @Failure     401 {object} echo.HTTPError   "No session provided"
+// @Failure     404 {object} echo.HTTPError   "Post not found"
+// @Failure     500 {object} echo.HTTPError   "Internal error"
 // @Security    ApiKeyAuth
 // @Router      /posts/{id}/comments [get]
 func (h Handler) GetComments(c echo.Context) error {
@@ -362,7 +362,7 @@ func (h Handler) GetComments(c echo.Context) error {
 // @Description Post comment on post
 // @ID          post_comment
 // @Tags        posts
-// @Param       id path integer true "Post id"
+// @Param       id      path integer        true "Post id"
 // @Param       comment body models.Comment true "Comment"
 // @Produce     json
 // @Success     200 {object} integer        "Comment was successfully put"
@@ -371,7 +371,7 @@ func (h Handler) GetComments(c echo.Context) error {
 // @Failure     404 {object} echo.HTTPError "Post not found"
 // @Failure     500 {object} echo.HTTPError "Internal error"
 // @Security    ApiKeyAuth
-// @Router      /posts/{id}/comments [put]
+// @Router      /posts/{id}/comments [post]
 func (h Handler) PostComment(c echo.Context) error {
 	postID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -391,7 +391,7 @@ func (h Handler) PostComment(c echo.Context) error {
 	if err := c.Bind(&comment); err != nil {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
-	comment.AuthorID = user.ID
+	comment.UserID = user.ID
 	comment.PostID = postID
 
 	if comment, err = h.postsUseCase.CreateComment(comment); err != nil {
@@ -406,7 +406,7 @@ func (h Handler) PostComment(c echo.Context) error {
 // @Description Put comment on post
 // @ID          put_comment
 // @Tags        posts
-// @Param       id path integer true "Comment id"
+// @Param       id      path integer        true "Comment id"
 // @Param       comment body models.Comment true "Comment"
 // @Produce     json
 // @Success     200 {object} integer        "Comment was successfully put"
@@ -415,7 +415,7 @@ func (h Handler) PostComment(c echo.Context) error {
 // @Failure     404 {object} echo.HTTPError "Post not found"
 // @Failure     500 {object} echo.HTTPError "Internal error"
 // @Security    ApiKeyAuth
-// @Router      /posts/{id}/comments [put]
+// @Router      /posts/comments/:id [put]
 func (h Handler) PutComment(c echo.Context) error {
 	commentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -448,7 +448,7 @@ func (h Handler) PutComment(c echo.Context) error {
 // @Failure     404 {object} echo.HTTPError "Post not found"
 // @Failure     500 {object} echo.HTTPError "Internal error"
 // @Security    ApiKeyAuth
-// @Router      /posts/{id}/comments [delete]
+// @Router      /posts/comments/{id} [delete]
 func (h Handler) DeleteComment(c echo.Context) error {
 	commentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

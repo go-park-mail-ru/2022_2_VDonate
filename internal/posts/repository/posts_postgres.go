@@ -5,10 +5,8 @@ import (
 	"errors"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Postgres struct {
@@ -199,28 +197,24 @@ func (r Postgres) GetTagByName(tagName string) (models.Tag, error) {
 	return tag, nil
 }
 
-func (r Postgres) CreateComment(comment models.Comment) (uint64, *timestamppb.Timestamp, error) {
-	var commentID uint64
-	var dateCreated *timestamp.Timestamp
+func (r Postgres) CreateComment(comment models.Comment) (models.Comment, error) {
 	err := r.DB.QueryRowx(
 		`
-		INSERT INTO comments (user_id, post_id, content, date_created)
-		VALUES ($1, $2, $3, $4) RETURNING comment_id, date_created;`,
+		INSERT INTO comments (user_id, post_id, content)
+		VALUES ($1, $2, $3) RETURNING id, date_created;`,
 		comment.UserID,
 		comment.PostID,
 		comment.Content,
-		timestamppb.Now(),
-	).Scan(&commentID, &dateCreated)
+	).Scan(&comment.ID, &comment.DateCreated)
 	if err != nil {
-		return 0, &timestamp.Timestamp{}, err
+		return models.Comment{}, err
 	}
-
-	return commentID, dateCreated, nil
+	return comment, nil
 }
 
 func (r Postgres) GetCommentsByPostId(postID uint64) ([]models.Comment, error) {
 	comments := make([]models.Comment, 0)
-	if err := r.DB.Select(&comments, `SELECT * FROM tags WHERE post_id=$1;`, postID); err != nil {
+	if err := r.DB.Select(&comments, `SELECT * FROM comments WHERE post_id=$1;`, postID); err != nil {
 		return nil, err
 	}
 	return comments, nil
@@ -228,7 +222,7 @@ func (r Postgres) GetCommentsByPostId(postID uint64) ([]models.Comment, error) {
 
 func (r Postgres) GetCommentByID(commentID uint64) (models.Comment, error) {
 	var comment models.Comment
-	if err := r.DB.Get(&comment, "SELECT * FROM comments WHERE comment_id=$1;", commentID); err != nil {
+	if err := r.DB.Get(&comment, "SELECT * FROM comments WHERE id=$1;", commentID); err != nil {
 		return models.Comment{}, err
 	}
 	return comment, nil
@@ -244,6 +238,6 @@ func (r Postgres) UpdateComment(comment models.Comment) error {
 }
 
 func (r Postgres) DeleteCommentByID(commentID uint64) error {
-	_, err := r.DB.Exec("DELETE FROM comments WHERE comment_id=$1;", commentID)
+	_, err := r.DB.Exec("DELETE FROM comments WHERE id=$1;", commentID)
 	return err
 }
