@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS payments
     from_id bigserial NOT NULL REFERENCES users (id) ON DELETE NO ACTION,
     to_id   bigserial NOT NULL REFERENCES users (id) ON DELETE NO ACTION,
     sub_id  bigserial NOT NULL REFERENCES author_subscriptions (id) ON DELETE NO ACTION,
-    status  varchar   default 'WAITING',
+    status  varchar            default 'WAITING',
     time    timestamp NOT NULL DEFAULT now(),
 
     unique (from_id, to_id, sub_id)
@@ -161,8 +161,8 @@ CREATE OR REPLACE FUNCTION notify_event_posts() RETURNS TRIGGER AS
 $$
 
 DECLARE
-    data jsonb;
-    var  bigint;
+    data        jsonb;
+    var         bigint;
     author_name varchar;
 
 BEGIN
@@ -186,7 +186,7 @@ CREATE OR REPLACE FUNCTION notify_event_subscriber() RETURNS TRIGGER AS
 $$
 
 DECLARE
-    data jsonb;
+    data            jsonb;
     subscriber_name varchar;
 
 BEGIN
@@ -401,9 +401,9 @@ VALUES (2, 'bbdef463-c60d-41d4-8a87-25c5526d3c15.jpg', 3, 'Вакансии', '�
 
 CREATE TABLE IF NOT EXISTS comments
 (
-    id           bigserial NOT NULL PRIMARY KEY,
-    user_id      bigserial NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    post_id      bigserial NOT NULL REFERENCES posts (post_id) ON DELETE CASCADE,
-    content      text NOT NULL,
-    date_created TIMESTAMP NOT NULL DEFAULT now()
+    id           bigserial     NOT NULL PRIMARY KEY,
+    user_id      bigserial     NOT NULL REFERENCES users (id) ON DELETE NO ACTION,
+    post_id      bigserial     NOT NULL REFERENCES posts (post_id) ON DELETE CASCADE,
+    content      varchar(1024) NOT NULL,
+    date_created TIMESTAMP     NOT NULL DEFAULT now()
 );

@@ -225,3 +225,24 @@ jobs:
           push: true
           tags: zeronethunter/vdonate-users:latest
 
+  build_push_notifications:
+      name: build and push notifications
+      needs: test
+      runs-on: ubuntu-18.04
+      steps:
+        - uses: actions/checkout@v3
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v2
+        - name: Login to Docker Hub
+          uses: docker/login-action@v2
+          with:
+            username: ${{ secrets.DOCKERHUB_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
+        - name: Build and push
+          uses: docker/build-push-action@v3
+          with:
+            context: .
+            file: ./deployments/notifications/Dockerfile
+            push: true
+            tags: zeronethunter/vdonate-notifications:latest
+
