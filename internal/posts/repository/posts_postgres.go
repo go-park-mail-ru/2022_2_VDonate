@@ -60,21 +60,20 @@ func (r Postgres) GetPostByID(postID uint64) (models.Post, error) {
 	return post, nil
 }
 
-func (r Postgres) Create(post models.Post) (uint64, error) {
-	var postID uint64
+func (r Postgres) Create(post models.Post) (models.Post, error) {
 	err := r.DB.QueryRowx(
 		`
 		INSERT INTO posts (user_id, content, tier) 
-		VALUES ($1, $2, $3) RETURNING post_id;`,
+		VALUES ($1, $2, $3) RETURNING post_id, date_created;`,
 		post.UserID,
 		post.Content,
 		post.Tier,
-	).Scan(&postID)
+	).Scan(&post.ID, &post.DateCreated)
 	if err != nil {
-		return 0, err
+		return models.Post{}, err
 	}
 
-	return postID, nil
+	return post, nil
 }
 
 func (r Postgres) Update(post models.Post) error {

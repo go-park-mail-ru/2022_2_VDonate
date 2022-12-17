@@ -174,10 +174,10 @@ func (mr *MockPostsRepositoryMockRecorder) Close() *gomock.Call {
 }
 
 // Create mocks base method.
-func (m *MockPostsRepository) Create(post models.Post) (uint64, error) {
+func (m *MockPostsRepository) Create(post models.Post) (models.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", post)
-	ret0, _ := ret[0].(uint64)
+	ret0, _ := ret[0].(models.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -903,4 +903,56 @@ func (m *MockImagesRepository) GetPermanentImage(filename string) (string, error
 func (mr *MockImagesRepositoryMockRecorder) GetPermanentImage(filename interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPermanentImage", reflect.TypeOf((*MockImagesRepository)(nil).GetPermanentImage), filename)
+}
+
+// MockNotificationsRepository is a mock of NotificationsRepository interface.
+type MockNotificationsRepository struct {
+	ctrl     *gomock.Controller
+	recorder *MockNotificationsRepositoryMockRecorder
+}
+
+// MockNotificationsRepositoryMockRecorder is the mock recorder for MockNotificationsRepository.
+type MockNotificationsRepositoryMockRecorder struct {
+	mock *MockNotificationsRepository
+}
+
+// NewMockNotificationsRepository creates a new mock instance.
+func NewMockNotificationsRepository(ctrl *gomock.Controller) *MockNotificationsRepository {
+	mock := &MockNotificationsRepository{ctrl: ctrl}
+	mock.recorder = &MockNotificationsRepositoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockNotificationsRepository) EXPECT() *MockNotificationsRepositoryMockRecorder {
+	return m.recorder
+}
+
+// DeleteNotificationByUserID mocks base method.
+func (m *MockNotificationsRepository) DeleteNotificationByUserID(userID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteNotificationByUserID", userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteNotificationByUserID indicates an expected call of DeleteNotificationByUserID.
+func (mr *MockNotificationsRepositoryMockRecorder) DeleteNotificationByUserID(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteNotificationByUserID", reflect.TypeOf((*MockNotificationsRepository)(nil).DeleteNotificationByUserID), userID)
+}
+
+// GetNotificationsByUserID mocks base method.
+func (m *MockNotificationsRepository) GetNotificationsByUserID(userID uint64) ([]models.Notification, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNotificationsByUserID", userID)
+	ret0, _ := ret[0].([]models.Notification)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetNotificationsByUserID indicates an expected call of GetNotificationsByUserID.
+func (mr *MockNotificationsRepositoryMockRecorder) GetNotificationsByUserID(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNotificationsByUserID", reflect.TypeOf((*MockNotificationsRepository)(nil).GetNotificationsByUserID), userID)
 }

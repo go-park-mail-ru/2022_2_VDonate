@@ -89,13 +89,13 @@ func (s PostsService) GetPostByID(_ context.Context, postID *protobuf.PostID) (*
 	return ConvertToProto(post), nil
 }
 
-func (s PostsService) Create(_ context.Context, post *protobuf.Post) (*protobuf.PostID, error) {
-	id, err := s.postsRepo.Create(ConvertToModel(post))
+func (s PostsService) Create(_ context.Context, post *protobuf.Post) (*protobuf.Post, error) {
+	newPost, err := s.postsRepo.Create(ConvertToModel(post))
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &protobuf.PostID{PostID: id}, nil
+	return ConvertToProto(newPost), nil
 }
 
 func (s PostsService) Update(_ context.Context, post *protobuf.Post) (*emptypb.Empty, error) {

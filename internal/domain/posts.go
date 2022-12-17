@@ -5,7 +5,7 @@ import "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 type PostsMicroservice interface {
 	GetAllByUserID(authorID uint64) ([]models.Post, error)
 	GetPostByID(postID uint64) (models.Post, error)
-	Create(post models.Post) (uint64, error)
+	Create(post models.Post) (models.Post, error)
 	Update(post models.Post) error
 	DeleteByID(postID uint64) error
 	GetLikeByUserAndPostID(userID, postID uint64) (models.Like, error)

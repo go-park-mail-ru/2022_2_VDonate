@@ -50,13 +50,13 @@ func (m PostsMicroservice) GetPostByID(postID uint64) (models.Post, error) {
 	return grpcPosts.ConvertToModel(post), nil
 }
 
-func (m PostsMicroservice) Create(post models.Post) (uint64, error) {
-	id, err := m.client.Create(context.Background(), grpcPosts.ConvertToProto(post))
+func (m PostsMicroservice) Create(post models.Post) (models.Post, error) {
+	newPost, err := m.client.Create(context.Background(), grpcPosts.ConvertToProto(post))
 	if err != nil {
-		return 0, tracerr.Wrap(err)
+		return models.Post{}, tracerr.Wrap(err)
 	}
 
-	return id.GetPostID(), nil
+	return grpcPosts.ConvertToModel(newPost), nil
 }
 
 func (m PostsMicroservice) Update(post models.Post) error {

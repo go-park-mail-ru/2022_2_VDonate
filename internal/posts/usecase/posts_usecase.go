@@ -174,7 +174,7 @@ func (u usecase) GetPostByID(postID, userID uint64) (models.Post, error) {
 func (u usecase) Create(post models.Post, userID uint64) (models.Post, error) {
 	post.UserID = userID
 	var err error
-	post.ID, err = u.postsMicroservice.Create(post)
+	post, err = u.postsMicroservice.Create(post)
 	if err != nil {
 		return models.Post{}, err
 	}

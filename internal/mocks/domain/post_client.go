@@ -39,14 +39,14 @@ func (m *MockPostsClient) EXPECT() *MockPostsClientMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockPostsClient) Create(ctx context.Context, in *protobuf.Post, opts ...grpc.CallOption) (*protobuf.PostID, error) {
+func (m *MockPostsClient) Create(ctx context.Context, in *protobuf.Post, opts ...grpc.CallOption) (*protobuf.Post, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "Create", varargs...)
-	ret0, _ := ret[0].(*protobuf.PostID)
+	ret0, _ := ret[0].(*protobuf.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -382,10 +382,10 @@ func (m *MockPostsServer) EXPECT() *MockPostsServerMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockPostsServer) Create(arg0 context.Context, arg1 *protobuf.Post) (*protobuf.PostID, error) {
+func (m *MockPostsServer) Create(arg0 context.Context, arg1 *protobuf.Post) (*protobuf.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0, arg1)
-	ret0, _ := ret[0].(*protobuf.PostID)
+	ret0, _ := ret[0].(*protobuf.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

@@ -26,7 +26,7 @@ const _ = grpc.SupportPackageIsVersion7
 type PostsClient interface {
 	GetAllByUserID(ctx context.Context, in *protobuf.UserID, opts ...grpc.CallOption) (*PostArray, error)
 	GetPostByID(ctx context.Context, in *PostID, opts ...grpc.CallOption) (*Post, error)
-	Create(ctx context.Context, in *Post, opts ...grpc.CallOption) (*PostID, error)
+	Create(ctx context.Context, in *Post, opts ...grpc.CallOption) (*Post, error)
 	Update(ctx context.Context, in *Post, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteByID(ctx context.Context, in *PostID, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetPostsBySubscriptions(ctx context.Context, in *protobuf.UserID, opts ...grpc.CallOption) (*PostArray, error)
@@ -68,8 +68,8 @@ func (c *postsClient) GetPostByID(ctx context.Context, in *PostID, opts ...grpc.
 	return out, nil
 }
 
-func (c *postsClient) Create(ctx context.Context, in *Post, opts ...grpc.CallOption) (*PostID, error) {
-	out := new(PostID)
+func (c *postsClient) Create(ctx context.Context, in *Post, opts ...grpc.CallOption) (*Post, error) {
+	out := new(Post)
 	err := c.cc.Invoke(ctx, "/posts.Posts/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -200,7 +200,7 @@ func (c *postsClient) DeleteDepTag(ctx context.Context, in *TagDep, opts ...grpc
 type PostsServer interface {
 	GetAllByUserID(context.Context, *protobuf.UserID) (*PostArray, error)
 	GetPostByID(context.Context, *PostID) (*Post, error)
-	Create(context.Context, *Post) (*PostID, error)
+	Create(context.Context, *Post) (*Post, error)
 	Update(context.Context, *Post) (*emptypb.Empty, error)
 	DeleteByID(context.Context, *PostID) (*emptypb.Empty, error)
 	GetPostsBySubscriptions(context.Context, *protobuf.UserID) (*PostArray, error)
@@ -227,7 +227,7 @@ func (UnimplementedPostsServer) GetAllByUserID(context.Context, *protobuf.UserID
 func (UnimplementedPostsServer) GetPostByID(context.Context, *PostID) (*Post, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPostByID not implemented")
 }
-func (UnimplementedPostsServer) Create(context.Context, *Post) (*PostID, error) {
+func (UnimplementedPostsServer) Create(context.Context, *Post) (*Post, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
 func (UnimplementedPostsServer) Update(context.Context, *Post) (*emptypb.Empty, error) {

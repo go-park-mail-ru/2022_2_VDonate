@@ -69,7 +69,7 @@ message TagID {
 service Posts {
   rpc GetAllByUserID(user.UserID) returns(PostArray);
   rpc GetPostByID(PostID) returns(Post);
-  rpc Create(Post) returns(PostID);
+  rpc Create(Post) returns(Post);
   rpc Update(Post) returns(google.protobuf.Empty);
   rpc DeleteByID(PostID) returns(google.protobuf.Empty);
   rpc GetPostsBySubscriptions(user.UserID) returns(PostArray);

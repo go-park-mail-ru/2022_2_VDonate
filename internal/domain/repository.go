@@ -17,7 +17,7 @@ type AuthRepository interface {
 type PostsRepository interface {
 	GetAllByUserID(authorID uint64) ([]models.Post, error)
 	GetPostByID(postID uint64) (models.Post, error)
-	Create(post models.Post) (uint64, error)
+	Create(post models.Post) (models.Post, error)
 	Update(post models.Post) error
 	DeleteByID(postID uint64) error
 	Close() error
