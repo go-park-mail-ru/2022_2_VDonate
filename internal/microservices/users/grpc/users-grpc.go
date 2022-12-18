@@ -148,3 +148,30 @@ func (s UserService) GetByUsername(_ context.Context, username *protobuf.Usernam
 
 	return ConvertToProto(user), nil
 }
+
+func (s UserService) GetPostsNum(_ context.Context, id *protobuf.UserID) (*protobuf.PostsNum, error) {
+	num, err := s.userRepo.GetPostsNum(id.GetUserId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &protobuf.PostsNum{CountPosts: num}, nil
+}
+
+func (s UserService) GetSubscribersNumForMounth(_ context.Context, id *protobuf.UserID) (*protobuf.SubscribersNum, error) {
+	num, err := s.userRepo.GetSubscribersNumForMounth(id.GetUserId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &protobuf.SubscribersNum{CountSubscribers: num}, nil
+}
+
+func (s UserService) GetProfitForMounth(_ context.Context, id *protobuf.UserID) (*protobuf.Profit, error) {
+	profit, err := s.userRepo.GetProfitForMounth(id.GetUserId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &protobuf.Profit{CountMounthProfit: profit}, nil
+}

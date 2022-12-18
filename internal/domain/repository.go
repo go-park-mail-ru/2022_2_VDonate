@@ -67,6 +67,9 @@ type UsersRepository interface {
 	DeleteByID(id uint64) error
 	GetAuthorByUsername(username string) ([]models.User, error)
 	GetAllAuthors() ([]models.User, error)
+	GetPostsNum(userID uint64) (uint64, error)
+	GetSubscribersNumForMounth(userID uint64) (uint64, error)
+	GetProfitForMounth(userID uint64) (uint64, error)
 	Close() error
 }
 
