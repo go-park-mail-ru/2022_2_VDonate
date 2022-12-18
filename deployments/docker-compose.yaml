@@ -191,6 +191,9 @@ services:
       - posts
       - users
       - subscribers
+    volumes:
+      - /etc/letsencrypt/live/vdonate.ml/fullchain.pem:/etc/letsencrypt/live/vdonate.ml/fullchain.pem
+      - /etc/letsencrypt/live/vdonate.ml/privkey.pem:/etc/letsencrypt/live/vdonate.ml/privkey.pem
     networks:
       - vdonate-network-api
 
