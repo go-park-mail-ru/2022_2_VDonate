@@ -24,8 +24,17 @@ definitions:
       avatar:
         example: filename.jpeg
         type: string
+      countPosts:
+        example: 12
+        type: integer
+      countProfitMounth:
+        example: 12
+        type: integer
       countSubscribers:
         example: 120
+        type: integer
+      countSubscribersMounth:
+        example: 12
         type: integer
       countSubscriptions:
         example: 25

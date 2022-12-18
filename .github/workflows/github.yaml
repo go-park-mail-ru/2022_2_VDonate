@@ -43,7 +43,7 @@ jobs:
         run: make cover_out
       - name: Coverage check
         env:
-          TESTCOVERAGE_THRESHOLD: 50
+          TESTCOVERAGE_THRESHOLD: 45
         run: |
           echo "Checking test coverage is above threshold..."
           echo "Threshold             : $TESTCOVERAGE_THRESHOLD %"

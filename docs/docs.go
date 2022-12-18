@@ -1879,9 +1879,21 @@ const docTemplate = `{
                     "type": "string",
                     "example": "filename.jpeg"
                 },
+                "countPosts": {
+                    "type": "integer",
+                    "example": 12
+                },
+                "countProfitMounth": {
+                    "type": "integer",
+                    "example": 12
+                },
                 "countSubscribers": {
                     "type": "integer",
                     "example": 120
+                },
+                "countSubscribersMounth": {
+                    "type": "integer",
+                    "example": 12
                 },
                 "countSubscriptions": {
                     "type": "integer",
