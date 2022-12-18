@@ -326,3 +326,51 @@ func (r Postgres) GetAuthorByUsername(username string) ([]model.User, error) {
 
 	return u, nil
 }
+
+func (r Postgres) GetPostsNum(userID uint64) (uint64, error) {
+	var count uint64
+	if err := r.DB.Get(
+		&count,
+		`
+		SELECT COUNT(*) FROM posts WHERE user_id = $1;`,
+		userID,
+	); err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (r Postgres) GetSubscribersNumForMounth(userID uint64) (uint64, error) {
+	var count uint64
+	if err := r.DB.Get(
+		&count,
+		`
+		SELECT COUNT(*) FROM subscriptions WHERE subscriber_id = $1 AND date_created >= NOW() - INTERVAL '1 month';`,
+		userID,
+	); err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (r Postgres) GetProfitForMounth(userID uint64) (uint64, error) {
+	var count *uint64
+	if err := r.DB.Get(
+		&count,
+		`
+		SELECT SUM(author_subscriptions.price) FROM payments
+			JOIN author_subscriptions
+			ON payments.sub_id=author_subscriptions.id
+			WHERE to_id=$1 AND time >= NOW() - INTERVAL '1 month';`,
+		userID,
+	); err != nil {
+		return 0, err
+	}
+	if count == nil {
+		return 0, nil
+	}
+
+	return *count, nil
+}

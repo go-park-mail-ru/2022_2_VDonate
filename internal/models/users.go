@@ -9,8 +9,11 @@ type User struct {
 	IsAuthor bool   `json:"isAuthor" db:"is_author" form:"isAuthor" validate:"required,boolean" example:"true"`
 	About    string `json:"about" db:"about" form:"about" example:"it's info about myself"`
 
-	CountSubscriptions uint64 `json:"countSubscriptions" example:"25"`
-	CountSubscribers   uint64 `json:"countSubscribers" example:"120"`
+	CountSubscriptions     uint64 `json:"countSubscriptions" example:"25"`
+	CountSubscribers       uint64 `json:"countSubscribers" example:"120"`
+	CountPosts             uint64 `json:"countPosts" example:"12"`
+	CountSubscribersMounth uint64 `json:"countSubscribersMounth" example:"12"`
+	CountProfitMounth      uint64 `json:"countProfitMounth" example:"12"`
 }
 
 func (u User) GetID() uint64 {
@@ -34,8 +37,11 @@ type Author struct {
 	IsAuthor bool   `json:"isAuthor" validate:"required" example:"true"`
 	About    string `json:"about" example:"it's info about myself"`
 
-	CountSubscriptions uint64 `json:"countSubscriptions" example:"25"`
-	CountSubscribers   uint64 `json:"countSubscribers" example:"120"`
+	CountSubscriptions     uint64 `json:"countSubscriptions" example:"25"`
+	CountSubscribers       uint64 `json:"countSubscribers" example:"120"`
+	CountPosts             uint64 `json:"countPosts" example:"12"`
+	CountSubscribersMounth uint64 `json:"countSubscribersMounth" example:"12"`
+	CountProfitMounth      uint64 `json:"countProfitMounth" example:"12"`
 }
 
 type NotAuthor struct {
@@ -57,8 +63,11 @@ func ToAuthor(u User) Author {
 		IsAuthor: true,
 		About:    u.About,
 
-		CountSubscriptions: u.CountSubscriptions,
-		CountSubscribers:   u.CountSubscribers,
+		CountSubscriptions:     u.CountSubscriptions,
+		CountSubscribers:       u.CountSubscribers,
+		CountPosts:             u.CountPosts,
+		CountSubscribersMounth: u.CountSubscribersMounth,
+		CountProfitMounth:      u.CountProfitMounth,
 	}
 }
 

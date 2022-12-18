@@ -13,8 +13,8 @@ import (
 )
 
 func TestUsecase_Update(t *testing.T) {
-	type mockBehaviourGet func(r *mockDomain.MockUsersRepository, userID uint64)
-	type mockBehaviourUpdate func(r *mockDomain.MockUsersRepository, user models.User)
+	type mockBehaviourGet func(r *mockDomain.MockUsersMicroservice, userID uint64)
+	type mockBehaviourUpdate func(r *mockDomain.MockUsersMicroservice, user models.User)
 	type mockImage func(r *mockDomain.MockImageUseCase, file *multipart.FileHeader, avatar string)
 
 	tests := []struct {
@@ -25,7 +25,6 @@ func TestUsecase_Update(t *testing.T) {
 		mockImage           mockImage
 		responseError       string
 	}{
-		// FIXME this case depends on images microsrevices. Need to fix it
 		{
 			name: "OK",
 			inputUser: models.User{
@@ -33,14 +32,14 @@ func TestUsecase_Update(t *testing.T) {
 				Username: "user",
 				Password: "abc",
 			},
-			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, userID uint64) {
+			mockBehaviourGet: func(r *mockDomain.MockUsersMicroservice, userID uint64) {
 				r.EXPECT().GetByID(userID).Return(models.User{
 					ID:       200,
 					Username: "user",
 					Password: "abc",
 				}, nil)
 			},
-			mockBehaviourUpdate: func(r *mockDomain.MockUsersRepository, user models.User) {
+			mockBehaviourUpdate: func(r *mockDomain.MockUsersMicroservice, user models.User) {
 				r.EXPECT().Update(user).Return(nil)
 			},
 			mockImage: func(r *mockDomain.MockImageUseCase, file *multipart.FileHeader, avatar string) {
@@ -54,10 +53,10 @@ func TestUsecase_Update(t *testing.T) {
 				Username: "user",
 				Password: "abc",
 			},
-			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, userID uint64) {
+			mockBehaviourGet: func(r *mockDomain.MockUsersMicroservice, userID uint64) {
 				r.EXPECT().GetByID(userID).Return(models.User{}, errors.New("not found"))
 			},
-			mockBehaviourUpdate: func(r *mockDomain.MockUsersRepository, user models.User) {},
+			mockBehaviourUpdate: func(r *mockDomain.MockUsersMicroservice, user models.User) {},
 			mockImage:           func(r *mockDomain.MockImageUseCase, file *multipart.FileHeader, avatar string) {},
 			responseError:       "not found",
 		},
@@ -68,7 +67,7 @@ func TestUsecase_Update(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			userMock := mockDomain.NewMockUsersRepository(ctrl)
+			userMock := mockDomain.NewMockUsersMicroservice(ctrl)
 			imgMock := mockDomain.NewMockImageUseCase(ctrl)
 
 			test.mockBehaviourGet(userMock, test.inputUser.ID)
@@ -96,7 +95,7 @@ func TestUsecase_Update(t *testing.T) {
 }
 
 func TestUsecase_CheckIDAndPassword(t *testing.T) {
-	type mockBehaviourGet func(r *mockDomain.MockUsersRepository, userID uint64)
+	type mockBehaviourGet func(r *mockDomain.MockUsersMicroservice, userID uint64)
 
 	tests := []struct {
 		name             string
@@ -109,7 +108,7 @@ func TestUsecase_CheckIDAndPassword(t *testing.T) {
 			name:     "OK",
 			userID:   200,
 			password: "Qwerty",
-			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, userID uint64) {
+			mockBehaviourGet: func(r *mockDomain.MockUsersMicroservice, userID uint64) {
 				p, err := utils.HashPassword("Qwerty")
 				if err != nil {
 					t.Error(err)
@@ -125,7 +124,7 @@ func TestUsecase_CheckIDAndPassword(t *testing.T) {
 			name:     "UserNotExist",
 			userID:   200,
 			password: "Qwerty",
-			mockBehaviourGet: func(r *mockDomain.MockUsersRepository, userID uint64) {
+			mockBehaviourGet: func(r *mockDomain.MockUsersMicroservice, userID uint64) {
 				r.EXPECT().GetByID(userID).Return(models.User{}, errors.New("user not found"))
 			},
 			response: false,
@@ -137,7 +136,7 @@ func TestUsecase_CheckIDAndPassword(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			userMock := mockDomain.NewMockUsersRepository(ctrl)
+			userMock := mockDomain.NewMockUsersMicroservice(ctrl)
 			imgMock := mockDomain.NewMockImageUseCase(ctrl)
 
 			test.mockBehaviourGet(userMock, test.userID)
@@ -152,9 +151,9 @@ func TestUsecase_CheckIDAndPassword(t *testing.T) {
 }
 
 func TestUsecase_IsExistUsernameAndEmail(t *testing.T) {
-	type mockBehaviourGetByUsername func(r *mockDomain.MockUsersRepository, username string)
+	type mockBehaviourGetByUsername func(r *mockDomain.MockUsersMicroservice, username string)
 
-	type mockBehaviourGetByEmail func(r *mockDomain.MockUsersRepository, email string)
+	type mockBehaviourGetByEmail func(r *mockDomain.MockUsersMicroservice, email string)
 
 	tests := []struct {
 		name                       string
@@ -168,13 +167,13 @@ func TestUsecase_IsExistUsernameAndEmail(t *testing.T) {
 			name:     "OK",
 			username: "user",
 			email:    "a@d.com",
-			mockBehaviourGetByUsername: func(r *mockDomain.MockUsersRepository, username string) {
+			mockBehaviourGetByUsername: func(r *mockDomain.MockUsersMicroservice, username string) {
 				r.EXPECT().GetByUsername(username).Return(models.User{
 					Username: username,
 					Email:    "a@d.com",
 				}, nil)
 			},
-			mockBehaviourGetByEmail: func(r *mockDomain.MockUsersRepository, email string) {
+			mockBehaviourGetByEmail: func(r *mockDomain.MockUsersMicroservice, email string) {
 				r.EXPECT().GetByEmail(email).Return(models.User{
 					Username: "user",
 					Email:    email,
@@ -186,23 +185,23 @@ func TestUsecase_IsExistUsernameAndEmail(t *testing.T) {
 			name:     "IncorrectUsername",
 			username: "user",
 			email:    "a@d.com",
-			mockBehaviourGetByUsername: func(r *mockDomain.MockUsersRepository, username string) {
+			mockBehaviourGetByUsername: func(r *mockDomain.MockUsersMicroservice, username string) {
 				r.EXPECT().GetByUsername(username).Return(models.User{}, errors.New("not exist"))
 			},
-			mockBehaviourGetByEmail: func(r *mockDomain.MockUsersRepository, email string) {},
+			mockBehaviourGetByEmail: func(r *mockDomain.MockUsersMicroservice, email string) {},
 			response:                false,
 		},
 		{
 			name:     "IncorrectUsername",
 			username: "user",
 			email:    "a@d.com",
-			mockBehaviourGetByUsername: func(r *mockDomain.MockUsersRepository, username string) {
+			mockBehaviourGetByUsername: func(r *mockDomain.MockUsersMicroservice, username string) {
 				r.EXPECT().GetByUsername(username).Return(models.User{
 					Username: username,
 					Email:    "adnsonjo@d.com",
 				}, nil)
 			},
-			mockBehaviourGetByEmail: func(r *mockDomain.MockUsersRepository, email string) {
+			mockBehaviourGetByEmail: func(r *mockDomain.MockUsersMicroservice, email string) {
 				r.EXPECT().GetByEmail(email).Return(models.User{}, errors.New("not exist"))
 			},
 			response: false,
@@ -214,7 +213,7 @@ func TestUsecase_IsExistUsernameAndEmail(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			userMock := mockDomain.NewMockUsersRepository(ctrl)
+			userMock := mockDomain.NewMockUsersMicroservice(ctrl)
 			imgMock := mockDomain.NewMockImageUseCase(ctrl)
 
 			test.mockBehaviourGetByUsername(userMock, test.username)

@@ -33,6 +33,9 @@ type UsersClient interface {
 	GetByUsername(ctx context.Context, in *Username, opts ...grpc.CallOption) (*User, error)
 	GetUserByPostID(ctx context.Context, in *PostID, opts ...grpc.CallOption) (*User, error)
 	GetAllAuthors(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UsersArray, error)
+	GetPostsNum(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*PostsNum, error)
+	GetSubscribersNumForMounth(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*SubscribersNum, error)
+	GetProfitForMounth(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*Profit, error)
 }
 
 type usersClient struct {
@@ -124,6 +127,33 @@ func (c *usersClient) GetAllAuthors(ctx context.Context, in *emptypb.Empty, opts
 	return out, nil
 }
 
+func (c *usersClient) GetPostsNum(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*PostsNum, error) {
+	out := new(PostsNum)
+	err := c.cc.Invoke(ctx, "/user.Users/GetPostsNum", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) GetSubscribersNumForMounth(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*SubscribersNum, error) {
+	out := new(SubscribersNum)
+	err := c.cc.Invoke(ctx, "/user.Users/GetSubscribersNumForMounth", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) GetProfitForMounth(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*Profit, error) {
+	out := new(Profit)
+	err := c.cc.Invoke(ctx, "/user.Users/GetProfitForMounth", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
@@ -137,6 +167,9 @@ type UsersServer interface {
 	GetByUsername(context.Context, *Username) (*User, error)
 	GetUserByPostID(context.Context, *PostID) (*User, error)
 	GetAllAuthors(context.Context, *emptypb.Empty) (*UsersArray, error)
+	GetPostsNum(context.Context, *UserID) (*PostsNum, error)
+	GetSubscribersNumForMounth(context.Context, *UserID) (*SubscribersNum, error)
+	GetProfitForMounth(context.Context, *UserID) (*Profit, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -170,6 +203,15 @@ func (UnimplementedUsersServer) GetUserByPostID(context.Context, *PostID) (*User
 }
 func (UnimplementedUsersServer) GetAllAuthors(context.Context, *emptypb.Empty) (*UsersArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllAuthors not implemented")
+}
+func (UnimplementedUsersServer) GetPostsNum(context.Context, *UserID) (*PostsNum, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPostsNum not implemented")
+}
+func (UnimplementedUsersServer) GetSubscribersNumForMounth(context.Context, *UserID) (*SubscribersNum, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSubscribersNumForMounth not implemented")
+}
+func (UnimplementedUsersServer) GetProfitForMounth(context.Context, *UserID) (*Profit, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProfitForMounth not implemented")
 }
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
@@ -346,6 +388,60 @@ func _Users_GetAllAuthors_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_GetPostsNum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetPostsNum(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.Users/GetPostsNum",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetPostsNum(ctx, req.(*UserID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_GetSubscribersNumForMounth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetSubscribersNumForMounth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.Users/GetSubscribersNumForMounth",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetSubscribersNumForMounth(ctx, req.(*UserID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_GetProfitForMounth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).GetProfitForMounth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.Users/GetProfitForMounth",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).GetProfitForMounth(ctx, req.(*UserID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Users_ServiceDesc is the grpc.ServiceDesc for Users service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -388,6 +484,18 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllAuthors",
 			Handler:    _Users_GetAllAuthors_Handler,
+		},
+		{
+			MethodName: "GetPostsNum",
+			Handler:    _Users_GetPostsNum_Handler,
+		},
+		{
+			MethodName: "GetSubscribersNumForMounth",
+			Handler:    _Users_GetSubscribersNumForMounth_Handler,
+		},
+		{
+			MethodName: "GetProfitForMounth",
+			Handler:    _Users_GetProfitForMounth_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

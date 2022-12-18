@@ -842,6 +842,51 @@ func (mr *MockUsersRepositoryMockRecorder) GetByUsername(username interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUsername", reflect.TypeOf((*MockUsersRepository)(nil).GetByUsername), username)
 }
 
+// GetPostsNum mocks base method.
+func (m *MockUsersRepository) GetPostsNum(userID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPostsNum", userID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPostsNum indicates an expected call of GetPostsNum.
+func (mr *MockUsersRepositoryMockRecorder) GetPostsNum(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostsNum", reflect.TypeOf((*MockUsersRepository)(nil).GetPostsNum), userID)
+}
+
+// GetProfitForMounth mocks base method.
+func (m *MockUsersRepository) GetProfitForMounth(userID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProfitForMounth", userID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProfitForMounth indicates an expected call of GetProfitForMounth.
+func (mr *MockUsersRepositoryMockRecorder) GetProfitForMounth(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfitForMounth", reflect.TypeOf((*MockUsersRepository)(nil).GetProfitForMounth), userID)
+}
+
+// GetSubscribersNumForMounth mocks base method.
+func (m *MockUsersRepository) GetSubscribersNumForMounth(userID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscribersNumForMounth", userID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubscribersNumForMounth indicates an expected call of GetSubscribersNumForMounth.
+func (mr *MockUsersRepositoryMockRecorder) GetSubscribersNumForMounth(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscribersNumForMounth", reflect.TypeOf((*MockUsersRepository)(nil).GetSubscribersNumForMounth), userID)
+}
+
 // GetUserByPostID mocks base method.
 func (m *MockUsersRepository) GetUserByPostID(postID uint64) (models.User, error) {
 	m.ctrl.T.Helper()
