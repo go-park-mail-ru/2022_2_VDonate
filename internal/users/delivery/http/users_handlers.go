@@ -82,6 +82,19 @@ func (h Handler) GetUser(c echo.Context) error {
 	user.CountSubscriptions = uint64(len(subscriptions))
 	user.CountSubscribers = uint64(len(subscribers))
 
+	user.CountPosts, err = h.userUseCase.GetPostsNum(user.ID)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
+	}
+	user.CountSubscribersMounth, err = h.userUseCase.GetSubscribersNum(user.ID)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
+	}
+	user.CountProfitMounth, err = h.userUseCase.GetProfitForMounth(user.ID)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
+	}
+
 	return UserResponse(c, user)
 }
 

@@ -143,3 +143,27 @@ func (u usecase) FindAuthors(keyword string) ([]models.User, error) {
 
 	return result, nil
 }
+
+func (u usecase) GetPostsNum(userID uint64) (uint64, error) {
+	postsNum, err := u.usersMicroservice.GetPostsNum(userID)
+	if err != nil {
+		return 0, err
+	}
+	return postsNum, nil
+}
+
+func (u usecase) GetSubscribersNum(userID uint64) (uint64, error) {
+	subscribersNum, err := u.usersMicroservice.GetSubscribersNum(userID)
+	if err != nil {
+		return 0, err
+	}
+	return subscribersNum, nil
+}
+
+func (u usecase) GetProfitForMounth(userID uint64) (uint64, error) {
+	profit, err := u.usersMicroservice.GetProfitForMounth(userID)
+	if err != nil {
+		return 0, err
+	}
+	return profit, nil
+}

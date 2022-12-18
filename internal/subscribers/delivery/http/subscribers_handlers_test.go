@@ -167,10 +167,10 @@ func TestHandler_GetSubscribers(t *testing.T) {
 			authorID: 1,
 			mockSubscribe: func(u *mock_domain.MockSubscribersUseCase, id uint64) {
 				u.EXPECT().GetSubscribers(id).Return([]models.User{
-					{ID: 15, Email: "test@test.ru", Password: "*****", IsAuthor: false},
+					{ID: 15, Email: "test@test.ru", Password: "*****", IsAuthor: true},
 				}, nil)
 			},
-			response: "[{\"id\":15,\"username\":\"\",\"email\":\"test@test.ru\",\"avatar\":\"\",\"password\":\"*****\",\"isAuthor\":false,\"about\":\"\",\"countSubscriptions\":0,\"countSubscribers\":0}]",
+			response: "[{\"id\":15,\"username\":\"\",\"email\":\"test@test.ru\",\"avatar\":\"\",\"password\":\"*****\",\"isAuthor\":true,\"about\":\"\",\"countSubscriptions\":0,\"countSubscribers\":0,\"countPosts\":0,\"countSubscribersMounth\":0,\"countProfitMounth\":0}]",
 		},
 		{
 			name:     "OK-Empty",

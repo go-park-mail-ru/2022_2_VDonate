@@ -127,3 +127,30 @@ func (m UsersMicroservice) GetUserByPostID(postID uint64) (models.User, error) {
 
 	return grpcUsers.ConvertToModel(user), nil
 }
+
+func (m UsersMicroservice) GetPostsNum(userID uint64) (uint64, error) {
+	num, err := m.client.GetPostsNum(context.Background(), &protobuf.UserID{UserId: userID})
+	if err != nil {
+		return 0, tracerr.Wrap(err)
+	}
+
+	return num.GetCountPosts(), nil
+}
+
+func (m UsersMicroservice) GetSubscribersNum(userID uint64) (uint64, error) {
+	num, err := m.client.GetSubscribersNumForMounth(context.Background(), &protobuf.UserID{UserId: userID})
+	if err != nil {
+		return 0, tracerr.Wrap(err)
+	}
+
+	return num.GetCountSubscribers(), nil
+}
+
+func (m UsersMicroservice) GetProfitForMounth(userID uint64) (uint64, error) {
+	num, err := m.client.GetProfitForMounth(context.Background(), &protobuf.UserID{UserId: userID})
+	if err != nil {
+		return 0, tracerr.Wrap(err)
+	}
+
+	return num.GetCountMounthProfit(), nil
+}

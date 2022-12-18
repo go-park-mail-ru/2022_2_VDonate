@@ -18,6 +18,9 @@ message User {
 
   uint64 count_subscriptions = 8;
   uint64 count_subscribers = 9;
+  uint64 count_posts = 10;
+  uint64 count_mounth_subscribers = 11;
+  uint64 count_mounth_profit = 12;
 }
 
 message UserIDs {
@@ -63,6 +66,18 @@ message PostID {
   uint64 postID = 1;
 }
 
+message PostsNum {
+  uint64 count_posts = 1;
+}
+
+message SubscribersNum {
+  uint64 count_subscribers = 1;
+}
+
+message Profit {
+  uint64 count_mounth_profit = 1;
+}
+
 service Users {
   rpc Update(User) returns(google.protobuf.Empty);
   rpc Create(User) returns(UserID);
@@ -73,4 +88,7 @@ service Users {
   rpc GetByUsername(Username) returns(User);
   rpc GetUserByPostID(PostID) returns(User);
   rpc GetAllAuthors(google.protobuf.Empty) returns(UsersArray);
+  rpc GetPostsNum(UserID) returns(PostsNum);
+  rpc GetSubscribersNumForMounth(UserID)  returns(SubscribersNum);
+  rpc GetProfitForMounth(UserID) returns(Profit);
 }
