@@ -12,7 +12,8 @@
 - [Сергей Тяпкин](https://github.com/SergTyapkin) - frontend
 - [Ксения Самойлова](https://github.com/somebody-kseny) - frontend
 
-### [Репозиторий фронтенда](https://github.com/frontend-park-mail-ru/2022_2_VDonate)
-### Документация [Swagger](https://app.swaggerhub.com/apis-docs/zeronethunter/v-donate_api/1.0)
-
-### [Деплой](https://vdonate.ml)
+## Полезные ссылки
+- ### [Деплой](https://vdonate.ml)
+- ### [Документация](https://docs.vdonate.ml/index.html)
+- ### [Метрики](https://vdonate.ml/monitoring)
+- ### [Репозиторий фронтенда](https://github.com/frontend-park-mail-ru/2022_2_VDonate)

@@ -160,7 +160,7 @@ services:
       - vdonate-network-api
 
   s3storage:
-    hostname: vdonate.ml
+    hostname: minio
     container_name: vdonate-cloud
     image: quay.io/minio/minio:RELEASE.2022-10-21T22-37-48Z
     command: server --console-address ":9099" /data

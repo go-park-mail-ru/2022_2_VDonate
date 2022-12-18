@@ -85,8 +85,8 @@ CREATE TABLE IF NOT EXISTS subscriptions
     author_id       bigserial not null references users (id) on delete cascade,
     subscriber_id   bigserial not null references users (id) on delete cascade,
     subscription_id bigserial not null references author_subscriptions (id) on delete cascade,
-    primary key (author_id, subscriber_id),
-    primary key (subscriber_id, subscription_id)
+    unique (author_id, subscriber_id),
+    unique (subscriber_id, subscription_id)
 );
 
 /*
