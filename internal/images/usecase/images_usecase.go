@@ -50,7 +50,7 @@ func (u usecase) GetImage(filename string) (string, error) {
 		return "", err
 	}
 
-	return "https://wsrv.nl/?url=" + strings.ReplaceAll(newURL, "vdonate.ml", "95.163.209.195"), nil
+	return newURL, nil
 }
 
 func (u usecase) GetBlurredImage(filename string) (string, error) {

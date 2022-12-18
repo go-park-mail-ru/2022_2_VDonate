@@ -11,10 +11,10 @@ logger:
   level: info
 
 s3:
-  endpoint: vdonate.ml:9000
+  endpoint: cloud.vdonate.ml
   access_key_id: admin
   secret_access_key: secretkey
-  use_ssl: false
+  use_ssl: true
   buckets:
     # Declare policy of buckets, where $(bucket) is name of your bucket
     policy: >-
