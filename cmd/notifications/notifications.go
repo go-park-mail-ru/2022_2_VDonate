@@ -52,7 +52,14 @@ func main() {
 
 	http.HandleFunc("/ws", h.Handler)
 
-	if err = http.ListenAndServe(cfg.Server.Host+":"+cfg.Server.Port, nil); err != nil {
-		log.Warnf("notifications: stop to listen and serve: %s", err)
+	if cfg.Deploy.Mode {
+		if err = http.ListenAndServeTLS(cfg.Server.Host+":"+cfg.Server.Port, cfg.Server.CertPath,
+			cfg.Server.KeyPath, nil); err != nil {
+			log.Warnf("notifications: stop to listen and serve: %s", err)
+		}
+	} else {
+		if err = http.ListenAndServe(cfg.Server.Host+":"+cfg.Server.Port, nil); err != nil {
+			log.Warnf("notifications: stop to listen and serve: %s", err)
+		}
 	}
 }
