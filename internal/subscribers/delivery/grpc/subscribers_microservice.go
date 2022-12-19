@@ -84,12 +84,9 @@ func (m SubscribersMicroservice) Subscribe(payment models.Payment) {
 			log.Error(tracerr.Wrap(err))
 		}
 
-		if qiwiResp.Status.Value == "PAID" {
+		if qiwiResp.Status.Value == "PAID" || qiwiResp.Status.Value == "REJECTED" || qiwiResp.Status.Value == "EXPIRED" {
 			response.Body.Close()
 			break
-		} else if qiwiResp.Status.Value == "REJECTED" || qiwiResp.Status.Value == "EXPIRED" {
-			response.Body.Close()
-			return
 		}
 		response.Body.Close()
 	}

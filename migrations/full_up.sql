@@ -141,7 +141,7 @@ $$
 DECLARE
     data      jsonb;
     author_id bigint;
-    name  varchar;
+    name      varchar;
 
 BEGIN
     SELECT posts.user_id FROM posts WHERE post_id = NEW.post_id INTO author_id;
@@ -215,20 +215,19 @@ CREATE OR REPLACE FUNCTION notify_event_payment() RETURNS TRIGGER AS
 $$
 
 DECLARE
-    data jsonb;
+    data     jsonb;
+    sub_name varchar;
 
 BEGIN
+    SELECT title FROM author_subscriptions as authSub WHERE authSub.id = new.sub_id INTO sub_name;
+
     data = jsonb_build_object(
             'user_id', new.from_id,
             'author_id', new.to_id,
-            'sub_id', new.sub_id,
+            'sub_name', sub_name,
             'status', new.status
         );
-    if TG_OP = 'INSERT' then
-        INSERT INTO notification(name, data) VALUES ('payment', data);
-    elsif TG_OP = 'UPDATE' then
-        INSERT INTO notification(name, data) VALUES ('payment', data);
-    end if;
+    INSERT INTO notification(name, data) VALUES ('payment', data);
 
     RETURN NULL;
 END;

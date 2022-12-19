@@ -71,6 +71,14 @@ func (p Postgres) PayAndSubscribe(payment models.Payment) error {
 		return err
 	}
 
+	if payment.Status == "REJECTED" || payment.Status == "EXPIRED" {
+		if err = tx.Commit(); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
 	var sub models.Subscription
 	if err = tx.QueryRow(
 		`SELECT author_id, subscriber_id, subscription_id FROM subscriptions WHERE author_id=$1 AND subscriber_id=$2`, payment.ToID, payment.FromID,
