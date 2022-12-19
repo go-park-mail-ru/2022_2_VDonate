@@ -233,7 +233,7 @@ func (r Postgres) UpdateComment(comment models.Comment) error {
 		`
 		UPDATE comments
 		SET content=:content
-		WHERE comment_id = :comment_id`, &comment)
+		WHERE id = :id`, &comment)
 	return err
 }
 

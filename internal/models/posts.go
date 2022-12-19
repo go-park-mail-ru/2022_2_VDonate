@@ -27,6 +27,8 @@ type Comment struct {
 	UserID      uint64    `json:"userID" form:"userID" db:"user_id" validate:"required" example:"1"`
 	DateCreated time.Time `json:"dateCreated" form:"date_created" db:"date_created" example:"2022-11-11"`
 	Content     string    `json:"content" form:"content" db:"content" validate:"required" example:"Looks great!"`
+	UserImg     string    `json:"userImg" form:"userImg" db:"user_img" validate:"required" example:"https://example.com/img.png"`
+	Username    string    `json:"username" form:"username" db:"username" validate:"required" example:"user"`
 }
 
 type Tag struct {
