@@ -63,8 +63,6 @@ func handleError(err error, c *websocket.Conn, l *logrus.Logger) {
 			l.Warn("connection closed: ", err)
 		}
 	}
-
-	return
 }
 
 func (h Handler) Reader(conn *websocket.Conn, s *status) {
