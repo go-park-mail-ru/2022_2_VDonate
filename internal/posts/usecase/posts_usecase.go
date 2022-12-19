@@ -358,7 +358,19 @@ func (u usecase) CreateComment(comment models.Comment) (models.Comment, error) {
 	if err != nil {
 		return models.Comment{}, err
 	}
-	comment.AuthorID = post.UserID
+	comment.AuthorID = post.Author.UserID
+
+	user, err := u.userMicroservice.GetByID(post.UserID)
+	if err != nil {
+		return models.Comment{}, err
+	}
+	comment.Username = user.Username
+	if user.Avatar != "" {
+		comment.UserImg, err = u.imgUseCase.GetImage(user.Avatar)
+		if err != nil {
+			return models.Comment{}, err
+		}
+	}
 
 	return comment, nil
 }
@@ -374,13 +386,34 @@ func (u usecase) GetCommentsByPostID(postID uint64) ([]models.Comment, error) {
 		if err != nil {
 			return nil, err
 		}
-		comments[i].AuthorID = post.UserID
+		comments[i].AuthorID = post.Author.UserID
+		user, err := u.userMicroservice.GetByID(post.UserID)
+		if err != nil {
+			return nil, err
+		}
+		comments[i].Username = user.Username
+		if user.Avatar != "" {
+			comments[i].UserImg, err = u.imgUseCase.GetImage(user.Avatar)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 	return comments, nil
 }
 
 func (u usecase) GetCommentByID(commentID uint64) (models.Comment, error) {
-	return u.postsMicroservice.GetCommentByID(commentID)
+	comment, err := u.postsMicroservice.GetCommentByID(commentID)
+	if err != nil {
+		return models.Comment{}, err
+	}
+	user, err := u.userMicroservice.GetByID(comment.UserID)
+	if err != nil {
+		return models.Comment{}, err
+	}
+	comment.Username = user.Username
+	comment.UserImg = user.Avatar
+	return comment, nil
 }
 
 func (u usecase) UpdateComment(commentID uint64, commentMsg string) (models.Comment, error) {
