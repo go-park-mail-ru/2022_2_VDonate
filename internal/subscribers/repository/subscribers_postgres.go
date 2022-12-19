@@ -59,11 +59,12 @@ func (p Postgres) PayAndSubscribe(payment models.Payment) error {
 	}
 
 	if err = tx.QueryRow(
-		"INSERT INTO payments (id, to_id, from_id, sub_id) VALUES ($1, $2, $3, $4) RETURNING time;",
+		"INSERT INTO payments (id, to_id, from_id, sub_id, status) VALUES ($1, $2, $3, $4, $5) RETURNING time;",
 		payment.ID,
 		payment.ToID,
 		payment.FromID,
 		payment.SubID,
+		payment.Status,
 	).Scan(&payment.Time); err != nil {
 		return err
 	}

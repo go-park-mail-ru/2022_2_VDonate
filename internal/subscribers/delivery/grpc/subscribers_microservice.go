@@ -61,6 +61,7 @@ func (m SubscribersMicroservice) Subscribe(payment models.Payment) {
 	req.Header.Set("Authorization", "Bearer eyJ2ZXJzaW9uIjoiUDJQIiwiZGF0YSI6eyJwYXlpbl9tZXJjaGFudF9zaXRlX3VpZCI6Ijgyem03Ny0wMCIsInVzZXJfaWQiOiI3OTc3NDU4MjM1NiIsInNlY3JldCI6IjkyYzg2OGUwZjQ5N2VkNWFmMDc3MWI2NzkxMzg5OTJhYjY0MWJhMjRiMDE4NjAyN2EwZjJhYTIxZmNjNmNhNTkifX0=")
 
 	client := http.Client{}
+	var qiwiResp models.QiwiPaymentStatus
 	for {
 		time.Sleep(1 * time.Second)
 		response, err := client.Do(req)
@@ -77,7 +78,6 @@ func (m SubscribersMicroservice) Subscribe(payment models.Payment) {
 		if err != nil {
 			log.Error(tracerr.Wrap(err))
 		}
-		var qiwiResp models.QiwiPaymentStatus
 		var qiwiErr models.QiwiErrorPaymentStatus
 
 		if err = json.Unmarshal(resp, &qiwiResp); err != nil {
@@ -90,13 +90,7 @@ func (m SubscribersMicroservice) Subscribe(payment models.Payment) {
 		if qiwiResp.Status.Value == "PAID" {
 			break
 		} else if qiwiResp.Status.Value == "REJECTED" || qiwiResp.Status.Value == "EXPIRED" {
-			if _, err = m.subscribersClient.ChangePaymentStatus(context.Background(), &protobuf.StatusAndID{
-				Status: qiwiResp.Status.Value,
-				Id:     payment.ID,
-			}); err != nil {
-				log.Error(err)
-			}
-			return
+			break
 		}
 	}
 
@@ -106,6 +100,7 @@ func (m SubscribersMicroservice) Subscribe(payment models.Payment) {
 		FromID: payment.FromID,
 		SubID:  payment.SubID,
 		Price:  payment.Price,
+		Status: qiwiResp.Status.Value,
 		Time:   timestamppb.New(payment.Time),
 	})
 	if err != nil {

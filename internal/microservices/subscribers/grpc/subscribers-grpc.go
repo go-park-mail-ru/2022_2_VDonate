@@ -58,6 +58,7 @@ func (s SubscribersService) Subscribe(_ context.Context, payment *protobuf.Payme
 		FromID: payment.GetFromID(),
 		SubID:  payment.GetSubID(),
 		Price:  payment.GetPrice(),
+		Status: payment.GetStatus(),
 	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())

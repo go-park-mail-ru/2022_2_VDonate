@@ -20,7 +20,8 @@ message Payment {
   uint64 ToID = 3;
   uint64 SubID = 4;
   uint64 Price = 5;
-  google.protobuf.Timestamp Time = 6;
+  string Status = 6;
+  google.protobuf.Timestamp Time = 7;
 }
 
 message StatusAndID {

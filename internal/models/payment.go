@@ -8,6 +8,7 @@ type Payment struct {
 	ToID   uint64    `json:"to_id"`
 	SubID  uint64    `json:"sub_id"`
 	Price  uint64    `json:"price"`
+	Status string    `json:"status"`
 	Time   time.Time `json:"time"`
 }
 
