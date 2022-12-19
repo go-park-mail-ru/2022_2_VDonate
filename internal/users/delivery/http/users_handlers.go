@@ -7,6 +7,7 @@ import (
 
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 
+	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	images "github.com/go-park-mail-ru/2022_2_VDonate/internal/images/usecase"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
@@ -57,6 +58,15 @@ func (h Handler) GetUser(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
+	cookie, err := httpAuth.GetCookie(c)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+	}
+	currentUser, err := h.userUseCase.GetBySessionID(cookie.Value)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+	}
+
 	user, err := h.userUseCase.GetByID(id)
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrNotFound, err)
@@ -86,13 +96,15 @@ func (h Handler) GetUser(c echo.Context) error {
 	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrInternal, err)
 	}
-	user.CountSubscribersMounth, err = h.userUseCase.GetSubscribersNum(user.ID)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrInternal, err)
-	}
-	user.CountProfitMounth, err = h.userUseCase.GetProfitForMounth(user.ID)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrInternal, err)
+	if currentUser.ID == user.ID {
+		user.CountSubscribersMounth, err = h.userUseCase.GetSubscribersNum(user.ID)
+		if err != nil {
+			return errorHandling.WrapEcho(domain.ErrInternal, err)
+		}
+		user.CountProfitMounth, err = h.userUseCase.GetProfitForMounth(user.ID)
+		if err != nil {
+			return errorHandling.WrapEcho(domain.ErrInternal, err)
+		}
 	}
 
 	return UserResponse(c, user)

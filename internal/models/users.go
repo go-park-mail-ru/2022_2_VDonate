@@ -12,8 +12,8 @@ type User struct {
 	CountSubscriptions     uint64 `json:"countSubscriptions" example:"25"`
 	CountSubscribers       uint64 `json:"countSubscribers" example:"120"`
 	CountPosts             uint64 `json:"countPosts" example:"12"`
-	CountSubscribersMounth uint64 `json:"countSubscribersMounth" example:"12"`
-	CountProfitMounth      uint64 `json:"countProfitMounth" example:"12"`
+	CountSubscribersMounth uint64 `json:"countSubscribersMounth,omitempty" example:"12"`
+	CountProfitMounth      uint64 `json:"countProfitMounth,omitempty" example:"12"`
 }
 
 func (u User) GetID() uint64 {

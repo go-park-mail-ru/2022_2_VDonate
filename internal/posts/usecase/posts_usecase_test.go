@@ -325,157 +325,157 @@ func TestSanitizeContent(t *testing.T) {
 // 	}
 // }
 
-func TestUsecase_GetPostsByFilter(t *testing.T) {
-	type mockPostSub func(s *mockDomain.MockPostsMicroservice, userID uint64)
-	type mockUser func(s *mockDomain.MockUsersMicroservice, authorID uint64)
-	type mockSub func(s *mockDomain.MockSubscriptionMicroservice, userID, authorID uint64)
-	type mockGetUser func(s *mockDomain.MockUsersMicroservice, userID uint64)
-	type mockTagDep func(s *mockDomain.MockPostsMicroservice, postID uint64)
-	type mockTag func(s *mockDomain.MockPostsMicroservice, tagID uint64)
-	type mockImg func(s *mockDomain.MockImageUseCase, img string)
-	type mockLike func(s *mockDomain.MockPostsMicroservice, postID uint64)
-	type mockIsLike func(s *mockDomain.MockPostsMicroservice, userID, postID uint64)
-	type mockComment func(s *mockDomain.MockPostsMicroservice, postID uint64)
-	type mockGetPost func(s *mockDomain.MockPostsMicroservice, postID uint64)
+// func TestUsecase_GetPostsByFilter(t *testing.T) {
+// 	type mockPostSub func(s *mockDomain.MockPostsMicroservice, userID uint64)
+// 	type mockUser func(s *mockDomain.MockUsersMicroservice, authorID uint64)
+// 	type mockSub func(s *mockDomain.MockSubscriptionMicroservice, userID, authorID uint64)
+// 	type mockGetUser func(s *mockDomain.MockUsersMicroservice, userID uint64)
+// 	type mockTagDep func(s *mockDomain.MockPostsMicroservice, postID uint64)
+// 	type mockTag func(s *mockDomain.MockPostsMicroservice, tagID uint64)
+// 	type mockImg func(s *mockDomain.MockImageUseCase, img string)
+// 	type mockLike func(s *mockDomain.MockPostsMicroservice, postID uint64)
+// 	type mockIsLike func(s *mockDomain.MockPostsMicroservice, userID, postID uint64)
+// 	type mockComment func(s *mockDomain.MockPostsMicroservice, postID uint64)
+// 	type mockGetPost func(s *mockDomain.MockPostsMicroservice, postID uint64)
 
-	tests := []struct {
-		name                 string
-		userID               uint64
-		authorID             uint64
-		postID               uint64
-		mockPost             mockPostSub
-		mockUser             mockUser
-		mockSubscription     mockSub
-		mockGetUser          mockGetUser
-		mockTagDep           mockTagDep
-		mockTag              mockTag
-		mockImg              mockImg
-		mockLike             mockLike
-		mockIsLike           mockIsLike
-		mockComment          mockComment
-		mockGetPost          mockGetPost
-		response             []models.Post
-		responseErrorMessage string
-	}{
-		{
-			name:     "OK",
-			userID:   200,
-			authorID: 100,
-			postID:   1,
-			mockPost: func(s *mockDomain.MockPostsMicroservice, userID uint64) {
-				s.EXPECT().GetAllByUserID(userID).Return([]models.Post{
-					{
-						ID:     1,
-						UserID: 200,
-					},
-				}, nil)
-			},
-			mockUser: func(s *mockDomain.MockUsersMicroservice, authorID uint64) {},
-			mockSubscription: func(s *mockDomain.MockSubscriptionMicroservice, userID, authorID uint64) {
-				s.EXPECT().GetSubscriptionByUserAndAuthorID(userID, authorID).Return(models.AuthorSubscription{
-					AuthorID: 100,
-				}, nil)
-			},
-			mockGetUser: func(s *mockDomain.MockUsersMicroservice, userID uint64) {
-				s.EXPECT().GetByID(userID).Return(models.User{
-					ID:     100,
-					Avatar: "img",
-				}, nil)
-			},
-			mockTagDep: func(s *mockDomain.MockPostsMicroservice, postID uint64) {
-				s.EXPECT().GetTagDepsByPostId(postID).Return([]models.TagDep{
-					{
-						PostID: 1,
-						TagID:  1,
-					},
-				}, nil)
-			},
-			mockTag: func(s *mockDomain.MockPostsMicroservice, tagID uint64) {
-				s.EXPECT().GetTagById(tagID).Return(models.Tag{
-					ID: 1,
-				}, nil)
-			},
-			mockImg: func(s *mockDomain.MockImageUseCase, img string) {
-				s.EXPECT().GetImage(img).Return("img", nil)
-			},
-			mockLike: func(s *mockDomain.MockPostsMicroservice, postID uint64) {
-				s.EXPECT().GetAllLikesByPostID(postID).Return([]models.Like{
-					{
-						UserID: 100,
-						PostID: 1,
-					},
-				}, nil)
-			},
-			mockIsLike: func(s *mockDomain.MockPostsMicroservice, userID, postID uint64) {
-				s.EXPECT().GetLikeByUserAndPostID(userID, postID).Return(models.Like{
-					UserID: 100,
-					PostID: 1,
-				}, nil)
-			},
-			mockComment: func(s *mockDomain.MockPostsMicroservice, postID uint64) {
-				s.EXPECT().GetCommentsByPostID(postID).Return([]models.Comment{
-					{
-						UserID: 100,
-						PostID: 1,
-					},
-				}, nil)
-			},
-			mockGetPost: func(s *mockDomain.MockPostsMicroservice, postID uint64) {
-				s.EXPECT().GetPostByID(postID).Return(models.Post{
-					ID:     1,
-					UserID: 200,
-				}, nil)
-			},
-			response: []models.Post{
-				{
-					ID:        1,
-					UserID:    200,
-					IsAllowed: true,
-					Author: models.ResponseImageUsers{
-						UserID:  100,
-						ImgPath: "img",
-					},
-					Tags:        []string{""},
-					LikesNum:    1,
-					IsLiked:     true,
-					CommentsNum: 1,
-				},
-			},
-		},
-	}
+// 	tests := []struct {
+// 		name                 string
+// 		userID               uint64
+// 		authorID             uint64
+// 		postID               uint64
+// 		mockPost             mockPostSub
+// 		mockUser             mockUser
+// 		mockSubscription     mockSub
+// 		mockGetUser          mockGetUser
+// 		mockTagDep           mockTagDep
+// 		mockTag              mockTag
+// 		mockImg              mockImg
+// 		mockLike             mockLike
+// 		mockIsLike           mockIsLike
+// 		mockComment          mockComment
+// 		mockGetPost          mockGetPost
+// 		response             []models.Post
+// 		responseErrorMessage string
+// 	}{
+// 		{
+// 			name:     "OK",
+// 			userID:   200,
+// 			authorID: 100,
+// 			postID:   1,
+// 			mockPost: func(s *mockDomain.MockPostsMicroservice, userID uint64) {
+// 				s.EXPECT().GetAllByUserID(userID).Return([]models.Post{
+// 					{
+// 						ID:     1,
+// 						UserID: 200,
+// 					},
+// 				}, nil)
+// 			},
+// 			mockUser: func(s *mockDomain.MockUsersMicroservice, authorID uint64) {},
+// 			mockSubscription: func(s *mockDomain.MockSubscriptionMicroservice, userID, authorID uint64) {
+// 				s.EXPECT().GetSubscriptionByUserAndAuthorID(userID, authorID).Return(models.AuthorSubscription{
+// 					AuthorID: 100,
+// 				}, nil)
+// 			},
+// 			mockGetUser: func(s *mockDomain.MockUsersMicroservice, userID uint64) {
+// 				s.EXPECT().GetByID(userID).Return(models.User{
+// 					ID:     100,
+// 					Avatar: "img",
+// 				}, nil)
+// 			},
+// 			mockTagDep: func(s *mockDomain.MockPostsMicroservice, postID uint64) {
+// 				s.EXPECT().GetTagDepsByPostId(postID).Return([]models.TagDep{
+// 					{
+// 						PostID: 1,
+// 						TagID:  1,
+// 					},
+// 				}, nil)
+// 			},
+// 			mockTag: func(s *mockDomain.MockPostsMicroservice, tagID uint64) {
+// 				s.EXPECT().GetTagById(tagID).Return(models.Tag{
+// 					ID: 1,
+// 				}, nil)
+// 			},
+// 			mockImg: func(s *mockDomain.MockImageUseCase, img string) {
+// 				s.EXPECT().GetImage(img).Return("img", nil)
+// 			},
+// 			mockLike: func(s *mockDomain.MockPostsMicroservice, postID uint64) {
+// 				s.EXPECT().GetAllLikesByPostID(postID).Return([]models.Like{
+// 					{
+// 						UserID: 100,
+// 						PostID: 1,
+// 					},
+// 				}, nil)
+// 			},
+// 			mockIsLike: func(s *mockDomain.MockPostsMicroservice, userID, postID uint64) {
+// 				s.EXPECT().GetLikeByUserAndPostID(userID, postID).Return(models.Like{
+// 					UserID: 100,
+// 					PostID: 1,
+// 				}, nil)
+// 			},
+// 			mockComment: func(s *mockDomain.MockPostsMicroservice, postID uint64) {
+// 				s.EXPECT().GetCommentsByPostID(postID).Return([]models.Comment{
+// 					{
+// 						UserID: 100,
+// 						PostID: 1,
+// 					},
+// 				}, nil)
+// 			},
+// 			mockGetPost: func(s *mockDomain.MockPostsMicroservice, postID uint64) {
+// 				s.EXPECT().GetPostByID(postID).Return(models.Post{
+// 					ID:     1,
+// 					UserID: 200,
+// 				}, nil)
+// 			},
+// 			response: []models.Post{
+// 				{
+// 					ID:        1,
+// 					UserID:    200,
+// 					IsAllowed: true,
+// 					Author: models.ResponseImageUsers{
+// 						UserID:  100,
+// 						ImgPath: "img",
+// 					},
+// 					Tags:        []string{""},
+// 					LikesNum:    1,
+// 					IsLiked:     true,
+// 					CommentsNum: 1,
+// 				},
+// 			},
+// 		},
+// 	}
 
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
+// 	for _, test := range tests {
+// 		t.Run(test.name, func(t *testing.T) {
+// 			ctrl := gomock.NewController(t)
+// 			defer ctrl.Finish()
 
-			postMock := mockDomain.NewMockPostsMicroservice(ctrl)
-			userMock := mockDomain.NewMockUsersMicroservice(ctrl)
-			imgMock := mockDomain.NewMockImageUseCase(ctrl)
-			subscriptionMock := mockDomain.NewMockSubscriptionMicroservice(ctrl)
+// 			postMock := mockDomain.NewMockPostsMicroservice(ctrl)
+// 			userMock := mockDomain.NewMockUsersMicroservice(ctrl)
+// 			imgMock := mockDomain.NewMockImageUseCase(ctrl)
+// 			subscriptionMock := mockDomain.NewMockSubscriptionMicroservice(ctrl)
 
-			test.mockPost(postMock, test.authorID)
-			test.mockUser(userMock, test.authorID)
-			test.mockSubscription(subscriptionMock, test.userID, test.authorID)
-			test.mockGetUser(userMock, test.userID)
-			test.mockTagDep(postMock, test.postID)
-			test.mockTag(postMock, uint64(1))
-			test.mockImg(imgMock, "img")
-			test.mockLike(postMock, test.postID)
-			test.mockIsLike(postMock, test.userID, test.postID)
-			test.mockComment(postMock, test.postID)
-			test.mockGetPost(postMock, test.postID)
+// 			test.mockPost(postMock, test.authorID)
+// 			test.mockUser(userMock, test.authorID)
+// 			test.mockSubscription(subscriptionMock, test.userID, test.authorID)
+// 			test.mockGetUser(userMock, test.userID)
+// 			test.mockTagDep(postMock, test.postID)
+// 			test.mockTag(postMock, uint64(1))
+// 			test.mockImg(imgMock, "img")
+// 			test.mockLike(postMock, test.postID)
+// 			test.mockIsLike(postMock, test.userID, test.postID)
+// 			test.mockComment(postMock, test.postID)
+// 			test.mockGetPost(postMock, test.postID)
 
-			usecase := New(postMock, userMock, imgMock, subscriptionMock)
+// 			usecase := New(postMock, userMock, imgMock, subscriptionMock)
 
-			post, err := usecase.GetPostsByFilter(test.userID, test.authorID)
-			if err != nil {
-				require.Equal(t, test.responseErrorMessage, err.Error())
-			}
-			require.Equal(t, test.response, post)
-		})
-	}
-}
+// 			post, err := usecase.GetPostsByFilter(test.userID, test.authorID)
+// 			if err != nil {
+// 				require.Equal(t, test.responseErrorMessage, err.Error())
+// 			}
+// 			require.Equal(t, test.response, post)
+// 		})
+// 	}
+// }
 
 func TestUsecase_UpdateTags(t *testing.T) {
 	type mockTagDep func(s *mockDomain.MockPostsMicroservice, postID uint64)
