@@ -141,12 +141,20 @@ $$
 DECLARE
     data      jsonb;
     author_id bigint;
+    name  varchar;
 
 BEGIN
     SELECT posts.user_id FROM posts WHERE post_id = NEW.post_id INTO author_id;
 
+    if new.user_id = author_id then
+        return null;
+    end if;
+
+    SELECT username FROM users WHERE users.id = new.user_id INTO name;
+
     data = jsonb_build_object(
             'user_id', author_id,
+            'username', name,
             'post_id', new.post_id
         );
     INSERT INTO notification(name, data) VALUES ('like', data);

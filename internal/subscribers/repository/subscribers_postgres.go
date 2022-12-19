@@ -1,6 +1,8 @@
 package subscribersRepository
 
 import (
+	"database/sql"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -69,14 +71,33 @@ func (p Postgres) PayAndSubscribe(payment models.Payment) error {
 		return err
 	}
 
-	_, err = tx.Exec(`
-		INSERT INTO subscriptions (author_id, subscriber_id, subscription_id) 
-		VALUES ($1, $2, $3) ON CONFLICT 
-		DO UPDATE SET author_id=$1, subscription_id=$2, subscriber_id=$3`,
-		payment.ToID,
-		payment.FromID,
-		payment.SubID,
-	)
+	var sub models.Subscription
+	if err = tx.QueryRow(
+		`SELECT author_id, subscriber_id, subscription_id FROM subscriptions WHERE author_id=$1 AND subscriber_id=$2`, payment.ToID, payment.FromID,
+	).Scan(&sub.AuthorID, &sub.SubscriberID, &sub.AuthorSubscriptionID); err != nil && err != sql.ErrNoRows {
+		if errRollback := tx.Rollback(); errRollback != nil {
+			return errRollback
+		}
+
+		return err
+	}
+
+	if err == sql.ErrNoRows {
+		_, err = tx.Exec(`
+			INSERT INTO subscriptions (author_id, subscriber_id, subscription_id) 
+			VALUES ($1, $2, $3);`,
+			payment.ToID,
+			payment.FromID,
+			payment.SubID,
+		)
+	} else {
+		_, err = tx.Exec(`
+			UPDATE subscriptions SET subscription_id=$3, date_created=now() WHERE author_id=$1 AND subscriber_id=$2`,
+			payment.ToID,
+			payment.FromID,
+			payment.SubID,
+		)
+	}
 	if err != nil {
 		if errRollback := tx.Rollback(); errRollback != nil {
 			return errRollback

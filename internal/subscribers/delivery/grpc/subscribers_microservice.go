@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sirupsen/logrus"
+	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -47,7 +47,7 @@ func (m SubscribersMicroservice) GetSubscribers(userID uint64) ([]uint64, error)
 }
 
 func (m SubscribersMicroservice) Subscribe(payment models.Payment) {
-	log := logrus.New()
+	log := logger.GetInstance().Logrus
 
 	req, err := http.NewRequest(http.MethodGet, "https://api.qiwi.com/partner/bill/v1/bills/"+payment.ID, nil)
 	if err != nil {

@@ -360,7 +360,7 @@ func (u usecase) CreateComment(comment models.Comment) (models.Comment, error) {
 	}
 	comment.AuthorID = post.Author.UserID
 
-	user, err := u.userMicroservice.GetByID(post.UserID)
+	user, err := u.userMicroservice.GetByID(comment.UserID)
 	if err != nil {
 		return models.Comment{}, err
 	}
@@ -425,6 +425,12 @@ func (u usecase) UpdateComment(commentID uint64, commentMsg string) (models.Comm
 	err = u.postsMicroservice.UpdateComment(comment)
 	if err != nil {
 		return models.Comment{}, err
+	}
+	if comment.UserImg != "" {
+		comment.UserImg, err = u.imgUseCase.GetImage(comment.UserImg)
+		if err != nil {
+			return models.Comment{}, err
+		}
 	}
 	return comment, nil
 }
