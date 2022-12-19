@@ -71,7 +71,8 @@ func (p Postgres) PayAndSubscribe(payment models.Payment) error {
 
 	_, err = tx.Exec(`
 		INSERT INTO subscriptions (author_id, subscriber_id, subscription_id) 
-		VALUES ($1, $2, $3)`,
+		VALUES ($1, $2, $3) ON CONFLICT 
+		DO UPDATE SET author_id=$1, subscription_id=$2, subscriber_id=$3`,
 		payment.ToID,
 		payment.FromID,
 		payment.SubID,

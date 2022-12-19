@@ -9,8 +9,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
-
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/ztrue/tracerr"
@@ -72,7 +70,6 @@ func (m SubscribersMicroservice) Subscribe(payment models.Payment) {
 		if response.StatusCode != http.StatusOK {
 			log.Error(tracerr.Wrap(err))
 		}
-		defer response.Body.Close()
 
 		resp, err := io.ReadAll(response.Body)
 		if err != nil {
@@ -88,10 +85,13 @@ func (m SubscribersMicroservice) Subscribe(payment models.Payment) {
 		}
 
 		if qiwiResp.Status.Value == "PAID" {
+			response.Body.Close()
 			break
 		} else if qiwiResp.Status.Value == "REJECTED" || qiwiResp.Status.Value == "EXPIRED" {
-			break
+			response.Body.Close()
+			return
 		}
+		response.Body.Close()
 	}
 
 	_, err = m.subscribersClient.Subscribe(context.Background(), &protobuf.Payment{
@@ -104,7 +104,7 @@ func (m SubscribersMicroservice) Subscribe(payment models.Payment) {
 		Time:   timestamppb.New(payment.Time),
 	})
 	if err != nil {
-		logger.GetInstance().Error(err)
+		log.Error(tracerr.Wrap(err))
 	}
 }
 

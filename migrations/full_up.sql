@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS author_subscriptions
     text      varchar(128) not null,
     price     integer      not null check ( price >= 0 ),
 
-    unique (price, tier),
+    unique (author_id, price, tier),
     unique (author_id, title),
     unique (author_id, price)
 );
@@ -132,9 +132,7 @@ CREATE TABLE IF NOT EXISTS payments
     to_id   bigserial NOT NULL REFERENCES users (id) ON DELETE NO ACTION,
     sub_id  bigserial NOT NULL REFERENCES author_subscriptions (id) ON DELETE NO ACTION,
     status  varchar            default 'WAITING',
-    time    timestamp NOT NULL DEFAULT now(),
-
-    unique (from_id, to_id, sub_id)
+    time    timestamp NOT NULL DEFAULT now()
 );
 
 CREATE OR REPLACE FUNCTION notify_event_like() RETURNS TRIGGER AS
