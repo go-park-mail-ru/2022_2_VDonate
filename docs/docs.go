@@ -2002,7 +2002,9 @@ const docTemplate = `{
                 "content",
                 "id",
                 "postID",
-                "userID"
+                "userID",
+                "userImg",
+                "username"
             ],
             "properties": {
                 "authorID": {
@@ -2028,6 +2030,14 @@ const docTemplate = `{
                 "userID": {
                     "type": "integer",
                     "example": 1
+                },
+                "userImg": {
+                    "type": "string",
+                    "example": "https://example.com/img.png"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "user"
                 }
             }
         },

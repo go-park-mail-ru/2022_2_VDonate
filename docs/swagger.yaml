@@ -134,12 +134,20 @@ definitions:
       userID:
         example: 1
         type: integer
+      userImg:
+        example: https://example.com/img.png
+        type: string
+      username:
+        example: user
+        type: string
     required:
     - authorID
     - content
     - id
     - postID
     - userID
+    - userImg
+    - username
     type: object
   models.EmptyStruct:
     type: object

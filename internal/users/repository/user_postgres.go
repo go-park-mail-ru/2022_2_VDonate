@@ -346,7 +346,7 @@ func (r Postgres) GetSubscribersNumForMounth(userID uint64) (uint64, error) {
 	if err := r.DB.Get(
 		&count,
 		`
-		SELECT COUNT(*) FROM subscriptions WHERE subscriber_id = $1 AND date_created >= NOW() - INTERVAL '1 month';`,
+		SELECT COUNT(*) FROM subscriptions WHERE author_id = $1 AND date_created >= NOW() - INTERVAL '1 month';`,
 		userID,
 	); err != nil {
 		return 0, err

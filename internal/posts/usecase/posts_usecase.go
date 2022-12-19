@@ -387,7 +387,7 @@ func (u usecase) GetCommentsByPostID(postID uint64) ([]models.Comment, error) {
 			return nil, err
 		}
 		comments[i].AuthorID = post.Author.UserID
-		user, err := u.userMicroservice.GetByID(post.UserID)
+		user, err := u.userMicroservice.GetByID(comment.UserID)
 		if err != nil {
 			return nil, err
 		}
