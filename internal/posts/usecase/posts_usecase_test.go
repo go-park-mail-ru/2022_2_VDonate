@@ -280,7 +280,7 @@ func TestUsecase_GetPostsByUserID(t *testing.T) {
 				Tags: []string{
 					"tag",
 				},
-				IsAllowed: true,
+				IsAllowed:   true,
 				CommentsNum: 1,
 			},
 		},
@@ -291,14 +291,15 @@ func TestUsecase_GetPostsByUserID(t *testing.T) {
 			mockPost: func(s *mockDomain.MockPostsMicroservice, id uint64) {
 				s.EXPECT().GetPostByID(id).Return(models.Post{}, errors.New("err"))
 			},
-			mockUser:             func(s *mockDomain.MockUsersMicroservice, id uint64) {},
-			mockSubscription:     func(s *mockDomain.MockSubscriptionMicroservice, userID, authorID uint64) {},
-			mockTagDeps:          func(s *mockDomain.MockPostsMicroservice, postID uint64) {},
-			mockTags:             func(s *mockDomain.MockPostsMicroservice, tagID uint64) {},
-			mockImg:              func(s *mockDomain.MockImageUseCase, img string) {},
-			mockLike:             func(s *mockDomain.MockPostsMicroservice, postID uint64) {},
-			mockIsLike:           func(s *mockDomain.MockPostsMicroservice, userID, postID uint64) {},
-			mockComment: func(p *mockDomain.MockPostsMicroservice, u *mockDomain.MockUsersMicroservice, i *mockDomain.MockImageUseCase, postID, userID uint64) {},
+			mockUser:         func(s *mockDomain.MockUsersMicroservice, id uint64) {},
+			mockSubscription: func(s *mockDomain.MockSubscriptionMicroservice, userID, authorID uint64) {},
+			mockTagDeps:      func(s *mockDomain.MockPostsMicroservice, postID uint64) {},
+			mockTags:         func(s *mockDomain.MockPostsMicroservice, tagID uint64) {},
+			mockImg:          func(s *mockDomain.MockImageUseCase, img string) {},
+			mockLike:         func(s *mockDomain.MockPostsMicroservice, postID uint64) {},
+			mockIsLike:       func(s *mockDomain.MockPostsMicroservice, userID, postID uint64) {},
+			mockComment: func(p *mockDomain.MockPostsMicroservice, u *mockDomain.MockUsersMicroservice, i *mockDomain.MockImageUseCase, postID, userID uint64) {
+			},
 			responseErrorMessage: "err",
 		},
 		{
@@ -309,13 +310,14 @@ func TestUsecase_GetPostsByUserID(t *testing.T) {
 			mockUser: func(s *mockDomain.MockUsersMicroservice, id uint64) {
 				s.EXPECT().GetByID(id).Return(models.User{}, errors.New("err"))
 			},
-			mockSubscription:     func(s *mockDomain.MockSubscriptionMicroservice, userID, authorID uint64) {},
-			mockTagDeps:          func(s *mockDomain.MockPostsMicroservice, postID uint64) {},
-			mockTags:             func(s *mockDomain.MockPostsMicroservice, tagID uint64) {},
-			mockImg:              func(s *mockDomain.MockImageUseCase, img string) {},
-			mockLike:             func(s *mockDomain.MockPostsMicroservice, postID uint64) {},
-			mockIsLike:           func(s *mockDomain.MockPostsMicroservice, userID, postID uint64) {},
-			mockComment: func(p *mockDomain.MockPostsMicroservice, u *mockDomain.MockUsersMicroservice, i *mockDomain.MockImageUseCase, postID, userID uint64) {},
+			mockSubscription: func(s *mockDomain.MockSubscriptionMicroservice, userID, authorID uint64) {},
+			mockTagDeps:      func(s *mockDomain.MockPostsMicroservice, postID uint64) {},
+			mockTags:         func(s *mockDomain.MockPostsMicroservice, tagID uint64) {},
+			mockImg:          func(s *mockDomain.MockImageUseCase, img string) {},
+			mockLike:         func(s *mockDomain.MockPostsMicroservice, postID uint64) {},
+			mockIsLike:       func(s *mockDomain.MockPostsMicroservice, userID, postID uint64) {},
+			mockComment: func(p *mockDomain.MockPostsMicroservice, u *mockDomain.MockUsersMicroservice, i *mockDomain.MockImageUseCase, postID, userID uint64) {
+			},
 			responseErrorMessage: "err",
 		},
 		{
@@ -329,12 +331,13 @@ func TestUsecase_GetPostsByUserID(t *testing.T) {
 			mockSubscription: func(s *mockDomain.MockSubscriptionMicroservice, userID, authorID uint64) {
 				s.EXPECT().GetSubscriptionByUserAndAuthorID(userID, authorID).Return(models.AuthorSubscription{}, errors.New("err"))
 			},
-			mockTagDeps:          func(s *mockDomain.MockPostsMicroservice, postID uint64) {},
-			mockTags:             func(s *mockDomain.MockPostsMicroservice, tagID uint64) {},
-			mockImg:              func(s *mockDomain.MockImageUseCase, img string) {},
-			mockLike:             func(s *mockDomain.MockPostsMicroservice, postID uint64) {},
-			mockIsLike:           func(s *mockDomain.MockPostsMicroservice, userID, postID uint64) {},
-			mockComment: func(p *mockDomain.MockPostsMicroservice, u *mockDomain.MockUsersMicroservice, i *mockDomain.MockImageUseCase, postID, userID uint64) {},
+			mockTagDeps: func(s *mockDomain.MockPostsMicroservice, postID uint64) {},
+			mockTags:    func(s *mockDomain.MockPostsMicroservice, tagID uint64) {},
+			mockImg:     func(s *mockDomain.MockImageUseCase, img string) {},
+			mockLike:    func(s *mockDomain.MockPostsMicroservice, postID uint64) {},
+			mockIsLike:  func(s *mockDomain.MockPostsMicroservice, userID, postID uint64) {},
+			mockComment: func(p *mockDomain.MockPostsMicroservice, u *mockDomain.MockUsersMicroservice, i *mockDomain.MockImageUseCase, postID, userID uint64) {
+			},
 			responseErrorMessage: "err",
 		},
 	}
