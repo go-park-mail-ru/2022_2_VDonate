@@ -4,9 +4,11 @@ package models
 
 import (
 	json "encoding/json"
+	fmt "fmt"
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
+	time "time"
 )
 
 // suppress unused package warning
@@ -16,3 +18,1700 @@ var (
 	_ *jwriter.Writer
 	_ easyjson.Marshaler
 )
+
+func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels(in *jlexer.Lexer, out *WithdrawValidation) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	var ElementsSet bool
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "elements":
+			if in.IsNull() {
+				in.Skip()
+				out.Elements = nil
+			} else {
+				in.Delim('[')
+				if out.Elements == nil {
+					if !in.IsDelim(']') {
+						out.Elements = make([]struct {
+							Type  string `json:"type,required"`
+							Name  string `json:"name,required"`
+							Value string `json:"value,required"`
+						}, 0, 1)
+					} else {
+						out.Elements = []struct {
+							Type  string `json:"type,required"`
+							Name  string `json:"name,required"`
+							Value string `json:"value,required"`
+						}{}
+					}
+				} else {
+					out.Elements = (out.Elements)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v1 struct {
+						Type  string `json:"type,required"`
+						Name  string `json:"name,required"`
+						Value string `json:"value,required"`
+					}
+					easyjson377dcee4Decode(in, &v1)
+					out.Elements = append(out.Elements, v1)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+			ElementsSet = true
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+	if !ElementsSet {
+		in.AddError(fmt.Errorf("key 'elements' is required"))
+	}
+}
+func easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels(out *jwriter.Writer, in WithdrawValidation) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"elements\":"
+		out.RawString(prefix[1:])
+		if in.Elements == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v2, v3 := range in.Elements {
+				if v2 > 0 {
+					out.RawByte(',')
+				}
+				easyjson377dcee4Encode(out, v3)
+			}
+			out.RawByte(']')
+		}
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v WithdrawValidation) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v WithdrawValidation) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *WithdrawValidation) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *WithdrawValidation) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels(l, v)
+}
+func easyjson377dcee4Decode(in *jlexer.Lexer, out *struct {
+	Type  string `json:"type,required"`
+	Name  string `json:"name,required"`
+	Value string `json:"value,required"`
+}) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	var TypeSet bool
+	var NameSet bool
+	var ValueSet bool
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "type":
+			out.Type = string(in.String())
+			TypeSet = true
+		case "name":
+			out.Name = string(in.String())
+			NameSet = true
+		case "value":
+			out.Value = string(in.String())
+			ValueSet = true
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+	if !TypeSet {
+		in.AddError(fmt.Errorf("key 'type' is required"))
+	}
+	if !NameSet {
+		in.AddError(fmt.Errorf("key 'name' is required"))
+	}
+	if !ValueSet {
+		in.AddError(fmt.Errorf("key 'value' is required"))
+	}
+}
+func easyjson377dcee4Encode(out *jwriter.Writer, in struct {
+	Type  string `json:"type,required"`
+	Name  string `json:"name,required"`
+	Value string `json:"value,required"`
+}) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"type\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Type))
+	}
+	{
+		const prefix string = ",\"name\":"
+		out.RawString(prefix)
+		out.String(string(in.Name))
+	}
+	{
+		const prefix string = ",\"value\":"
+		out.RawString(prefix)
+		out.String(string(in.Value))
+	}
+	out.RawByte('}')
+}
+func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels1(in *jlexer.Lexer, out *WithdrawPayment) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	var IDSet bool
+	var SumSet bool
+	var PaymentMethodSet bool
+	var FieldsSet bool
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "id":
+			out.ID = string(in.String())
+			IDSet = true
+		case "sum":
+			easyjson377dcee4Decode1(in, &out.Sum)
+			SumSet = true
+		case "paymentMethod":
+			easyjson377dcee4Decode2(in, &out.PaymentMethod)
+			PaymentMethodSet = true
+		case "fields":
+			easyjson377dcee4Decode3(in, &out.Fields)
+			FieldsSet = true
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+	if !IDSet {
+		in.AddError(fmt.Errorf("key 'id' is required"))
+	}
+	if !SumSet {
+		in.AddError(fmt.Errorf("key 'sum' is required"))
+	}
+	if !PaymentMethodSet {
+		in.AddError(fmt.Errorf("key 'paymentMethod' is required"))
+	}
+	if !FieldsSet {
+		in.AddError(fmt.Errorf("key 'fields' is required"))
+	}
+}
+func easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels1(out *jwriter.Writer, in WithdrawPayment) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.ID))
+	}
+	{
+		const prefix string = ",\"sum\":"
+		out.RawString(prefix)
+		easyjson377dcee4Encode1(out, in.Sum)
+	}
+	{
+		const prefix string = ",\"paymentMethod\":"
+		out.RawString(prefix)
+		easyjson377dcee4Encode2(out, in.PaymentMethod)
+	}
+	{
+		const prefix string = ",\"fields\":"
+		out.RawString(prefix)
+		easyjson377dcee4Encode3(out, in.Fields)
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v WithdrawPayment) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels1(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v WithdrawPayment) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels1(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *WithdrawPayment) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels1(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *WithdrawPayment) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels1(l, v)
+}
+func easyjson377dcee4Decode3(in *jlexer.Lexer, out *struct {
+	Account string `json:"account,required"`
+}) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	var AccountSet bool
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "account":
+			out.Account = string(in.String())
+			AccountSet = true
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+	if !AccountSet {
+		in.AddError(fmt.Errorf("key 'account' is required"))
+	}
+}
+func easyjson377dcee4Encode3(out *jwriter.Writer, in struct {
+	Account string `json:"account,required"`
+}) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"account\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Account))
+	}
+	out.RawByte('}')
+}
+func easyjson377dcee4Decode2(in *jlexer.Lexer, out *struct {
+	Type      string `json:"type,required"`
+	AccountId string `json:"accountId,required"`
+}) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	var TypeSet bool
+	var AccountIdSet bool
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "type":
+			out.Type = string(in.String())
+			TypeSet = true
+		case "accountId":
+			out.AccountId = string(in.String())
+			AccountIdSet = true
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+	if !TypeSet {
+		in.AddError(fmt.Errorf("key 'type' is required"))
+	}
+	if !AccountIdSet {
+		in.AddError(fmt.Errorf("key 'accountId' is required"))
+	}
+}
+func easyjson377dcee4Encode2(out *jwriter.Writer, in struct {
+	Type      string `json:"type,required"`
+	AccountId string `json:"accountId,required"`
+}) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"type\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Type))
+	}
+	{
+		const prefix string = ",\"accountId\":"
+		out.RawString(prefix)
+		out.String(string(in.AccountId))
+	}
+	out.RawByte('}')
+}
+func easyjson377dcee4Decode1(in *jlexer.Lexer, out *struct {
+	Amount   float64 `json:"amount,required"`
+	Currency string  `json:"currency,required"`
+}) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	var AmountSet bool
+	var CurrencySet bool
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "amount":
+			out.Amount = float64(in.Float64())
+			AmountSet = true
+		case "currency":
+			out.Currency = string(in.String())
+			CurrencySet = true
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+	if !AmountSet {
+		in.AddError(fmt.Errorf("key 'amount' is required"))
+	}
+	if !CurrencySet {
+		in.AddError(fmt.Errorf("key 'currency' is required"))
+	}
+}
+func easyjson377dcee4Encode1(out *jwriter.Writer, in struct {
+	Amount   float64 `json:"amount,required"`
+	Currency string  `json:"currency,required"`
+}) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"amount\":"
+		out.RawString(prefix[1:])
+		out.Float64(float64(in.Amount))
+	}
+	{
+		const prefix string = ",\"currency\":"
+		out.RawString(prefix)
+		out.String(string(in.Currency))
+	}
+	out.RawByte('}')
+}
+func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels2(in *jlexer.Lexer, out *WithdrawInfo) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	var IdSet bool
+	var TermsSet bool
+	var FieldsSet bool
+	var SumSet bool
+	var TransactionSet bool
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "id":
+			out.Id = string(in.String())
+			IdSet = true
+		case "terms":
+			out.Terms = string(in.String())
+			TermsSet = true
+		case "fields":
+			easyjson377dcee4Decode3(in, &out.Fields)
+			FieldsSet = true
+		case "sum":
+			easyjson377dcee4Decode1(in, &out.Sum)
+			SumSet = true
+		case "transaction":
+			easyjson377dcee4Decode4(in, &out.Transaction)
+			TransactionSet = true
+		case "source":
+			out.Source = string(in.String())
+		case "comment":
+			out.Comment = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+	if !IdSet {
+		in.AddError(fmt.Errorf("key 'id' is required"))
+	}
+	if !TermsSet {
+		in.AddError(fmt.Errorf("key 'terms' is required"))
+	}
+	if !FieldsSet {
+		in.AddError(fmt.Errorf("key 'fields' is required"))
+	}
+	if !SumSet {
+		in.AddError(fmt.Errorf("key 'sum' is required"))
+	}
+	if !TransactionSet {
+		in.AddError(fmt.Errorf("key 'transaction' is required"))
+	}
+}
+func easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels2(out *jwriter.Writer, in WithdrawInfo) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Id))
+	}
+	{
+		const prefix string = ",\"terms\":"
+		out.RawString(prefix)
+		out.String(string(in.Terms))
+	}
+	{
+		const prefix string = ",\"fields\":"
+		out.RawString(prefix)
+		easyjson377dcee4Encode3(out, in.Fields)
+	}
+	{
+		const prefix string = ",\"sum\":"
+		out.RawString(prefix)
+		easyjson377dcee4Encode1(out, in.Sum)
+	}
+	{
+		const prefix string = ",\"transaction\":"
+		out.RawString(prefix)
+		easyjson377dcee4Encode4(out, in.Transaction)
+	}
+	{
+		const prefix string = ",\"source\":"
+		out.RawString(prefix)
+		out.String(string(in.Source))
+	}
+	{
+		const prefix string = ",\"comment\":"
+		out.RawString(prefix)
+		out.String(string(in.Comment))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v WithdrawInfo) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels2(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v WithdrawInfo) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels2(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *WithdrawInfo) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels2(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *WithdrawInfo) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels2(l, v)
+}
+func easyjson377dcee4Decode4(in *jlexer.Lexer, out *struct {
+	Id    string `json:"id,required"`
+	State struct {
+		Code string `json:"code,required"`
+	} `json:"state,required"`
+}) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	var IdSet bool
+	var StateSet bool
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "id":
+			out.Id = string(in.String())
+			IdSet = true
+		case "state":
+			easyjson377dcee4Decode5(in, &out.State)
+			StateSet = true
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+	if !IdSet {
+		in.AddError(fmt.Errorf("key 'id' is required"))
+	}
+	if !StateSet {
+		in.AddError(fmt.Errorf("key 'state' is required"))
+	}
+}
+func easyjson377dcee4Encode4(out *jwriter.Writer, in struct {
+	Id    string `json:"id,required"`
+	State struct {
+		Code string `json:"code,required"`
+	} `json:"state,required"`
+}) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Id))
+	}
+	{
+		const prefix string = ",\"state\":"
+		out.RawString(prefix)
+		easyjson377dcee4Encode5(out, in.State)
+	}
+	out.RawByte('}')
+}
+func easyjson377dcee4Decode5(in *jlexer.Lexer, out *struct {
+	Code string `json:"code,required"`
+}) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	var CodeSet bool
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "code":
+			out.Code = string(in.String())
+			CodeSet = true
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+	if !CodeSet {
+		in.AddError(fmt.Errorf("key 'code' is required"))
+	}
+}
+func easyjson377dcee4Encode5(out *jwriter.Writer, in struct {
+	Code string `json:"code,required"`
+}) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"code\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Code))
+	}
+	out.RawByte('}')
+}
+func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels3(in *jlexer.Lexer, out *WithdrawError) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "code":
+			out.Code = string(in.String())
+		case "message":
+			out.Message = string(in.String())
+		case "txnId":
+			out.TxnId = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels3(out *jwriter.Writer, in WithdrawError) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"code\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Code))
+	}
+	{
+		const prefix string = ",\"message\":"
+		out.RawString(prefix)
+		out.String(string(in.Message))
+	}
+	{
+		const prefix string = ",\"txnId\":"
+		out.RawString(prefix)
+		out.String(string(in.TxnId))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v WithdrawError) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels3(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v WithdrawError) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels3(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *WithdrawError) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels3(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *WithdrawError) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels3(l, v)
+}
+func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels4(in *jlexer.Lexer, out *WithdrawCard) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "account":
+			out.Account = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels4(out *jwriter.Writer, in WithdrawCard) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"account\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Account))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v WithdrawCard) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels4(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v WithdrawCard) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels4(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *WithdrawCard) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels4(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *WithdrawCard) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels4(l, v)
+}
+func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels5(in *jlexer.Lexer, out *Withdraw) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	var UserIDSet bool
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "userID":
+			out.UserID = uint64(in.Uint64())
+			UserIDSet = true
+		case "phone":
+			out.Phone = string(in.String())
+		case "card":
+			out.Card = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+	if !UserIDSet {
+		in.AddError(fmt.Errorf("key 'userID' is required"))
+	}
+}
+func easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels5(out *jwriter.Writer, in Withdraw) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"userID\":"
+		out.RawString(prefix[1:])
+		out.Uint64(uint64(in.UserID))
+	}
+	{
+		const prefix string = ",\"phone\":"
+		out.RawString(prefix)
+		out.String(string(in.Phone))
+	}
+	{
+		const prefix string = ",\"card\":"
+		out.RawString(prefix)
+		out.String(string(in.Card))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v Withdraw) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels5(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v Withdraw) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels5(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *Withdraw) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels5(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *Withdraw) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels5(l, v)
+}
+func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels6(in *jlexer.Lexer, out *QiwiPaymentStatus) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "siteId":
+			out.SiteId = string(in.String())
+		case "billId":
+			out.BillId = string(in.String())
+		case "amount":
+			easyjson377dcee4Decode6(in, &out.Amount)
+		case "status":
+			easyjson377dcee4Decode7(in, &out.Status)
+		case "customer":
+			easyjson377dcee4Decode8(in, &out.Customer)
+		case "customFields":
+			easyjson377dcee4Decode9(in, &out.CustomFields)
+		case "comment":
+			out.Comment = string(in.String())
+		case "creationDateTime":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.CreationDateTime).UnmarshalJSON(data))
+			}
+		case "expirationDateTime":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.ExpirationDateTime).UnmarshalJSON(data))
+			}
+		case "payUrl":
+			out.PayUrl = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels6(out *jwriter.Writer, in QiwiPaymentStatus) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"siteId\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.SiteId))
+	}
+	{
+		const prefix string = ",\"billId\":"
+		out.RawString(prefix)
+		out.String(string(in.BillId))
+	}
+	{
+		const prefix string = ",\"amount\":"
+		out.RawString(prefix)
+		easyjson377dcee4Encode6(out, in.Amount)
+	}
+	{
+		const prefix string = ",\"status\":"
+		out.RawString(prefix)
+		easyjson377dcee4Encode7(out, in.Status)
+	}
+	{
+		const prefix string = ",\"customer\":"
+		out.RawString(prefix)
+		easyjson377dcee4Encode8(out, in.Customer)
+	}
+	{
+		const prefix string = ",\"customFields\":"
+		out.RawString(prefix)
+		easyjson377dcee4Encode9(out, in.CustomFields)
+	}
+	{
+		const prefix string = ",\"comment\":"
+		out.RawString(prefix)
+		out.String(string(in.Comment))
+	}
+	{
+		const prefix string = ",\"creationDateTime\":"
+		out.RawString(prefix)
+		out.Raw((in.CreationDateTime).MarshalJSON())
+	}
+	{
+		const prefix string = ",\"expirationDateTime\":"
+		out.RawString(prefix)
+		out.Raw((in.ExpirationDateTime).MarshalJSON())
+	}
+	{
+		const prefix string = ",\"payUrl\":"
+		out.RawString(prefix)
+		out.String(string(in.PayUrl))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v QiwiPaymentStatus) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels6(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v QiwiPaymentStatus) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels6(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *QiwiPaymentStatus) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels6(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *QiwiPaymentStatus) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels6(l, v)
+}
+func easyjson377dcee4Decode9(in *jlexer.Lexer, out *struct {
+	PaySourcesFilter string `json:"paySourcesFilter"`
+	ThemeCode        string `json:"themeCode"`
+	YourParam1       string `json:"yourParam1"`
+	YourParam2       string `json:"yourParam2"`
+}) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "paySourcesFilter":
+			out.PaySourcesFilter = string(in.String())
+		case "themeCode":
+			out.ThemeCode = string(in.String())
+		case "yourParam1":
+			out.YourParam1 = string(in.String())
+		case "yourParam2":
+			out.YourParam2 = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson377dcee4Encode9(out *jwriter.Writer, in struct {
+	PaySourcesFilter string `json:"paySourcesFilter"`
+	ThemeCode        string `json:"themeCode"`
+	YourParam1       string `json:"yourParam1"`
+	YourParam2       string `json:"yourParam2"`
+}) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"paySourcesFilter\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.PaySourcesFilter))
+	}
+	{
+		const prefix string = ",\"themeCode\":"
+		out.RawString(prefix)
+		out.String(string(in.ThemeCode))
+	}
+	{
+		const prefix string = ",\"yourParam1\":"
+		out.RawString(prefix)
+		out.String(string(in.YourParam1))
+	}
+	{
+		const prefix string = ",\"yourParam2\":"
+		out.RawString(prefix)
+		out.String(string(in.YourParam2))
+	}
+	out.RawByte('}')
+}
+func easyjson377dcee4Decode8(in *jlexer.Lexer, out *struct {
+	Phone   string `json:"phone"`
+	Email   string `json:"email"`
+	Account string `json:"account"`
+}) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "phone":
+			out.Phone = string(in.String())
+		case "email":
+			out.Email = string(in.String())
+		case "account":
+			out.Account = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson377dcee4Encode8(out *jwriter.Writer, in struct {
+	Phone   string `json:"phone"`
+	Email   string `json:"email"`
+	Account string `json:"account"`
+}) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"phone\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Phone))
+	}
+	{
+		const prefix string = ",\"email\":"
+		out.RawString(prefix)
+		out.String(string(in.Email))
+	}
+	{
+		const prefix string = ",\"account\":"
+		out.RawString(prefix)
+		out.String(string(in.Account))
+	}
+	out.RawByte('}')
+}
+func easyjson377dcee4Decode7(in *jlexer.Lexer, out *struct {
+	Value           string    `json:"value"`
+	ChangedDateTime time.Time `json:"changedDateTime"`
+}) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "value":
+			out.Value = string(in.String())
+		case "changedDateTime":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.ChangedDateTime).UnmarshalJSON(data))
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson377dcee4Encode7(out *jwriter.Writer, in struct {
+	Value           string    `json:"value"`
+	ChangedDateTime time.Time `json:"changedDateTime"`
+}) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"value\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Value))
+	}
+	{
+		const prefix string = ",\"changedDateTime\":"
+		out.RawString(prefix)
+		out.Raw((in.ChangedDateTime).MarshalJSON())
+	}
+	out.RawByte('}')
+}
+func easyjson377dcee4Decode6(in *jlexer.Lexer, out *struct {
+	Currency string `json:"currency"`
+	Value    string `json:"value"`
+}) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "currency":
+			out.Currency = string(in.String())
+		case "value":
+			out.Value = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson377dcee4Encode6(out *jwriter.Writer, in struct {
+	Currency string `json:"currency"`
+	Value    string `json:"value"`
+}) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"currency\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Currency))
+	}
+	{
+		const prefix string = ",\"value\":"
+		out.RawString(prefix)
+		out.String(string(in.Value))
+	}
+	out.RawByte('}')
+}
+func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels7(in *jlexer.Lexer, out *QiwiPayment) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "amount":
+			easyjson377dcee4Decode6(in, &out.Amount)
+		case "comment":
+			out.Comment = string(in.String())
+		case "expirationDateTime":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.ExpirationDateTime).UnmarshalJSON(data))
+			}
+		case "customer":
+			easyjson377dcee4Decode10(in, &out.Customer)
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels7(out *jwriter.Writer, in QiwiPayment) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"amount\":"
+		out.RawString(prefix[1:])
+		easyjson377dcee4Encode6(out, in.Amount)
+	}
+	{
+		const prefix string = ",\"comment\":"
+		out.RawString(prefix)
+		out.String(string(in.Comment))
+	}
+	{
+		const prefix string = ",\"expirationDateTime\":"
+		out.RawString(prefix)
+		out.Raw((in.ExpirationDateTime).MarshalJSON())
+	}
+	{
+		const prefix string = ",\"customer\":"
+		out.RawString(prefix)
+		easyjson377dcee4Encode10(out, in.Customer)
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v QiwiPayment) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels7(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v QiwiPayment) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels7(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *QiwiPayment) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels7(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *QiwiPayment) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels7(l, v)
+}
+func easyjson377dcee4Decode10(in *jlexer.Lexer, out *struct {
+	Account string `json:"account"`
+}) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "account":
+			out.Account = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson377dcee4Encode10(out *jwriter.Writer, in struct {
+	Account string `json:"account"`
+}) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"account\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Account))
+	}
+	out.RawByte('}')
+}
+func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels8(in *jlexer.Lexer, out *QiwiErrorPaymentStatus) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "serviceName":
+			out.ServiceName = string(in.String())
+		case "errorCode":
+			out.ErrorCode = string(in.String())
+		case "description":
+			out.Description = string(in.String())
+		case "userMessage":
+			out.UserMessage = string(in.String())
+		case "dateTime":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.DateTime).UnmarshalJSON(data))
+			}
+		case "traceId":
+			out.TraceId = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels8(out *jwriter.Writer, in QiwiErrorPaymentStatus) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"serviceName\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.ServiceName))
+	}
+	{
+		const prefix string = ",\"errorCode\":"
+		out.RawString(prefix)
+		out.String(string(in.ErrorCode))
+	}
+	{
+		const prefix string = ",\"description\":"
+		out.RawString(prefix)
+		out.String(string(in.Description))
+	}
+	{
+		const prefix string = ",\"userMessage\":"
+		out.RawString(prefix)
+		out.String(string(in.UserMessage))
+	}
+	{
+		const prefix string = ",\"dateTime\":"
+		out.RawString(prefix)
+		out.Raw((in.DateTime).MarshalJSON())
+	}
+	{
+		const prefix string = ",\"traceId\":"
+		out.RawString(prefix)
+		out.String(string(in.TraceId))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v QiwiErrorPaymentStatus) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels8(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v QiwiErrorPaymentStatus) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels8(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *QiwiErrorPaymentStatus) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels8(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *QiwiErrorPaymentStatus) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels8(l, v)
+}
+func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels9(in *jlexer.Lexer, out *Payment) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "id":
+			out.ID = string(in.String())
+		case "from_id":
+			out.FromID = uint64(in.Uint64())
+		case "to_id":
+			out.ToID = uint64(in.Uint64())
+		case "sub_id":
+			out.SubID = uint64(in.Uint64())
+		case "price":
+			out.Price = uint64(in.Uint64())
+		case "status":
+			out.Status = string(in.String())
+		case "time":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.Time).UnmarshalJSON(data))
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels9(out *jwriter.Writer, in Payment) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.ID))
+	}
+	{
+		const prefix string = ",\"from_id\":"
+		out.RawString(prefix)
+		out.Uint64(uint64(in.FromID))
+	}
+	{
+		const prefix string = ",\"to_id\":"
+		out.RawString(prefix)
+		out.Uint64(uint64(in.ToID))
+	}
+	{
+		const prefix string = ",\"sub_id\":"
+		out.RawString(prefix)
+		out.Uint64(uint64(in.SubID))
+	}
+	{
+		const prefix string = ",\"price\":"
+		out.RawString(prefix)
+		out.Uint64(uint64(in.Price))
+	}
+	{
+		const prefix string = ",\"status\":"
+		out.RawString(prefix)
+		out.String(string(in.Status))
+	}
+	{
+		const prefix string = ",\"time\":"
+		out.RawString(prefix)
+		out.Raw((in.Time).MarshalJSON())
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v Payment) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels9(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v Payment) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels9(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *Payment) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels9(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *Payment) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels9(l, v)
+}
