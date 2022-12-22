@@ -81,7 +81,7 @@ func TestHadler_GetUser(t *testing.T) {
 					ID: 24,
 				}, nil)
 			},
-			expectedResponseBody: `{"id":24,"username":"themilchenko","email":"example@ex.com","avatar":"","isAuthor":true,"about":"","countSubscriptions":1,"countSubscribers":1,"countPosts":1,"countSubscribersMounth":1,"countProfitMounth":1}`,
+			expectedResponseBody: `{"id":24,"username":"themilchenko","email":"example@ex.com","avatar":"","isAuthor":true,"balance":0,"about":"","countSubscriptions":1,"countSubscribers":1,"countPosts":1,"countSubscribersMounth":1,"countProfitMounth":1}`,
 		},
 		{
 			name:                      "BadID",

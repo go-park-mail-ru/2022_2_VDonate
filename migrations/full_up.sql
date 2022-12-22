@@ -231,7 +231,7 @@ BEGIN
     INSERT INTO notification(name, data) VALUES ('payment', data);
 
     IF new.status = 'PAID' THEN
-        UPDATE user_info SET balance = balance + (SELECT price FROM author_subscriptions WHERE id = new.sub_id) WHERE id = new.to_id;
+        UPDATE user_info SET balance = balance + (SELECT price FROM author_subscriptions as aSub WHERE aSub.id = new.sub_id) WHERE user_id = new.to_id;
     END IF;
 
     RETURN NULL;

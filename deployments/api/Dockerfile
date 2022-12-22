@@ -8,7 +8,8 @@ COPY / .
 RUN go mod download
 EXPOSE 8079
 EXPOSE 8080
-RUN CGO_ENABLED=0 go build -a -installsuffix cgo cmd/api/main.go
+ARG TOKEN_SECRET
+RUN CGO_ENABLED=0 TOKEN_SECRET=${TOKEN_SECRET} go build -a -installsuffix cgo cmd/api/main.go
 
 FROM alpine:latest
 WORKDIR /root/
