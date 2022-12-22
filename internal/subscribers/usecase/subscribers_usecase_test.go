@@ -1,10 +1,8 @@
 package subscribers
 
 import (
-	"testing"
-	"time"
-
 	"github.com/stretchr/testify/assert"
+	"testing"
 
 	"github.com/golang/mock/gomock"
 
@@ -74,56 +72,6 @@ func TestUsecase_GetSubscribers(t *testing.T) {
 			_, err := usecase.GetSubscribers(uint64(test.authorID))
 			if err != nil {
 				assert.Equal(t, err.Error(), test.responseError)
-			}
-		})
-	}
-}
-
-func TestUsecase_Subscribe(t *testing.T) {
-	type mockBehaviourSub func(r *mockDomain.MockSubscribersMicroservice, payment models.Payment)
-
-	tests := []struct {
-		name             string
-		payment          models.Payment
-		mockBehaviourSub mockBehaviourSub
-		responseError    string
-	}{
-		{
-			name: "ErrFailedToCreatePayment",
-			payment: models.Payment{
-				ID:     "123",
-				FromID: 1,
-				ToID:   2,
-				SubID:  1,
-				Price:  100,
-			},
-			mockBehaviourSub: func(r *mockDomain.MockSubscribersMicroservice, payment models.Payment) {},
-			responseError:    domain.ErrCreatePayment.Error(),
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-
-			subMock := mockDomain.NewMockSubscribersMicroservice(ctrl)
-
-			test.mockBehaviourSub(subMock, test.payment)
-
-			usecase := NewWithUUIDCreatorAndSleeper(subMock, nil, "qwedsadbbwqubdqwd", func() string {
-				return "123"
-			}, time.Second)
-			_, err := usecase.Subscribe(models.Subscription{
-				AuthorID:             test.payment.ToID,
-				SubscriberID:         test.payment.FromID,
-				AuthorSubscriptionID: 1,
-			}, test.payment.FromID, models.AuthorSubscription{
-				AuthorID: test.payment.ToID,
-				Price:    test.payment.Price,
-			})
-			if err != nil {
-				assert.Equal(t, test.responseError, err.Error())
 			}
 		})
 	}

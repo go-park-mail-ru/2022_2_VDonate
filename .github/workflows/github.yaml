@@ -73,8 +73,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          build-args: |
-            TOKEN_SECRET=${{ secrets.TOKEN_SECRET }}
           file: ./deployments/api/Dockerfile
           push: true
           tags: zeronethunter/vdonate-api:latest

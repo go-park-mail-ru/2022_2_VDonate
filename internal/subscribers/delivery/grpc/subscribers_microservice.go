@@ -4,22 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"io"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
-
-	"google.golang.org/protobuf/types/known/timestamppb"
-
-	"github.com/ztrue/tracerr"
-
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/subscribers/protobuf"
-
 	userProto "github.com/go-park-mail-ru/2022_2_VDonate/internal/microservices/users/protobuf"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
+	"github.com/ztrue/tracerr"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type SubscribersMicroservice struct {
@@ -63,7 +60,6 @@ func (m SubscribersMicroservice) Subscribe(payment models.Payment) {
 	client := http.Client{}
 	var qiwiResp models.QiwiPaymentStatus
 	for {
-		time.Sleep(1 * time.Second)
 		response, err := client.Do(req)
 		if err != nil {
 			log.Error(tracerr.Wrap(err))
@@ -91,6 +87,8 @@ func (m SubscribersMicroservice) Subscribe(payment models.Payment) {
 			break
 		}
 		response.Body.Close()
+
+		time.Sleep(1 * time.Second)
 	}
 
 	_, err = m.subscribersClient.Subscribe(context.Background(), &protobuf.Payment{
