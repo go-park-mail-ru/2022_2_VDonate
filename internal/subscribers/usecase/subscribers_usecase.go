@@ -150,7 +150,7 @@ func (u usecase) Subscribe(subscription models.Subscription, userID uint64, as m
 	qiwiResp.PayUrl += "&successUrl=https://vdonate.ml/profile?id=" + strconv.FormatUint(payment.ToID, 10)
 
 	go u.subscribersMicroservice.Subscribe(payment)
-	time.Sleep(time.Microsecond * u.sleeper)
+	time.Sleep(u.sleeper)
 
 	return qiwiResp, nil
 }
