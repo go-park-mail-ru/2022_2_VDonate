@@ -83,11 +83,11 @@ func (h Handler) Reader(conn *websocket.Conn, s *status) {
 }
 
 func (h Handler) Handler(w http.ResponseWriter, r *http.Request) {
-	l := logger.GetInstance().Logrus
+	log := logger.GetInstance().Logrus
 
 	c, err := h.wsUpgrade.Upgrade(w, r, nil)
 	if err != nil {
-		l.Error(err)
+		log.Error(err)
 		return
 	}
 	defer c.Close()
@@ -95,7 +95,7 @@ func (h Handler) Handler(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	userID, err := strconv.ParseUint(params.Get("userID"), 10, 64)
 	if err != nil {
-		l.WithFields(
+		log.WithFields(
 			logrus.Fields{
 				"error": err,
 			},
@@ -119,23 +119,23 @@ func (h Handler) Handler(w http.ResponseWriter, r *http.Request) {
 	for {
 		select {
 		case <-s.CloseWriter:
-			l.Warn("writer done")
+			log.Warn("writer done")
 			return
 		case <-s.Remove:
 			if err = h.u.DeleteNotifications(userID); err == nil {
-				handleError(tracerr.Wrap(err), c, l)
+				handleError(tracerr.Wrap(err), c, log)
 			}
 		default:
 			notifications, err := h.u.GetNotifications(userID)
 			if err != nil && err != sql.ErrNoRows {
-				handleError(tracerr.Wrap(err), c, l)
+				handleError(tracerr.Wrap(err), c, log)
 			}
 
 			toSend := h.GetNewNotifications(notifications, oldN)
 
 			if len(toSend) > 0 {
 				err = c.WriteJSON(toSend)
-				handleError(tracerr.Wrap(err), c, l)
+				handleError(tracerr.Wrap(err), c, log)
 			}
 
 			oldN = notifications

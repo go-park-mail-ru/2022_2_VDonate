@@ -3,8 +3,10 @@ package subscribersMicroservice
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/pkg/logger"
@@ -56,7 +58,7 @@ func (m SubscribersMicroservice) Subscribe(payment models.Payment) {
 
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer eyJ2ZXJzaW9uIjoiUDJQIiwiZGF0YSI6eyJwYXlpbl9tZXJjaGFudF9zaXRlX3VpZCI6Ijgyem03Ny0wMCIsInVzZXJfaWQiOiI3OTc3NDU4MjM1NiIsInNlY3JldCI6IjkyYzg2OGUwZjQ5N2VkNWFmMDc3MWI2NzkxMzg5OTJhYjY0MWJhMjRiMDE4NjAyN2EwZjJhYTIxZmNjNmNhNTkifX0=")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("QIWI_PRIVATE")))
 
 	client := http.Client{}
 	var qiwiResp models.QiwiPaymentStatus

@@ -57,6 +57,8 @@ services:
     ports:
       - "8085:8085"
       - "9085:9085"
+    env_file:
+      - ../.env
     depends_on:
       - db
     networks:
