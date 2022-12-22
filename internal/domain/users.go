@@ -19,6 +19,7 @@ type UsersMicroservice interface {
 	GetPostsNum(UserID uint64) (uint64, error)
 	GetSubscribersNum(UserID uint64) (uint64, error)
 	GetProfitForMounth(UserID uint64) (uint64, error)
+	DropBalance(userID uint64) error
 }
 
 type UsersUseCase interface {

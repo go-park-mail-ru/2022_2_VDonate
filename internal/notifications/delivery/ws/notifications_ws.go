@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"reflect"
 	"strconv"
+	"time"
 
 	"github.com/ztrue/tracerr"
 
@@ -19,7 +20,8 @@ import (
 )
 
 const (
-	exit = 1
+	exit  = 1
+	sleep = 2
 )
 
 type Handler struct {
@@ -137,6 +139,7 @@ func (h Handler) Handler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			oldN = notifications
+			time.Sleep(sleep * time.Second)
 		}
 	}
 }

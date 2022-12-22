@@ -25,6 +25,7 @@ func ConvertToModel(u *protobuf.User) models.User {
 		Password:           u.GetPassword(),
 		IsAuthor:           u.GetIsAuthor(),
 		About:              u.GetAbout(),
+		Balance:            u.GetBalance(),
 		CountSubscriptions: u.GetCountSubscriptions(),
 		CountSubscribers:   u.GetCountSubscribers(),
 	}
@@ -39,6 +40,7 @@ func ConvertToProto(u models.User) *protobuf.User {
 		Avatar:             u.Avatar,
 		IsAuthor:           u.IsAuthor,
 		About:              u.About,
+		Balance:            u.Balance,
 		CountSubscriptions: u.CountSubscriptions,
 		CountSubscribers:   u.CountSubscribers,
 	}
@@ -174,4 +176,13 @@ func (s UserService) GetProfitForMounth(_ context.Context, id *protobuf.UserID) 
 	}
 
 	return &protobuf.Profit{CountMounthProfit: profit}, nil
+}
+
+func (s UserService) DropBalance(_ context.Context, id *protobuf.UserID) (*emptypb.Empty, error) {
+	err := s.userRepo.DropBalance(id.GetUserId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
 }

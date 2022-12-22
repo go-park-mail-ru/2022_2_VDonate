@@ -2,6 +2,7 @@ package app
 
 import (
 	"net/http"
+	"os"
 
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 
@@ -217,7 +218,7 @@ func (s *Server) makeUseCase() error {
 	s.PostsUseCase = posts.New(s.PostsMicroservice, s.UserMicroservice, s.ImagesUseCase, s.SubscriptionMicroservice)
 
 	//----------------------subscriber----------------------//
-	s.SubscribersUseCase = subscribers.New(s.SubscribersMicroservice, s.UserMicroservice)
+	s.SubscribersUseCase = subscribers.New(s.SubscribersMicroservice, s.UserMicroservice, os.Getenv("TOKEN_SECRET"))
 
 	//---------------------subscription---------------------//
 	s.SubscriptionUseCase = subscriptions.New(s.SubscriptionMicroservice, s.UserMicroservice, s.ImagesUseCase)
@@ -306,6 +307,9 @@ func (s *Server) makeRouter() {
 
 	image := v1.Group("/image")
 	image.POST("", s.imagesHandler.CreateOrUpdateImage)
+
+	withdraw := v1.Group("/withdraw")
+	withdraw.POST("", s.subscribersHandler.Withdraw)
 }
 
 func (s *Server) makeCORS() {

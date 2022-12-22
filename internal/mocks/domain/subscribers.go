@@ -93,6 +93,21 @@ func (mr *MockSubscribersUseCaseMockRecorder) Unsubscribe(userID, authorID inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Unsubscribe", reflect.TypeOf((*MockSubscribersUseCase)(nil).Unsubscribe), userID, authorID)
 }
 
+// Withdraw mocks base method.
+func (m *MockSubscribersUseCase) Withdraw(userID uint64, phone, card string) (models.WithdrawInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Withdraw", userID, phone, card)
+	ret0, _ := ret[0].(models.WithdrawInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Withdraw indicates an expected call of Withdraw.
+func (mr *MockSubscribersUseCaseMockRecorder) Withdraw(userID, phone, card interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Withdraw", reflect.TypeOf((*MockSubscribersUseCase)(nil).Withdraw), userID, phone, card)
+}
+
 // MockSubscribersMicroservice is a mock of SubscribersMicroservice interface.
 type MockSubscribersMicroservice struct {
 	ctrl     *gomock.Controller

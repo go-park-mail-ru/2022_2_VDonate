@@ -415,7 +415,7 @@ func (h Handler) PostComment(c echo.Context) error {
 // @Failure     404 {object} echo.HTTPError "Post not found"
 // @Failure     500 {object} echo.HTTPError "Internal error"
 // @Security    ApiKeyAuth
-// @Router      /posts/comments/:id [put]
+// @Router      /posts/comments/{id} [put]
 func (h Handler) PutComment(c echo.Context) error {
 	commentID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {

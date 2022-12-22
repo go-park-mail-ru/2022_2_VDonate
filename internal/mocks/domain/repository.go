@@ -752,6 +752,20 @@ func (mr *MockUsersRepositoryMockRecorder) DeleteByID(id interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockUsersRepository)(nil).DeleteByID), id)
 }
 
+// DropBalance mocks base method.
+func (m *MockUsersRepository) DropBalance(userID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DropBalance", userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DropBalance indicates an expected call of DropBalance.
+func (mr *MockUsersRepositoryMockRecorder) DropBalance(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DropBalance", reflect.TypeOf((*MockUsersRepository)(nil).DropBalance), userID)
+}
+
 // GetAllAuthors mocks base method.
 func (m *MockUsersRepository) GetAllAuthors() ([]models.User, error) {
 	m.ctrl.T.Helper()

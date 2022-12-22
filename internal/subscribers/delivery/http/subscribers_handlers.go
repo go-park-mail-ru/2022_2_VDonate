@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ztrue/tracerr"
+
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
 
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
@@ -129,4 +131,50 @@ func (h Handler) DeleteSubscriber(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, models.EmptyStruct{})
+}
+
+// Withdraw godoc
+// @Summary     Withdraw
+// @Description Вывод средств на QIWI кошелек или банковскую карту
+// @ID          withdraw
+// @Tags        withdraw
+// @Accept      json
+// @Produce     json
+// @Param       Input body     models.Withdraw      true "Информация о выводе средств, заполнить одно из полей Phone или Card, только цифры"
+// @Success     200   {object} models.WithdrawInfo  "Перевод успешен, получай информацию о переводе"
+// @Failure     400   {object} echo.HTTPError       "Bad request (в основном неверный формат данных)"
+// @Failure     500   {object} models.WithdrawError "Внутренняя ошибка либо нашего сервера, либо их сервера, в зависимости от этого будет выдана ошибка либо наша, либо их"
+// @Security    ApiKeyAuth
+// @Router      /withdraw [post]
+func (h Handler) Withdraw(c echo.Context) error {
+	cookie, err := httpAuth.GetCookie(c)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	u, err := h.userUsecase.GetBySessionID(cookie.Value)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+	}
+
+	var w models.Withdraw
+	if err = c.Bind(&w); err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	if w.UserID != u.ID {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	info, err := h.subscribersUsecase.Withdraw(w.UserID, w.Phone, w.Card)
+	if err != nil {
+		if eTrace, ok := err.(tracerr.Error); ok {
+			if e, ok := eTrace.Unwrap().(models.WithdrawError); ok {
+				return c.JSON(http.StatusInternalServerError, e)
+			}
+		}
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
+	}
+
+	return c.JSON(http.StatusOK, info)
 }

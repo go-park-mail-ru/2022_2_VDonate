@@ -180,7 +180,7 @@ func TestHandler_PutUser(t *testing.T) {
 			mockGetImageBehaviout: func(r *mockDomain.MockImageUseCase, avatar string) {
 				r.EXPECT().GetImage(avatar).Return("", nil)
 			},
-			expectedResponseBody: `{"id":345,"username":"superuser","email":"","is_author":true,"about":"I love sport"}`,
+			expectedResponseBody: `{"id":345,"username":"superuser","email":"","is_author":true,"balance":0,"about":"I love sport"}`,
 		},
 		{
 			name: "BadRequest-ID",
@@ -339,7 +339,7 @@ func TestHandler_GetAuthors(t *testing.T) {
 			mockSubscribers: func(r *mockDomain.MockSubscribersUseCase, authorID uint64) {
 				r.EXPECT().GetSubscribers(authorID).Return([]models.User{}, nil)
 			},
-			responseMessage: `[{"id":345,"username":"superuser","email":"","avatar":"","isAuthor":true,"about":"","countSubscriptions":0,"countSubscribers":0,"countPosts":0,"countSubscribersMounth":0,"countProfitMounth":0}]`,
+			responseMessage: `[{"id":345,"username":"superuser","email":"","avatar":"","isAuthor":true,"balance":0,"about":"","countSubscriptions":0,"countSubscribers":0,"countPosts":0,"countSubscribersMounth":0,"countProfitMounth":0}]`,
 		},
 		{
 			name:    "ErrFindAuthors",

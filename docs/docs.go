@@ -331,7 +331,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/posts/comments/:id": {
+        "/posts/comments/{id}": {
             "put": {
                 "security": [
                     {
@@ -397,9 +397,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/posts/comments/{id}": {
+            },
             "delete": {
                 "security": [
                     {
@@ -1837,6 +1835,58 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/withdraw": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Вывод средств на QIWI кошелек или банковскую карту",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "withdraw"
+                ],
+                "summary": "Withdraw",
+                "operationId": "withdraw",
+                "parameters": [
+                    {
+                        "description": "Информация о выводе средств, заполнить одно из полей Phone или Card, только цифры",
+                        "name": "Input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Withdraw"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Перевод успешен, получай информацию о переводе",
+                        "schema": {
+                            "$ref": "#/definitions/models.WithdrawInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (в основном неверный формат данных)",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка либо нашего сервера, либо их сервера, в зависимости от этого будет выдана ошибка либо наша, либо их",
+                        "schema": {
+                            "$ref": "#/definitions/models.WithdrawError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1866,6 +1916,7 @@ const docTemplate = `{
         "models.Author": {
             "type": "object",
             "required": [
+                "balance",
                 "email",
                 "isAuthor",
                 "username"
@@ -1878,6 +1929,10 @@ const docTemplate = `{
                 "avatar": {
                     "type": "string",
                     "example": "filename.jpeg"
+                },
+                "balance": {
+                    "type": "integer",
+                    "example": 1000
                 },
                 "countPosts": {
                     "type": "integer",
@@ -2357,6 +2412,86 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "example": "admin"
+                }
+            }
+        },
+        "models.Withdraw": {
+            "type": "object",
+            "properties": {
+                "card": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.WithdrawError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "txnId": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.WithdrawInfo": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "fields": {
+                    "type": "object",
+                    "properties": {
+                        "account": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "sum": {
+                    "type": "object",
+                    "properties": {
+                        "amount": {
+                            "type": "number"
+                        },
+                        "currency": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "terms": {
+                    "type": "string"
+                },
+                "transaction": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "state": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -12,6 +12,69 @@ type Payment struct {
 	Time   time.Time `json:"time"`
 }
 
+type Withdraw struct {
+	UserID uint64 `json:"userID,required"`
+	Phone  string `json:"phone"`
+	Card   string `json:"card"`
+}
+
+type WithdrawCard struct {
+	Account string `json:"account"`
+}
+
+type WithdrawPayment struct {
+	ID  string `json:"id,required"`
+	Sum struct {
+		Amount   float64 `json:"amount,required"`
+		Currency string  `json:"currency,required"`
+	} `json:"sum,required"`
+	PaymentMethod struct {
+		Type      string `json:"type,required"`
+		AccountId string `json:"accountId,required"`
+	} `json:"paymentMethod,required"`
+	Fields struct {
+		Account string `json:"account,required"`
+	} `json:"fields,required"`
+}
+
+type WithdrawInfo struct {
+	Id     string `json:"id,required"`
+	Terms  string `json:"terms,required"`
+	Fields struct {
+		Account string `json:"account,required"`
+	} `json:"fields,required"`
+	Sum struct {
+		Amount   float64 `json:"amount,required"`
+		Currency string  `json:"currency,required"`
+	} `json:"sum,required"`
+	Transaction struct {
+		Id    string `json:"id,required"`
+		State struct {
+			Code string `json:"code,required"`
+		} `json:"state,required"`
+	} `json:"transaction,required"`
+	Source  string `json:"source"`
+	Comment string `json:"comment"`
+}
+
+type WithdrawValidation struct {
+	Elements []struct {
+		Type  string `json:"type,required"`
+		Name  string `json:"name,required"`
+		Value string `json:"value,required"`
+	} `json:"elements,required"`
+}
+
+type WithdrawError struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+	TxnId   string `json:"txnId"`
+}
+
+func (w WithdrawError) Error() string {
+	return w.Message
+}
+
 type QiwiPayment struct {
 	Amount struct {
 		Currency string `json:"currency"`

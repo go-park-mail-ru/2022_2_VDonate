@@ -154,3 +154,9 @@ func (m UsersMicroservice) GetProfitForMounth(userID uint64) (uint64, error) {
 
 	return num.GetCountMounthProfit(), nil
 }
+
+func (m UsersMicroservice) DropBalance(userID uint64) error {
+	_, err := m.client.DropBalance(context.Background(), &protobuf.UserID{UserId: userID})
+
+	return tracerr.Wrap(err)
+}

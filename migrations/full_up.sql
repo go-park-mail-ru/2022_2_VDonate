@@ -31,10 +31,11 @@ CREATE TABLE IF NOT EXISTS users
 CREATE TABLE IF NOT EXISTS user_info
 (
     user_id   bigserial    not null primary key references users (id),
-    avatar    varchar(64)   default null,
+    avatar    varchar(64)           default null,
     password  varchar(128) not null,
     is_author boolean      not null,
-    about     varchar(1024) default null
+    balance   integer      not null default 0,
+    about     varchar(1024)         default null
 );
 
 /*
@@ -228,6 +229,10 @@ BEGIN
             'status', new.status
         );
     INSERT INTO notification(name, data) VALUES ('payment', data);
+
+    IF new.status = 'PAID' THEN
+        UPDATE user_info SET balance = balance + (SELECT price FROM author_subscriptions WHERE id = new.sub_id) WHERE id = new.to_id;
+    END IF;
 
     RETURN NULL;
 END;

@@ -70,6 +70,7 @@ type UsersRepository interface {
 	GetPostsNum(userID uint64) (uint64, error)
 	GetSubscribersNumForMounth(userID uint64) (uint64, error)
 	GetProfitForMounth(userID uint64) (uint64, error)
+	DropBalance(userID uint64) error
 	Close() error
 }
 

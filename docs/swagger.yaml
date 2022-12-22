@@ -24,6 +24,9 @@ definitions:
       avatar:
         example: filename.jpeg
         type: string
+      balance:
+        example: 1000
+        type: integer
       countPosts:
         example: 12
         type: integer
@@ -52,6 +55,7 @@ definitions:
         example: admin
         type: string
     required:
+    - balance
     - email
     - isAuthor
     - username
@@ -373,6 +377,57 @@ definitions:
     - isAuthor
     - password
     - username
+    type: object
+  models.Withdraw:
+    properties:
+      card:
+        type: string
+      phone:
+        type: string
+      userID:
+        type: integer
+    type: object
+  models.WithdrawError:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+      txnId:
+        type: string
+    type: object
+  models.WithdrawInfo:
+    properties:
+      comment:
+        type: string
+      fields:
+        properties:
+          account:
+            type: string
+        type: object
+      id:
+        type: string
+      source:
+        type: string
+      sum:
+        properties:
+          amount:
+            type: number
+          currency:
+            type: string
+        type: object
+      terms:
+        type: string
+      transaction:
+        properties:
+          id:
+            type: string
+          state:
+            properties:
+              code:
+                type: string
+            type: object
+        type: object
     type: object
 host: vdonate.ml:8080
 info:
@@ -935,7 +990,44 @@ paths:
       summary: Create like
       tags:
       - posts
-  /posts/comments/:id:
+  /posts/comments/{id}:
+    delete:
+      description: Delete comment on post
+      operationId: delete_comment
+      parameters:
+      - description: Comment id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comment was successfully deleted
+          schema:
+            type: integer
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete comment
+      tags:
+      - posts
     put:
       description: Put comment on post
       operationId: put_comment
@@ -977,44 +1069,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Put comment
-      tags:
-      - posts
-  /posts/comments/{id}:
-    delete:
-      description: Delete comment on post
-      operationId: delete_comment
-      parameters:
-      - description: Comment id
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Comment was successfully deleted
-          schema:
-            type: integer
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: No session provided
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Post not found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Delete comment
       tags:
       - posts
   /search:
@@ -1576,6 +1630,41 @@ paths:
       summary: Update user
       tags:
       - users
+  /withdraw:
+    post:
+      consumes:
+      - application/json
+      description: Вывод средств на QIWI кошелек или банковскую карту
+      operationId: withdraw
+      parameters:
+      - description: Информация о выводе средств, заполнить одно из полей Phone или
+          Card, только цифры
+        in: body
+        name: Input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Withdraw'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Перевод успешен, получай информацию о переводе
+          schema:
+            $ref: '#/definitions/models.WithdrawInfo'
+        "400":
+          description: Bad request (в основном неверный формат данных)
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Внутренняя ошибка либо нашего сервера, либо их сервера, в зависимости
+            от этого будет выдана ошибка либо наша, либо их
+          schema:
+            $ref: '#/definitions/models.WithdrawError'
+      security:
+      - ApiKeyAuth: []
+      summary: Withdraw
+      tags:
+      - withdraw
 securityDefinitions:
   ApiKeyAuth:
     description: Authorization via Cookie

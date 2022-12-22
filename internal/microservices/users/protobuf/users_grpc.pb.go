@@ -36,6 +36,7 @@ type UsersClient interface {
 	GetPostsNum(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*PostsNum, error)
 	GetSubscribersNumForMounth(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*SubscribersNum, error)
 	GetProfitForMounth(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*Profit, error)
+	DropBalance(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type usersClient struct {
@@ -154,6 +155,15 @@ func (c *usersClient) GetProfitForMounth(ctx context.Context, in *UserID, opts .
 	return out, nil
 }
 
+func (c *usersClient) DropBalance(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.Users/DropBalance", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
@@ -170,6 +180,7 @@ type UsersServer interface {
 	GetPostsNum(context.Context, *UserID) (*PostsNum, error)
 	GetSubscribersNumForMounth(context.Context, *UserID) (*SubscribersNum, error)
 	GetProfitForMounth(context.Context, *UserID) (*Profit, error)
+	DropBalance(context.Context, *UserID) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -212,6 +223,9 @@ func (UnimplementedUsersServer) GetSubscribersNumForMounth(context.Context, *Use
 }
 func (UnimplementedUsersServer) GetProfitForMounth(context.Context, *UserID) (*Profit, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfitForMounth not implemented")
+}
+func (UnimplementedUsersServer) DropBalance(context.Context, *UserID) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DropBalance not implemented")
 }
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
@@ -442,6 +456,24 @@ func _Users_GetProfitForMounth_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_DropBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).DropBalance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.Users/DropBalance",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).DropBalance(ctx, req.(*UserID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Users_ServiceDesc is the grpc.ServiceDesc for Users service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -496,6 +528,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetProfitForMounth",
 			Handler:    _Users_GetProfitForMounth_Handler,
+		},
+		{
+			MethodName: "DropBalance",
+			Handler:    _Users_DropBalance_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

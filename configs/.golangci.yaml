@@ -16,6 +16,10 @@ linters-settings:
     # Default: 0.0
     package-average: 18.0
 
+  staticcheck:
+    checks:
+      - all
+      - -SA5008
   errcheck:
     # Report about not checking of errors in type assertions: `a := b.(MyStruct)`.
     # Such cases aren't reported by default.

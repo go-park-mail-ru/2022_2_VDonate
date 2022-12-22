@@ -58,6 +58,26 @@ func (mr *MockUsersClientMockRecorder) Create(ctx, in interface{}, opts ...inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUsersClient)(nil).Create), varargs...)
 }
 
+// DropBalance mocks base method.
+func (m *MockUsersClient) DropBalance(ctx context.Context, in *protobuf0.UserID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DropBalance", varargs...)
+	ret0, _ := ret[0].(*emptypb.Empty)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DropBalance indicates an expected call of DropBalance.
+func (mr *MockUsersClientMockRecorder) DropBalance(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DropBalance", reflect.TypeOf((*MockUsersClient)(nil).DropBalance), varargs...)
+}
+
 // GetAllAuthors mocks base method.
 func (m *MockUsersClient) GetAllAuthors(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*protobuf0.UsersArray, error) {
 	m.ctrl.T.Helper()
@@ -314,6 +334,21 @@ func (m *MockUsersServer) Create(arg0 context.Context, arg1 *protobuf0.User) (*p
 func (mr *MockUsersServerMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUsersServer)(nil).Create), arg0, arg1)
+}
+
+// DropBalance mocks base method.
+func (m *MockUsersServer) DropBalance(arg0 context.Context, arg1 *protobuf0.UserID) (*emptypb.Empty, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DropBalance", arg0, arg1)
+	ret0, _ := ret[0].(*emptypb.Empty)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DropBalance indicates an expected call of DropBalance.
+func (mr *MockUsersServerMockRecorder) DropBalance(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DropBalance", reflect.TypeOf((*MockUsersServer)(nil).DropBalance), arg0, arg1)
 }
 
 // GetAllAuthors mocks base method.
