@@ -9,6 +9,10 @@ RUN go mod download
 EXPOSE 8079
 EXPOSE 8080
 ARG TOKEN_SECRET
+RUN if [  -z ${TOKEN_SECRET} ];then \
+  >&2 echo  "\n******Warning!!!!******\n"; \
+  >&2 echo  "TOKEN_SECRET seems empty!" ;\
+  fi
 RUN CGO_ENABLED=0 TOKEN_SECRET=${TOKEN_SECRET} go build -a -installsuffix cgo cmd/api/main.go
 
 FROM alpine:latest

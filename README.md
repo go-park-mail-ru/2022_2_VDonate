@@ -14,6 +14,6 @@
 
 ## Полезные ссылки
 - ### [Деплой](https://vdonate.ml)
-- ### [Документация](https://docs.vdonate.ml/index.html)
+- ### [Документация](https://docs.vdonate.ml)
 - ### [Метрики](https://vdonate.ml/monitoring)
 - ### [Репозиторий фронтенда](https://github.com/frontend-park-mail-ru/2022_2_VDonate)

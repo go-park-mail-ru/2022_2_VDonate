@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -218,6 +219,7 @@ func (s *Server) makeUseCase() error {
 	s.PostsUseCase = posts.New(s.PostsMicroservice, s.UserMicroservice, s.ImagesUseCase, s.SubscriptionMicroservice)
 
 	//----------------------subscriber----------------------//
+	fmt.Println(os.Getenv("TOKEN_SECRET"))
 	s.SubscribersUseCase = subscribers.New(s.SubscribersMicroservice, s.UserMicroservice, os.Getenv("TOKEN_SECRET"))
 
 	//---------------------subscription---------------------//
