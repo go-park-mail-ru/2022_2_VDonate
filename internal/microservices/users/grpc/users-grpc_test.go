@@ -592,3 +592,216 @@ func TestUserService_GetByUsername(t *testing.T) {
 		})
 	}
 }
+
+func TestUserService_GetPostsNum(t *testing.T) {
+	type mockBehaviorGetPostsNum func(r *mock_domain.MockUsersRepository, userID uint64)
+
+	tests := []struct {
+		name                    string
+		userID                  *protobuf.UserID
+		mockBehaviorGetPostsNum mockBehaviorGetPostsNum
+		expected                *protobuf.PostsNum
+		expectedError           string
+	}{
+		{
+			name: "OK",
+			userID: &protobuf.UserID{
+				UserId: uint64(1),
+			},
+			mockBehaviorGetPostsNum: func(r *mock_domain.MockUsersRepository, userID uint64) {
+				r.EXPECT().GetPostsNum(userID).Return(uint64(1), nil)
+			},
+			expected: &protobuf.PostsNum{
+				CountPosts: uint64(1),
+			},
+		},
+		{
+			name: "Error",
+			userID: &protobuf.UserID{
+				UserId: 1,
+			},
+			mockBehaviorGetPostsNum: func(r *mock_domain.MockUsersRepository, userID uint64) {
+				r.EXPECT().GetPostsNum(userID).Return(uint64(0), domain.ErrInternal)
+			},
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			repo := mock_domain.NewMockUsersRepository(ctrl)
+			test.mockBehaviorGetPostsNum(repo, test.userID.UserId)
+
+			s := New(repo)
+
+			postsNum, err := s.GetPostsNum(context.Background(), test.userID)
+
+			if err != nil {
+				assert.Equal(t, test.expectedError, err.Error())
+			} else {
+				assert.Equal(t, test.expected, postsNum)
+			}
+		})
+	}
+}
+
+func TestUserService_GetSubscribersNumForMounth(t *testing.T) {
+	type mockBehaviorGetSubscribersNumForMounth func(r *mock_domain.MockUsersRepository, userID uint64)
+
+	tests := []struct {
+		name                                   string
+		userID                                 *protobuf.UserID
+		mockBehaviorGetSubscribersNumForMounth mockBehaviorGetSubscribersNumForMounth
+		expected                               *protobuf.SubscribersNum
+		expectedError                          string
+	}{
+		{
+			name: "OK",
+			userID: &protobuf.UserID{
+				UserId: 1,
+			},
+			mockBehaviorGetSubscribersNumForMounth: func(r *mock_domain.MockUsersRepository, userID uint64) {
+				r.EXPECT().GetSubscribersNumForMounth(userID).Return(uint64(1), nil)
+			},
+			expected: &protobuf.SubscribersNum{
+				CountSubscribers: 1,
+			},
+		},
+		{
+			name: "Error",
+			userID: &protobuf.UserID{
+				UserId: 1,
+			},
+			mockBehaviorGetSubscribersNumForMounth: func(r *mock_domain.MockUsersRepository, userID uint64) {
+				r.EXPECT().GetSubscribersNumForMounth(userID).Return(uint64(0), domain.ErrInternal)
+			},
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			repo := mock_domain.NewMockUsersRepository(ctrl)
+			test.mockBehaviorGetSubscribersNumForMounth(repo, test.userID.UserId)
+
+			s := New(repo)
+
+			subscribersNum, err := s.GetSubscribersNumForMounth(context.Background(), test.userID)
+
+			if err != nil {
+				assert.Equal(t, test.expectedError, err.Error())
+			} else {
+				assert.Equal(t, test.expected, subscribersNum)
+			}
+		})
+	}
+}
+
+func TestUserService_GetProfitForMounth(t *testing.T) {
+	type mockBehaviorGetProfitForMounth func(r *mock_domain.MockUsersRepository, userID uint64)
+
+	tests := []struct {
+		name                           string
+		userID                         *protobuf.UserID
+		mockBehaviorGetProfitForMounth mockBehaviorGetProfitForMounth
+		expected                       *protobuf.Profit
+		expectedError                  string
+	}{
+		{
+			name: "OK",
+			userID: &protobuf.UserID{
+				UserId: 1,
+			},
+			mockBehaviorGetProfitForMounth: func(r *mock_domain.MockUsersRepository, userID uint64) {
+				r.EXPECT().GetProfitForMounth(userID).Return(uint64(1), nil)
+			},
+			expected: &protobuf.Profit{
+				CountMounthProfit: 1,
+			},
+		},
+		{
+			name: "Error",
+			userID: &protobuf.UserID{
+				UserId: 1,
+			},
+			mockBehaviorGetProfitForMounth: func(r *mock_domain.MockUsersRepository, userID uint64) {
+				r.EXPECT().GetProfitForMounth(userID).Return(uint64(0), domain.ErrInternal)
+			},
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			repo := mock_domain.NewMockUsersRepository(ctrl)
+			test.mockBehaviorGetProfitForMounth(repo, test.userID.UserId)
+
+			s := New(repo)
+
+			profit, err := s.GetProfitForMounth(context.Background(), test.userID)
+
+			if err != nil {
+				assert.Equal(t, test.expectedError, err.Error())
+			} else {
+				assert.Equal(t, test.expected, profit)
+			}
+		})
+	}
+}
+
+func TestUserService_DropBalance(t *testing.T) {
+	type mockBehaviorDropBalance func(r *mock_domain.MockUsersRepository, userID uint64)
+
+	tests := []struct {
+		name                    string
+		userID                  *protobuf.UserID
+		mockBehaviorDropBalance mockBehaviorDropBalance
+		expectedError           string
+	}{
+		{
+			name: "OK",
+			userID: &protobuf.UserID{
+				UserId: 1,
+			},
+			mockBehaviorDropBalance: func(r *mock_domain.MockUsersRepository, userID uint64) {
+				r.EXPECT().DropBalance(userID).Return(nil)
+			},
+		},
+		{
+			name: "Error",
+			userID: &protobuf.UserID{
+				UserId: 1,
+			},
+			mockBehaviorDropBalance: func(r *mock_domain.MockUsersRepository, userID uint64) {
+				r.EXPECT().DropBalance(userID).Return(domain.ErrInternal)
+			},
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			repo := mock_domain.NewMockUsersRepository(ctrl)
+			test.mockBehaviorDropBalance(repo, test.userID.UserId)
+
+			s := New(repo)
+
+			_, err := s.DropBalance(context.Background(), test.userID)
+			if err != nil {
+				assert.Equal(t, test.expectedError, err.Error())
+			}
+		})
+	}
+}

@@ -255,7 +255,7 @@ func (s PostsService) CreateComment(_ context.Context, comment *protobuf.Comment
 		Content: comment.GetContent(),
 	})
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &protobuf.Comment{
@@ -270,7 +270,7 @@ func (s PostsService) CreateComment(_ context.Context, comment *protobuf.Comment
 func (s PostsService) GetCommentByID(_ context.Context, commentID *protobuf.CommentID) (*protobuf.Comment, error) {
 	comment, err := s.postsRepo.GetCommentByID(commentID.GetCommentID())
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &protobuf.Comment{
@@ -285,7 +285,7 @@ func (s PostsService) GetCommentByID(_ context.Context, commentID *protobuf.Comm
 func (s PostsService) GetCommentsByPostID(_ context.Context, postID *protobuf.PostID) (*protobuf.CommentArray, error) {
 	comments, err := s.postsRepo.GetCommentsByPostId(postID.GetPostID())
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	result := make([]*protobuf.Comment, 0)
@@ -311,7 +311,7 @@ func (s PostsService) UpdateComment(_ context.Context, comment *protobuf.Comment
 		Content: comment.GetContent(),
 	})
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil
@@ -320,7 +320,7 @@ func (s PostsService) UpdateComment(_ context.Context, comment *protobuf.Comment
 func (s PostsService) DeleteCommentByID(_ context.Context, commentID *protobuf.CommentID) (*emptypb.Empty, error) {
 	err := s.postsRepo.DeleteCommentByID(commentID.GetCommentID())
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil

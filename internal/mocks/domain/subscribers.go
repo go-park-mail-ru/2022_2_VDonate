@@ -34,6 +34,21 @@ func (m *MockSubscribersUseCase) EXPECT() *MockSubscribersUseCaseMockRecorder {
 	return m.recorder
 }
 
+// CardValidation mocks base method.
+func (m *MockSubscribersUseCase) CardValidation(card string) (models.WithdrawValidation, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CardValidation", card)
+	ret0, _ := ret[0].(models.WithdrawValidation)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CardValidation indicates an expected call of CardValidation.
+func (mr *MockSubscribersUseCaseMockRecorder) CardValidation(card interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CardValidation", reflect.TypeOf((*MockSubscribersUseCase)(nil).CardValidation), card)
+}
+
 // GetSubscribers mocks base method.
 func (m *MockSubscribersUseCase) GetSubscribers(authorID uint64) ([]models.User, error) {
 	m.ctrl.T.Helper()
@@ -106,6 +121,36 @@ func (m *MockSubscribersUseCase) Withdraw(userID uint64, phone, card string) (mo
 func (mr *MockSubscribersUseCaseMockRecorder) Withdraw(userID, phone, card interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Withdraw", reflect.TypeOf((*MockSubscribersUseCase)(nil).Withdraw), userID, phone, card)
+}
+
+// WithdrawCard mocks base method.
+func (m *MockSubscribersUseCase) WithdrawCard(userID uint64, card, provider string) (models.WithdrawInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WithdrawCard", userID, card, provider)
+	ret0, _ := ret[0].(models.WithdrawInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// WithdrawCard indicates an expected call of WithdrawCard.
+func (mr *MockSubscribersUseCaseMockRecorder) WithdrawCard(userID, card, provider interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WithdrawCard", reflect.TypeOf((*MockSubscribersUseCase)(nil).WithdrawCard), userID, card, provider)
+}
+
+// WithdrawQiwi mocks base method.
+func (m *MockSubscribersUseCase) WithdrawQiwi(userID uint64, phone string) (models.WithdrawInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WithdrawQiwi", userID, phone)
+	ret0, _ := ret[0].(models.WithdrawInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// WithdrawQiwi indicates an expected call of WithdrawQiwi.
+func (mr *MockSubscribersUseCaseMockRecorder) WithdrawQiwi(userID, phone interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WithdrawQiwi", reflect.TypeOf((*MockSubscribersUseCase)(nil).WithdrawQiwi), userID, phone)
 }
 
 // MockSubscribersMicroservice is a mock of SubscribersMicroservice interface.

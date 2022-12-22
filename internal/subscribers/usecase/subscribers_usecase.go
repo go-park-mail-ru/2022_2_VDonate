@@ -22,7 +22,8 @@ type usecase struct {
 	subscribersMicroservice domain.SubscribersMicroservice
 	userMicroservice        domain.UsersMicroservice
 
-	token string
+	token       string
+	uuidCreator func() string
 }
 
 const (
@@ -37,6 +38,16 @@ func New(s domain.SubscribersMicroservice, u domain.UsersMicroservice, token str
 		subscribersMicroservice: s,
 		userMicroservice:        u,
 		token:                   token,
+		uuidCreator:             uuid.New().String,
+	}
+}
+
+func NewWithUUIDCreator(s domain.SubscribersMicroservice, u domain.UsersMicroservice, token string, c func() string) domain.SubscribersUseCase {
+	return &usecase{
+		subscribersMicroservice: s,
+		userMicroservice:        u,
+		token:                   token,
+		uuidCreator:             c,
 	}
 }
 
@@ -68,12 +79,11 @@ func (u usecase) Subscribe(subscription models.Subscription, userID uint64, as m
 	}
 
 	payment := models.Payment{
-		ID:     uuid.New().String(),
+		ID:     u.uuidCreator(),
 		FromID: subscription.SubscriberID,
 		ToID:   subscription.AuthorID,
 		SubID:  subscription.AuthorSubscriptionID,
 		Price:  as.Price,
-		Time:   time.Time{},
 	}
 
 	qiwiPayment := models.QiwiPayment{
@@ -136,6 +146,7 @@ func (u usecase) Subscribe(subscription models.Subscription, userID uint64, as m
 	qiwiResp.PayUrl += "&successUrl=https://vdonate.ml/profile?id=" + strconv.FormatUint(payment.ToID, 10)
 
 	go u.subscribersMicroservice.Subscribe(payment)
+	time.Sleep(time.Microsecond * 10)
 
 	return qiwiResp, nil
 }

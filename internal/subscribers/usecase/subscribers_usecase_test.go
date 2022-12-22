@@ -3,16 +3,18 @@ package subscribers
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
+	"github.com/golang/mock/gomock"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
-
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 )
 
 func TestUsecase_GetSubscribers(t *testing.T) {
-	type mockBehaviourGetSub func(r *mockDomain.MockSubscribersRepository, authorID uint64)
-	type mockBehaviourGetUser func(r *mockDomain.MockUsersRepository, userID uint64)
+	type mockBehaviourGetSub func(r *mockDomain.MockSubscribersMicroservice, authorID uint64)
+	type mockBehaviourGetUser func(r *mockDomain.MockUsersMicroservice, userID uint64)
 
 	tests := []struct {
 		name                 string
@@ -26,10 +28,10 @@ func TestUsecase_GetSubscribers(t *testing.T) {
 			name:     "OK",
 			authorID: 1,
 			userIDs:  []uint64{12, 13},
-			mockBehaviourGetSub: func(r *mockDomain.MockSubscribersRepository, authorID uint64) {
+			mockBehaviourGetSub: func(r *mockDomain.MockSubscribersMicroservice, authorID uint64) {
 				r.EXPECT().GetSubscribers(authorID).Return([]uint64{12, 13}, nil)
 			},
-			mockBehaviourGetUser: func(r *mockDomain.MockUsersRepository, userID uint64) {
+			mockBehaviourGetUser: func(r *mockDomain.MockUsersMicroservice, userID uint64) {
 				r.EXPECT().GetByID(userID).Return(models.User{ID: userID}, nil)
 			},
 		},
@@ -37,100 +39,98 @@ func TestUsecase_GetSubscribers(t *testing.T) {
 			name:     "OK-EmptyUsers",
 			authorID: 1,
 			userIDs:  []uint64{},
-			mockBehaviourGetSub: func(r *mockDomain.MockSubscribersRepository, authorID uint64) {
+			mockBehaviourGetSub: func(r *mockDomain.MockSubscribersMicroservice, authorID uint64) {
 				r.EXPECT().GetSubscribers(authorID).Return([]uint64{}, nil)
 			},
-			mockBehaviourGetUser: func(r *mockDomain.MockUsersRepository, userID uint64) {},
+			mockBehaviourGetUser: func(r *mockDomain.MockUsersMicroservice, userID uint64) {},
 		},
 		{
 			name:     "ErrNotFound",
 			authorID: 1,
 			userIDs:  []uint64{12, 13},
-			mockBehaviourGetSub: func(r *mockDomain.MockSubscribersRepository, authorID uint64) {
+			mockBehaviourGetSub: func(r *mockDomain.MockSubscribersMicroservice, authorID uint64) {
 				r.EXPECT().GetSubscribers(authorID).Return([]uint64{}, domain.ErrNotFound)
 			},
-			mockBehaviourGetUser: func(r *mockDomain.MockUsersRepository, userID uint64) {},
+			mockBehaviourGetUser: func(r *mockDomain.MockUsersMicroservice, userID uint64) {},
 			responseError:        "failed to find item",
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// defer ctrl.Finish()
-			//
-			// subMock := mockDomain.NewMockSubscribersRepository(ctrl)
-			// userMock := mockDomain.NewMockUsersRepository(ctrl)
-			//
-			// test.mockBehaviourGetSub(subMock, uint64(test.authorID))
-			// for _, id := range test.userIDs {
-			// 	test.mockBehaviourGetUser(userMock, id)
-			// }
-			//
-			// usecase := New(subMock, userMock)
-			// _, err := usecase.GetSubscribers(uint64(test.authorID))
-			// if err != nil {
-			// 	assert.Equal(t, err.Error(), test.responseError)
-			// }
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			subMock := mockDomain.NewMockSubscribersMicroservice(ctrl)
+			userMock := mockDomain.NewMockUsersMicroservice(ctrl)
+
+			test.mockBehaviourGetSub(subMock, uint64(test.authorID))
+			for _, id := range test.userIDs {
+				test.mockBehaviourGetUser(userMock, id)
+			}
+
+			usecase := New(subMock, userMock, "123")
+			_, err := usecase.GetSubscribers(uint64(test.authorID))
+			if err != nil {
+				assert.Equal(t, err.Error(), test.responseError)
+			}
 		})
 	}
 }
 
 func TestUsecase_Subscribe(t *testing.T) {
-	type mockBehaviourSubscribe func(r *mockDomain.MockSubscribersRepository, s models.Subscription)
+	type mockBehaviourSub func(r *mockDomain.MockSubscribersMicroservice, payment models.Payment)
 
 	tests := []struct {
-		name                   string
-		sub                    models.Subscription
-		mockBehaviourSubscribe mockBehaviourSubscribe
-		responseError          string
+		name             string
+		payment          models.Payment
+		mockBehaviourSub mockBehaviourSub
+		responseError    string
 	}{
 		{
 			name: "OK",
-			sub: models.Subscription{
-				SubscriberID:         1,
-				AuthorID:             2,
-				AuthorSubscriptionID: 3,
+			payment: models.Payment{
+				ID:     "123",
+				FromID: 1,
+				ToID:   2,
+				SubID:  1,
+				Price:  100,
 			},
-			mockBehaviourSubscribe: func(r *mockDomain.MockSubscribersRepository, s models.Subscription) {
-				r.EXPECT().PayAndSubscribe(s).Return(nil)
+			mockBehaviourSub: func(r *mockDomain.MockSubscribersMicroservice, payment models.Payment) {
+				r.EXPECT().Subscribe(payment).Return()
 			},
-		},
-		{
-			name: "ErrSubscribe",
-			sub: models.Subscription{
-				SubscriberID:         1,
-				AuthorID:             2,
-				AuthorSubscriptionID: 3,
-			},
-			mockBehaviourSubscribe: func(r *mockDomain.MockSubscribersRepository, s models.Subscription) {
-				r.EXPECT().PayAndSubscribe(s).Return(domain.ErrInternal)
-			},
-			responseError: "server error",
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// defer ctrl.Finish()
-			//
-			// subMock := mockDomain.NewMockSubscribersRepository(ctrl)
-			// userMock := mockDomain.NewMockUsersRepository(ctrl)
-			//
-			// test.mockBehaviourSubscribe(subMock, test.sub)
-			//
-			// usecase := New(subMock, userMock)
-			// err := usecase.Subscribe(test.sub, test.sub.SubscriberID)
-			// if err != nil {
-			// 	assert.Equal(t, err.Error(), test.responseError)
-			// }
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			subMock := mockDomain.NewMockSubscribersMicroservice(ctrl)
+
+			test.mockBehaviourSub(subMock, test.payment)
+
+			usecase := NewWithUUIDCreator(subMock, nil, "qwedsadbbwqubdqwd", func() string {
+				return "123"
+			})
+			_, err := usecase.Subscribe(models.Subscription{
+				AuthorID:             test.payment.ToID,
+				SubscriberID:         test.payment.FromID,
+				AuthorSubscriptionID: 1,
+			}, test.payment.FromID, models.AuthorSubscription{
+				AuthorID: test.payment.ToID,
+				Price:    test.payment.Price,
+			})
+			if err != nil {
+				assert.Equal(t, test.responseError, err.Error())
+			}
 		})
 	}
 }
 
 func TestUsecase_Unsubscribe(t *testing.T) {
-	type mockBehaviourUnsubscribe func(r *mockDomain.MockSubscribersRepository, uID, aID uint64)
+	type mockBehaviourUnsubscribe func(r *mockDomain.MockSubscribersMicroservice, uID, aID uint64)
 
 	tests := []struct {
 		name                     string
@@ -145,8 +145,11 @@ func TestUsecase_Unsubscribe(t *testing.T) {
 				AuthorID:             2,
 				AuthorSubscriptionID: 3,
 			},
-			mockBehaviourUnsubscribe: func(r *mockDomain.MockSubscribersRepository, uID, aID uint64) {
-				r.EXPECT().Unsubscribe(uID, aID).Return(nil)
+			mockBehaviourUnsubscribe: func(r *mockDomain.MockSubscribersMicroservice, uID, aID uint64) {
+				r.EXPECT().Unsubscribe(models.Subscription{
+					AuthorID:     aID,
+					SubscriberID: uID,
+				}).Return(nil)
 			},
 		},
 		{
@@ -156,8 +159,11 @@ func TestUsecase_Unsubscribe(t *testing.T) {
 				AuthorID:             2,
 				AuthorSubscriptionID: 3,
 			},
-			mockBehaviourUnsubscribe: func(r *mockDomain.MockSubscribersRepository, uID, aID uint64) {
-				r.EXPECT().Unsubscribe(uID, aID).Return(domain.ErrInternal)
+			mockBehaviourUnsubscribe: func(r *mockDomain.MockSubscribersMicroservice, uID, aID uint64) {
+				r.EXPECT().Unsubscribe(models.Subscription{
+					AuthorID:     aID,
+					SubscriberID: uID,
+				}).Return(domain.ErrInternal)
 			},
 			responseError: "server error",
 		},
@@ -165,25 +171,25 @@ func TestUsecase_Unsubscribe(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// defer ctrl.Finish()
-			//
-			// subMock := mockDomain.NewMockSubscribersRepository(ctrl)
-			// userMock := mockDomain.NewMockUsersRepository(ctrl)
-			//
-			// test.mockBehaviourUnsubscribe(subMock, test.sub.SubscriberID, test.sub.AuthorID)
-			//
-			// usecase := New(subMock, userMock)
-			// err := usecase.Unsubscribe(test.sub.SubscriberID, test.sub.AuthorID)
-			// if err != nil {
-			// 	assert.Equal(t, err.Error(), test.responseError)
-			// }
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			subMock := mockDomain.NewMockSubscribersMicroservice(ctrl)
+			userMock := mockDomain.NewMockUsersMicroservice(ctrl)
+
+			test.mockBehaviourUnsubscribe(subMock, test.sub.SubscriberID, test.sub.AuthorID)
+
+			usecase := New(subMock, userMock, "123")
+			err := usecase.Unsubscribe(test.sub.SubscriberID, test.sub.AuthorID)
+			if err != nil {
+				assert.Equal(t, err.Error(), test.responseError)
+			}
 		})
 	}
 }
 
 func TestUsecase_IsSubscriber(t *testing.T) {
-	type mockBehaviourGetSub func(r *mockDomain.MockSubscribersRepository, userID, authorID uint64)
+	type mockBehaviourGetSub func(r *mockDomain.MockSubscribersMicroservice, userID, authorID uint64)
 
 	tests := []struct {
 		name                string
@@ -198,7 +204,7 @@ func TestUsecase_IsSubscriber(t *testing.T) {
 				AuthorID:             2,
 				AuthorSubscriptionID: 3,
 			},
-			mockBehaviourGetSub: func(r *mockDomain.MockSubscribersRepository, userID, authorID uint64) {
+			mockBehaviourGetSub: func(r *mockDomain.MockSubscribersMicroservice, userID, authorID uint64) {
 				r.EXPECT().GetSubscribers(authorID).Return([]uint64{
 					userID,
 				}, nil)
@@ -211,7 +217,7 @@ func TestUsecase_IsSubscriber(t *testing.T) {
 				AuthorID:             2,
 				AuthorSubscriptionID: 3,
 			},
-			mockBehaviourGetSub: func(r *mockDomain.MockSubscribersRepository, userID, authorID uint64) {
+			mockBehaviourGetSub: func(r *mockDomain.MockSubscribersMicroservice, userID, authorID uint64) {
 				r.EXPECT().GetSubscribers(authorID).Return(nil, domain.ErrNotFound)
 			},
 			responseError: "failed to find item",
@@ -223,7 +229,7 @@ func TestUsecase_IsSubscriber(t *testing.T) {
 				AuthorID:             2,
 				AuthorSubscriptionID: 3,
 			},
-			mockBehaviourGetSub: func(r *mockDomain.MockSubscribersRepository, userID, authorID uint64) {
+			mockBehaviourGetSub: func(r *mockDomain.MockSubscribersMicroservice, userID, authorID uint64) {
 				r.EXPECT().GetSubscribers(authorID).Return([]uint64{
 					userID + 1,
 				}, nil)
@@ -234,19 +240,198 @@ func TestUsecase_IsSubscriber(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// defer ctrl.Finish()
-			//
-			// subRepo := mockDomain.NewMockSubscribersRepository(ctrl)
-			// userRepo := mockDomain.NewMockUsersRepository(ctrl)
-			//
-			// test.mockBehaviourGetSub(subRepo, test.sub.SubscriberID, test.sub.AuthorID)
-			//
-			// usecase := New(subRepo, userRepo)
-			// _, err := usecase.IsSubscriber(test.sub.SubscriberID, test.sub.AuthorID)
-			// if err != nil {
-			// 	assert.Equal(t, err.Error(), test.responseError)
-			// }
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			subRepo := mockDomain.NewMockSubscribersMicroservice(ctrl)
+			userRepo := mockDomain.NewMockUsersMicroservice(ctrl)
+
+			test.mockBehaviourGetSub(subRepo, test.sub.SubscriberID, test.sub.AuthorID)
+
+			usecase := New(subRepo, userRepo, "123")
+			_, err := usecase.IsSubscriber(test.sub.SubscriberID, test.sub.AuthorID)
+			if err != nil {
+				assert.Equal(t, err.Error(), test.responseError)
+			}
+		})
+	}
+}
+
+func TestUsecase_CardValidation(t *testing.T) {
+	tests := []struct {
+		name          string
+		card          string
+		expected      models.WithdrawValidation
+		responseError string
+	}{
+		{
+			name:          "Fail",
+			card:          "1234567890123456",
+			responseError: domain.ErrCreatePayment.Error(),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			subRepo := mockDomain.NewMockSubscribersMicroservice(ctrl)
+			userRepo := mockDomain.NewMockUsersMicroservice(ctrl)
+
+			usecase := New(subRepo, userRepo, "123")
+			_, err := usecase.CardValidation(test.card)
+			if err != nil {
+				assert.Equal(t, err.Error(), test.responseError)
+			}
+		})
+	}
+}
+
+func TestUsecase_WithdrawCard(t *testing.T) {
+	type mockBehaviorUserGetByID func(r *mockDomain.MockUsersMicroservice, userID uint64)
+
+	tests := []struct {
+		name                    string
+		userID                  uint64
+		card                    string
+		provider                string
+		mockBehaviorUserGetByID mockBehaviorUserGetByID
+		expected                models.WithdrawInfo
+		responseError           string
+	}{
+		{
+			name:     "ErrCreatePayment",
+			card:     "1234567890123456",
+			provider: "123",
+			userID:   1,
+			mockBehaviorUserGetByID: func(r *mockDomain.MockUsersMicroservice, userID uint64) {
+				r.EXPECT().GetByID(userID).Return(models.User{
+					ID:       userID,
+					Username: "username",
+					Email:    "email",
+					Balance:  250,
+				}, nil)
+			},
+			responseError: domain.ErrCreatePayment.Error(),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			subRepo := mockDomain.NewMockSubscribersMicroservice(ctrl)
+			userRepo := mockDomain.NewMockUsersMicroservice(ctrl)
+
+			test.mockBehaviorUserGetByID(userRepo, test.userID)
+
+			usecase := New(subRepo, userRepo, "123")
+			_, err := usecase.WithdrawCard(test.userID, test.card, test.provider)
+			if err != nil {
+				assert.Equal(t, test.responseError, err.Error())
+			}
+		})
+	}
+}
+
+func TestUsecase_WithdrawQiwi(t *testing.T) {
+	type mockBehaviorUserGetByID func(r *mockDomain.MockUsersMicroservice, userID uint64)
+
+	tests := []struct {
+		name                    string
+		userID                  uint64
+		phone                   string
+		mockBehaviorUserGetByID mockBehaviorUserGetByID
+		expected                models.WithdrawInfo
+		responseError           string
+	}{
+		{
+			name:   "ErrResponse",
+			phone:  "1234567890123456",
+			userID: 1,
+			mockBehaviorUserGetByID: func(r *mockDomain.MockUsersMicroservice, userID uint64) {
+				r.EXPECT().GetByID(userID).Return(models.User{
+					ID:       userID,
+					Username: "username",
+					Email:    "email",
+				}, nil)
+			},
+			responseError: "unexpected end of JSON input",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			subRepo := mockDomain.NewMockSubscribersMicroservice(ctrl)
+			userRepo := mockDomain.NewMockUsersMicroservice(ctrl)
+
+			test.mockBehaviorUserGetByID(userRepo, test.userID)
+
+			usecase := New(subRepo, userRepo, "123")
+			_, err := usecase.WithdrawQiwi(test.userID, test.phone)
+			if err != nil {
+				assert.Equal(t, test.responseError, err.Error())
+			}
+		})
+	}
+}
+
+func TestUsecase_Withdraw(t *testing.T) {
+	type mockBehaviorUserGetByID func(r *mockDomain.MockUsersMicroservice, userID uint64)
+
+	tests := []struct {
+		name                    string
+		userID                  uint64
+		phone                   string
+		card                    string
+		mockBehaviorUserGetByID mockBehaviorUserGetByID
+		expected                models.WithdrawInfo
+		responseError           string
+	}{
+		{
+			name:   "ErrResponse-Card",
+			card:   "1234567890123456",
+			userID: 1,
+			mockBehaviorUserGetByID: func(r *mockDomain.MockUsersMicroservice, userID uint64) {
+			},
+			responseError: domain.ErrCreatePayment.Error(),
+		},
+		{
+			name:   "ErrResponse-Qiwi",
+			phone:  "1234567890123456",
+			card:   "",
+			userID: 1,
+			mockBehaviorUserGetByID: func(r *mockDomain.MockUsersMicroservice, userID uint64) {
+				r.EXPECT().GetByID(userID).Return(models.User{
+					ID:       userID,
+					Username: "username",
+					Email:    "email",
+				}, nil)
+			},
+			responseError: "unexpected end of JSON input",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			subRepo := mockDomain.NewMockSubscribersMicroservice(ctrl)
+			userRepo := mockDomain.NewMockUsersMicroservice(ctrl)
+
+			test.mockBehaviorUserGetByID(userRepo, test.userID)
+
+			usecase := New(subRepo, userRepo, "123")
+			_, err := usecase.Withdraw(test.userID, test.phone, test.card)
+			if err != nil {
+				assert.Equal(t, test.responseError, err.Error())
+			}
 		})
 	}
 }

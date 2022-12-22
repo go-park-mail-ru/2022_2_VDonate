@@ -23,6 +23,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            sudo docker rm -f $(sudo docker ps -aq)
             sudo docker pull zeronethunter/vdonate-api
             sudo docker pull zeronethunter/vdonate-auth
             sudo docker pull zeronethunter/vdonate-images

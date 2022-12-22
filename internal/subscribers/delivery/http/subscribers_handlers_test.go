@@ -18,6 +18,7 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 
 	mock_domain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 )
 
@@ -392,8 +393,8 @@ func TestSubscribersHandler_Withdraw(t *testing.T) {
 		responseError string
 	}{
 		{
-			name:      "OK",
-			userID:    2,
+			name:   "OK",
+			userID: 2,
 			cookie: &http.Cookie{
 				Name:  "session_id",
 				Value: "some cookie",
@@ -419,8 +420,8 @@ func TestSubscribersHandler_Withdraw(t *testing.T) {
 			response: true,
 		},
 		{
-			name:      "ErrInternal",
-			userID:    2,
+			name:   "ErrInternal",
+			userID: 2,
 			cookie: &http.Cookie{
 				Name:  "session_id",
 				Value: "some cookie",
@@ -446,8 +447,8 @@ func TestSubscribersHandler_Withdraw(t *testing.T) {
 			responseError: "code=500, message=server error, internal=failed to withdraw",
 		},
 		{
-			name:      "ErrBadRequest",
-			userID:    2,
+			name:   "ErrBadRequest",
+			userID: 2,
 			cookie: &http.Cookie{
 				Name:  "session_id",
 				Value: "some cookie",
@@ -465,7 +466,7 @@ func TestSubscribersHandler_Withdraw(t *testing.T) {
 			mockSession: func(u *mock_domain.MockUsersUseCase, sessionID string) {
 				u.EXPECT().GetBySessionID(sessionID).Return(models.User{ID: 2}, nil)
 			},
-			mockWithdraw: func(u *mock_domain.MockSubscribersUseCase, userID uint64, phone, card string) {},
+			mockWithdraw:  func(u *mock_domain.MockSubscribersUseCase, userID uint64, phone, card string) {},
 			responseError: "code=400, message=bad request",
 		},
 		{
@@ -482,7 +483,7 @@ func TestSubscribersHandler_Withdraw(t *testing.T) {
 			mockSession: func(u *mock_domain.MockUsersUseCase, sessionID string) {
 				u.EXPECT().GetBySessionID(sessionID).Return(models.User{ID: 2}, nil)
 			},
-			mockWithdraw: func(u *mock_domain.MockSubscribersUseCase, userID uint64, phone, card string) {},
+			mockWithdraw:  func(u *mock_domain.MockSubscribersUseCase, userID uint64, phone, card string) {},
 			responseError: "code=400, message=bad request",
 		},
 	}
