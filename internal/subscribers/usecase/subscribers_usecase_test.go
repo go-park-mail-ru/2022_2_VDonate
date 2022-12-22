@@ -2,6 +2,7 @@ package subscribers
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -88,7 +89,7 @@ func TestUsecase_Subscribe(t *testing.T) {
 		responseError    string
 	}{
 		{
-			name: "OK",
+			name: "ErrFailedToCreatePayment",
 			payment: models.Payment{
 				ID:     "123",
 				FromID: 1,
@@ -96,9 +97,8 @@ func TestUsecase_Subscribe(t *testing.T) {
 				SubID:  1,
 				Price:  100,
 			},
-			mockBehaviourSub: func(r *mockDomain.MockSubscribersMicroservice, payment models.Payment) {
-				r.EXPECT().Subscribe(payment).Return()
-			},
+			mockBehaviourSub: func(r *mockDomain.MockSubscribersMicroservice, payment models.Payment) {},
+			responseError:    domain.ErrCreatePayment.Error(),
 		},
 	}
 
@@ -111,9 +111,9 @@ func TestUsecase_Subscribe(t *testing.T) {
 
 			test.mockBehaviourSub(subMock, test.payment)
 
-			usecase := NewWithUUIDCreator(subMock, nil, "qwedsadbbwqubdqwd", func() string {
+			usecase := NewWithUUIDCreatorAndSleeper(subMock, nil, "qwedsadbbwqubdqwd", func() string {
 				return "123"
-			})
+			}, time.Second)
 			_, err := usecase.Subscribe(models.Subscription{
 				AuthorID:             test.payment.ToID,
 				SubscriberID:         test.payment.FromID,
