@@ -31,6 +31,7 @@ const (
 	minSum             = 75
 	commission         = 0.95
 	qiwiBankCommission = 50
+	testHolder         = 10
 )
 
 func New(s domain.SubscribersMicroservice, u domain.UsersMicroservice, token string) domain.SubscribersUseCase {
@@ -146,7 +147,7 @@ func (u usecase) Subscribe(subscription models.Subscription, userID uint64, as m
 	qiwiResp.PayUrl += "&successUrl=https://vdonate.ml/profile?id=" + strconv.FormatUint(payment.ToID, 10)
 
 	go u.subscribersMicroservice.Subscribe(payment)
-	time.Sleep(time.Microsecond * 10)
+	time.Sleep(time.Microsecond * testHolder)
 
 	return qiwiResp, nil
 }
