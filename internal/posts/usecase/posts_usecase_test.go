@@ -931,4 +931,69 @@ func TestUsecase_GetCommentByID(t *testing.T) {
 	}
 }
 
-func TestUsecase_UpdateComment(t *testing.T) {}
+func TestUsecase_UpdateComment(t *testing.T) {
+	tests := []struct {
+		name                 string
+		comment              models.Comment
+		mockGetCommentByID   func(s *mockDomain.MockPostsMicroservice, commentID uint64)
+		mockGetById          func(s *mockDomain.MockUsersMicroservice, userID uint64)
+		mockUpdateComment    func(s *mockDomain.MockPostsMicroservice, comment models.Comment)
+		mockGetImage         func(s *mockDomain.MockImageUseCase, image string)
+		responseErrorMessage string
+	}{
+		{
+			name: "OK",
+			mockGetCommentByID: func(s *mockDomain.MockPostsMicroservice, commentID uint64) {
+				s.EXPECT().GetCommentByID(commentID).Return(models.Comment{
+					ID:      1,
+					UserID:  1,
+					Content: "content",
+					UserImg: "avatar",
+					PostID:  1,
+				}, nil)
+			},
+			mockGetById: func(s *mockDomain.MockUsersMicroservice, userID uint64) {
+				s.EXPECT().GetByID(userID).Return(models.User{
+					ID:     1,
+					Avatar: "avatar",
+				}, nil)
+			},
+			mockUpdateComment: func(s *mockDomain.MockPostsMicroservice, comment models.Comment) {
+				s.EXPECT().UpdateComment(comment).Return(nil)
+			},
+			mockGetImage: func(s *mockDomain.MockImageUseCase, image string) {
+				s.EXPECT().GetImage(image).Return("", nil)
+			},
+			comment: models.Comment{
+				ID:      1,
+				UserID:  1,
+				Content: "content",
+				UserImg: "avatar",
+				PostID:  1,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			postMock := mockDomain.NewMockPostsMicroservice(ctrl)
+			imageMock := mockDomain.NewMockImageUseCase(ctrl)
+			userMock := mockDomain.NewMockUsersMicroservice(ctrl)
+
+			test.mockUpdateComment(postMock, test.comment)
+			test.mockGetById(userMock, test.comment.UserID)
+			test.mockGetCommentByID(postMock, test.comment.ID)
+			test.mockGetImage(imageMock, "avatar")
+
+			usecase := New(postMock, userMock, imageMock, nil)
+
+			_, err := usecase.UpdateComment(test.comment.ID, test.comment.Content)
+			if err != nil {
+				require.Equal(t, test.responseErrorMessage, err.Error())
+			}
+		})
+	}
+}

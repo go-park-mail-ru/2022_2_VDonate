@@ -925,3 +925,85 @@ func TestPostsClient_DeleteDepTag(t *testing.T) {
 		})
 	}
 }
+
+func TestPostsMicroservice_CreateComment(t *testing.T) {
+	type mockCreateComme func(r *mockDomain.MockPostsClient, c context.Context, in *protobuf.Comment, opts ...grpc.CallOption)
+
+	tests := []struct {
+		name    string
+		comment models.Comment
+		mock    mockCreateComme
+		want    models.Comment
+		wantErr error
+	}{
+		{
+			name: "OK",
+			comment: models.Comment{
+				PostID:      1,
+				Content:     "body",
+				DateCreated: time.Now().UTC(),
+			},
+			mock: func(r *mockDomain.MockPostsClient, c context.Context, in *protobuf.Comment, opts ...grpc.CallOption) {
+				r.EXPECT().CreateComment(c, in).Return(&protobuf.Comment{PostID: 1, Content: "body"}, nil)
+			},
+			wantErr: nil,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mock := mockDomain.NewMockPostsClient(ctrl)
+
+			test.mock(mock, context.Background(), &protobuf.Comment{PostID: test.comment.PostID, Content: test.comment.Content})
+
+			m := &PostsMicroservice{
+				client: mock,
+			}
+			_, err := m.CreateComment(test.comment)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
+		})
+	}
+}
+
+func TestPostsMicroservice_GetCommentByID(t *testing.T) {
+	type mockGetCommentByID func(r *mockDomain.MockPostsClient, c context.Context, in *protobuf.CommentID, opts ...grpc.CallOption)
+
+	tests := []struct {
+		name      string
+		commentID uint64
+		mock      mockGetCommentByID
+		want      models.Comment
+		wantErr   error
+	}{
+		{
+			name:      "OK",
+			commentID: 1,
+			mock: func(r *mockDomain.MockPostsClient, c context.Context, in *protobuf.CommentID, opts ...grpc.CallOption) {
+				r.EXPECT().GetCommentByID(c, in).Return(&protobuf.Comment{PostID: 1, Content: "body"}, nil)
+			},
+			wantErr: nil,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mock := mockDomain.NewMockPostsClient(ctrl)
+
+			test.mock(mock, context.Background(), &protobuf.CommentID{CommentID: test.commentID})
+
+			m := &PostsMicroservice{
+				client: mock,
+			}
+			_, err := m.GetCommentByID(test.commentID)
+			if err != nil {
+				require.Equal(t, err.Error(), test.wantErr.Error())
+			}
+		})
+	}
+}
