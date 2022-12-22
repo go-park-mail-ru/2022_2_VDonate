@@ -59,6 +59,7 @@ jobs:
 
   build_push_api:
     name: build and push ap
+    needs: golangci-lint
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v3
@@ -79,6 +80,7 @@ jobs:
 
   build_push_auth:
     name: build and push aut
+    needs: golangci-lint
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v3
@@ -99,6 +101,7 @@ jobs:
 
   build_push_images:
     name: build and push image
+    needs: golangci-lint
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v3
@@ -119,6 +122,7 @@ jobs:
 
   build_push_posts:
     name: build and push post
+    needs: golangci-lint
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v3
@@ -139,6 +143,7 @@ jobs:
 
   build_push_subscribers:
     name: build and push subscriber
+    needs: golangci-lint
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v3
@@ -159,6 +164,7 @@ jobs:
 
   build_push_subscriptions:
     name: build and push subscription
+    needs: golangci-lint
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v3
@@ -179,6 +185,7 @@ jobs:
 
   build_push_users:
     name: build and push user
+    needs: golangci-lint
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v3
@@ -199,6 +206,7 @@ jobs:
 
   build_push_notifications:
       name: build and push notifications
+      needs: golangci-lint
       runs-on: ubuntu-18.04
       steps:
         - uses: actions/checkout@v3

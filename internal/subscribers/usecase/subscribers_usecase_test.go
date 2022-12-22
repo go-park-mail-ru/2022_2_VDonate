@@ -1,14 +1,13 @@
 package subscribers
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
-
-	"github.com/golang/mock/gomock"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	mockDomain "github.com/go-park-mail-ru/2022_2_VDonate/internal/mocks/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestUsecase_GetSubscribers(t *testing.T) {
