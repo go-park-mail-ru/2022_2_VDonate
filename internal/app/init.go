@@ -2,6 +2,7 @@ package app
 
 import (
 	"net/http"
+	"os"
 
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 
@@ -217,7 +218,7 @@ func (s *Server) makeUseCase() error {
 	s.PostsUseCase = posts.New(s.PostsMicroservice, s.UserMicroservice, s.ImagesUseCase, s.SubscriptionMicroservice)
 
 	//----------------------subscriber----------------------//
-	s.SubscribersUseCase = subscribers.New(s.SubscribersMicroservice, s.UserMicroservice, "87d16791b571ca5b28c23d2fa9d29ba9")
+	s.SubscribersUseCase = subscribers.New(s.SubscribersMicroservice, s.UserMicroservice, os.Getenv("TOKEN_SECRET"))
 
 	//---------------------subscription---------------------//
 	s.SubscriptionUseCase = subscriptions.New(s.SubscriptionMicroservice, s.UserMicroservice, s.ImagesUseCase)
