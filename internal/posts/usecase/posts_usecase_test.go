@@ -627,3 +627,308 @@ func TestUsecase_UpdateTags(t *testing.T) {
 		})
 	}
 }
+
+func TestPostsUsecase_Create(t *testing.T) {
+	type mockCreate func(s *mockDomain.MockPostsMicroservice, post models.Post)
+	type mockGetTagByName func(s *mockDomain.MockPostsMicroservice, tag string)
+	type mockCreateTag func(s *mockDomain.MockPostsMicroservice, tag string)
+	type mockCreateTagDep func(s *mockDomain.MockPostsMicroservice, postID, tagID uint64)
+
+	tests := []struct {
+		name                 string
+		post                 models.Post
+		userID               uint64
+		mockCreate           mockCreate
+		mockGetTagByName     mockGetTagByName
+		mockCreateTag        mockCreateTag
+		mockCreateTagDep     mockCreateTagDep
+		responseErrorMessage string
+	}{
+		{
+			name: "OK",
+			post: models.Post{
+				Content: "content",
+				Tags:    []string{"tag"},
+			},
+			mockCreate: func(s *mockDomain.MockPostsMicroservice, post models.Post) {
+				s.EXPECT().Create(post).Return(models.Post{
+					ID:      1,
+					Content: "content",
+					Tags:    []string{"tag"},
+				}, nil)
+			},
+			mockGetTagByName: func(s *mockDomain.MockPostsMicroservice, tag string) {
+				s.EXPECT().GetTagByName(tag).Return(models.Tag{}, nil)
+			},
+			mockCreateTag: func(s *mockDomain.MockPostsMicroservice, tag string) {},
+			mockCreateTagDep: func(s *mockDomain.MockPostsMicroservice, postID, tagID uint64) {
+				s.EXPECT().CreateDepTag(postID, tagID).Return(nil)
+			},
+		},
+		{
+			name: "Err-1",
+			post: models.Post{
+				Content: "content",
+				Tags:    []string{"tag"},
+			},
+			mockCreate: func(s *mockDomain.MockPostsMicroservice, post models.Post) {
+				s.EXPECT().Create(post).Return(models.Post{}, errors.New("error"))
+			},
+			mockGetTagByName:     func(s *mockDomain.MockPostsMicroservice, tag string) {},
+			mockCreateTag:        func(s *mockDomain.MockPostsMicroservice, tag string) {},
+			mockCreateTagDep:     func(s *mockDomain.MockPostsMicroservice, postID, tagID uint64) {},
+			responseErrorMessage: "error",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			postMock := mockDomain.NewMockPostsMicroservice(ctrl)
+
+			test.mockCreate(postMock, test.post)
+			test.mockCreateTag(postMock, test.post.Tags[0])
+			test.mockCreateTagDep(postMock, 1, 0)
+			test.mockGetTagByName(postMock, test.post.Tags[0])
+
+			usecase := New(postMock, nil, nil, nil)
+
+			_, err := usecase.Create(test.post, test.userID)
+			if err != nil {
+				require.Equal(t, test.responseErrorMessage, err.Error())
+			}
+		})
+	}
+}
+
+func TestPostsUsecase_CreateComment(t *testing.T) {
+	type mockCreateComment func(s *mockDomain.MockPostsMicroservice, comment models.Comment)
+	type mockGetPost func(s *mockDomain.MockPostsMicroservice, postID, userID uint64)
+	type mockGetById func(s *mockDomain.MockUsersMicroservice, userID uint64)
+	type mockGetImg func(s *mockDomain.MockImageUseCase, avatar string)
+
+	tests := []struct {
+		name                 string
+		comment              models.Comment
+		userID               uint64
+		mockCreateComment    mockCreateComment
+		mockGetPost          mockGetPost
+		mockGetById          mockGetById
+		mockGetImg           mockGetImg
+		responseErrorMessage string
+	}{
+		{
+			name: "OK",
+			comment: models.Comment{
+				ID:      1,
+				UserID:  1,
+				Content: "content",
+				PostID:  1,
+			},
+			mockCreateComment: func(s *mockDomain.MockPostsMicroservice, comment models.Comment) {
+				s.EXPECT().CreateComment(comment).Return(models.Comment{
+					ID:      1,
+					UserID:  1,
+					Content: "content",
+					PostID:  1,
+				}, nil)
+			},
+			mockGetPost: func(s *mockDomain.MockPostsMicroservice, postID, userID uint64) {
+				s.EXPECT().GetPostByID(postID).Return(models.Post{
+					ID:      1,
+					UserID:  1,
+					Content: "content",
+					Tags:    []string{"tag"},
+				}, nil)
+			},
+			mockGetById: func(s *mockDomain.MockUsersMicroservice, userID uint64) {
+				s.EXPECT().GetByID(userID).Return(models.User{
+					ID:       1,
+					Username: "username",
+					Avatar:   "avatar",
+				}, nil)
+			},
+			mockGetImg: func(s *mockDomain.MockImageUseCase, avatar string) {
+				s.EXPECT().GetImage(avatar).Return("avatar", nil)
+			},
+		},
+		{
+			name: "OK",
+			comment: models.Comment{
+				ID:      1,
+				UserID:  1,
+				Content: "content",
+				PostID:  1,
+			},
+			mockCreateComment: func(s *mockDomain.MockPostsMicroservice, comment models.Comment) {
+				s.EXPECT().CreateComment(comment).Return(models.Comment{}, errors.New("error"))
+			},
+			mockGetPost:          func(s *mockDomain.MockPostsMicroservice, postID, userID uint64) {},
+			mockGetById:          func(s *mockDomain.MockUsersMicroservice, userID uint64) {},
+			mockGetImg:           func(s *mockDomain.MockImageUseCase, avatar string) {},
+			responseErrorMessage: "error",
+		},
+		{
+			name: "OK",
+			comment: models.Comment{
+				ID:      1,
+				UserID:  1,
+				Content: "content",
+				PostID:  1,
+			},
+			mockCreateComment: func(s *mockDomain.MockPostsMicroservice, comment models.Comment) {
+				s.EXPECT().CreateComment(comment).Return(models.Comment{
+					ID:      1,
+					UserID:  1,
+					Content: "content",
+					PostID:  1,
+				}, nil)
+			},
+			mockGetPost: func(s *mockDomain.MockPostsMicroservice, postID, userID uint64) {
+				s.EXPECT().GetPostByID(postID).Return(models.Post{}, errors.New("error"))
+			},
+			mockGetById:          func(s *mockDomain.MockUsersMicroservice, userID uint64) {},
+			mockGetImg:           func(s *mockDomain.MockImageUseCase, avatar string) {},
+			responseErrorMessage: "error",
+		},
+		{
+			name: "OK",
+			comment: models.Comment{
+				ID:      1,
+				UserID:  1,
+				Content: "content",
+				PostID:  1,
+			},
+			mockCreateComment: func(s *mockDomain.MockPostsMicroservice, comment models.Comment) {
+				s.EXPECT().CreateComment(comment).Return(models.Comment{
+					ID:      1,
+					UserID:  1,
+					Content: "content",
+					PostID:  1,
+				}, nil)
+			},
+			mockGetPost: func(s *mockDomain.MockPostsMicroservice, postID, userID uint64) {
+				s.EXPECT().GetPostByID(postID).Return(models.Post{
+					ID:      1,
+					UserID:  1,
+					Content: "content",
+					Tags:    []string{"tag"},
+				}, nil)
+			},
+			mockGetById: func(s *mockDomain.MockUsersMicroservice, userID uint64) {
+				s.EXPECT().GetByID(userID).Return(models.User{
+					ID:       1,
+					Username: "username",
+					Avatar:   "avatar",
+				}, nil)
+			},
+			mockGetImg: func(s *mockDomain.MockImageUseCase, avatar string) {
+				s.EXPECT().GetImage(avatar).Return("avatar", errors.New("error"))
+			},
+			responseErrorMessage: "error",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			postMock := mockDomain.NewMockPostsMicroservice(ctrl)
+			imageMock := mockDomain.NewMockImageUseCase(ctrl)
+			userMock := mockDomain.NewMockUsersMicroservice(ctrl)
+
+			test.mockCreateComment(postMock, test.comment)
+			test.mockGetPost(postMock, test.comment.PostID, test.comment.UserID)
+			test.mockGetById(userMock, test.comment.UserID)
+			test.mockGetImg(imageMock, "avatar")
+
+			usecase := New(postMock, userMock, imageMock, nil)
+
+			_, err := usecase.CreateComment(test.comment)
+			if err != nil {
+				require.Equal(t, test.responseErrorMessage, err.Error())
+			}
+		})
+	}
+}
+
+func TestUsecase_GetCommentByID(t *testing.T) {
+	tests := []struct {
+		name                 string
+		commentID            uint64
+		mockGetCommentByID   func(s *mockDomain.MockPostsMicroservice, commentID uint64)
+		mockGetById          func(s *mockDomain.MockUsersMicroservice, userID uint64)
+		responseErrorMessage string
+	}{
+		{
+			name:      "OK",
+			commentID: 1,
+			mockGetCommentByID: func(s *mockDomain.MockPostsMicroservice, commentID uint64) {
+				s.EXPECT().GetCommentByID(commentID).Return(models.Comment{
+					ID:      1,
+					UserID:  1,
+					Content: "content",
+					PostID:  1,
+				}, nil)
+			},
+			mockGetById: func(s *mockDomain.MockUsersMicroservice, userID uint64) {
+				s.EXPECT().GetByID(userID).Return(models.User{
+					ID:       1,
+					Username: "username",
+					Avatar:   "avatar",
+				}, nil)
+			},
+		},
+		{
+			name:      "ErrGetCommentByID",
+			commentID: 1,
+			mockGetCommentByID: func(s *mockDomain.MockPostsMicroservice, commentID uint64) {
+				s.EXPECT().GetCommentByID(commentID).Return(models.Comment{}, errors.New("error"))
+			},
+			mockGetById:          func(s *mockDomain.MockUsersMicroservice, userID uint64) {},
+			responseErrorMessage: "error",
+		},
+		{
+			name:      "ErrGetByID",
+			commentID: 1,
+			mockGetCommentByID: func(s *mockDomain.MockPostsMicroservice, commentID uint64) {
+				s.EXPECT().GetCommentByID(commentID).Return(models.Comment{
+					ID:      1,
+					UserID:  1,
+					Content: "content",
+					PostID:  1,
+				}, nil)
+			},
+			mockGetById: func(s *mockDomain.MockUsersMicroservice, userID uint64) {
+				s.EXPECT().GetByID(userID).Return(models.User{}, errors.New("error"))
+			},
+			responseErrorMessage: "error",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			postMock := mockDomain.NewMockPostsMicroservice(ctrl)
+			imageMock := mockDomain.NewMockImageUseCase(ctrl)
+			userMock := mockDomain.NewMockUsersMicroservice(ctrl)
+
+			test.mockGetCommentByID(postMock, test.commentID)
+			test.mockGetById(userMock, 1)
+
+			usecase := New(postMock, userMock, imageMock, nil)
+
+			_, err := usecase.GetCommentByID(test.commentID)
+			if err != nil {
+				require.Equal(t, test.responseErrorMessage, err.Error())
+			}
+		})
+	}
+}
+
+func TestUsecase_UpdateComment(t *testing.T) {}
