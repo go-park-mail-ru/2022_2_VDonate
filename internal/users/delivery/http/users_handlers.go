@@ -156,6 +156,7 @@ func (h Handler) PutUser(c echo.Context) error {
 		UserID:   id,
 		Username: updateUser.Username,
 		ImgPath:  updateUser.Avatar,
+		About:    updateUser.About,
 	})
 }
 
