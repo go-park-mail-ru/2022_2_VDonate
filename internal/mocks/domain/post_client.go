@@ -39,14 +39,14 @@ func (m *MockPostsClient) EXPECT() *MockPostsClientMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockPostsClient) Create(ctx context.Context, in *protobuf.Post, opts ...grpc.CallOption) (*protobuf.PostID, error) {
+func (m *MockPostsClient) Create(ctx context.Context, in *protobuf.Post, opts ...grpc.CallOption) (*protobuf.Post, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, in}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "Create", varargs...)
-	ret0, _ := ret[0].(*protobuf.PostID)
+	ret0, _ := ret[0].(*protobuf.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -56,6 +56,26 @@ func (mr *MockPostsClientMockRecorder) Create(ctx, in interface{}, opts ...inter
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, in}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockPostsClient)(nil).Create), varargs...)
+}
+
+// CreateComment mocks base method.
+func (m *MockPostsClient) CreateComment(ctx context.Context, in *protobuf.Comment, opts ...grpc.CallOption) (*protobuf.Comment, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateComment", varargs...)
+	ret0, _ := ret[0].(*protobuf.Comment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateComment indicates an expected call of CreateComment.
+func (mr *MockPostsClientMockRecorder) CreateComment(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateComment", reflect.TypeOf((*MockPostsClient)(nil).CreateComment), varargs...)
 }
 
 // CreateDepTag mocks base method.
@@ -138,6 +158,26 @@ func (mr *MockPostsClientMockRecorder) DeleteByID(ctx, in interface{}, opts ...i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockPostsClient)(nil).DeleteByID), varargs...)
 }
 
+// DeleteCommentByID mocks base method.
+func (m *MockPostsClient) DeleteCommentByID(ctx context.Context, in *protobuf.CommentID, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteCommentByID", varargs...)
+	ret0, _ := ret[0].(*emptypb.Empty)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteCommentByID indicates an expected call of DeleteCommentByID.
+func (mr *MockPostsClientMockRecorder) DeleteCommentByID(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCommentByID", reflect.TypeOf((*MockPostsClient)(nil).DeleteCommentByID), varargs...)
+}
+
 // DeleteDepTag mocks base method.
 func (m *MockPostsClient) DeleteDepTag(ctx context.Context, in *protobuf.TagDep, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
@@ -216,6 +256,46 @@ func (mr *MockPostsClientMockRecorder) GetAllLikesByPostID(ctx, in interface{}, 
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, in}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllLikesByPostID", reflect.TypeOf((*MockPostsClient)(nil).GetAllLikesByPostID), varargs...)
+}
+
+// GetCommentByID mocks base method.
+func (m *MockPostsClient) GetCommentByID(ctx context.Context, in *protobuf.CommentID, opts ...grpc.CallOption) (*protobuf.Comment, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetCommentByID", varargs...)
+	ret0, _ := ret[0].(*protobuf.Comment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCommentByID indicates an expected call of GetCommentByID.
+func (mr *MockPostsClientMockRecorder) GetCommentByID(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommentByID", reflect.TypeOf((*MockPostsClient)(nil).GetCommentByID), varargs...)
+}
+
+// GetCommentsByPostID mocks base method.
+func (m *MockPostsClient) GetCommentsByPostID(ctx context.Context, in *protobuf.PostID, opts ...grpc.CallOption) (*protobuf.CommentArray, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetCommentsByPostID", varargs...)
+	ret0, _ := ret[0].(*protobuf.CommentArray)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCommentsByPostID indicates an expected call of GetCommentsByPostID.
+func (mr *MockPostsClientMockRecorder) GetCommentsByPostID(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommentsByPostID", reflect.TypeOf((*MockPostsClient)(nil).GetCommentsByPostID), varargs...)
 }
 
 // GetLikeByUserAndPostID mocks base method.
@@ -358,6 +438,26 @@ func (mr *MockPostsClientMockRecorder) Update(ctx, in interface{}, opts ...inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockPostsClient)(nil).Update), varargs...)
 }
 
+// UpdateComment mocks base method.
+func (m *MockPostsClient) UpdateComment(ctx context.Context, in *protobuf.Comment, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateComment", varargs...)
+	ret0, _ := ret[0].(*emptypb.Empty)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateComment indicates an expected call of UpdateComment.
+func (mr *MockPostsClientMockRecorder) UpdateComment(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateComment", reflect.TypeOf((*MockPostsClient)(nil).UpdateComment), varargs...)
+}
+
 // MockPostsServer is a mock of PostsServer interface.
 type MockPostsServer struct {
 	ctrl     *gomock.Controller
@@ -382,10 +482,10 @@ func (m *MockPostsServer) EXPECT() *MockPostsServerMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockPostsServer) Create(arg0 context.Context, arg1 *protobuf.Post) (*protobuf.PostID, error) {
+func (m *MockPostsServer) Create(arg0 context.Context, arg1 *protobuf.Post) (*protobuf.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0, arg1)
-	ret0, _ := ret[0].(*protobuf.PostID)
+	ret0, _ := ret[0].(*protobuf.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -394,6 +494,21 @@ func (m *MockPostsServer) Create(arg0 context.Context, arg1 *protobuf.Post) (*pr
 func (mr *MockPostsServerMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockPostsServer)(nil).Create), arg0, arg1)
+}
+
+// CreateComment mocks base method.
+func (m *MockPostsServer) CreateComment(arg0 context.Context, arg1 *protobuf.Comment) (*protobuf.Comment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateComment", arg0, arg1)
+	ret0, _ := ret[0].(*protobuf.Comment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateComment indicates an expected call of CreateComment.
+func (mr *MockPostsServerMockRecorder) CreateComment(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateComment", reflect.TypeOf((*MockPostsServer)(nil).CreateComment), arg0, arg1)
 }
 
 // CreateDepTag mocks base method.
@@ -456,6 +571,21 @@ func (mr *MockPostsServerMockRecorder) DeleteByID(arg0, arg1 interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockPostsServer)(nil).DeleteByID), arg0, arg1)
 }
 
+// DeleteCommentByID mocks base method.
+func (m *MockPostsServer) DeleteCommentByID(arg0 context.Context, arg1 *protobuf.CommentID) (*emptypb.Empty, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteCommentByID", arg0, arg1)
+	ret0, _ := ret[0].(*emptypb.Empty)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteCommentByID indicates an expected call of DeleteCommentByID.
+func (mr *MockPostsServerMockRecorder) DeleteCommentByID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCommentByID", reflect.TypeOf((*MockPostsServer)(nil).DeleteCommentByID), arg0, arg1)
+}
+
 // DeleteDepTag mocks base method.
 func (m *MockPostsServer) DeleteDepTag(arg0 context.Context, arg1 *protobuf.TagDep) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
@@ -514,6 +644,36 @@ func (m *MockPostsServer) GetAllLikesByPostID(arg0 context.Context, arg1 *protob
 func (mr *MockPostsServerMockRecorder) GetAllLikesByPostID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllLikesByPostID", reflect.TypeOf((*MockPostsServer)(nil).GetAllLikesByPostID), arg0, arg1)
+}
+
+// GetCommentByID mocks base method.
+func (m *MockPostsServer) GetCommentByID(arg0 context.Context, arg1 *protobuf.CommentID) (*protobuf.Comment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCommentByID", arg0, arg1)
+	ret0, _ := ret[0].(*protobuf.Comment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCommentByID indicates an expected call of GetCommentByID.
+func (mr *MockPostsServerMockRecorder) GetCommentByID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommentByID", reflect.TypeOf((*MockPostsServer)(nil).GetCommentByID), arg0, arg1)
+}
+
+// GetCommentsByPostID mocks base method.
+func (m *MockPostsServer) GetCommentsByPostID(arg0 context.Context, arg1 *protobuf.PostID) (*protobuf.CommentArray, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCommentsByPostID", arg0, arg1)
+	ret0, _ := ret[0].(*protobuf.CommentArray)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCommentsByPostID indicates an expected call of GetCommentsByPostID.
+func (mr *MockPostsServerMockRecorder) GetCommentsByPostID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommentsByPostID", reflect.TypeOf((*MockPostsServer)(nil).GetCommentsByPostID), arg0, arg1)
 }
 
 // GetLikeByUserAndPostID mocks base method.
@@ -619,6 +779,21 @@ func (m *MockPostsServer) Update(arg0 context.Context, arg1 *protobuf.Post) (*em
 func (mr *MockPostsServerMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockPostsServer)(nil).Update), arg0, arg1)
+}
+
+// UpdateComment mocks base method.
+func (m *MockPostsServer) UpdateComment(arg0 context.Context, arg1 *protobuf.Comment) (*emptypb.Empty, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateComment", arg0, arg1)
+	ret0, _ := ret[0].(*emptypb.Empty)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateComment indicates an expected call of UpdateComment.
+func (mr *MockPostsServerMockRecorder) UpdateComment(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateComment", reflect.TypeOf((*MockPostsServer)(nil).UpdateComment), arg0, arg1)
 }
 
 // mustEmbedUnimplementedPostsServer mocks base method.

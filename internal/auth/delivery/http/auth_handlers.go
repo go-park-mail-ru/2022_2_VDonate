@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ztrue/tracerr"
+
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
@@ -22,7 +24,12 @@ var deleteExpire = map[string]int{
 }
 
 func GetCookie(c echo.Context) (*http.Cookie, error) {
-	return c.Cookie(cookieName)
+	cookie, err := c.Cookie(cookieName)
+	if err != nil {
+		return nil, tracerr.Wrap(err)
+	}
+
+	return cookie, nil
 }
 
 func MakeHTTPCookie(c *http.Cookie) *http.Cookie {

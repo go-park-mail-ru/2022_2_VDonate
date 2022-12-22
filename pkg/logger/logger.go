@@ -232,18 +232,44 @@ func Middleware() echo.MiddlewareFunc {
 
 			bytesIn := req.Header.Get(echo.HeaderContentLength)
 
-			errInternal, _ := err.(*echo.HTTPError)
+			if err != nil {
+				errInternal, _ := err.(*echo.HTTPError)
 
-			ctxLog := GetInstance().Logrus.WithFields(map[string]interface{}{
+				var trace tracerr.Frame
+
+				if traces := tracerr.StackTrace(errInternal.Internal); len(traces) > 0 {
+					trace = traces[0]
+				} else {
+					trace = tracerr.Frame{}
+				}
+
+				GetInstance().Logrus.WithFields(logrus.Fields{
+					"http_message":  errInternal.Message,
+					"error_code":    errInternal.Code,
+					"error":         errInternal.Internal,
+					"error_cause":   trace,
+					"remote_ip":     c.RealIP(),
+					"host":          req.Host,
+					"uri":           req.RequestURI,
+					"method":        req.Method,
+					"path":          p,
+					"referer":       req.Referer(),
+					"user_agent":    req.UserAgent(),
+					"status":        res.Status,
+					"latency":       strconv.FormatInt(stop.Sub(start).Nanoseconds()/1000, 10),
+					"latency_human": stop.Sub(start).String(),
+					"bytes_in":      bytesIn,
+					"bytes_out":     strconv.FormatInt(res.Size, 10),
+				}).Error("ERROR REQUEST")
+
+				return err
+			}
+			GetInstance().Logrus.WithFields(map[string]interface{}{
 				"remote_ip":     c.RealIP(),
 				"host":          req.Host,
 				"uri":           req.RequestURI,
 				"method":        req.Method,
 				"path":          p,
-				"http_message":  errInternal.Message,
-				"error_code":    errInternal.Code,
-				"error":         errInternal.Internal,
-				"error_cause":   tracerr.StackTrace(errInternal.Internal)[0],
 				"referer":       req.Referer(),
 				"user_agent":    req.UserAgent(),
 				"status":        res.Status,
@@ -251,13 +277,7 @@ func Middleware() echo.MiddlewareFunc {
 				"latency_human": stop.Sub(start).String(),
 				"bytes_in":      bytesIn,
 				"bytes_out":     strconv.FormatInt(res.Size, 10),
-			})
-			if err != nil {
-				ctxLog.Error("ERROR REQUEST")
-
-				return err
-			}
-			ctxLog.Debug("REQUEST")
+			}).Debug("REQUEST")
 
 			return nil
 		}

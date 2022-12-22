@@ -174,10 +174,10 @@ func (mr *MockPostsRepositoryMockRecorder) Close() *gomock.Call {
 }
 
 // Create mocks base method.
-func (m *MockPostsRepository) Create(post models.Post) (uint64, error) {
+func (m *MockPostsRepository) Create(post models.Post) (models.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", post)
-	ret0, _ := ret[0].(uint64)
+	ret0, _ := ret[0].(models.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -186,6 +186,21 @@ func (m *MockPostsRepository) Create(post models.Post) (uint64, error) {
 func (mr *MockPostsRepositoryMockRecorder) Create(post interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockPostsRepository)(nil).Create), post)
+}
+
+// CreateComment mocks base method.
+func (m *MockPostsRepository) CreateComment(comment models.Comment) (models.Comment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateComment", comment)
+	ret0, _ := ret[0].(models.Comment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateComment indicates an expected call of CreateComment.
+func (mr *MockPostsRepositoryMockRecorder) CreateComment(comment interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateComment", reflect.TypeOf((*MockPostsRepository)(nil).CreateComment), comment)
 }
 
 // CreateDepTag mocks base method.
@@ -245,6 +260,20 @@ func (mr *MockPostsRepositoryMockRecorder) DeleteByID(postID interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockPostsRepository)(nil).DeleteByID), postID)
 }
 
+// DeleteCommentByID mocks base method.
+func (m *MockPostsRepository) DeleteCommentByID(commentID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteCommentByID", commentID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteCommentByID indicates an expected call of DeleteCommentByID.
+func (mr *MockPostsRepositoryMockRecorder) DeleteCommentByID(commentID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCommentByID", reflect.TypeOf((*MockPostsRepository)(nil).DeleteCommentByID), commentID)
+}
+
 // DeleteDepTag mocks base method.
 func (m *MockPostsRepository) DeleteDepTag(tagDep models.TagDep) error {
 	m.ctrl.T.Helper()
@@ -301,6 +330,36 @@ func (m *MockPostsRepository) GetAllLikesByPostID(postID uint64) ([]models.Like,
 func (mr *MockPostsRepositoryMockRecorder) GetAllLikesByPostID(postID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllLikesByPostID", reflect.TypeOf((*MockPostsRepository)(nil).GetAllLikesByPostID), postID)
+}
+
+// GetCommentByID mocks base method.
+func (m *MockPostsRepository) GetCommentByID(commentID uint64) (models.Comment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCommentByID", commentID)
+	ret0, _ := ret[0].(models.Comment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCommentByID indicates an expected call of GetCommentByID.
+func (mr *MockPostsRepositoryMockRecorder) GetCommentByID(commentID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommentByID", reflect.TypeOf((*MockPostsRepository)(nil).GetCommentByID), commentID)
+}
+
+// GetCommentsByPostId mocks base method.
+func (m *MockPostsRepository) GetCommentsByPostId(postID uint64) ([]models.Comment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCommentsByPostId", postID)
+	ret0, _ := ret[0].([]models.Comment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCommentsByPostId indicates an expected call of GetCommentsByPostId.
+func (mr *MockPostsRepositoryMockRecorder) GetCommentsByPostId(postID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommentsByPostId", reflect.TypeOf((*MockPostsRepository)(nil).GetCommentsByPostId), postID)
 }
 
 // GetLikeByUserAndPostID mocks base method.
@@ -407,6 +466,20 @@ func (mr *MockPostsRepositoryMockRecorder) Update(post interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockPostsRepository)(nil).Update), post)
 }
 
+// UpdateComment mocks base method.
+func (m *MockPostsRepository) UpdateComment(comment models.Comment) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateComment", comment)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateComment indicates an expected call of UpdateComment.
+func (mr *MockPostsRepositoryMockRecorder) UpdateComment(comment interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateComment", reflect.TypeOf((*MockPostsRepository)(nil).UpdateComment), comment)
+}
+
 // MockSubscribersRepository is a mock of SubscribersRepository interface.
 type MockSubscribersRepository struct {
 	ctrl     *gomock.Controller
@@ -445,18 +518,18 @@ func (mr *MockSubscribersRepositoryMockRecorder) GetSubscribers(authorID interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscribers", reflect.TypeOf((*MockSubscribersRepository)(nil).GetSubscribers), authorID)
 }
 
-// Subscribe mocks base method.
-func (m *MockSubscribersRepository) Subscribe(subscription models.Subscription) error {
+// PayAndSubscribe mocks base method.
+func (m *MockSubscribersRepository) PayAndSubscribe(payment models.Payment) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Subscribe", subscription)
+	ret := m.ctrl.Call(m, "PayAndSubscribe", payment)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// Subscribe indicates an expected call of Subscribe.
-func (mr *MockSubscribersRepositoryMockRecorder) Subscribe(subscription interface{}) *gomock.Call {
+// PayAndSubscribe indicates an expected call of PayAndSubscribe.
+func (mr *MockSubscribersRepositoryMockRecorder) PayAndSubscribe(payment interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockSubscribersRepository)(nil).Subscribe), subscription)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PayAndSubscribe", reflect.TypeOf((*MockSubscribersRepository)(nil).PayAndSubscribe), payment)
 }
 
 // Unsubscribe mocks base method.
@@ -471,6 +544,20 @@ func (m *MockSubscribersRepository) Unsubscribe(userID, authorID uint64) error {
 func (mr *MockSubscribersRepositoryMockRecorder) Unsubscribe(userID, authorID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Unsubscribe", reflect.TypeOf((*MockSubscribersRepository)(nil).Unsubscribe), userID, authorID)
+}
+
+// UpdateStatus mocks base method.
+func (m *MockSubscribersRepository) UpdateStatus(status, id string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateStatus", status, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateStatus indicates an expected call of UpdateStatus.
+func (mr *MockSubscribersRepositoryMockRecorder) UpdateStatus(status, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatus", reflect.TypeOf((*MockSubscribersRepository)(nil).UpdateStatus), status, id)
 }
 
 // MockSubscriptionsRepository is a mock of SubscriptionsRepository interface.
@@ -665,6 +752,20 @@ func (mr *MockUsersRepositoryMockRecorder) DeleteByID(id interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockUsersRepository)(nil).DeleteByID), id)
 }
 
+// DropBalance mocks base method.
+func (m *MockUsersRepository) DropBalance(userID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DropBalance", userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DropBalance indicates an expected call of DropBalance.
+func (mr *MockUsersRepositoryMockRecorder) DropBalance(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DropBalance", reflect.TypeOf((*MockUsersRepository)(nil).DropBalance), userID)
+}
+
 // GetAllAuthors mocks base method.
 func (m *MockUsersRepository) GetAllAuthors() ([]models.User, error) {
 	m.ctrl.T.Helper()
@@ -755,6 +856,51 @@ func (mr *MockUsersRepositoryMockRecorder) GetByUsername(username interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUsername", reflect.TypeOf((*MockUsersRepository)(nil).GetByUsername), username)
 }
 
+// GetPostsNum mocks base method.
+func (m *MockUsersRepository) GetPostsNum(userID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPostsNum", userID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPostsNum indicates an expected call of GetPostsNum.
+func (mr *MockUsersRepositoryMockRecorder) GetPostsNum(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostsNum", reflect.TypeOf((*MockUsersRepository)(nil).GetPostsNum), userID)
+}
+
+// GetProfitForMounth mocks base method.
+func (m *MockUsersRepository) GetProfitForMounth(userID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProfitForMounth", userID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProfitForMounth indicates an expected call of GetProfitForMounth.
+func (mr *MockUsersRepositoryMockRecorder) GetProfitForMounth(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfitForMounth", reflect.TypeOf((*MockUsersRepository)(nil).GetProfitForMounth), userID)
+}
+
+// GetSubscribersNumForMounth mocks base method.
+func (m *MockUsersRepository) GetSubscribersNumForMounth(userID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscribersNumForMounth", userID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubscribersNumForMounth indicates an expected call of GetSubscribersNumForMounth.
+func (mr *MockUsersRepositoryMockRecorder) GetSubscribersNumForMounth(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscribersNumForMounth", reflect.TypeOf((*MockUsersRepository)(nil).GetSubscribersNumForMounth), userID)
+}
+
 // GetUserByPostID mocks base method.
 func (m *MockUsersRepository) GetUserByPostID(postID uint64) (models.User, error) {
 	m.ctrl.T.Helper()
@@ -782,74 +928,6 @@ func (m *MockUsersRepository) Update(user models.User) error {
 func (mr *MockUsersRepositoryMockRecorder) Update(user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsersRepository)(nil).Update), user)
-}
-
-// MockDonatesRepository is a mock of DonatesRepository interface.
-type MockDonatesRepository struct {
-	ctrl     *gomock.Controller
-	recorder *MockDonatesRepositoryMockRecorder
-}
-
-// MockDonatesRepositoryMockRecorder is the mock recorder for MockDonatesRepository.
-type MockDonatesRepositoryMockRecorder struct {
-	mock *MockDonatesRepository
-}
-
-// NewMockDonatesRepository creates a new mock instance.
-func NewMockDonatesRepository(ctrl *gomock.Controller) *MockDonatesRepository {
-	mock := &MockDonatesRepository{ctrl: ctrl}
-	mock.recorder = &MockDonatesRepositoryMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockDonatesRepository) EXPECT() *MockDonatesRepositoryMockRecorder {
-	return m.recorder
-}
-
-// GetDonateByID mocks base method.
-func (m *MockDonatesRepository) GetDonateByID(donateID uint64) (models.Donate, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDonateByID", donateID)
-	ret0, _ := ret[0].(models.Donate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetDonateByID indicates an expected call of GetDonateByID.
-func (mr *MockDonatesRepositoryMockRecorder) GetDonateByID(donateID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDonateByID", reflect.TypeOf((*MockDonatesRepository)(nil).GetDonateByID), donateID)
-}
-
-// GetDonatesByUserID mocks base method.
-func (m *MockDonatesRepository) GetDonatesByUserID(userID uint64) ([]models.Donate, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDonatesByUserID", userID)
-	ret0, _ := ret[0].([]models.Donate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetDonatesByUserID indicates an expected call of GetDonatesByUserID.
-func (mr *MockDonatesRepositoryMockRecorder) GetDonatesByUserID(userID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDonatesByUserID", reflect.TypeOf((*MockDonatesRepository)(nil).GetDonatesByUserID), userID)
-}
-
-// SendDonate mocks base method.
-func (m *MockDonatesRepository) SendDonate(donate models.Donate) (models.Donate, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendDonate", donate)
-	ret0, _ := ret[0].(models.Donate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// SendDonate indicates an expected call of SendDonate.
-func (mr *MockDonatesRepositoryMockRecorder) SendDonate(donate interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendDonate", reflect.TypeOf((*MockDonatesRepository)(nil).SendDonate), donate)
 }
 
 // MockImagesRepository is a mock of ImagesRepository interface.
@@ -903,4 +981,56 @@ func (m *MockImagesRepository) GetPermanentImage(filename string) (string, error
 func (mr *MockImagesRepositoryMockRecorder) GetPermanentImage(filename interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPermanentImage", reflect.TypeOf((*MockImagesRepository)(nil).GetPermanentImage), filename)
+}
+
+// MockNotificationsRepository is a mock of NotificationsRepository interface.
+type MockNotificationsRepository struct {
+	ctrl     *gomock.Controller
+	recorder *MockNotificationsRepositoryMockRecorder
+}
+
+// MockNotificationsRepositoryMockRecorder is the mock recorder for MockNotificationsRepository.
+type MockNotificationsRepositoryMockRecorder struct {
+	mock *MockNotificationsRepository
+}
+
+// NewMockNotificationsRepository creates a new mock instance.
+func NewMockNotificationsRepository(ctrl *gomock.Controller) *MockNotificationsRepository {
+	mock := &MockNotificationsRepository{ctrl: ctrl}
+	mock.recorder = &MockNotificationsRepositoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockNotificationsRepository) EXPECT() *MockNotificationsRepositoryMockRecorder {
+	return m.recorder
+}
+
+// DeleteNotificationByUserID mocks base method.
+func (m *MockNotificationsRepository) DeleteNotificationByUserID(userID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteNotificationByUserID", userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteNotificationByUserID indicates an expected call of DeleteNotificationByUserID.
+func (mr *MockNotificationsRepositoryMockRecorder) DeleteNotificationByUserID(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteNotificationByUserID", reflect.TypeOf((*MockNotificationsRepository)(nil).DeleteNotificationByUserID), userID)
+}
+
+// GetNotificationsByUserID mocks base method.
+func (m *MockNotificationsRepository) GetNotificationsByUserID(userID uint64) ([]models.Notification, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNotificationsByUserID", userID)
+	ret0, _ := ret[0].([]models.Notification)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetNotificationsByUserID indicates an expected call of GetNotificationsByUserID.
+func (mr *MockNotificationsRepositoryMockRecorder) GetNotificationsByUserID(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNotificationsByUserID", reflect.TypeOf((*MockNotificationsRepository)(nil).GetNotificationsByUserID), userID)
 }

@@ -50,6 +50,20 @@ func (mr *MockUsersMicroserviceMockRecorder) Create(user interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUsersMicroservice)(nil).Create), user)
 }
 
+// DropBalance mocks base method.
+func (m *MockUsersMicroservice) DropBalance(userID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DropBalance", userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DropBalance indicates an expected call of DropBalance.
+func (mr *MockUsersMicroserviceMockRecorder) DropBalance(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DropBalance", reflect.TypeOf((*MockUsersMicroservice)(nil).DropBalance), userID)
+}
+
 // GetAllAuthors mocks base method.
 func (m *MockUsersMicroservice) GetAllAuthors() ([]models.User, error) {
 	m.ctrl.T.Helper()
@@ -138,6 +152,51 @@ func (m *MockUsersMicroservice) GetByUsername(username string) (models.User, err
 func (mr *MockUsersMicroserviceMockRecorder) GetByUsername(username interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUsername", reflect.TypeOf((*MockUsersMicroservice)(nil).GetByUsername), username)
+}
+
+// GetPostsNum mocks base method.
+func (m *MockUsersMicroservice) GetPostsNum(UserID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPostsNum", UserID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPostsNum indicates an expected call of GetPostsNum.
+func (mr *MockUsersMicroserviceMockRecorder) GetPostsNum(UserID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostsNum", reflect.TypeOf((*MockUsersMicroservice)(nil).GetPostsNum), UserID)
+}
+
+// GetProfitForMounth mocks base method.
+func (m *MockUsersMicroservice) GetProfitForMounth(UserID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProfitForMounth", UserID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProfitForMounth indicates an expected call of GetProfitForMounth.
+func (mr *MockUsersMicroserviceMockRecorder) GetProfitForMounth(UserID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfitForMounth", reflect.TypeOf((*MockUsersMicroservice)(nil).GetProfitForMounth), UserID)
+}
+
+// GetSubscribersNum mocks base method.
+func (m *MockUsersMicroservice) GetSubscribersNum(UserID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscribersNum", UserID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubscribersNum indicates an expected call of GetSubscribersNum.
+func (mr *MockUsersMicroserviceMockRecorder) GetSubscribersNum(UserID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscribersNum", reflect.TypeOf((*MockUsersMicroservice)(nil).GetSubscribersNum), UserID)
 }
 
 // GetUserByPostID mocks base method.
@@ -294,6 +353,51 @@ func (m *MockUsersUseCase) GetByUsername(username string) (models.User, error) {
 func (mr *MockUsersUseCaseMockRecorder) GetByUsername(username interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUsername", reflect.TypeOf((*MockUsersUseCase)(nil).GetByUsername), username)
+}
+
+// GetPostsNum mocks base method.
+func (m *MockUsersUseCase) GetPostsNum(userID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPostsNum", userID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPostsNum indicates an expected call of GetPostsNum.
+func (mr *MockUsersUseCaseMockRecorder) GetPostsNum(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostsNum", reflect.TypeOf((*MockUsersUseCase)(nil).GetPostsNum), userID)
+}
+
+// GetProfitForMounth mocks base method.
+func (m *MockUsersUseCase) GetProfitForMounth(userID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProfitForMounth", userID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProfitForMounth indicates an expected call of GetProfitForMounth.
+func (mr *MockUsersUseCaseMockRecorder) GetProfitForMounth(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfitForMounth", reflect.TypeOf((*MockUsersUseCase)(nil).GetProfitForMounth), userID)
+}
+
+// GetSubscribersNum mocks base method.
+func (m *MockUsersUseCase) GetSubscribersNum(userID uint64) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscribersNum", userID)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubscribersNum indicates an expected call of GetSubscribersNum.
+func (mr *MockUsersUseCaseMockRecorder) GetSubscribersNum(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscribersNum", reflect.TypeOf((*MockUsersUseCase)(nil).GetSubscribersNum), userID)
 }
 
 // GetUserByPostID mocks base method.

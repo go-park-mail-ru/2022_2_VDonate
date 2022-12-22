@@ -236,7 +236,7 @@ func TestPostsService_Create(t *testing.T) {
 				Tags:        []string{"test"},
 			},
 			mockBehavior: func(r *mock_domain.MockPostsRepository, post models.Post) {
-				r.EXPECT().Create(post).Return(post.UserID, nil)
+				r.EXPECT().Create(post).Return(post, nil)
 			},
 		},
 		{
@@ -251,7 +251,7 @@ func TestPostsService_Create(t *testing.T) {
 				Tags:        []string{"test"},
 			},
 			mockBehavior: func(r *mock_domain.MockPostsRepository, post models.Post) {
-				r.EXPECT().Create(post).Return(post.UserID, domain.ErrInternal)
+				r.EXPECT().Create(post).Return(post, domain.ErrInternal)
 			},
 			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
 		},
@@ -938,6 +938,270 @@ func TestPostsService_DeleteDepTag(t *testing.T) {
 			s := New(repo)
 
 			_, err := s.DeleteDepTag(context.Background(), &protobuf.TagDep{TagID: test.tagID, PostID: test.postID})
+			if err != nil {
+				assert.Equal(t, test.expectedError, err.Error())
+			}
+		})
+	}
+}
+
+func TestPostsService_CreateComment(t *testing.T) {
+	type mockBehaviorCreateComment func(r *mock_domain.MockPostsRepository, comment models.Comment)
+
+	tests := []struct {
+		name          string
+		comment       models.Comment
+		mockBehavior  mockBehaviorCreateComment
+		expectedError string
+	}{
+		{
+			name: "OK",
+			comment: models.Comment{
+				PostID:  1,
+				UserID:  2,
+				Content: "test",
+			},
+			mockBehavior: func(r *mock_domain.MockPostsRepository, comment models.Comment) {
+				r.EXPECT().CreateComment(comment).Return(models.Comment{
+					ID:      1,
+					PostID:  1,
+					UserID:  2,
+					Content: "test",
+				}, nil)
+			},
+		},
+		{
+			name: "Error",
+			comment: models.Comment{
+				PostID:  1,
+				UserID:  2,
+				Content: "test",
+			},
+			mockBehavior: func(r *mock_domain.MockPostsRepository, comment models.Comment) {
+				r.EXPECT().CreateComment(comment).Return(models.Comment{}, domain.ErrInternal)
+			},
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			repo := mock_domain.NewMockPostsRepository(ctrl)
+			test.mockBehavior(repo, test.comment)
+
+			s := New(repo)
+
+			_, err := s.CreateComment(context.Background(), &protobuf.Comment{
+				PostID:  test.comment.PostID,
+				UserID:  test.comment.UserID,
+				Content: test.comment.Content,
+			})
+			if err != nil {
+				assert.Equal(t, test.expectedError, err.Error())
+			}
+		})
+	}
+}
+
+func TestPostsService_GetCommentByID(t *testing.T) {
+	type mockBehaviorGetCommentByID func(r *mock_domain.MockPostsRepository, commentID uint64)
+
+	tests := []struct {
+		name          string
+		commentID     uint64
+		mockBehavior  mockBehaviorGetCommentByID
+		expectedError string
+	}{
+		{
+			name:      "OK",
+			commentID: 1,
+			mockBehavior: func(r *mock_domain.MockPostsRepository, commentID uint64) {
+				r.EXPECT().GetCommentByID(commentID).Return(models.Comment{
+					ID:      1,
+					PostID:  1,
+					UserID:  2,
+					Content: "test",
+				}, nil)
+			},
+		},
+		{
+			name:      "Error",
+			commentID: 1,
+			mockBehavior: func(r *mock_domain.MockPostsRepository, commentID uint64) {
+				r.EXPECT().GetCommentByID(commentID).Return(models.Comment{}, domain.ErrInternal)
+			},
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			repo := mock_domain.NewMockPostsRepository(ctrl)
+			test.mockBehavior(repo, test.commentID)
+
+			s := New(repo)
+
+			_, err := s.GetCommentByID(context.Background(), &protobuf.CommentID{CommentID: test.commentID})
+			if err != nil {
+				assert.Equal(t, test.expectedError, err.Error())
+			}
+		})
+	}
+}
+
+func TestPostsService_GetCommentsByPostID(t *testing.T) {
+	type mockBehaviorGetCommentsByPostID func(r *mock_domain.MockPostsRepository, postID uint64)
+
+	tests := []struct {
+		name          string
+		postID        uint64
+		mockBehavior  mockBehaviorGetCommentsByPostID
+		expectedError string
+	}{
+		{
+			name:   "OK",
+			postID: 1,
+			mockBehavior: func(r *mock_domain.MockPostsRepository, postID uint64) {
+				r.EXPECT().GetCommentsByPostId(postID).Return([]models.Comment{
+					{
+						ID:      1,
+						PostID:  1,
+						UserID:  2,
+						Content: "test",
+					},
+				}, nil)
+			},
+		},
+		{
+			name:   "Error",
+			postID: 1,
+			mockBehavior: func(r *mock_domain.MockPostsRepository, postID uint64) {
+				r.EXPECT().GetCommentsByPostId(postID).Return([]models.Comment{}, domain.ErrInternal)
+			},
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			repo := mock_domain.NewMockPostsRepository(ctrl)
+			test.mockBehavior(repo, test.postID)
+
+			s := New(repo)
+
+			_, err := s.GetCommentsByPostID(context.Background(), &protobuf.PostID{PostID: test.postID})
+			if err != nil {
+				assert.Equal(t, test.expectedError, err.Error())
+			}
+		})
+	}
+}
+
+func TestPostsService_UpdateComment(t *testing.T) {
+	type mockBehaviorUpdateComment func(r *mock_domain.MockPostsRepository, comment models.Comment)
+
+	tests := []struct {
+		name          string
+		comment       models.Comment
+		mockBehavior  mockBehaviorUpdateComment
+		expectedError string
+	}{
+		{
+			name: "OK",
+			comment: models.Comment{
+				ID:      1,
+				PostID:  1,
+				UserID:  2,
+				Content: "test",
+			},
+			mockBehavior: func(r *mock_domain.MockPostsRepository, comment models.Comment) {
+				r.EXPECT().UpdateComment(comment).Return(nil)
+			},
+		},
+		{
+			name: "Error",
+			comment: models.Comment{
+				ID:      1,
+				PostID:  1,
+				UserID:  2,
+				Content: "test",
+			},
+			mockBehavior: func(r *mock_domain.MockPostsRepository, comment models.Comment) {
+				r.EXPECT().UpdateComment(comment).Return(domain.ErrInternal)
+			},
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			repo := mock_domain.NewMockPostsRepository(ctrl)
+			test.mockBehavior(repo, test.comment)
+
+			s := New(repo)
+
+			_, err := s.UpdateComment(context.Background(), &protobuf.Comment{
+				ID:      test.comment.ID,
+				PostID:  test.comment.PostID,
+				UserID:  test.comment.UserID,
+				Content: test.comment.Content,
+			})
+			if err != nil {
+				assert.Equal(t, test.expectedError, err.Error())
+			}
+		})
+	}
+}
+
+func TestPostsService_DeleteCommentByID(t *testing.T) {
+	type mockBehaviorDeleteCommentByID func(r *mock_domain.MockPostsRepository, commentID uint64)
+
+	tests := []struct {
+		name          string
+		commentID     uint64
+		mockBehavior  mockBehaviorDeleteCommentByID
+		expectedError string
+	}{
+		{
+			name:      "OK",
+			commentID: 1,
+			mockBehavior: func(r *mock_domain.MockPostsRepository, commentID uint64) {
+				r.EXPECT().DeleteCommentByID(commentID).Return(nil)
+			},
+		},
+		{
+			name:      "Error",
+			commentID: 1,
+			mockBehavior: func(r *mock_domain.MockPostsRepository, commentID uint64) {
+				r.EXPECT().DeleteCommentByID(commentID).Return(domain.ErrInternal)
+			},
+			expectedError: status.Error(codes.Internal, domain.ErrInternal.Error()).Error(),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			repo := mock_domain.NewMockPostsRepository(ctrl)
+			test.mockBehavior(repo, test.commentID)
+
+			s := New(repo)
+
+			_, err := s.DeleteCommentByID(context.Background(), &protobuf.CommentID{CommentID: test.commentID})
 			if err != nil {
 				assert.Equal(t, test.expectedError, err.Error())
 			}

@@ -24,16 +24,23 @@ func TestHadler_GetUser(t *testing.T) {
 	type mockImageBehavior func(r *mockDomain.MockImageUseCase, bucket, filename string)
 	type mockSubscribersBehavior func(r *mockDomain.MockSubscribersUseCase, userID uint64)
 	type mockSubscriptionsBehavior func(r *mockDomain.MockSubscriptionsUseCase, userID uint64)
+	type mockStatisticsBehavior func(r *mockDomain.MockUsersUseCase, userID uint64)
+	type mockGetBySession func(r *mockDomain.MockUsersUseCase, sessionID string)
 
 	tests := []struct {
-		name                      string
-		redirectID                int
-		mockUserBehavior          mockUserBehavior
-		mockImageBehavior         mockImageBehavior
-		mockSubscriptionsBehavior mockSubscriptionsBehavior
-		mockSubscribersBehavior   mockSubscribersBehavior
-		expectedResponseBody      string
-		expectedErrorMessage      string
+		name                        string
+		redirectID                  int
+		mockUserBehavior            mockUserBehavior
+		mockImageBehavior           mockImageBehavior
+		mockSubscriptionsBehavior   mockSubscriptionsBehavior
+		mockSubscribersBehavior     mockSubscribersBehavior
+		mockGetPostStat             mockStatisticsBehavior
+		mockGetSubscribersStat      mockStatisticsBehavior
+		mockGetProfitStat           mockStatisticsBehavior
+		mockGetSubscribersMountStat mockStatisticsBehavior
+		mockGetBySession            mockGetBySession
+		expectedResponseBody        string
+		expectedErrorMessage        string
 	}{
 		{
 			name:       "OK",
@@ -60,7 +67,21 @@ func TestHadler_GetUser(t *testing.T) {
 					{ID: 24},
 				}, nil)
 			},
-			expectedResponseBody: `{"id":24,"username":"themilchenko","email":"example@ex.com","avatar":"","isAuthor":true,"about":"","countSubscriptions":1,"countSubscribers":1}`,
+			mockGetPostStat: func(r *mockDomain.MockUsersUseCase, userID uint64) {
+				r.EXPECT().GetPostsNum(userID).Return(uint64(1), nil)
+			},
+			mockGetSubscribersStat: func(r *mockDomain.MockUsersUseCase, userID uint64) {
+				r.EXPECT().GetSubscribersNum(userID).Return(uint64(1), nil)
+			},
+			mockGetProfitStat: func(r *mockDomain.MockUsersUseCase, userID uint64) {
+				r.EXPECT().GetProfitForMounth(userID).Return(uint64(1), nil)
+			},
+			mockGetBySession: func(r *mockDomain.MockUsersUseCase, sessionID string) {
+				r.EXPECT().GetBySessionID(sessionID).Return(models.User{
+					ID: 24,
+				}, nil)
+			},
+			expectedResponseBody: `{"id":24,"username":"themilchenko","email":"example@ex.com","avatar":"","isAuthor":true,"balance":0,"about":"","countSubscriptions":1,"countSubscribers":1,"countPosts":1,"countSubscribersMounth":1,"countProfitMounth":1}`,
 		},
 		{
 			name:                      "BadID",
@@ -69,6 +90,10 @@ func TestHadler_GetUser(t *testing.T) {
 			mockImageBehavior:         func(r *mockDomain.MockImageUseCase, bucket, filename string) {},
 			mockSubscriptionsBehavior: func(r *mockDomain.MockSubscriptionsUseCase, userID uint64) {},
 			mockSubscribersBehavior:   func(r *mockDomain.MockSubscribersUseCase, userID uint64) {},
+			mockGetPostStat:           func(r *mockDomain.MockUsersUseCase, userID uint64) {},
+			mockGetSubscribersStat:    func(r *mockDomain.MockUsersUseCase, userID uint64) {},
+			mockGetProfitStat:         func(r *mockDomain.MockUsersUseCase, userID uint64) {},
+			mockGetBySession:          func(r *mockDomain.MockUsersUseCase, sessionID string) {},
 			expectedErrorMessage:      "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
 		},
 		{
@@ -80,7 +105,15 @@ func TestHadler_GetUser(t *testing.T) {
 			mockImageBehavior:         func(r *mockDomain.MockImageUseCase, bucket, filename string) {},
 			mockSubscriptionsBehavior: func(r *mockDomain.MockSubscriptionsUseCase, userID uint64) {},
 			mockSubscribersBehavior:   func(r *mockDomain.MockSubscribersUseCase, userID uint64) {},
-			expectedErrorMessage:      "code=404, message=failed to find item, internal=failed to find item",
+			mockGetPostStat:           func(r *mockDomain.MockUsersUseCase, userID uint64) {},
+			mockGetSubscribersStat:    func(r *mockDomain.MockUsersUseCase, userID uint64) {},
+			mockGetProfitStat:         func(r *mockDomain.MockUsersUseCase, userID uint64) {},
+			mockGetBySession: func(r *mockDomain.MockUsersUseCase, sessionID string) {
+				r.EXPECT().GetBySessionID(sessionID).Return(models.User{
+					ID: 24,
+				}, nil)
+			},
+			expectedErrorMessage: "code=404, message=failed to find item, internal=failed to find item",
 		},
 	}
 
@@ -99,11 +132,16 @@ func TestHadler_GetUser(t *testing.T) {
 			test.mockImageBehavior(image, "avatar", "filename")
 			test.mockSubscribersBehavior(subscriber, uint64(test.redirectID))
 			test.mockSubscriptionsBehavior(subscription, uint64(test.redirectID))
+			test.mockGetPostStat(user, uint64(test.redirectID))
+			test.mockGetSubscribersStat(user, uint64(test.redirectID))
+			test.mockGetProfitStat(user, uint64(test.redirectID))
+			test.mockGetBySession(user, "session_id")
 
 			handler := NewHandler(user, auth, image, subscription, subscriber)
 
 			e := echo.New()
 			req := httptest.NewRequest(http.MethodGet, "https://127.0.0.1/api/v1/users", nil)
+			req.AddCookie(&http.Cookie{Name: "session_id", Value: "session_id"})
 			rec := httptest.NewRecorder()
 
 			c := e.NewContext(req, rec)
@@ -158,7 +196,7 @@ func TestHandler_PutUser(t *testing.T) {
 			mockGetImageBehaviout: func(r *mockDomain.MockImageUseCase, avatar string) {
 				r.EXPECT().GetImage(avatar).Return("", nil)
 			},
-			expectedResponseBody: `{"id":345,"username":"superuser","email":"","is_author":true,"about":"I love sport"}`,
+			expectedResponseBody: `{"id":345,"username":"superuser","email":"","is_author":true,"balance":0,"about":"I love sport"}`,
 		},
 		{
 			name: "BadRequest-ID",
@@ -317,7 +355,7 @@ func TestHandler_GetAuthors(t *testing.T) {
 			mockSubscribers: func(r *mockDomain.MockSubscribersUseCase, authorID uint64) {
 				r.EXPECT().GetSubscribers(authorID).Return([]models.User{}, nil)
 			},
-			responseMessage: `[{"id":345,"username":"superuser","email":"","avatar":"","isAuthor":true,"about":"","countSubscriptions":0,"countSubscribers":0}]`,
+			responseMessage: `[{"id":345,"username":"superuser","email":"","avatar":"","isAuthor":true,"balance":0,"about":"","countSubscriptions":0,"countSubscribers":0,"countPosts":0,"countSubscribersMounth":0,"countProfitMounth":0}]`,
 		},
 		{
 			name:    "ErrFindAuthors",

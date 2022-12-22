@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ztrue/tracerr"
+
 	httpAuth "github.com/go-park-mail-ru/2022_2_VDonate/internal/auth/delivery/http"
 
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
@@ -15,14 +17,16 @@ import (
 )
 
 type Handler struct {
-	subscribersUsecase domain.SubscribersUseCase
-	userUsecase        domain.UsersUseCase
+	subscribersUsecase   domain.SubscribersUseCase
+	subscriptionsUsecase domain.SubscriptionsUseCase
+	userUsecase          domain.UsersUseCase
 }
 
-func NewHandler(s domain.SubscribersUseCase, u domain.UsersUseCase) *Handler {
+func NewHandler(s domain.SubscribersUseCase, u domain.UsersUseCase, as domain.SubscriptionsUseCase) *Handler {
 	return &Handler{
-		subscribersUsecase: s,
-		userUsecase:        u,
+		subscribersUsecase:   s,
+		userUsecase:          u,
+		subscriptionsUsecase: as,
 	}
 }
 
@@ -58,10 +62,10 @@ func (h Handler) GetSubscribers(c echo.Context) error {
 // @ID          create_subscriber
 // @Tags        subscribers
 // @Produce     json
-// @Param       Subscription body     models.SubscriptionMpfd true "Subscription info with required AuthorID and Subscription ID"
-// @Success     200          {object} models.Subscription     "Successfully subscribed"
-// @Failure     400          {object} echo.HTTPError          "Bad request"
-// @Failure     500          {object} echo.HTTPError          "Not created"
+// @Param       Subscription body     models.QiwiPaymentStatus true "Payment response, documentation: https://developer.qiwi.com/ru/p2p-payments/?shell#create"
+// @Success     200          {object} models.Subscription      "Successfully subscribed"
+// @Failure     400          {object} echo.HTTPError           "Bad request"
+// @Failure     500          {object} echo.HTTPError           "Not created"
 // @Security    ApiKeyAuth
 // @Router      /subscribers [post]
 func (h Handler) CreateSubscriber(c echo.Context) error {
@@ -80,11 +84,17 @@ func (h Handler) CreateSubscriber(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	if err = h.subscribersUsecase.Subscribe(s, u.ID); err != nil {
+	sub, err := h.subscriptionsUsecase.GetAuthorSubscriptionByID(s.AuthorSubscriptionID)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	response, err := h.subscribersUsecase.Subscribe(s, u.ID, sub)
+	if err != nil {
 		return errorHandling.WrapEcho(domain.ErrCreate, err)
 	}
 
-	return c.JSON(http.StatusOK, s)
+	return c.JSON(http.StatusOK, response)
 }
 
 // DeleteSubscriber godoc
@@ -121,4 +131,50 @@ func (h Handler) DeleteSubscriber(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, models.EmptyStruct{})
+}
+
+// Withdraw godoc
+// @Summary     Withdraw
+// @Description Вывод средств на QIWI кошелек или банковскую карту
+// @ID          withdraw
+// @Tags        withdraw
+// @Accept      json
+// @Produce     json
+// @Param       Input body     models.Withdraw      true "Информация о выводе средств, заполнить одно из полей Phone или Card, только цифры"
+// @Success     200   {object} models.WithdrawInfo  "Перевод успешен, получай информацию о переводе"
+// @Failure     400   {object} echo.HTTPError       "Bad request (в основном неверный формат данных)"
+// @Failure     500   {object} models.WithdrawError "Внутренняя ошибка либо нашего сервера, либо их сервера, в зависимости от этого будет выдана ошибка либо наша, либо их"
+// @Security    ApiKeyAuth
+// @Router      /withdraw [post]
+func (h Handler) Withdraw(c echo.Context) error {
+	cookie, err := httpAuth.GetCookie(c)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	u, err := h.userUsecase.GetBySessionID(cookie.Value)
+	if err != nil {
+		return errorHandling.WrapEcho(domain.ErrNoSession, err)
+	}
+
+	var w models.Withdraw
+	if err = c.Bind(&w); err != nil {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	if w.UserID != u.ID {
+		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+	}
+
+	info, err := h.subscribersUsecase.Withdraw(w.UserID, w.Phone, w.Card)
+	if err != nil {
+		if eTrace, ok := err.(tracerr.Error); ok {
+			if e, ok := eTrace.Unwrap().(models.WithdrawError); ok {
+				return c.JSON(http.StatusInternalServerError, e)
+			}
+		}
+		return errorHandling.WrapEcho(domain.ErrInternal, err)
+	}
+
+	return c.JSON(http.StatusOK, info)
 }

@@ -91,7 +91,7 @@ func (r Postgres) GetByUsername(username string) (model.User, error) {
 	if err := r.DB.Get(
 		&u,
 		`
-		SELECT avatar, password, is_author, about
+		SELECT avatar, password, balance, is_author, about
 		FROM user_info 
 		WHERE user_id = $1;`,
 		u.ID,
@@ -118,7 +118,7 @@ func (r Postgres) GetByID(id uint64) (model.User, error) {
 	if err := r.DB.Get(
 		&u,
 		`
-		SELECT avatar, password, is_author, about
+		SELECT avatar, password, balance, is_author, about
 		FROM user_info 
 		WHERE user_id = $1;`,
 		u.ID,
@@ -145,7 +145,7 @@ func (r Postgres) GetByEmail(email string) (model.User, error) {
 	if err := r.DB.Get(
 		&u,
 		`
-		SELECT avatar, password, is_author, about
+		SELECT avatar, password, balance, is_author, about
 		FROM user_info 
 		WHERE user_id = $1;`,
 		u.ID,
@@ -172,7 +172,7 @@ func (r Postgres) GetBySessionID(sessionID string) (model.User, error) {
 	if err := r.DB.Get(
 		&u,
 		`
-		SELECT avatar, password, is_author, about
+		SELECT avatar, password, balance, is_author, about
 		FROM user_info 
 		WHERE user_id = $1;`,
 		u.ID,
@@ -197,7 +197,7 @@ func (r Postgres) GetUserByPostID(postID uint64) (model.User, error) {
 	if err := r.DB.Get(
 		&user,
 		`
-		SELECT avatar, password, is_author, about
+		SELECT avatar, password, balance, is_author, about
 		FROM user_info 
 		WHERE user_id = $1;`,
 		user.ID,
@@ -236,12 +236,14 @@ func (r Postgres) Update(user model.User) error {
 		SET avatar=$1,
 		    password=$2,
 		    is_author=$3,
-		    about=$4
-		WHERE user_id = $5`,
+		    about=$4,
+		    balance=$5
+		WHERE user_id = $6`,
 		user.Avatar,
 		user.Password,
 		user.IsAuthor,
 		user.About,
+		user.Balance,
 		user.ID,
 	); err != nil {
 		if errTx := tx.Rollback(); errTx != nil {
@@ -286,7 +288,7 @@ func (r Postgres) GetAllAuthors() ([]model.User, error) {
 	if err := r.DB.Select(
 		&u,
 		`
-		SELECT id, username, email, avatar, password, is_author, about 
+		SELECT id, username, email, avatar, balance, password, is_author, about 
 		FROM users 
 		JOIN user_info ui on users.id = ui.user_id
 		WHERE ui.is_author = true;`,
@@ -325,4 +327,64 @@ func (r Postgres) GetAuthorByUsername(username string) ([]model.User, error) {
 	}
 
 	return u, nil
+}
+
+func (r Postgres) GetPostsNum(userID uint64) (uint64, error) {
+	var count uint64
+	if err := r.DB.Get(
+		&count,
+		`
+		SELECT COUNT(*) FROM posts WHERE user_id = $1;`,
+		userID,
+	); err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (r Postgres) GetSubscribersNumForMounth(userID uint64) (uint64, error) {
+	var count uint64
+	if err := r.DB.Get(
+		&count,
+		`
+		SELECT COUNT(*) FROM subscriptions WHERE author_id = $1 AND date_created >= NOW() - INTERVAL '1 month';`,
+		userID,
+	); err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (r Postgres) GetProfitForMounth(userID uint64) (uint64, error) {
+	var count *uint64
+	if err := r.DB.Get(
+		&count,
+		`
+		SELECT SUM(author_subscriptions.price) FROM payments
+			JOIN author_subscriptions
+			ON payments.sub_id=author_subscriptions.id
+			WHERE to_id=$1 AND time >= NOW() - INTERVAL '1 month';`,
+		userID,
+	); err != nil {
+		return 0, err
+	}
+	if count == nil {
+		return 0, nil
+	}
+
+	return *count, nil
+}
+
+func (r Postgres) DropBalance(userID uint64) error {
+	if _, err := r.DB.Exec(
+		`
+		UPDATE user_info SET balance = 0 WHERE user_id = $1;`,
+		userID,
+	); err != nil {
+		return err
+	}
+
+	return nil
 }

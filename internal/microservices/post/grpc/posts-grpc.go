@@ -89,13 +89,13 @@ func (s PostsService) GetPostByID(_ context.Context, postID *protobuf.PostID) (*
 	return ConvertToProto(post), nil
 }
 
-func (s PostsService) Create(_ context.Context, post *protobuf.Post) (*protobuf.PostID, error) {
-	id, err := s.postsRepo.Create(ConvertToModel(post))
+func (s PostsService) Create(_ context.Context, post *protobuf.Post) (*protobuf.Post, error) {
+	newPost, err := s.postsRepo.Create(ConvertToModel(post))
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &protobuf.PostID{PostID: id}, nil
+	return ConvertToProto(newPost), nil
 }
 
 func (s PostsService) Update(_ context.Context, post *protobuf.Post) (*emptypb.Empty, error) {
@@ -241,6 +241,84 @@ func (s PostsService) DeleteDepTag(_ context.Context, tagDep *protobuf.TagDep) (
 		PostID: tagDep.GetPostID(),
 		TagID:  tagDep.GetTagID(),
 	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (s PostsService) CreateComment(_ context.Context, comment *protobuf.Comment) (*protobuf.Comment, error) {
+	com, err := s.postsRepo.CreateComment(models.Comment{
+		PostID:  comment.GetPostID(),
+		UserID:  comment.GetUserID(),
+		Content: comment.GetContent(),
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &protobuf.Comment{
+		ID:          com.ID,
+		PostID:      com.PostID,
+		UserID:      com.UserID,
+		Content:     com.Content,
+		DateCreated: timestamppb.New(com.DateCreated),
+	}, nil
+}
+
+func (s PostsService) GetCommentByID(_ context.Context, commentID *protobuf.CommentID) (*protobuf.Comment, error) {
+	comment, err := s.postsRepo.GetCommentByID(commentID.GetCommentID())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &protobuf.Comment{
+		ID:          comment.ID,
+		PostID:      comment.PostID,
+		UserID:      comment.UserID,
+		Content:     comment.Content,
+		DateCreated: timestamppb.New(comment.DateCreated),
+	}, nil
+}
+
+func (s PostsService) GetCommentsByPostID(_ context.Context, postID *protobuf.PostID) (*protobuf.CommentArray, error) {
+	comments, err := s.postsRepo.GetCommentsByPostId(postID.GetPostID())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	result := make([]*protobuf.Comment, 0)
+
+	for _, comment := range comments {
+		result = append(result, &protobuf.Comment{
+			ID:          comment.ID,
+			PostID:      comment.PostID,
+			UserID:      comment.UserID,
+			Content:     comment.Content,
+			DateCreated: timestamppb.New(comment.DateCreated),
+		})
+	}
+
+	return &protobuf.CommentArray{Comments: result}, nil
+}
+
+func (s PostsService) UpdateComment(_ context.Context, comment *protobuf.Comment) (*emptypb.Empty, error) {
+	err := s.postsRepo.UpdateComment(models.Comment{
+		ID:      comment.GetID(),
+		PostID:  comment.GetPostID(),
+		UserID:  comment.GetUserID(),
+		Content: comment.GetContent(),
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (s PostsService) DeleteCommentByID(_ context.Context, commentID *protobuf.CommentID) (*emptypb.Empty, error) {
+	err := s.postsRepo.DeleteCommentByID(commentID.GetCommentID())
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}

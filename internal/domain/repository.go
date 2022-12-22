@@ -17,7 +17,7 @@ type AuthRepository interface {
 type PostsRepository interface {
 	GetAllByUserID(authorID uint64) ([]models.Post, error)
 	GetPostByID(postID uint64) (models.Post, error)
-	Create(post models.Post) (uint64, error)
+	Create(post models.Post) (models.Post, error)
 	Update(post models.Post) error
 	DeleteByID(postID uint64) error
 	Close() error
@@ -32,12 +32,18 @@ type PostsRepository interface {
 	GetTagById(tagID uint64) (models.Tag, error)
 	GetTagDepsByPostId(postID uint64) ([]models.TagDep, error)
 	GetTagByName(tagName string) (models.Tag, error)
+	CreateComment(comment models.Comment) (models.Comment, error)
+	GetCommentByID(commentID uint64) (models.Comment, error)
+	GetCommentsByPostId(postID uint64) ([]models.Comment, error)
+	UpdateComment(comment models.Comment) error
+	DeleteCommentByID(commentID uint64) error
 }
 
 type SubscribersRepository interface {
 	GetSubscribers(authorID uint64) ([]uint64, error)
-	Subscribe(subscription models.Subscription) error
+	PayAndSubscribe(payment models.Payment) error
 	Unsubscribe(userID, authorID uint64) error
+	UpdateStatus(status, id string) error
 }
 
 type SubscriptionsRepository interface {
@@ -61,16 +67,19 @@ type UsersRepository interface {
 	DeleteByID(id uint64) error
 	GetAuthorByUsername(username string) ([]models.User, error)
 	GetAllAuthors() ([]models.User, error)
+	GetPostsNum(userID uint64) (uint64, error)
+	GetSubscribersNumForMounth(userID uint64) (uint64, error)
+	GetProfitForMounth(userID uint64) (uint64, error)
+	DropBalance(userID uint64) error
 	Close() error
-}
-
-type DonatesRepository interface {
-	SendDonate(donate models.Donate) (models.Donate, error)
-	GetDonatesByUserID(userID uint64) ([]models.Donate, error)
-	GetDonateByID(donateID uint64) (models.Donate, error)
 }
 
 type ImagesRepository interface {
 	CreateOrUpdateImage(filename string, file []byte, size int64, oldFilename string) (string, error)
 	GetPermanentImage(filename string) (string, error)
+}
+
+type NotificationsRepository interface {
+	GetNotificationsByUserID(userID uint64) ([]models.Notification, error)
+	DeleteNotificationByUserID(userID uint64) error
 }

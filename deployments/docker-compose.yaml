@@ -25,17 +25,6 @@ services:
       - db
     networks:
       - vdonate-network-api
-  donates:
-    hostname: donates
-    container_name: vdonate-donates
-    image: zeronethunter/vdonate-donates
-    ports:
-      - "8082:8082"
-      - "9082:9082"
-    depends_on:
-      - db
-    networks:
-      - vdonate-network-api
   images:
     hostname: images
     container_name: vdonate-images
@@ -68,6 +57,8 @@ services:
     ports:
       - "8085:8085"
       - "9085:9085"
+    env_file:
+      - ../.env
     depends_on:
       - db
     networks:
@@ -171,7 +162,7 @@ services:
       - vdonate-network-api
 
   s3storage:
-    hostname: vdonate.ml
+    hostname: minio
     container_name: vdonate-cloud
     image: quay.io/minio/minio:RELEASE.2022-10-21T22-37-48Z
     command: server --console-address ":9099" /data
@@ -188,6 +179,23 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    networks:
+      - vdonate-network-api
+
+  notifications:
+    hostname: notifications
+    container_name: vdonate-notifications
+    image: zeronethunter/vdonate-notifications
+    ports:
+      - "1234:1234"
+    depends_on:
+      - db
+      - posts
+      - users
+      - subscribers
+    volumes:
+      - /etc/letsencrypt/live/vdonate.ml/fullchain.pem:/etc/letsencrypt/live/vdonate.ml/fullchain.pem
+      - /etc/letsencrypt/live/vdonate.ml/privkey.pem:/etc/letsencrypt/live/vdonate.ml/privkey.pem
     networks:
       - vdonate-network-api
 

@@ -34,6 +34,21 @@ func (m *MockSubscribersUseCase) EXPECT() *MockSubscribersUseCaseMockRecorder {
 	return m.recorder
 }
 
+// CardValidation mocks base method.
+func (m *MockSubscribersUseCase) CardValidation(card string) (models.WithdrawValidation, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CardValidation", card)
+	ret0, _ := ret[0].(models.WithdrawValidation)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CardValidation indicates an expected call of CardValidation.
+func (mr *MockSubscribersUseCaseMockRecorder) CardValidation(card interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CardValidation", reflect.TypeOf((*MockSubscribersUseCase)(nil).CardValidation), card)
+}
+
 // GetSubscribers mocks base method.
 func (m *MockSubscribersUseCase) GetSubscribers(authorID uint64) ([]models.User, error) {
 	m.ctrl.T.Helper()
@@ -65,17 +80,18 @@ func (mr *MockSubscribersUseCaseMockRecorder) IsSubscriber(userID, authorID inte
 }
 
 // Subscribe mocks base method.
-func (m *MockSubscribersUseCase) Subscribe(subscription models.Subscription, userID uint64) error {
+func (m *MockSubscribersUseCase) Subscribe(subscription models.Subscription, userID uint64, as models.AuthorSubscription) (interface{}, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Subscribe", subscription, userID)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "Subscribe", subscription, userID, as)
+	ret0, _ := ret[0].(interface{})
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Subscribe indicates an expected call of Subscribe.
-func (mr *MockSubscribersUseCaseMockRecorder) Subscribe(subscription, userID interface{}) *gomock.Call {
+func (mr *MockSubscribersUseCaseMockRecorder) Subscribe(subscription, userID, as interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockSubscribersUseCase)(nil).Subscribe), subscription, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockSubscribersUseCase)(nil).Subscribe), subscription, userID, as)
 }
 
 // Unsubscribe mocks base method.
@@ -90,6 +106,51 @@ func (m *MockSubscribersUseCase) Unsubscribe(userID, authorID uint64) error {
 func (mr *MockSubscribersUseCaseMockRecorder) Unsubscribe(userID, authorID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Unsubscribe", reflect.TypeOf((*MockSubscribersUseCase)(nil).Unsubscribe), userID, authorID)
+}
+
+// Withdraw mocks base method.
+func (m *MockSubscribersUseCase) Withdraw(userID uint64, phone, card string) (models.WithdrawInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Withdraw", userID, phone, card)
+	ret0, _ := ret[0].(models.WithdrawInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Withdraw indicates an expected call of Withdraw.
+func (mr *MockSubscribersUseCaseMockRecorder) Withdraw(userID, phone, card interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Withdraw", reflect.TypeOf((*MockSubscribersUseCase)(nil).Withdraw), userID, phone, card)
+}
+
+// WithdrawCard mocks base method.
+func (m *MockSubscribersUseCase) WithdrawCard(userID uint64, card, provider string) (models.WithdrawInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WithdrawCard", userID, card, provider)
+	ret0, _ := ret[0].(models.WithdrawInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// WithdrawCard indicates an expected call of WithdrawCard.
+func (mr *MockSubscribersUseCaseMockRecorder) WithdrawCard(userID, card, provider interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WithdrawCard", reflect.TypeOf((*MockSubscribersUseCase)(nil).WithdrawCard), userID, card, provider)
+}
+
+// WithdrawQiwi mocks base method.
+func (m *MockSubscribersUseCase) WithdrawQiwi(userID uint64, phone string) (models.WithdrawInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WithdrawQiwi", userID, phone)
+	ret0, _ := ret[0].(models.WithdrawInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// WithdrawQiwi indicates an expected call of WithdrawQiwi.
+func (mr *MockSubscribersUseCaseMockRecorder) WithdrawQiwi(userID, phone interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WithdrawQiwi", reflect.TypeOf((*MockSubscribersUseCase)(nil).WithdrawQiwi), userID, phone)
 }
 
 // MockSubscribersMicroservice is a mock of SubscribersMicroservice interface.
@@ -131,17 +192,15 @@ func (mr *MockSubscribersMicroserviceMockRecorder) GetSubscribers(authorID inter
 }
 
 // Subscribe mocks base method.
-func (m *MockSubscribersMicroservice) Subscribe(subscription models.Subscription) error {
+func (m *MockSubscribersMicroservice) Subscribe(payment models.Payment) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Subscribe", subscription)
-	ret0, _ := ret[0].(error)
-	return ret0
+	m.ctrl.Call(m, "Subscribe", payment)
 }
 
 // Subscribe indicates an expected call of Subscribe.
-func (mr *MockSubscribersMicroserviceMockRecorder) Subscribe(subscription interface{}) *gomock.Call {
+func (mr *MockSubscribersMicroserviceMockRecorder) Subscribe(payment interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockSubscribersMicroservice)(nil).Subscribe), subscription)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockSubscribersMicroservice)(nil).Subscribe), payment)
 }
 
 // Unsubscribe mocks base method.

@@ -24,8 +24,20 @@ definitions:
       avatar:
         example: filename.jpeg
         type: string
+      balance:
+        example: 1000
+        type: integer
+      countPosts:
+        example: 12
+        type: integer
+      countProfitMounth:
+        example: 12
+        type: integer
       countSubscribers:
         example: 120
+        type: integer
+      countSubscribersMounth:
+        example: 12
         type: integer
       countSubscriptions:
         example: 25
@@ -43,6 +55,7 @@ definitions:
         example: admin
         type: string
     required:
+    - balance
     - email
     - isAuthor
     - username
@@ -105,28 +118,40 @@ definitions:
     - tier
     - title
     type: object
-  models.Donate:
-    properties:
-      authorId:
-        type: integer
-      id:
-        type: integer
-      price:
-        type: integer
-      userId:
-        type: integer
-    type: object
-  models.DonateMpfd:
+  models.Comment:
     properties:
       authorID:
-        example: 12
+        example: 1
         type: integer
-      price:
-        example: 3000
+      content:
+        example: Looks great!
+        type: string
+      dateCreated:
+        example: "2022-11-11"
+        type: string
+      id:
+        example: 1
         type: integer
+      postID:
+        example: 1
+        type: integer
+      userID:
+        example: 1
+        type: integer
+      userImg:
+        example: https://example.com/img.png
+        type: string
+      username:
+        example: user
+        type: string
     required:
     - authorID
-    - price
+    - content
+    - id
+    - postID
+    - userID
+    - userImg
+    - username
     type: object
   models.EmptyStruct:
     type: object
@@ -154,6 +179,9 @@ definitions:
     properties:
       author:
         $ref: '#/definitions/models.ResponseImageUsers'
+      commentsNum:
+        example: 5
+        type: integer
       content:
         example: Hello <img src=...>
         type: string
@@ -184,9 +212,59 @@ definitions:
         type: integer
     required:
     - author
+    - commentsNum
     - content
     - isLiked
     - likesNum
+    type: object
+  models.QiwiPaymentStatus:
+    properties:
+      amount:
+        properties:
+          currency:
+            type: string
+          value:
+            type: string
+        type: object
+      billId:
+        type: string
+      comment:
+        type: string
+      creationDateTime:
+        type: string
+      customFields:
+        properties:
+          paySourcesFilter:
+            type: string
+          themeCode:
+            type: string
+          yourParam1:
+            type: string
+          yourParam2:
+            type: string
+        type: object
+      customer:
+        properties:
+          account:
+            type: string
+          email:
+            type: string
+          phone:
+            type: string
+        type: object
+      expirationDateTime:
+        type: string
+      payUrl:
+        type: string
+      siteId:
+        type: string
+      status:
+        properties:
+          changedDateTime:
+            type: string
+          value:
+            type: string
+        type: object
     type: object
   models.ResponseImagePosts:
     properties:
@@ -300,6 +378,57 @@ definitions:
     - password
     - username
     type: object
+  models.Withdraw:
+    properties:
+      card:
+        type: string
+      phone:
+        type: string
+      userID:
+        type: integer
+    type: object
+  models.WithdrawError:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+      txnId:
+        type: string
+    type: object
+  models.WithdrawInfo:
+    properties:
+      comment:
+        type: string
+      fields:
+        properties:
+          account:
+            type: string
+        type: object
+      id:
+        type: string
+      source:
+        type: string
+      sum:
+        properties:
+          amount:
+            type: number
+          currency:
+            type: string
+        type: object
+      terms:
+        type: string
+      transaction:
+        properties:
+          id:
+            type: string
+          state:
+            properties:
+              code:
+                type: string
+            type: object
+        type: object
+    type: object
 host: vdonate.ml:8080
 info:
   contact:
@@ -338,109 +467,6 @@ paths:
       summary: User authentication request
       tags:
       - auth
-  /donate:
-    post:
-      description: Send donate to author
-      operationId: create_donate
-      parameters:
-      - description: Donate Fields
-        in: body
-        name: post
-        required: true
-        schema:
-          $ref: '#/definitions/models.DonateMpfd'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Donate was successfully created
-          schema:
-            $ref: '#/definitions/models.Donate'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: No session provided
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Post not found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Create donate
-      tags:
-      - donates
-  /donate/{id}:
-    get:
-      description: Get donate by id
-      operationId: get_donate
-      parameters:
-      - description: Post ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Donate was successfully create
-          schema:
-            $ref: '#/definitions/models.Donate'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: No session provided
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Get donate
-      tags:
-      - donates
-  /donates:
-    get:
-      description: Get donates of user
-      operationId: get_donates
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Donates were successfully recieved
-          schema:
-            items:
-              $ref: '#/definitions/models.Donate'
-            type: array
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: No session provided
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Get donates
-      tags:
-      - donates
   /image:
     post:
       description: Create image POST request
@@ -767,6 +793,89 @@ paths:
       summary: Update post
       tags:
       - posts
+  /posts/{id}/comments:
+    get:
+      description: Get all comments by post id
+      operationId: get_posts_comments
+      parameters:
+      - description: Post id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comments were successfully recieved
+          schema:
+            items:
+              $ref: '#/definitions/models.Comment'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get comments
+      tags:
+      - posts
+    post:
+      description: Post comment on post
+      operationId: post_comment
+      parameters:
+      - description: Post id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Comment
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/models.Comment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comment was successfully put
+          schema:
+            type: integer
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Post comment
+      tags:
+      - posts
   /posts/{id}/likes:
     delete:
       description: Delete like on post
@@ -881,6 +990,87 @@ paths:
       summary: Create like
       tags:
       - posts
+  /posts/comments/{id}:
+    delete:
+      description: Delete comment on post
+      operationId: delete_comment
+      parameters:
+      - description: Comment id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comment was successfully deleted
+          schema:
+            type: integer
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete comment
+      tags:
+      - posts
+    put:
+      description: Put comment on post
+      operationId: put_comment
+      parameters:
+      - description: Comment id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Comment
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/models.Comment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comment was successfully put
+          schema:
+            type: integer
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session provided
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Put comment
+      tags:
+      - posts
   /search:
     get:
       description: Search author by keyword
@@ -951,12 +1141,12 @@ paths:
       description: Subscribe user to author with paid subscription
       operationId: create_subscriber
       parameters:
-      - description: Subscription info with required AuthorID and Subscription ID
+      - description: 'Payment response, documentation: https://developer.qiwi.com/ru/p2p-payments/?shell#create'
         in: body
         name: Subscription
         required: true
         schema:
-          $ref: '#/definitions/models.SubscriptionMpfd'
+          $ref: '#/definitions/models.QiwiPaymentStatus'
       produces:
       - application/json
       responses:
@@ -1191,6 +1381,47 @@ paths:
       summary: Delete Author subscription
       tags:
       - subscriptions
+    get:
+      description: Get Author subscription by id
+      operationId: get_author_subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully received subscription
+          schema:
+            $ref: '#/definitions/models.AuthorSubscriptionMpfd'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: No session
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: You are not supposed to make this requests
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Subscription not found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Author subscription
+      tags:
+      - subscriptions
     put:
       consumes:
       - multipart/form-data
@@ -1256,48 +1487,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update Author subscription
-      tags:
-      - subscriptions
-  /subscriptions/author{id}:
-    get:
-      description: Get Author subscription by id
-      operationId: get_author_subscription
-      parameters:
-      - description: Subscription ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully received subscription
-          schema:
-            $ref: '#/definitions/models.AuthorSubscriptionMpfd'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: No session
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "403":
-          description: You are not supposed to make this requests
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Subscription not found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Get Author subscription
       tags:
       - subscriptions
   /users:
@@ -1441,6 +1630,41 @@ paths:
       summary: Update user
       tags:
       - users
+  /withdraw:
+    post:
+      consumes:
+      - application/json
+      description: Вывод средств на QIWI кошелек или банковскую карту
+      operationId: withdraw
+      parameters:
+      - description: Информация о выводе средств, заполнить одно из полей Phone или
+          Card, только цифры
+        in: body
+        name: Input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Withdraw'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Перевод успешен, получай информацию о переводе
+          schema:
+            $ref: '#/definitions/models.WithdrawInfo'
+        "400":
+          description: Bad request (в основном неверный формат данных)
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Внутренняя ошибка либо нашего сервера, либо их сервера, в зависимости
+            от этого будет выдана ошибка либо наша, либо их
+          schema:
+            $ref: '#/definitions/models.WithdrawError'
+      security:
+      - ApiKeyAuth: []
+      summary: Withdraw
+      tags:
+      - withdraw
 securityDefinitions:
   ApiKeyAuth:
     description: Authorization via Cookie

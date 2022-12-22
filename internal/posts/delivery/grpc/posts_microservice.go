@@ -50,13 +50,13 @@ func (m PostsMicroservice) GetPostByID(postID uint64) (models.Post, error) {
 	return grpcPosts.ConvertToModel(post), nil
 }
 
-func (m PostsMicroservice) Create(post models.Post) (uint64, error) {
-	id, err := m.client.Create(context.Background(), grpcPosts.ConvertToProto(post))
+func (m PostsMicroservice) Create(post models.Post) (models.Post, error) {
+	newPost, err := m.client.Create(context.Background(), grpcPosts.ConvertToProto(post))
 	if err != nil {
-		return 0, tracerr.Wrap(err)
+		return models.Post{}, tracerr.Wrap(err)
 	}
 
-	return id.GetPostID(), nil
+	return grpcPosts.ConvertToModel(newPost), nil
 }
 
 func (m PostsMicroservice) Update(post models.Post) error {
@@ -214,4 +214,81 @@ func (m PostsMicroservice) DeleteDepTag(tagDep models.TagDep) error {
 	})
 
 	return tracerr.Wrap(err)
+}
+
+func (m PostsMicroservice) CreateComment(comment models.Comment) (models.Comment, error) {
+	com, err := m.client.CreateComment(context.Background(), &protobuf.Comment{
+		PostID:  comment.PostID,
+		UserID:  comment.UserID,
+		Content: comment.Content,
+	})
+	if err != nil {
+		return models.Comment{}, err
+	}
+
+	return models.Comment{
+		ID:          com.GetID(),
+		PostID:      com.GetPostID(),
+		UserID:      com.GetUserID(),
+		Content:     com.GetContent(),
+		DateCreated: com.GetDateCreated().AsTime(),
+	}, nil
+}
+
+func (m PostsMicroservice) GetCommentByID(commentID uint64) (models.Comment, error) {
+	comment, err := m.client.GetCommentByID(context.Background(), &protobuf.CommentID{
+		CommentID: commentID,
+	})
+	if err != nil {
+		return models.Comment{}, err
+	}
+
+	return models.Comment{
+		ID:          comment.GetID(),
+		PostID:      comment.GetPostID(),
+		UserID:      comment.GetUserID(),
+		Content:     comment.GetContent(),
+		DateCreated: comment.GetDateCreated().AsTime(),
+	}, nil
+}
+
+func (m PostsMicroservice) GetCommentsByPostID(postID uint64) ([]models.Comment, error) {
+	comments, err := m.client.GetCommentsByPostID(context.Background(), &protobuf.PostID{
+		PostID: postID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]models.Comment, 0)
+
+	for _, comment := range comments.GetComments() {
+		result = append(result, models.Comment{
+			ID:          comment.GetID(),
+			PostID:      comment.GetPostID(),
+			UserID:      comment.GetUserID(),
+			Content:     comment.GetContent(),
+			DateCreated: comment.GetDateCreated().AsTime(),
+		})
+	}
+
+	return result, nil
+}
+
+func (m PostsMicroservice) UpdateComment(comment models.Comment) error {
+	_, err := m.client.UpdateComment(context.Background(), &protobuf.Comment{
+		ID:      comment.ID,
+		PostID:  comment.PostID,
+		UserID:  comment.UserID,
+		Content: comment.Content,
+	})
+	return err
+}
+
+func (m PostsMicroservice) DeleteCommentByID(commentID uint64) error {
+	_, err := m.client.DeleteCommentByID(context.Background(), &protobuf.CommentID{
+		CommentID: commentID,
+	})
+
+	return err
 }

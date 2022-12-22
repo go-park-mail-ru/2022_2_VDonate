@@ -25,6 +25,7 @@ func ConvertToModel(u *protobuf.User) models.User {
 		Password:           u.GetPassword(),
 		IsAuthor:           u.GetIsAuthor(),
 		About:              u.GetAbout(),
+		Balance:            u.GetBalance(),
 		CountSubscriptions: u.GetCountSubscriptions(),
 		CountSubscribers:   u.GetCountSubscribers(),
 	}
@@ -39,6 +40,7 @@ func ConvertToProto(u models.User) *protobuf.User {
 		Avatar:             u.Avatar,
 		IsAuthor:           u.IsAuthor,
 		About:              u.About,
+		Balance:            u.Balance,
 		CountSubscriptions: u.CountSubscriptions,
 		CountSubscribers:   u.CountSubscribers,
 	}
@@ -92,7 +94,7 @@ func (s UserService) Update(_ context.Context, user *protobuf.User) (*emptypb.Em
 
 func (s UserService) GetAuthorByUsername(_ context.Context, key *protobuf.Keyword) (*protobuf.UsersArray, error) {
 	users, err := s.userRepo.GetAuthorByUsername(key.GetKeyword())
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -106,7 +108,7 @@ func (s UserService) GetAuthorByUsername(_ context.Context, key *protobuf.Keywor
 
 func (s UserService) GetUserByPostID(_ context.Context, postID *protobuf.PostID) (*protobuf.User, error) {
 	user, err := s.userRepo.GetUserByPostID(postID.GetPostID())
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -115,7 +117,7 @@ func (s UserService) GetUserByPostID(_ context.Context, postID *protobuf.PostID)
 
 func (s UserService) GetByID(_ context.Context, id *protobuf.UserID) (*protobuf.User, error) {
 	user, err := s.userRepo.GetByID(id.GetUserId())
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -124,7 +126,7 @@ func (s UserService) GetByID(_ context.Context, id *protobuf.UserID) (*protobuf.
 
 func (s UserService) GetBySessionID(_ context.Context, sessionID *authProto.SessionID) (*protobuf.User, error) {
 	user, err := s.userRepo.GetBySessionID(sessionID.GetSessionId())
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -133,7 +135,7 @@ func (s UserService) GetBySessionID(_ context.Context, sessionID *authProto.Sess
 
 func (s UserService) GetByEmail(_ context.Context, email *protobuf.Email) (*protobuf.User, error) {
 	user, err := s.userRepo.GetByEmail(email.GetEmail())
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -142,9 +144,45 @@ func (s UserService) GetByEmail(_ context.Context, email *protobuf.Email) (*prot
 
 func (s UserService) GetByUsername(_ context.Context, username *protobuf.Username) (*protobuf.User, error) {
 	user, err := s.userRepo.GetByUsername(username.GetUsername())
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return ConvertToProto(user), nil
+}
+
+func (s UserService) GetPostsNum(_ context.Context, id *protobuf.UserID) (*protobuf.PostsNum, error) {
+	num, err := s.userRepo.GetPostsNum(id.GetUserId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &protobuf.PostsNum{CountPosts: num}, nil
+}
+
+func (s UserService) GetSubscribersNumForMounth(_ context.Context, id *protobuf.UserID) (*protobuf.SubscribersNum, error) {
+	num, err := s.userRepo.GetSubscribersNumForMounth(id.GetUserId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &protobuf.SubscribersNum{CountSubscribers: num}, nil
+}
+
+func (s UserService) GetProfitForMounth(_ context.Context, id *protobuf.UserID) (*protobuf.Profit, error) {
+	profit, err := s.userRepo.GetProfitForMounth(id.GetUserId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &protobuf.Profit{CountMounthProfit: profit}, nil
+}
+
+func (s UserService) DropBalance(_ context.Context, id *protobuf.UserID) (*emptypb.Empty, error) {
+	err := s.userRepo.DropBalance(id.GetUserId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
 }

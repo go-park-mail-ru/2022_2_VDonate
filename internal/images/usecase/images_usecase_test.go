@@ -27,7 +27,7 @@ func TestUsecase_GetImage(t *testing.T) {
 			mockBehaviourGetImage: func(r *mockDomain.MockImageMicroservice, filename string) {
 				r.EXPECT().Get(filename).Return("newURL", nil)
 			},
-			expectedResult: "https://wsrv.nl/?url=newURL",
+			expectedResult: "newURL",
 		},
 		{
 			name:     "Bad-image",

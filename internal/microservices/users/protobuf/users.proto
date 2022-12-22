@@ -15,9 +15,13 @@ message User {
   string avatar = 5;
   bool is_author = 6;
   string about = 7;
+  uint64 balance = 8;
 
-  uint64 count_subscriptions = 8;
-  uint64 count_subscribers = 9;
+  uint64 count_subscriptions = 9;
+  uint64 count_subscribers = 10;
+  uint64 count_posts = 11;
+  uint64 count_mounth_subscribers = 12;
+  uint64 count_mounth_profit = 13;
 }
 
 message UserIDs {
@@ -63,6 +67,18 @@ message PostID {
   uint64 postID = 1;
 }
 
+message PostsNum {
+  uint64 count_posts = 1;
+}
+
+message SubscribersNum {
+  uint64 count_subscribers = 1;
+}
+
+message Profit {
+  uint64 count_mounth_profit = 1;
+}
+
 service Users {
   rpc Update(User) returns(google.protobuf.Empty);
   rpc Create(User) returns(UserID);
@@ -73,4 +89,8 @@ service Users {
   rpc GetByUsername(Username) returns(User);
   rpc GetUserByPostID(PostID) returns(User);
   rpc GetAllAuthors(google.protobuf.Empty) returns(UsersArray);
+  rpc GetPostsNum(UserID) returns(PostsNum);
+  rpc GetSubscribersNumForMounth(UserID)  returns(SubscribersNum);
+  rpc GetProfitForMounth(UserID) returns(Profit);
+  rpc DropBalance(UserID) returns(google.protobuf.Empty);
 }

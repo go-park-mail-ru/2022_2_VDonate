@@ -53,167 +53,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/donate": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Send donate to author",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "donates"
-                ],
-                "summary": "Create donate",
-                "operationId": "create_donate",
-                "parameters": [
-                    {
-                        "description": "Donate Fields",
-                        "name": "post",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.DonateMpfd"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Donate was successfully created",
-                        "schema": {
-                            "$ref": "#/definitions/models.Donate"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "401": {
-                        "description": "No session provided",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Post not found",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/donate/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get donate by id",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "donates"
-                ],
-                "summary": "Get donate",
-                "operationId": "get_donate",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Post ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Donate was successfully create",
-                        "schema": {
-                            "$ref": "#/definitions/models.Donate"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "401": {
-                        "description": "No session provided",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/donates": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get donates of user",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "donates"
-                ],
-                "summary": "Get donates",
-                "operationId": "get_donates",
-                "responses": {
-                    "200": {
-                        "description": "Donates were successfully recieved",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Donate"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "401": {
-                        "description": "No session provided",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
         "/image": {
             "post": {
                 "security": [
@@ -492,6 +331,131 @@ const docTemplate = `{
                 }
             }
         },
+        "/posts/comments/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Put comment on post",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Put comment",
+                "operationId": "put_comment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Comment id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Comment",
+                        "name": "comment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Comment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comment was successfully put",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "No session provided",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Post not found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete comment on post",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Delete comment",
+                "operationId": "delete_comment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Comment id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comment was successfully deleted",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "No session provided",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Post not found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/posts/{id}": {
             "get": {
                 "security": [
@@ -695,6 +659,134 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Not a creator of post",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Post not found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{id}/comments": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get all comments by post id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Get comments",
+                "operationId": "get_posts_comments",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comments were successfully recieved",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Comment"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "No session provided",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Post not found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Post comment on post",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "posts"
+                ],
+                "summary": "Post comment",
+                "operationId": "post_comment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Comment",
+                        "name": "comment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Comment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comment was successfully put",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "No session provided",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -958,12 +1050,12 @@ const docTemplate = `{
                 "operationId": "create_subscriber",
                 "parameters": [
                     {
-                        "description": "Subscription info with required AuthorID and Subscription ID",
+                        "description": "Payment response, documentation: https://developer.qiwi.com/ru/p2p-payments/?shell#create",
                         "name": "Subscription",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.SubscriptionMpfd"
+                            "$ref": "#/definitions/models.QiwiPaymentStatus"
                         }
                     }
                 ],
@@ -1307,6 +1399,69 @@ const docTemplate = `{
             }
         },
         "/subscriptions/author/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get Author subscription by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Get Author subscription",
+                "operationId": "get_author_subscription",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Subscription ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully received subscription",
+                        "schema": {
+                            "$ref": "#/definitions/models.AuthorSubscriptionMpfd"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "No session",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "You are not supposed to make this requests",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Subscription not found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
             "put": {
                 "security": [
                     {
@@ -1461,71 +1616,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal / delete error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/subscriptions/author{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get Author subscription by id",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "subscriptions"
-                ],
-                "summary": "Get Author subscription",
-                "operationId": "get_author_subscription",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Subscription ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully received subscription",
-                        "schema": {
-                            "$ref": "#/definitions/models.AuthorSubscriptionMpfd"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "401": {
-                        "description": "No session",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "403": {
-                        "description": "You are not supposed to make this requests",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Subscription not found",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal error",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -1745,6 +1835,58 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/withdraw": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Вывод средств на QIWI кошелек или банковскую карту",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "withdraw"
+                ],
+                "summary": "Withdraw",
+                "operationId": "withdraw",
+                "parameters": [
+                    {
+                        "description": "Информация о выводе средств, заполнить одно из полей Phone или Card, только цифры",
+                        "name": "Input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Withdraw"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Перевод успешен, получай информацию о переводе",
+                        "schema": {
+                            "$ref": "#/definitions/models.WithdrawInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (в основном неверный формат данных)",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка либо нашего сервера, либо их сервера, в зависимости от этого будет выдана ошибка либо наша, либо их",
+                        "schema": {
+                            "$ref": "#/definitions/models.WithdrawError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1774,6 +1916,7 @@ const docTemplate = `{
         "models.Author": {
             "type": "object",
             "required": [
+                "balance",
                 "email",
                 "isAuthor",
                 "username"
@@ -1787,9 +1930,25 @@ const docTemplate = `{
                     "type": "string",
                     "example": "filename.jpeg"
                 },
+                "balance": {
+                    "type": "integer",
+                    "example": 1000
+                },
+                "countPosts": {
+                    "type": "integer",
+                    "example": 12
+                },
+                "countProfitMounth": {
+                    "type": "integer",
+                    "example": 12
+                },
                 "countSubscribers": {
                     "type": "integer",
                     "example": 120
+                },
+                "countSubscribersMounth": {
+                    "type": "integer",
+                    "example": 12
                 },
                 "countSubscriptions": {
                     "type": "integer",
@@ -1891,37 +2050,49 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Donate": {
-            "type": "object",
-            "properties": {
-                "authorId": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "price": {
-                    "type": "integer"
-                },
-                "userId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.DonateMpfd": {
+        "models.Comment": {
             "type": "object",
             "required": [
                 "authorID",
-                "price"
+                "content",
+                "id",
+                "postID",
+                "userID",
+                "userImg",
+                "username"
             ],
             "properties": {
                 "authorID": {
                     "type": "integer",
-                    "example": 12
+                    "example": 1
                 },
-                "price": {
+                "content": {
+                    "type": "string",
+                    "example": "Looks great!"
+                },
+                "dateCreated": {
+                    "type": "string",
+                    "example": "2022-11-11"
+                },
+                "id": {
                     "type": "integer",
-                    "example": 3000
+                    "example": 1
+                },
+                "postID": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "userID": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "userImg": {
+                    "type": "string",
+                    "example": "https://example.com/img.png"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "user"
                 }
             }
         },
@@ -1961,6 +2132,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "author",
+                "commentsNum",
                 "content",
                 "isLiked",
                 "likesNum"
@@ -1968,6 +2140,10 @@ const docTemplate = `{
             "properties": {
                 "author": {
                     "$ref": "#/definitions/models.ResponseImageUsers"
+                },
+                "commentsNum": {
+                    "type": "integer",
+                    "example": 5
                 },
                 "content": {
                     "type": "string",
@@ -2006,6 +2182,82 @@ const docTemplate = `{
                 "userID": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "models.QiwiPaymentStatus": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "object",
+                    "properties": {
+                        "currency": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "billId": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "creationDateTime": {
+                    "type": "string"
+                },
+                "customFields": {
+                    "type": "object",
+                    "properties": {
+                        "paySourcesFilter": {
+                            "type": "string"
+                        },
+                        "themeCode": {
+                            "type": "string"
+                        },
+                        "yourParam1": {
+                            "type": "string"
+                        },
+                        "yourParam2": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "customer": {
+                    "type": "object",
+                    "properties": {
+                        "account": {
+                            "type": "string"
+                        },
+                        "email": {
+                            "type": "string"
+                        },
+                        "phone": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "expirationDateTime": {
+                    "type": "string"
+                },
+                "payUrl": {
+                    "type": "string"
+                },
+                "siteId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "object",
+                    "properties": {
+                        "changedDateTime": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    }
                 }
             }
         },
@@ -2160,6 +2412,86 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "example": "admin"
+                }
+            }
+        },
+        "models.Withdraw": {
+            "type": "object",
+            "properties": {
+                "card": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.WithdrawError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "txnId": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.WithdrawInfo": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "fields": {
+                    "type": "object",
+                    "properties": {
+                        "account": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "sum": {
+                    "type": "object",
+                    "properties": {
+                        "amount": {
+                            "type": "number"
+                        },
+                        "currency": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "terms": {
+                    "type": "string"
+                },
+                "transaction": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "state": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
