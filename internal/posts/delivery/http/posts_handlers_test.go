@@ -37,30 +37,30 @@ func TestHandler_GetPosts(t *testing.T) {
 		expectedRequestBody  string
 		expectedErrorMessage string
 	}{
-		// {
-		// 	name:     "OK",
-		// 	cookie:   "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
-		// 	userID:   123,
-		// 	postID:   0,
-		// 	authorID: 123,
-		// 	mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID, authorID uint64) {
-		// 		s.EXPECT().GetPostsByFilter(userID, authorID).Return([]models.Post{
-		// 			{
-		// 				ID:       0,
-		// 				UserID:   123,
-		// 				LikesNum: 123,
-		// 				Content:  "content",
-		// 				Tier:     1000,
-		// 			},
-		// 		}, nil)
-		// 	},
-		// 	mockBehaviorCookie: func(s mockDomain.MockUsersUseCase, sessionID string) {
-		// 		s.EXPECT().GetBySessionID(sessionID).Return(models.User{
-		// 			ID: 123,
-		// 		}, nil)
-		// 	},
-		// 	expectedRequestBody: `[{"postID":0,"userID":123,"contentTemplate":"","content":"content","tier":1000,"isAllowed":false,"dateCreated":"0001-01-01T00:00:00Z","tags":null,"author":{"userID":0,"username":"","imgPath":""},"likesNum":123,"isLiked":false}]`,
-		// },
+		{
+			name:     "OK",
+			cookie:   "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
+			userID:   123,
+			postID:   0,
+			authorID: 123,
+			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, userID, authorID uint64) {
+				s.EXPECT().GetPostsByFilter(userID, authorID).Return([]models.Post{
+					{
+						ID:       0,
+						UserID:   123,
+						LikesNum: 123,
+						Content:  "content",
+						Tier:     1000,
+					},
+				}, nil)
+			},
+			mockBehaviorCookie: func(s mockDomain.MockUsersUseCase, sessionID string) {
+				s.EXPECT().GetBySessionID(sessionID).Return(models.User{
+					ID: 123,
+				}, nil)
+			},
+			expectedRequestBody: "[{\"postID\":0,\"userID\":123,\"content\":\"content\",\"tier\":1000,\"isAllowed\":false,\"dateCreated\":\"0001-01-01T00:00:00Z\",\"tags\":null,\"author\":{\"userID\":0,\"username\":\"\",\"imgPath\":\"\",\"about\":\"\"},\"likesNum\":123,\"isLiked\":false,\"commentsNum\":0}]",
+		},
 		{
 			name:   "OK-Empty",
 			cookie: "XVlBzgbaiCMRAjWwhTHctcuAxhxKQFDa",
@@ -155,27 +155,27 @@ func TestHangler_GetPost(t *testing.T) {
 		expectedRequestBody  string
 		expectedErrorMessage string
 	}{
-		// {
-		// 	name:   "OK",
-		// 	userID: 123,
-		// 	postID: 123,
-		// 	mockBehaviorCookie: func(s mockDomain.MockUsersUseCase, sessionID string) {
-		// 		s.EXPECT().GetBySessionID(sessionID).Return(models.User{
-		// 			ID:       123,
-		// 			Username: "username",
-		// 		}, nil)
-		// 	},
-		// 	mockBehaviorGet: func(s mockDomain.MockPostsUseCase, postID, userID uint64) {
-		// 		s.EXPECT().GetPostByID(postID, userID).Return(models.Post{
-		// 			ID:       123,
-		// 			UserID:   123,
-		// 			LikesNum: 123,
-		// 			Content:  "content",
-		// 			Tier:     1000,
-		// 		}, nil)
-		// 	},
-		// 	expectedRequestBody: `{"postID":123,"userID":123,"contentTemplate":"","content":"content","tier":1000,"isAllowed":false,"dateCreated":"0001-01-01T00:00:00Z","tags":null,"author":{"userID":0,"username":"","imgPath":""},"likesNum":123,"isLiked":false}`,
-		// },
+		{
+			name:   "OK",
+			userID: 123,
+			postID: 123,
+			mockBehaviorCookie: func(s mockDomain.MockUsersUseCase, sessionID string) {
+				s.EXPECT().GetBySessionID(sessionID).Return(models.User{
+					ID:       123,
+					Username: "username",
+				}, nil)
+			},
+			mockBehaviorGet: func(s mockDomain.MockPostsUseCase, postID, userID uint64) {
+				s.EXPECT().GetPostByID(postID, userID).Return(models.Post{
+					ID:       123,
+					UserID:   123,
+					LikesNum: 123,
+					Content:  "content",
+					Tier:     1000,
+				}, nil)
+			},
+			expectedRequestBody: "{\"postID\":123,\"userID\":123,\"content\":\"content\",\"tier\":1000,\"isAllowed\":false,\"dateCreated\":\"0001-01-01T00:00:00Z\",\"tags\":null,\"author\":{\"userID\":0,\"username\":\"\",\"imgPath\":\"\",\"about\":\"\"},\"likesNum\":123,\"isLiked\":false,\"commentsNum\":0}",
+		},
 		{
 			name:   "NotFound",
 			postID: 123,
@@ -810,6 +810,164 @@ func TestHandler_DeleteLike(t *testing.T) {
 			require.NoError(t, err)
 
 			assert.Equal(t, test.expectedResponse, strings.Trim(string(body), "\n"))
+		})
+	}
+}
+
+func TestPostsHandler_GetComments(t *testing.T) {
+	type mockBehaviourComments func(s *mockDomain.MockPostsUseCase, postID uint64)
+
+	tests := []struct {
+		name                  string
+		postID                int64
+		cookie                string
+		mockBehaviourComments mockBehaviourComments
+		expectedResponse      string
+		expectedErrorMessage  string
+	}{
+		{
+			name:   "OK",
+			postID: 3,
+			cookie: "JSAoPdaAsdas",
+			mockBehaviourComments: func(s *mockDomain.MockPostsUseCase, postID uint64) {
+				s.EXPECT().GetCommentsByPostID(postID).Return([]models.Comment{
+					{
+						ID:      1,
+						PostID:  3,
+						UserID:  21,
+						Content: "content",
+					},
+				}, nil)
+			},
+			expectedResponse: "[{\"id\":1,\"postID\":3,\"authorID\":0,\"userID\":21,\"dateCreated\":\"0001-01-01T00:00:00Z\",\"content\":\"content\",\"userImg\":\"\",\"username\":\"\"}]",
+		},
+		{
+			name:   "OKEmpty",
+			postID: 3,
+			cookie: "JSAoPdaAsdas",
+			mockBehaviourComments: func(s *mockDomain.MockPostsUseCase, postID uint64) {
+				s.EXPECT().GetCommentsByPostID(postID).Return([]models.Comment{}, nil)
+			},
+			expectedResponse: "[]",
+		},
+		{
+			name:                  "ErrBadID",
+			postID:                -1,
+			cookie:                "JSAoPdaAsdas",
+			mockBehaviourComments: func(s *mockDomain.MockPostsUseCase, postID uint64) {},
+			expectedErrorMessage:  "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
+		},
+		{
+			name:   "ErrComments",
+			postID: 3,
+			cookie: "JSAoPdaAsdas",
+			mockBehaviourComments: func(s *mockDomain.MockPostsUseCase, postID uint64) {
+				s.EXPECT().GetCommentsByPostID(postID).Return([]models.Comment{}, errors.New("some error"))
+			},
+			expectedErrorMessage: "code=404, message=failed to find item, internal=some error",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			users := mockDomain.NewMockUsersUseCase(ctrl)
+			post := mockDomain.NewMockPostsUseCase(ctrl)
+			image := mockDomain.NewMockImageUseCase(ctrl)
+
+			test.mockBehaviourComments(post, uint64(test.postID))
+
+			handler := NewHandler(post, users, image)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodPut, "https://127.0.0.1/api/v1/posts/:id/comments", nil)
+			rec := httptest.NewRecorder()
+
+			c := e.NewContext(req, rec)
+			c.SetPath("https://127.0.0.1/api/v1/posts/:id/comments")
+			c.SetParamNames("id")
+			c.SetParamValues(strconv.FormatInt(test.postID, 10))
+
+			err := handler.GetComments(c)
+			if err != nil {
+				assert.Equal(t, test.expectedErrorMessage, err.Error())
+			}
+
+			body, err := io.ReadAll(rec.Body)
+			require.NoError(t, err)
+
+			assert.Equal(t, test.expectedResponse, strings.Trim(string(body), "\n"))
+		})
+	}
+}
+
+func TestPostsHandler_DeleteComment(t *testing.T) {
+	type mockBehaviourComments func(s *mockDomain.MockPostsUseCase, commentID uint64)
+
+	tests := []struct {
+		name                  string
+		commentID             int64
+		mockBehaviourComments mockBehaviourComments
+		expectedResponse      string
+		expectedErrorMessage  string
+	}{
+		{
+			name:      "OK",
+			commentID: 3,
+			mockBehaviourComments: func(s *mockDomain.MockPostsUseCase, commentID uint64) {
+				s.EXPECT().DeleteComment(commentID).Return(nil)
+			},
+			expectedResponse: "{}",
+		},
+		{
+			name:                  "ErrBadID",
+			commentID:             -1,
+			mockBehaviourComments: func(s *mockDomain.MockPostsUseCase, commentID uint64) {},
+			expectedErrorMessage:  "code=400, message=bad request, internal=strconv.ParseUint: parsing \"-1\": invalid syntax",
+		},
+		{
+			name:      "ErrDeleteComment",
+			commentID: 3,
+			mockBehaviourComments: func(s *mockDomain.MockPostsUseCase, commentID uint64) {
+				s.EXPECT().DeleteComment(commentID).Return(errors.New("some error"))
+			},
+			expectedErrorMessage: "code=400, message=bad request, internal=some error",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			users := mockDomain.NewMockUsersUseCase(ctrl)
+			post := mockDomain.NewMockPostsUseCase(ctrl)
+			image := mockDomain.NewMockImageUseCase(ctrl)
+
+			test.mockBehaviourComments(post, uint64(test.commentID))
+
+			handler := NewHandler(post, users, image)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodDelete, "https://127.0.0.1/api/v1/", nil)
+			rec := httptest.NewRecorder()
+
+			c := e.NewContext(req, rec)
+			c.SetPath("https://127.0.0.1/api/v1/:postID")
+			c.SetParamNames("id")
+			c.SetParamValues(strconv.FormatInt(test.commentID, 10))
+
+			err := handler.DeleteComment(c)
+			if err != nil {
+				assert.Equal(t, test.expectedErrorMessage, err.Error())
+			} else {
+				body, err := io.ReadAll(rec.Body)
+				require.NoError(t, err)
+
+				assert.Equal(t, test.expectedResponse, strings.Trim(string(body), "\n"))
+			}
 		})
 	}
 }
