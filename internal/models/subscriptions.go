@@ -3,7 +3,7 @@ package models
 type Subscription struct {
 	AuthorID             uint64 `json:"authorID" db:"author_id" validate:"required" example:"1"`
 	SubscriberID         uint64 `json:"subscriberID" db:"subscriber_id" validate:"required" example:"2"`
-	AuthorSubscriptionID uint64 `json:"authorSubscriptionID" db:"author_subscription_id" validate:"required" example:"1"`
+	AuthorSubscriptionID uint64 `json:"authorSubscriptionID" db:"subscription_id" validate:"required" example:"1"`
 }
 
 type Follower struct {
