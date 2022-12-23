@@ -108,7 +108,7 @@ func (r Postgres) GetPostsBySubscriptions(userID uint64) ([]models.Post, error) 
 		WHERE p.tier = 0 AND length(p.content) > 25
 		ORDER BY random()
 		LIMIT 15;
-	`, userID); err != nil && !errors.Is(err, sql.ErrNoRows) {
+	`); err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return nil, err
 		}
 	}

@@ -58,7 +58,7 @@ jobs:
 #          fi
 
   build_push_api:
-    name: build and push ap
+    name: build and push api
     needs: golangci-lint
     runs-on: ubuntu-18.04
     steps:
@@ -79,7 +79,7 @@ jobs:
           tags: zeronethunter/vdonate-api:latest
 
   build_push_auth:
-    name: build and push aut
+    name: build and push auth
     needs: golangci-lint
     runs-on: ubuntu-18.04
     steps:
