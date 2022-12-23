@@ -258,7 +258,7 @@ CREATE TRIGGER new_posts_notify
 EXECUTE PROCEDURE notify_event_posts();
 
 CREATE TRIGGER new_subscribers_notify
-    AFTER INSERT
+    AFTER INSERT OR UPDATE
     ON subscriptions
     FOR EACH ROW
 EXECUTE PROCEDURE notify_event_subscriber();
