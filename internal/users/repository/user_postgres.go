@@ -1,9 +1,6 @@
 package userRepository
 
 import (
-	"database/sql"
-	"errors"
-
 	model "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -301,29 +298,13 @@ func (r Postgres) GetAllAuthors() ([]model.User, error) {
 
 func (r Postgres) GetAuthorByUsername(username string) ([]model.User, error) {
 	u := make([]model.User, 0)
-	if err := r.DB.Select(
-		&u,
-		`
-		SELECT * FROM users WHERE username LIKE $1;`,
-		username,
-	); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
-		}
+	err := r.DB.Select(&u, `SELECT id, email, username, avatar, balance, password, is_author, about 
+		FROM users JOIN user_info ui on users.id = ui.user_id
+		WHERE to_tsvector(username) @@ to_tsquery($1::varchar || ':*')
+		ORDER BY ts_rank(to_tsvector(username), to_tsquery($1::varchar || ':*')) DESC;
+		`, username)
+	if err != nil {
 		return nil, err
-	}
-
-	for index, user := range u {
-		if err := r.DB.Get(
-			&u[index],
-			`
-			SELECT avatar, is_author, about
-			FROM user_info 
-			WHERE user_id = $1 AND is_author = true;`,
-			user.ID,
-		); err != nil {
-			return nil, err
-		}
 	}
 
 	return u, nil

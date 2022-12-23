@@ -9,6 +9,9 @@ services:
       - "8079:8079"
     env_file:
       - ../.env
+    depends_on:
+      - db
+      - subscribers
     volumes:
       - /etc/letsencrypt/live/vdonate.ml/fullchain.pem:/etc/letsencrypt/live/vdonate.ml/fullchain.pem
       - /etc/letsencrypt/live/vdonate.ml/privkey.pem:/etc/letsencrypt/live/vdonate.ml/privkey.pem

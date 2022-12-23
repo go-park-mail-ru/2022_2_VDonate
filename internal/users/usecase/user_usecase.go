@@ -3,6 +3,7 @@ package users
 import (
 	"database/sql"
 	"errors"
+	"github.com/ztrue/tracerr"
 	"mime/multipart"
 
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
@@ -121,12 +122,11 @@ func (u usecase) FindAuthors(keyword string) ([]models.User, error) {
 
 	if len(keyword) == 0 {
 		if allAuthors, err = u.usersMicroservice.GetAllAuthors(); err != nil {
-			return nil, err
+			return nil, tracerr.Wrap(err)
 		}
 	} else {
-		copyToword := "%" + keyword + "%"
-		if allAuthors, err = u.usersMicroservice.GetAuthorByUsername(copyToword); err != nil && !errors.Is(err, sql.ErrNoRows) {
-			return make([]models.User, 0), nil
+		if allAuthors, err = u.usersMicroservice.GetAuthorByUsername(keyword); err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return nil, tracerr.Wrap(err)
 		}
 	}
 
