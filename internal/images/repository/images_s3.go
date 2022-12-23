@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
-	"github.com/ztrue/tracerr"
 	"image"
 	"image/gif"
 	"image/jpeg"
@@ -14,15 +13,16 @@ import (
 	"time"
 
 	"github.com/esimov/stackblur-go"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
-
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/minio/minio-go"
+	"github.com/ztrue/tracerr"
 )
 
 const (
-	quality    = 100
-	blurRadius = 500
+	quality      = 100
+	blurRadius   = 500
+	numColorsGIF = 256
 )
 
 type S3 struct {
@@ -153,7 +153,7 @@ func (s S3) CreateOrUpdateImage(filename string, file []byte, size int64, oldFil
 			return "", tracerr.Wrap(err)
 		}
 	case "gif":
-		if err = gif.Encode(blurFile, blurImageNRGBA.SubImage(blurImageNRGBA.Rect), &gif.Options{NumColors: 256}); err != nil {
+		if err = gif.Encode(blurFile, blurImageNRGBA.SubImage(blurImageNRGBA.Rect), &gif.Options{NumColors: numColorsGIF}); err != nil {
 			return "", tracerr.Wrap(err)
 		}
 	default:

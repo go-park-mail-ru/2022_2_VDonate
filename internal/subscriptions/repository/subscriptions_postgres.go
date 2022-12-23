@@ -3,11 +3,11 @@ package subscriptionsRepository
 import (
 	"database/sql"
 	"errors"
-	"github.com/ztrue/tracerr"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"github.com/ztrue/tracerr"
 )
 
 type Postgres struct {

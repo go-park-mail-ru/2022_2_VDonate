@@ -3,7 +3,6 @@ package users
 import (
 	"database/sql"
 	"errors"
-	"github.com/ztrue/tracerr"
 	"mime/multipart"
 
 	errorHandling "github.com/go-park-mail-ru/2022_2_VDonate/pkg/errors"
@@ -13,6 +12,7 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/jinzhu/copier"
+	"github.com/ztrue/tracerr"
 )
 
 type hashCreator func(password string) (string, error)

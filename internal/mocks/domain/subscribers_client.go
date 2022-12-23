@@ -58,6 +58,26 @@ func (mr *MockSubscribersClientMockRecorder) ChangePaymentStatus(ctx, in interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangePaymentStatus", reflect.TypeOf((*MockSubscribersClient)(nil).ChangePaymentStatus), varargs...)
 }
 
+// Follow mocks base method.
+func (m *MockSubscribersClient) Follow(ctx context.Context, in *protobuf0.UserAuthorPair, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Follow", varargs...)
+	ret0, _ := ret[0].(*emptypb.Empty)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Follow indicates an expected call of Follow.
+func (mr *MockSubscribersClientMockRecorder) Follow(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Follow", reflect.TypeOf((*MockSubscribersClient)(nil).Follow), varargs...)
+}
+
 // GetSubscribers mocks base method.
 func (m *MockSubscribersClient) GetSubscribers(ctx context.Context, in *protobuf0.UserID, opts ...grpc.CallOption) (*protobuf0.UserIDs, error) {
 	m.ctrl.T.Helper()
@@ -154,6 +174,21 @@ func (m *MockSubscribersServer) ChangePaymentStatus(arg0 context.Context, arg1 *
 func (mr *MockSubscribersServerMockRecorder) ChangePaymentStatus(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangePaymentStatus", reflect.TypeOf((*MockSubscribersServer)(nil).ChangePaymentStatus), arg0, arg1)
+}
+
+// Follow mocks base method.
+func (m *MockSubscribersServer) Follow(arg0 context.Context, arg1 *protobuf0.UserAuthorPair) (*emptypb.Empty, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Follow", arg0, arg1)
+	ret0, _ := ret[0].(*emptypb.Empty)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Follow indicates an expected call of Follow.
+func (mr *MockSubscribersServerMockRecorder) Follow(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Follow", reflect.TypeOf((*MockSubscribersServer)(nil).Follow), arg0, arg1)
 }
 
 // GetSubscribers mocks base method.

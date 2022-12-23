@@ -2,12 +2,12 @@ package subscribersRepository
 
 import (
 	"database/sql"
-	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
-	"github.com/ztrue/tracerr"
 
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"github.com/ztrue/tracerr"
 )
 
 type Postgres struct {
