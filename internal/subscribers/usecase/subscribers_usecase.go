@@ -58,6 +58,18 @@ func (u usecase) GetSubscribers(authorID uint64) ([]models.User, error) {
 	return subs, nil
 }
 
+func (u usecase) Follow(subscriberID, authorID uint64) error {
+	if subscriberID == 0 || authorID == 0 {
+		return domain.ErrBadRequest
+	}
+	err := u.subscribersMicroservice.Follow(subscriberID, authorID)
+	if err != nil {
+		return tracerr.Wrap(err)
+	}
+
+	return nil
+}
+
 func (u usecase) Subscribe(subscription models.Subscription, userID uint64, as models.AuthorSubscription) (interface{}, error) {
 	if subscription.AuthorID == userID {
 		return nil, domain.ErrBadRequest

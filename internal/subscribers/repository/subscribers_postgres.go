@@ -2,6 +2,8 @@ package subscribersRepository
 
 import (
 	"database/sql"
+	"github.com/go-park-mail-ru/2022_2_VDonate/internal/domain"
+	"github.com/ztrue/tracerr"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
@@ -27,17 +29,27 @@ func NewPostgres(url string) (*Postgres, error) {
 
 func (p Postgres) GetSubscribers(authorID uint64) ([]uint64, error) {
 	var subscribers []uint64
+	var followers []uint64
 	err := p.DB.Select(&subscribers, `
 		SELECT subscriber_id 
 		FROM subscriptions 
-		WHERE author_id=$1`,
+		WHERE author_id=$1;`,
 		authorID,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	return subscribers, nil
+	if err = p.DB.Select(&followers, `
+		SELECT follower_id
+		FROM followers
+		WHERE author_id=$1;`,
+		authorID,
+	); err != nil {
+		return nil, err
+	}
+
+	return append(subscribers, followers...), nil
 }
 
 func (p Postgres) Unsubscribe(userID, authorID uint64) error {
@@ -47,17 +59,80 @@ func (p Postgres) Unsubscribe(userID, authorID uint64) error {
 		authorID,
 		userID,
 	)
+
 	if err != nil {
+		return err
+	}
+
+	if _, err = p.DB.Exec(`
+		DELETE FROM followers 
+		WHERE author_id=$1 AND follower_id=$2`,
+		authorID,
+		userID,
+	); err != nil {
 		return err
 	}
 
 	return nil
 }
 
+func (p Postgres) Follow(subscriberID, authorID uint64) error {
+	var sub models.Subscription
+	if err := p.DB.Get(&sub, `
+		SELECT author_id, subscriber_id, subscription_id 
+		FROM subscriptions 
+		WHERE subscriber_id=$1 AND author_id=$2;`,
+		subscriberID,
+		authorID,
+	); err != nil && err != sql.ErrNoRows {
+		return tracerr.Wrap(err)
+	}
+
+	if sub.SubscriberID == 0 && sub.AuthorID == 0 && sub.AuthorSubscriptionID == 0 {
+		_, err := p.DB.Exec(`
+			INSERT INTO subscriptions (author_id, subscriber_id) 
+			VALUES ($1, $2);`,
+			authorID,
+			subscriberID,
+		)
+		if err != nil {
+			return tracerr.Wrap(err)
+		}
+	} else {
+		return tracerr.Wrap(domain.ErrAlreadySubscribed)
+	}
+
+	return nil
+}
+
 func (p Postgres) PayAndSubscribe(payment models.Payment) error {
+	var sub models.Subscription
+	err := p.DB.Get(&sub, `
+			SELECT author_id, follower_id
+			FROM followers
+			WHERE follower_id=$1 AND author_id=$2;
+		`,
+		payment.FromID,
+		payment.ToID,
+	)
+	if err != nil && err != sql.ErrNoRows {
+		return tracerr.Wrap(err)
+	}
+
 	tx, err := p.DB.Begin()
 	if err != nil {
 		return err
+	}
+
+	if sub.AuthorID != 0 || sub.SubscriberID != 0 {
+		if _, err = tx.Exec(`
+			DELETE FROM followers 
+        	WHERE follower_id=$1 AND author_id=$2`,
+			payment.FromID,
+			payment.ToID,
+		); err != nil {
+			return tracerr.Wrap(err)
+		}
 	}
 
 	if err = tx.QueryRow(
@@ -68,6 +143,10 @@ func (p Postgres) PayAndSubscribe(payment models.Payment) error {
 		payment.SubID,
 		payment.Status,
 	).Scan(&payment.Time); err != nil {
+		if errRollback := tx.Rollback(); errRollback != nil {
+			return errRollback
+		}
+
 		return err
 	}
 
@@ -79,7 +158,6 @@ func (p Postgres) PayAndSubscribe(payment models.Payment) error {
 		return nil
 	}
 
-	var sub models.Subscription
 	if err = tx.QueryRow(
 		`SELECT author_id, subscriber_id, subscription_id FROM subscriptions WHERE author_id=$1 AND subscriber_id=$2`, payment.ToID, payment.FromID,
 	).Scan(&sub.AuthorID, &sub.SubscriberID, &sub.AuthorSubscriptionID); err != nil && err != sql.ErrNoRows {

@@ -44,6 +44,7 @@ type SubscribersRepository interface {
 	PayAndSubscribe(payment models.Payment) error
 	Unsubscribe(userID, authorID uint64) error
 	UpdateStatus(status, id string) error
+	Follow(subscriberID, authorID uint64) error
 }
 
 type SubscriptionsRepository interface {

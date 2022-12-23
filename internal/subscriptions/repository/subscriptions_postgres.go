@@ -3,6 +3,7 @@ package subscriptionsRepository
 import (
 	"database/sql"
 	"errors"
+	"github.com/ztrue/tracerr"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
@@ -56,8 +57,24 @@ func (p Postgres) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscr
 		FROM subscriptions JOIN author_subscriptions on author_subscriptions.id = subscriptions.subscription_id
 		WHERE subscriber_id = $1`,
 		userID,
-	); err != nil {
-		return nil, err
+	); err != nil && err != sql.ErrNoRows {
+		return nil, tracerr.Wrap(err)
+	}
+
+	var f []models.Subscription
+	if err := p.DB.Select(&f, `
+		SELECT follower_id, author_id
+		FROM followers
+		WHERE follower_id = $1;
+	`, userID); err != nil && err != sql.ErrNoRows {
+		return nil, tracerr.Wrap(err)
+	}
+
+	for _, follow := range f {
+		s = append(s, models.AuthorSubscription{
+			ID:       0,
+			AuthorID: follow.AuthorID,
+		})
 	}
 
 	return s, nil

@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
+	"github.com/ztrue/tracerr"
 	"image"
+	"image/gif"
 	"image/jpeg"
 	"image/png"
 	"net/url"
@@ -77,27 +79,29 @@ func New(endpoint, accessKeyID, secretAccessKey string, secure bool, sth int, p 
 }
 
 func (s S3) CreateOrUpdateImage(filename string, file []byte, size int64, oldFilename string) (string, error) {
-	idxNew := strings.Index(filename, ".")
+	idxNew := strings.LastIndex(filename, ".")
 	if idxNew == -1 {
 		return "", domain.ErrBadRequest
 	}
 	bucket := utils.GetMD5OfNumLast(filename[:idxNew], s.symbolsToHash)
 
+	fileFormat := filename[idxNew+1:]
+
 	if len(oldFilename) != 0 {
-		idxOld := strings.Index(oldFilename, ".")
+		idxOld := strings.LastIndex(oldFilename, ".")
 		if idxOld == -1 {
 			return "", domain.ErrInternal
 		}
 
 		oldBucket := utils.GetMD5OfNumLast(oldFilename[:idxOld], s.symbolsToHash)
 		if err := s.client.RemoveObject(oldBucket, oldFilename); err != nil {
-			return "", err
+			return "", tracerr.Wrap(err)
 		}
 	}
 
 	err := makeBucket(s.client, bucket, s.policy)
 	if err != nil {
-		return "", err
+		return "", tracerr.Wrap(err)
 	}
 
 	fileReader := new(bytes.Buffer)
@@ -112,7 +116,7 @@ func (s S3) CreateOrUpdateImage(filename string, file []byte, size int64, oldFil
 		size,
 		minio.PutObjectOptions{},
 	); err != nil {
-		return "", err
+		return "", tracerr.Wrap(err)
 	}
 
 	fileReader = new(bytes.Buffer)
@@ -120,26 +124,40 @@ func (s S3) CreateOrUpdateImage(filename string, file []byte, size int64, oldFil
 
 	r.Reset(fileReader)
 
-	blurImage, format, err := image.Decode(r)
+	var blurImage image.Image
+
+	switch fileFormat {
+	case "png":
+		blurImage, err = png.Decode(r)
+	case "gif":
+		blurImage, err = gif.Decode(r)
+	default:
+		blurImage, _, err = image.Decode(r)
+	}
+
 	if err != nil {
-		return "", err
+		return "", tracerr.Wrap(err)
 	}
 
 	blurImageNRGBA, _ := stackblur.Process(blurImage, blurRadius)
 
 	blurFile := new(bytes.Buffer)
 
-	switch format {
+	switch fileFormat {
 	case "jpeg", "jpg":
 		if err = jpeg.Encode(blurFile, blurImageNRGBA.SubImage(blurImageNRGBA.Rect), &jpeg.Options{Quality: quality}); err != nil {
-			return "", err
+			return "", tracerr.Wrap(err)
 		}
 	case "png":
 		if err = png.Encode(blurFile, blurImageNRGBA.SubImage(blurImageNRGBA.Rect)); err != nil {
-			return "", err
+			return "", tracerr.Wrap(err)
+		}
+	case "gif":
+		if err = gif.Encode(blurFile, blurImageNRGBA.SubImage(blurImageNRGBA.Rect), &gif.Options{NumColors: 256}); err != nil {
+			return "", tracerr.Wrap(err)
 		}
 	default:
-		return "", errors.New("unknown format")
+		return "", tracerr.Wrap(errors.New("unknown format"))
 	}
 
 	_, err = s.client.PutObject(
@@ -150,7 +168,7 @@ func (s S3) CreateOrUpdateImage(filename string, file []byte, size int64, oldFil
 		minio.PutObjectOptions{},
 	)
 
-	return filename, err
+	return filename, tracerr.Wrap(err)
 }
 
 func (s S3) GetPermanentImage(filename string) (string, error) {
@@ -161,7 +179,7 @@ func (s S3) GetPermanentImage(filename string) (string, error) {
 	bucket := utils.GetMD5OfNumLast(filename[:idx], s.symbolsToHash)
 	urlImage, err := s.client.PresignedGetObject(bucket, filename, s.expire, url.Values{})
 	if err != nil {
-		return "", err
+		return "", tracerr.Wrap(err)
 	}
 	return urlImage.Scheme + "://" + urlImage.Host + "/" + bucket + "/" + filename, nil
 }

@@ -84,14 +84,25 @@ func (h Handler) CreateSubscriber(c echo.Context) error {
 		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
 	}
 
-	sub, err := h.subscriptionsUsecase.GetAuthorSubscriptionByID(s.AuthorSubscriptionID)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrBadRequest, err)
-	}
+	var response interface{}
 
-	response, err := h.subscribersUsecase.Subscribe(s, u.ID, sub)
-	if err != nil {
-		return errorHandling.WrapEcho(domain.ErrCreate, err)
+	if s.AuthorSubscriptionID == 0 {
+		err = h.subscribersUsecase.Follow(u.ID, s.AuthorID)
+		if err != nil {
+			return errorHandling.WrapEcho(domain.ErrCreate, err)
+		}
+
+		response = models.EmptyStruct{}
+	} else {
+		sub, err := h.subscriptionsUsecase.GetAuthorSubscriptionByID(s.AuthorSubscriptionID)
+		if err != nil {
+			return errorHandling.WrapEcho(domain.ErrBadRequest, err)
+		}
+
+		response, err = h.subscribersUsecase.Subscribe(s, u.ID, sub)
+		if err != nil {
+			return errorHandling.WrapEcho(domain.ErrCreate, err)
+		}
 	}
 
 	return c.JSON(http.StatusOK, response)

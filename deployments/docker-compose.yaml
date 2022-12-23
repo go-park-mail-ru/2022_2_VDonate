@@ -33,7 +33,7 @@ services:
     container_name: vdonate-images
     image: zeronethunter/vdonate-images
     ports:
-      - "8083"
+      - "8083:8083"
       - "9083:9083"
     env_file:
       - ../.env

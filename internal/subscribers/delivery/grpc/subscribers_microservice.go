@@ -45,6 +45,15 @@ func (m SubscribersMicroservice) GetSubscribers(userID uint64) ([]uint64, error)
 	return res, nil
 }
 
+func (m SubscribersMicroservice) Follow(subscriberID, authorID uint64) error {
+	_, err := m.subscribersClient.Follow(context.Background(), &userProto.UserAuthorPair{
+		UserId:   subscriberID,
+		AuthorId: authorID,
+	})
+
+	return tracerr.Wrap(err)
+}
+
 func (m SubscribersMicroservice) Subscribe(payment models.Payment) {
 	log := logger.GetInstance().Logrus
 
