@@ -40,6 +40,8 @@ jobs:
       - name: Setup mocks
         run: make mocks
       - name: Testing
+        run: make test
+      - name: Coverage
         run: make cover_out
       - name: Coverage check
         env:
