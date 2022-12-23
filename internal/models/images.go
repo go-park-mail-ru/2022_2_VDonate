@@ -20,4 +20,5 @@ type ResponseImageUsers struct {
 	UserID   uint64 `json:"userID" validate:"required" example:"25"`
 	Username string `json:"username" validate:"required" example:"leo"`
 	ImgPath  string `json:"imgPath" validate:"required" example:"/path/to/image.jpeg"`
+	About    string `json:"about" validate:"required" example:"about me"`
 }

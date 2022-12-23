@@ -300,3 +300,150 @@ func TestUsecase_FindAuthors(t *testing.T) {
 		})
 	}
 }
+
+func TestUsersUsecase_GetPostsNum(t *testing.T) {
+	type mockBehaviour func(r *mockDomain.MockUsersMicroservice, userID uint64)
+
+	tests := []struct {
+		name          string
+		userID        uint64
+		mockBehaviour mockBehaviour
+		response      uint64
+		expectedError string
+	}{
+		{
+			name:   "OK",
+			userID: 1,
+			mockBehaviour: func(r *mockDomain.MockUsersMicroservice, userID uint64) {
+				r.EXPECT().GetPostsNum(userID).Return(uint64(1), nil)
+			},
+			response: 1,
+		},
+		{
+			name:   "Err",
+			userID: 0,
+			mockBehaviour: func(r *mockDomain.MockUsersMicroservice, userID uint64) {
+				r.EXPECT().GetPostsNum(userID).Return(uint64(0), errors.New("empty username"))
+			},
+			expectedError: "empty username",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			userMicro := mockDomain.NewMockUsersMicroservice(ctrl)
+
+			test.mockBehaviour(userMicro, test.userID)
+
+			usecase := New(userMicro, nil)
+
+			postsNum, err := usecase.GetPostsNum(test.userID)
+			if err != nil {
+				require.Equal(t, err.Error(), test.expectedError)
+			}
+
+			require.Equal(t, postsNum, test.response)
+		})
+	}
+}
+
+func TestUsersUsecase_GetSubscribersNum(t *testing.T) {
+	type mockBehaviour func(r *mockDomain.MockUsersMicroservice, userID uint64)
+
+	tests := []struct {
+		name          string
+		userID        uint64
+		mockBehaviour mockBehaviour
+		response      uint64
+		expectedError string
+	}{
+		{
+			name:   "OK",
+			userID: 1,
+			mockBehaviour: func(r *mockDomain.MockUsersMicroservice, userID uint64) {
+				r.EXPECT().GetSubscribersNum(userID).Return(uint64(1), nil)
+			},
+			response: 1,
+		},
+		{
+			name:   "Err",
+			userID: 0,
+			mockBehaviour: func(r *mockDomain.MockUsersMicroservice, userID uint64) {
+				r.EXPECT().GetSubscribersNum(userID).Return(uint64(0), errors.New("empty username"))
+			},
+			expectedError: "empty username",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			userMicro := mockDomain.NewMockUsersMicroservice(ctrl)
+
+			test.mockBehaviour(userMicro, test.userID)
+
+			usecase := New(userMicro, nil)
+
+			subscribersNum, err := usecase.GetSubscribersNum(test.userID)
+			if err != nil {
+				require.Equal(t, err.Error(), test.expectedError)
+			}
+
+			require.Equal(t, subscribersNum, test.response)
+		})
+	}
+}
+
+func TestUsersUsecase_GetProfitForMounth(t *testing.T) {
+	type mockBehaviour func(r *mockDomain.MockUsersMicroservice, userID uint64)
+
+	tests := []struct {
+		name          string
+		userID        uint64
+		mockBehaviour mockBehaviour
+		response      uint64
+		expectedError string
+	}{
+		{
+			name:   "OK",
+			userID: 1,
+			mockBehaviour: func(r *mockDomain.MockUsersMicroservice, userID uint64) {
+				r.EXPECT().GetProfitForMounth(userID).Return(uint64(1), nil)
+			},
+			response: 1,
+		},
+		{
+			name:   "Err",
+			userID: 0,
+			mockBehaviour: func(r *mockDomain.MockUsersMicroservice, userID uint64) {
+				r.EXPECT().GetProfitForMounth(userID).Return(uint64(0), errors.New("empty username"))
+			},
+			expectedError: "empty username",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			userMicro := mockDomain.NewMockUsersMicroservice(ctrl)
+
+			test.mockBehaviour(userMicro, test.userID)
+
+			usecase := New(userMicro, nil)
+
+			profit, err := usecase.GetProfitForMounth(test.userID)
+			if err != nil {
+				require.Equal(t, err.Error(), test.expectedError)
+			}
+
+			require.Equal(t, profit, test.response)
+		})
+	}
+}
