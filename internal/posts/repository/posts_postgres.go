@@ -90,6 +90,7 @@ func (r Postgres) Update(post models.Post) error {
 
 func (r Postgres) GetPostsBySubscriptions(userID uint64) ([]models.Post, error) {
 	posts := make([]models.Post, 0)
+
 	if err := r.DB.Select(&posts, `
 		SELECT p.post_id, p.user_id, p.content, p.tier, p.date_created
 		FROM subscriptions s
@@ -98,6 +99,18 @@ func (r Postgres) GetPostsBySubscriptions(userID uint64) ([]models.Post, error) 
 		WHERE s.subscriber_id=$1 AND "as".tier >= p.tier;
 	`, userID); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
+	}
+
+	if len(posts) == 0 {
+		if err := r.DB.Select(&posts, `
+		SELECT p.post_id, p.user_id, p.content, p.tier, p.date_created
+		FROM posts p
+		WHERE p.tier = 0 AND length(p.content) > 25
+		ORDER BY random()
+		LIMIT 15;
+	`, userID); err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return nil, err
+		}
 	}
 
 	return posts, nil
