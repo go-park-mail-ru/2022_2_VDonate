@@ -61,7 +61,7 @@ func (p Postgres) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscr
 		return nil, tracerr.Wrap(err)
 	}
 
-	var f []models.Subscription
+	var f []models.Follower
 	if err := p.DB.Select(&f, `
 		SELECT follower_id, author_id
 		FROM followers

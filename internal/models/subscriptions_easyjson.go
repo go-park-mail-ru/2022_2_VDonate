@@ -97,7 +97,80 @@ func (v *Subscription) UnmarshalJSON(data []byte) error {
 func (v *Subscription) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson6fbf8f0cDecodeGithubComGoParkMailRu20222VDonateInternalModels(l, v)
 }
-func easyjson6fbf8f0cDecodeGithubComGoParkMailRu20222VDonateInternalModels1(in *jlexer.Lexer, out *AuthorSubscription) {
+func easyjson6fbf8f0cDecodeGithubComGoParkMailRu20222VDonateInternalModels1(in *jlexer.Lexer, out *Follower) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "followerID":
+			out.FollowerID = uint64(in.Uint64())
+		case "authorID":
+			out.AuthorID = uint64(in.Uint64())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson6fbf8f0cEncodeGithubComGoParkMailRu20222VDonateInternalModels1(out *jwriter.Writer, in Follower) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"followerID\":"
+		out.RawString(prefix[1:])
+		out.Uint64(uint64(in.FollowerID))
+	}
+	{
+		const prefix string = ",\"authorID\":"
+		out.RawString(prefix)
+		out.Uint64(uint64(in.AuthorID))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v Follower) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson6fbf8f0cEncodeGithubComGoParkMailRu20222VDonateInternalModels1(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v Follower) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson6fbf8f0cEncodeGithubComGoParkMailRu20222VDonateInternalModels1(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *Follower) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson6fbf8f0cDecodeGithubComGoParkMailRu20222VDonateInternalModels1(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *Follower) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson6fbf8f0cDecodeGithubComGoParkMailRu20222VDonateInternalModels1(l, v)
+}
+func easyjson6fbf8f0cDecodeGithubComGoParkMailRu20222VDonateInternalModels2(in *jlexer.Lexer, out *AuthorSubscription) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -144,7 +217,7 @@ func easyjson6fbf8f0cDecodeGithubComGoParkMailRu20222VDonateInternalModels1(in *
 		in.Consumed()
 	}
 }
-func easyjson6fbf8f0cEncodeGithubComGoParkMailRu20222VDonateInternalModels1(out *jwriter.Writer, in AuthorSubscription) {
+func easyjson6fbf8f0cEncodeGithubComGoParkMailRu20222VDonateInternalModels2(out *jwriter.Writer, in AuthorSubscription) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -199,23 +272,23 @@ func easyjson6fbf8f0cEncodeGithubComGoParkMailRu20222VDonateInternalModels1(out 
 // MarshalJSON supports json.Marshaler interface
 func (v AuthorSubscription) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson6fbf8f0cEncodeGithubComGoParkMailRu20222VDonateInternalModels1(&w, v)
+	easyjson6fbf8f0cEncodeGithubComGoParkMailRu20222VDonateInternalModels2(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v AuthorSubscription) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6fbf8f0cEncodeGithubComGoParkMailRu20222VDonateInternalModels1(w, v)
+	easyjson6fbf8f0cEncodeGithubComGoParkMailRu20222VDonateInternalModels2(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *AuthorSubscription) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson6fbf8f0cDecodeGithubComGoParkMailRu20222VDonateInternalModels1(&r, v)
+	easyjson6fbf8f0cDecodeGithubComGoParkMailRu20222VDonateInternalModels2(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *AuthorSubscription) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6fbf8f0cDecodeGithubComGoParkMailRu20222VDonateInternalModels1(l, v)
+	easyjson6fbf8f0cDecodeGithubComGoParkMailRu20222VDonateInternalModels2(l, v)
 }

@@ -90,7 +90,7 @@ func (p Postgres) Follow(subscriberID, authorID uint64) error {
 
 	if sub.SubscriberID == 0 && sub.AuthorID == 0 && sub.AuthorSubscriptionID == 0 {
 		_, err := p.DB.Exec(`
-			INSERT INTO subscriptions (author_id, subscriber_id) 
+			INSERT INTO followers (author_id, follower_id) 
 			VALUES ($1, $2);`,
 			authorID,
 			subscriberID,
@@ -106,8 +106,8 @@ func (p Postgres) Follow(subscriberID, authorID uint64) error {
 }
 
 func (p Postgres) PayAndSubscribe(payment models.Payment) error {
-	var sub models.Subscription
-	err := p.DB.Get(&sub, `
+	var f models.Follower
+	err := p.DB.Get(&f, `
 			SELECT author_id, follower_id
 			FROM followers
 			WHERE follower_id=$1 AND author_id=$2;
@@ -124,7 +124,7 @@ func (p Postgres) PayAndSubscribe(payment models.Payment) error {
 		return err
 	}
 
-	if sub.AuthorID != 0 || sub.SubscriberID != 0 {
+	if f.AuthorID != 0 || f.FollowerID != 0 {
 		if _, err = tx.Exec(`
 			DELETE FROM followers 
         	WHERE follower_id=$1 AND author_id=$2`,
@@ -157,6 +157,8 @@ func (p Postgres) PayAndSubscribe(payment models.Payment) error {
 
 		return nil
 	}
+
+	var sub models.Subscription
 
 	if err = tx.QueryRow(
 		`SELECT author_id, subscriber_id, subscription_id FROM subscriptions WHERE author_id=$1 AND subscriber_id=$2`, payment.ToID, payment.FromID,

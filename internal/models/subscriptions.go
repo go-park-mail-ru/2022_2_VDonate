@@ -6,6 +6,11 @@ type Subscription struct {
 	AuthorSubscriptionID uint64 `json:"authorSubscriptionID" db:"author_subscription_id" validate:"required" example:"1"`
 }
 
+type Follower struct {
+	FollowerID uint64 `json:"followerID" db:"follower_id" validate:"required" example:"1"`
+	AuthorID   uint64 `json:"authorID" db:"author_id" validate:"required" example:"2"`
+}
+
 type AuthorSubscription struct {
 	ID       uint64 `json:"id" form:"id" db:"id" example:"1"`
 	AuthorID uint64 `json:"authorID" form:"authorID" db:"author_id" example:"1"`
