@@ -52,7 +52,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("auth: failed to open db: %s", err)
 	}
-	defer r.Close()
+	defer r.DB.Close()
 
 	/*----------------------------grpc----------------------------*/
 	metricsHTTP := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{
