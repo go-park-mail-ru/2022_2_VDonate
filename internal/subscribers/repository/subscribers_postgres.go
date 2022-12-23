@@ -122,10 +122,15 @@ func (p Postgres) PayAndSubscribe(payment models.Payment) error {
 }
 
 func (p Postgres) UpdateStatus(status string, id string) error {
-	return p.DB.QueryRow(
+	_, err := p.DB.Exec(
 		`
 		UPDATE payments
 		SET status=$1
 		WHERE id=$2`, status, id,
-	).Err()
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

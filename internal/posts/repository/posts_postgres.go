@@ -19,8 +19,6 @@ func NewPostgres(url string) (*Postgres, error) {
 		return nil, err
 	}
 
-	db.SetMaxOpenConns(0)
-
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
@@ -28,7 +26,7 @@ func NewPostgres(url string) (*Postgres, error) {
 	return &Postgres{DB: db}, nil
 }
 
-func (r *Postgres) Close() error {
+func (r Postgres) Close() error {
 	if err := r.DB.Close(); err != nil {
 		return err
 	}
@@ -131,13 +129,18 @@ func (r Postgres) GetAllLikesByPostID(postID uint64) ([]models.Like, error) {
 }
 
 func (r Postgres) CreateLike(userID, postID uint64) error {
-	return r.DB.QueryRowx(
+	_, err := r.DB.Exec(
 		`
 		INSERT INTO likes (user_id, post_id)
 		VALUES ($1, $2);`,
 		userID,
 		postID,
-	).Err()
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r Postgres) DeleteLikeByID(userID, postID uint64) error {
