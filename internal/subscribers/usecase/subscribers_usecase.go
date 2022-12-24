@@ -234,32 +234,24 @@ func (u usecase) WithdrawCard(userID uint64, card, provider string) (models.With
 	p, err := json.Marshal(models.WithdrawPayment{
 		ID: strconv.FormatInt(1000*time.Now().Unix(), 10),
 		Sum: struct {
-			Amount   float64 `json:"amount,required"`
-			Currency string  `json:"currency,required"`
-		}(struct {
 			Amount   float64 `json:"amount"`
 			Currency string  `json:"currency"`
 		}{
 			Amount:   float64(acc.Balance-qiwiBankCommission)*commission + qiwiBankCommission,
 			Currency: "643",
-		}),
+		},
 		PaymentMethod: struct {
-			Type      string `json:"type,required"`
-			AccountId string `json:"accountId,required"`
-		}(struct {
 			Type      string `json:"type"`
 			AccountId string `json:"accountId"`
 		}{
 			Type:      "Account",
 			AccountId: "643",
-		}),
+		},
 		Fields: struct {
-			Account string `json:"account,required"`
-		}(struct {
 			Account string `json:"account"`
 		}{
 			Account: card,
-		}),
+		},
 	})
 	if err != nil {
 		return models.WithdrawInfo{}, tracerr.Wrap(err)
@@ -321,32 +313,24 @@ func (u usecase) WithdrawQiwi(userID uint64, phone string) (models.WithdrawInfo,
 	p, err := json.Marshal(models.WithdrawPayment{
 		ID: strconv.FormatInt(1000*time.Now().Unix(), 10),
 		Sum: struct {
-			Amount   float64 `json:"amount,required"`
-			Currency string  `json:"currency,required"`
-		}(struct {
 			Amount   float64 `json:"amount"`
 			Currency string  `json:"currency"`
 		}{
 			Amount:   float64(acc.Balance) * commission,
 			Currency: "643",
-		}),
+		},
 		PaymentMethod: struct {
-			Type      string `json:"type,required"`
-			AccountId string `json:"accountId,required"`
-		}(struct {
 			Type      string `json:"type"`
 			AccountId string `json:"accountId"`
 		}{
 			Type:      "Account",
 			AccountId: "643",
-		}),
+		},
 		Fields: struct {
-			Account string `json:"account,required"`
-		}(struct {
 			Account string `json:"account"`
 		}{
 			Account: "+" + phone,
-		}),
+		},
 	})
 	if err != nil {
 		return models.WithdrawInfo{}, tracerr.Wrap(err)
