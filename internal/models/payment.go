@@ -13,7 +13,7 @@ type Payment struct {
 }
 
 type Withdraw struct {
-	UserID uint64 `json:"userID,required"`
+	UserID uint64 `json:"userID"`
 	Phone  string `json:"phone"`
 	Card   string `json:"card"`
 }
@@ -23,46 +23,46 @@ type WithdrawCard struct {
 }
 
 type WithdrawPayment struct {
-	ID  string `json:"id,required"`
+	ID  string `json:"id"`
 	Sum struct {
-		Amount   float64 `json:"amount,required"`
-		Currency string  `json:"currency,required"`
-	} `json:"sum,required"`
+		Amount   float64 `json:"amount"`
+		Currency string  `json:"currency"`
+	} `json:"sum"`
 	PaymentMethod struct {
-		Type      string `json:"type,required"`
-		AccountId string `json:"accountId,required"`
-	} `json:"paymentMethod,required"`
+		Type      string `json:"type"`
+		AccountId string `json:"accountId"`
+	} `json:"paymentMethod"`
 	Fields struct {
-		Account string `json:"account,required"`
-	} `json:"fields,required"`
+		Account string `json:"account"`
+	} `json:"fields"`
 }
 
 type WithdrawInfo struct {
-	Id     string `json:"id,required"`
-	Terms  string `json:"terms,required"`
+	Id     string `json:"id"`
+	Terms  string `json:"terms"`
 	Fields struct {
-		Account string `json:"account,required"`
-	} `json:"fields,required"`
+		Account string `json:"account"`
+	} `json:"fields"`
 	Sum struct {
-		Amount   float64 `json:"amount,required"`
-		Currency string  `json:"currency,required"`
-	} `json:"sum,required"`
+		Amount   float64 `json:"amount"`
+		Currency string  `json:"currency"`
+	} `json:"sum"`
 	Transaction struct {
-		Id    string `json:"id,required"`
+		Id    string `json:"id"`
 		State struct {
-			Code string `json:"code,required"`
-		} `json:"state,required"`
-	} `json:"transaction,required"`
+			Code string `json:"code"`
+		} `json:"state"`
+	} `json:"transaction"`
 	Source  string `json:"source"`
 	Comment string `json:"comment"`
 }
 
 type WithdrawValidation struct {
 	Elements []struct {
-		Type  string `json:"type,required"`
-		Name  string `json:"name,required"`
-		Value string `json:"value,required"`
-	} `json:"elements,required"`
+		Type  string `json:"type"`
+		Name  string `json:"name"`
+		Value string `json:"value"`
+	} `json:"elements"`
 }
 
 type WithdrawError struct {

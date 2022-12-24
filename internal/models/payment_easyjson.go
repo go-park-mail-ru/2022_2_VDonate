@@ -4,7 +4,6 @@ package models
 
 import (
 	json "encoding/json"
-	fmt "fmt"
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -28,7 +27,6 @@ func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels(in *j
 		in.Skip()
 		return
 	}
-	var ElementsSet bool
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
@@ -48,15 +46,15 @@ func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels(in *j
 				if out.Elements == nil {
 					if !in.IsDelim(']') {
 						out.Elements = make([]struct {
-							Type  string `json:"type,required"`
-							Name  string `json:"name,required"`
-							Value string `json:"value,required"`
+							Type  string `json:"type"`
+							Name  string `json:"name"`
+							Value string `json:"value"`
 						}, 0, 1)
 					} else {
 						out.Elements = []struct {
-							Type  string `json:"type,required"`
-							Name  string `json:"name,required"`
-							Value string `json:"value,required"`
+							Type  string `json:"type"`
+							Name  string `json:"name"`
+							Value string `json:"value"`
 						}{}
 					}
 				} else {
@@ -64,9 +62,9 @@ func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels(in *j
 				}
 				for !in.IsDelim(']') {
 					var v1 struct {
-						Type  string `json:"type,required"`
-						Name  string `json:"name,required"`
-						Value string `json:"value,required"`
+						Type  string `json:"type"`
+						Name  string `json:"name"`
+						Value string `json:"value"`
 					}
 					easyjson377dcee4Decode(in, &v1)
 					out.Elements = append(out.Elements, v1)
@@ -74,7 +72,6 @@ func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels(in *j
 				}
 				in.Delim(']')
 			}
-			ElementsSet = true
 		default:
 			in.SkipRecursive()
 		}
@@ -83,9 +80,6 @@ func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels(in *j
 	in.Delim('}')
 	if isTopLevel {
 		in.Consumed()
-	}
-	if !ElementsSet {
-		in.AddError(fmt.Errorf("key 'elements' is required"))
 	}
 }
 func easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels(out *jwriter.Writer, in WithdrawValidation) {
@@ -135,9 +129,9 @@ func (v *WithdrawValidation) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels(l, v)
 }
 func easyjson377dcee4Decode(in *jlexer.Lexer, out *struct {
-	Type  string `json:"type,required"`
-	Name  string `json:"name,required"`
-	Value string `json:"value,required"`
+	Type  string `json:"type"`
+	Name  string `json:"name"`
+	Value string `json:"value"`
 }) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
@@ -147,9 +141,6 @@ func easyjson377dcee4Decode(in *jlexer.Lexer, out *struct {
 		in.Skip()
 		return
 	}
-	var TypeSet bool
-	var NameSet bool
-	var ValueSet bool
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
@@ -162,13 +153,10 @@ func easyjson377dcee4Decode(in *jlexer.Lexer, out *struct {
 		switch key {
 		case "type":
 			out.Type = string(in.String())
-			TypeSet = true
 		case "name":
 			out.Name = string(in.String())
-			NameSet = true
 		case "value":
 			out.Value = string(in.String())
-			ValueSet = true
 		default:
 			in.SkipRecursive()
 		}
@@ -178,20 +166,11 @@ func easyjson377dcee4Decode(in *jlexer.Lexer, out *struct {
 	if isTopLevel {
 		in.Consumed()
 	}
-	if !TypeSet {
-		in.AddError(fmt.Errorf("key 'type' is required"))
-	}
-	if !NameSet {
-		in.AddError(fmt.Errorf("key 'name' is required"))
-	}
-	if !ValueSet {
-		in.AddError(fmt.Errorf("key 'value' is required"))
-	}
 }
 func easyjson377dcee4Encode(out *jwriter.Writer, in struct {
-	Type  string `json:"type,required"`
-	Name  string `json:"name,required"`
-	Value string `json:"value,required"`
+	Type  string `json:"type"`
+	Name  string `json:"name"`
+	Value string `json:"value"`
 }) {
 	out.RawByte('{')
 	first := true
@@ -222,10 +201,6 @@ func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels1(in *
 		in.Skip()
 		return
 	}
-	var IDSet bool
-	var SumSet bool
-	var PaymentMethodSet bool
-	var FieldsSet bool
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
@@ -238,16 +213,12 @@ func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels1(in *
 		switch key {
 		case "id":
 			out.ID = string(in.String())
-			IDSet = true
 		case "sum":
 			easyjson377dcee4Decode1(in, &out.Sum)
-			SumSet = true
 		case "paymentMethod":
 			easyjson377dcee4Decode2(in, &out.PaymentMethod)
-			PaymentMethodSet = true
 		case "fields":
 			easyjson377dcee4Decode3(in, &out.Fields)
-			FieldsSet = true
 		default:
 			in.SkipRecursive()
 		}
@@ -256,18 +227,6 @@ func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels1(in *
 	in.Delim('}')
 	if isTopLevel {
 		in.Consumed()
-	}
-	if !IDSet {
-		in.AddError(fmt.Errorf("key 'id' is required"))
-	}
-	if !SumSet {
-		in.AddError(fmt.Errorf("key 'sum' is required"))
-	}
-	if !PaymentMethodSet {
-		in.AddError(fmt.Errorf("key 'paymentMethod' is required"))
-	}
-	if !FieldsSet {
-		in.AddError(fmt.Errorf("key 'fields' is required"))
 	}
 }
 func easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels1(out *jwriter.Writer, in WithdrawPayment) {
@@ -321,7 +280,7 @@ func (v *WithdrawPayment) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels1(l, v)
 }
 func easyjson377dcee4Decode3(in *jlexer.Lexer, out *struct {
-	Account string `json:"account,required"`
+	Account string `json:"account"`
 }) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
@@ -331,7 +290,6 @@ func easyjson377dcee4Decode3(in *jlexer.Lexer, out *struct {
 		in.Skip()
 		return
 	}
-	var AccountSet bool
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
@@ -344,7 +302,6 @@ func easyjson377dcee4Decode3(in *jlexer.Lexer, out *struct {
 		switch key {
 		case "account":
 			out.Account = string(in.String())
-			AccountSet = true
 		default:
 			in.SkipRecursive()
 		}
@@ -354,12 +311,9 @@ func easyjson377dcee4Decode3(in *jlexer.Lexer, out *struct {
 	if isTopLevel {
 		in.Consumed()
 	}
-	if !AccountSet {
-		in.AddError(fmt.Errorf("key 'account' is required"))
-	}
 }
 func easyjson377dcee4Encode3(out *jwriter.Writer, in struct {
-	Account string `json:"account,required"`
+	Account string `json:"account"`
 }) {
 	out.RawByte('{')
 	first := true
@@ -372,8 +326,8 @@ func easyjson377dcee4Encode3(out *jwriter.Writer, in struct {
 	out.RawByte('}')
 }
 func easyjson377dcee4Decode2(in *jlexer.Lexer, out *struct {
-	Type      string `json:"type,required"`
-	AccountId string `json:"accountId,required"`
+	Type      string `json:"type"`
+	AccountId string `json:"accountId"`
 }) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
@@ -383,8 +337,6 @@ func easyjson377dcee4Decode2(in *jlexer.Lexer, out *struct {
 		in.Skip()
 		return
 	}
-	var TypeSet bool
-	var AccountIdSet bool
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
@@ -397,10 +349,8 @@ func easyjson377dcee4Decode2(in *jlexer.Lexer, out *struct {
 		switch key {
 		case "type":
 			out.Type = string(in.String())
-			TypeSet = true
 		case "accountId":
 			out.AccountId = string(in.String())
-			AccountIdSet = true
 		default:
 			in.SkipRecursive()
 		}
@@ -410,16 +360,10 @@ func easyjson377dcee4Decode2(in *jlexer.Lexer, out *struct {
 	if isTopLevel {
 		in.Consumed()
 	}
-	if !TypeSet {
-		in.AddError(fmt.Errorf("key 'type' is required"))
-	}
-	if !AccountIdSet {
-		in.AddError(fmt.Errorf("key 'accountId' is required"))
-	}
 }
 func easyjson377dcee4Encode2(out *jwriter.Writer, in struct {
-	Type      string `json:"type,required"`
-	AccountId string `json:"accountId,required"`
+	Type      string `json:"type"`
+	AccountId string `json:"accountId"`
 }) {
 	out.RawByte('{')
 	first := true
@@ -437,8 +381,8 @@ func easyjson377dcee4Encode2(out *jwriter.Writer, in struct {
 	out.RawByte('}')
 }
 func easyjson377dcee4Decode1(in *jlexer.Lexer, out *struct {
-	Amount   float64 `json:"amount,required"`
-	Currency string  `json:"currency,required"`
+	Amount   float64 `json:"amount"`
+	Currency string  `json:"currency"`
 }) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
@@ -448,8 +392,6 @@ func easyjson377dcee4Decode1(in *jlexer.Lexer, out *struct {
 		in.Skip()
 		return
 	}
-	var AmountSet bool
-	var CurrencySet bool
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
@@ -462,10 +404,8 @@ func easyjson377dcee4Decode1(in *jlexer.Lexer, out *struct {
 		switch key {
 		case "amount":
 			out.Amount = float64(in.Float64())
-			AmountSet = true
 		case "currency":
 			out.Currency = string(in.String())
-			CurrencySet = true
 		default:
 			in.SkipRecursive()
 		}
@@ -475,16 +415,10 @@ func easyjson377dcee4Decode1(in *jlexer.Lexer, out *struct {
 	if isTopLevel {
 		in.Consumed()
 	}
-	if !AmountSet {
-		in.AddError(fmt.Errorf("key 'amount' is required"))
-	}
-	if !CurrencySet {
-		in.AddError(fmt.Errorf("key 'currency' is required"))
-	}
 }
 func easyjson377dcee4Encode1(out *jwriter.Writer, in struct {
-	Amount   float64 `json:"amount,required"`
-	Currency string  `json:"currency,required"`
+	Amount   float64 `json:"amount"`
+	Currency string  `json:"currency"`
 }) {
 	out.RawByte('{')
 	first := true
@@ -510,11 +444,6 @@ func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels2(in *
 		in.Skip()
 		return
 	}
-	var IdSet bool
-	var TermsSet bool
-	var FieldsSet bool
-	var SumSet bool
-	var TransactionSet bool
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
@@ -527,19 +456,14 @@ func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels2(in *
 		switch key {
 		case "id":
 			out.Id = string(in.String())
-			IdSet = true
 		case "terms":
 			out.Terms = string(in.String())
-			TermsSet = true
 		case "fields":
 			easyjson377dcee4Decode3(in, &out.Fields)
-			FieldsSet = true
 		case "sum":
 			easyjson377dcee4Decode1(in, &out.Sum)
-			SumSet = true
 		case "transaction":
 			easyjson377dcee4Decode4(in, &out.Transaction)
-			TransactionSet = true
 		case "source":
 			out.Source = string(in.String())
 		case "comment":
@@ -552,21 +476,6 @@ func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels2(in *
 	in.Delim('}')
 	if isTopLevel {
 		in.Consumed()
-	}
-	if !IdSet {
-		in.AddError(fmt.Errorf("key 'id' is required"))
-	}
-	if !TermsSet {
-		in.AddError(fmt.Errorf("key 'terms' is required"))
-	}
-	if !FieldsSet {
-		in.AddError(fmt.Errorf("key 'fields' is required"))
-	}
-	if !SumSet {
-		in.AddError(fmt.Errorf("key 'sum' is required"))
-	}
-	if !TransactionSet {
-		in.AddError(fmt.Errorf("key 'transaction' is required"))
 	}
 }
 func easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels2(out *jwriter.Writer, in WithdrawInfo) {
@@ -635,10 +544,10 @@ func (v *WithdrawInfo) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels2(l, v)
 }
 func easyjson377dcee4Decode4(in *jlexer.Lexer, out *struct {
-	Id    string `json:"id,required"`
+	Id    string `json:"id"`
 	State struct {
-		Code string `json:"code,required"`
-	} `json:"state,required"`
+		Code string `json:"code"`
+	} `json:"state"`
 }) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
@@ -648,8 +557,6 @@ func easyjson377dcee4Decode4(in *jlexer.Lexer, out *struct {
 		in.Skip()
 		return
 	}
-	var IdSet bool
-	var StateSet bool
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
@@ -662,10 +569,8 @@ func easyjson377dcee4Decode4(in *jlexer.Lexer, out *struct {
 		switch key {
 		case "id":
 			out.Id = string(in.String())
-			IdSet = true
 		case "state":
 			easyjson377dcee4Decode5(in, &out.State)
-			StateSet = true
 		default:
 			in.SkipRecursive()
 		}
@@ -675,18 +580,12 @@ func easyjson377dcee4Decode4(in *jlexer.Lexer, out *struct {
 	if isTopLevel {
 		in.Consumed()
 	}
-	if !IdSet {
-		in.AddError(fmt.Errorf("key 'id' is required"))
-	}
-	if !StateSet {
-		in.AddError(fmt.Errorf("key 'state' is required"))
-	}
 }
 func easyjson377dcee4Encode4(out *jwriter.Writer, in struct {
-	Id    string `json:"id,required"`
+	Id    string `json:"id"`
 	State struct {
-		Code string `json:"code,required"`
-	} `json:"state,required"`
+		Code string `json:"code"`
+	} `json:"state"`
 }) {
 	out.RawByte('{')
 	first := true
@@ -704,7 +603,7 @@ func easyjson377dcee4Encode4(out *jwriter.Writer, in struct {
 	out.RawByte('}')
 }
 func easyjson377dcee4Decode5(in *jlexer.Lexer, out *struct {
-	Code string `json:"code,required"`
+	Code string `json:"code"`
 }) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
@@ -714,7 +613,6 @@ func easyjson377dcee4Decode5(in *jlexer.Lexer, out *struct {
 		in.Skip()
 		return
 	}
-	var CodeSet bool
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
@@ -727,7 +625,6 @@ func easyjson377dcee4Decode5(in *jlexer.Lexer, out *struct {
 		switch key {
 		case "code":
 			out.Code = string(in.String())
-			CodeSet = true
 		default:
 			in.SkipRecursive()
 		}
@@ -737,12 +634,9 @@ func easyjson377dcee4Decode5(in *jlexer.Lexer, out *struct {
 	if isTopLevel {
 		in.Consumed()
 	}
-	if !CodeSet {
-		in.AddError(fmt.Errorf("key 'code' is required"))
-	}
 }
 func easyjson377dcee4Encode5(out *jwriter.Writer, in struct {
-	Code string `json:"code,required"`
+	Code string `json:"code"`
 }) {
 	out.RawByte('{')
 	first := true
@@ -909,7 +803,6 @@ func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels5(in *
 		in.Skip()
 		return
 	}
-	var UserIDSet bool
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(false)
@@ -922,7 +815,6 @@ func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels5(in *
 		switch key {
 		case "userID":
 			out.UserID = uint64(in.Uint64())
-			UserIDSet = true
 		case "phone":
 			out.Phone = string(in.String())
 		case "card":
@@ -935,9 +827,6 @@ func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels5(in *
 	in.Delim('}')
 	if isTopLevel {
 		in.Consumed()
-	}
-	if !UserIDSet {
-		in.AddError(fmt.Errorf("key 'userID' is required"))
 	}
 }
 func easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels5(out *jwriter.Writer, in Withdraw) {
@@ -1395,7 +1284,7 @@ func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels7(in *
 				in.AddError((out.ExpirationDateTime).UnmarshalJSON(data))
 			}
 		case "customer":
-			easyjson377dcee4Decode10(in, &out.Customer)
+			easyjson377dcee4Decode3(in, &out.Customer)
 		default:
 			in.SkipRecursive()
 		}
@@ -1428,7 +1317,7 @@ func easyjson377dcee4EncodeGithubComGoParkMailRu20222VDonateInternalModels7(out 
 	{
 		const prefix string = ",\"customer\":"
 		out.RawString(prefix)
-		easyjson377dcee4Encode10(out, in.Customer)
+		easyjson377dcee4Encode3(out, in.Customer)
 	}
 	out.RawByte('}')
 }
@@ -1455,52 +1344,6 @@ func (v *QiwiPayment) UnmarshalJSON(data []byte) error {
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *QiwiPayment) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels7(l, v)
-}
-func easyjson377dcee4Decode10(in *jlexer.Lexer, out *struct {
-	Account string `json:"account"`
-}) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "account":
-			out.Account = string(in.String())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjson377dcee4Encode10(out *jwriter.Writer, in struct {
-	Account string `json:"account"`
-}) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"account\":"
-		out.RawString(prefix[1:])
-		out.String(string(in.Account))
-	}
-	out.RawByte('}')
 }
 func easyjson377dcee4DecodeGithubComGoParkMailRu20222VDonateInternalModels8(in *jlexer.Lexer, out *QiwiErrorPaymentStatus) {
 	isTopLevel := in.IsStart()
