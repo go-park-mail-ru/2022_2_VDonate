@@ -54,13 +54,10 @@ func (p Postgres) GetSubscriptionByUserAndAuthorID(userID, authorID uint64) (mod
 		); err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return models.AuthorSubscription{}, err
 		}
-	}
 
-	if f.FollowerID != 0 {
-		s = models.AuthorSubscription{
-			ID:       0,
+		return models.AuthorSubscription{
 			AuthorID: f.AuthorID,
-		}
+		}, nil
 	}
 
 	return s, nil

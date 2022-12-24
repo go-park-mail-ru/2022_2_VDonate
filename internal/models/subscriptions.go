@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type Subscription struct {
 	AuthorID             uint64 `json:"authorID" db:"author_id" validate:"required" example:"1"`
 	SubscriberID         uint64 `json:"subscriberID" db:"subscriber_id" validate:"required" example:"2"`
@@ -7,8 +9,9 @@ type Subscription struct {
 }
 
 type Follower struct {
-	FollowerID uint64 `json:"followerID" db:"follower_id" validate:"required" example:"1"`
-	AuthorID   uint64 `json:"authorID" db:"author_id" validate:"required" example:"2"`
+	FollowerID  uint64    `json:"followerID" db:"follower_id" validate:"required" example:"1"`
+	AuthorID    uint64    `json:"authorID" db:"author_id" validate:"required" example:"2"`
+	DateCreated time.Time `json:"dateCreated" db:"date_created" validate:"required" example:"2021-01-01T00:00:00Z"`
 }
 
 type AuthorSubscription struct {

@@ -120,6 +120,10 @@ func easyjson6fbf8f0cDecodeGithubComGoParkMailRu20222VDonateInternalModels1(in *
 			out.FollowerID = uint64(in.Uint64())
 		case "authorID":
 			out.AuthorID = uint64(in.Uint64())
+		case "dateCreated":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.DateCreated).UnmarshalJSON(data))
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -143,6 +147,11 @@ func easyjson6fbf8f0cEncodeGithubComGoParkMailRu20222VDonateInternalModels1(out 
 		const prefix string = ",\"authorID\":"
 		out.RawString(prefix)
 		out.Uint64(uint64(in.AuthorID))
+	}
+	{
+		const prefix string = ",\"dateCreated\":"
+		out.RawString(prefix)
+		out.Raw((in.DateCreated).MarshalJSON())
 	}
 	out.RawByte('}')
 }

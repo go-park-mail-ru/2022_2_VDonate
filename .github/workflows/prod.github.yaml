@@ -13,7 +13,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          source: "deployments/docker-compose.yaml, migrations/full_up.sql, configs/"
+          source: "deployments/docker-compose.yaml, migrations/full_up.sql, .env, configs/"
           target: "backend"
           rm: true
       - name: executing remote ssh commands using ssh key
