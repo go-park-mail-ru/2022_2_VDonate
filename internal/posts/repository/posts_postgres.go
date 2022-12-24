@@ -101,7 +101,17 @@ func (r Postgres) GetPostsBySubscriptions(userID uint64) ([]models.Post, error) 
 		return nil, err
 	}
 
-	if len(posts) == 0 {
+	var postsFollowers []models.Post
+	if err := r.DB.Select(&postsFollowers, `
+		SELECT p.post_id, p.user_id, p.content, p.tier, p.date_created
+		FROM followers f
+		JOIN posts p on f.author_id = p.user_id
+		WHERE f.follower_id=$1 AND p.tier = 0;
+	`, userID); err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
+	}
+
+	if len(posts) == 0 && len(postsFollowers) == 0 {
 		if err := r.DB.Select(&posts, `
 		SELECT p.post_id, p.user_id, p.content, p.tier, p.date_created
 		FROM posts p
@@ -113,7 +123,7 @@ func (r Postgres) GetPostsBySubscriptions(userID uint64) ([]models.Post, error) 
 		}
 	}
 
-	return posts, nil
+	return append(posts, postsFollowers...), nil
 }
 
 func (r Postgres) DeleteByID(postID uint64) error {

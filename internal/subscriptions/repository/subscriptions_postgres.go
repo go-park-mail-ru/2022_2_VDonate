@@ -42,6 +42,27 @@ func (p Postgres) GetSubscriptionByUserAndAuthorID(userID, authorID uint64) (mod
 		return models.AuthorSubscription{}, err
 	}
 
+	var f models.Follower
+	if s.ID == 0 {
+		if err := p.DB.Get(&f, `
+			SELECT * 
+			FROM followers
+			WHERE follower_id = $1 and author_id = $2
+			`,
+			userID,
+			authorID,
+		); err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return models.AuthorSubscription{}, err
+		}
+	}
+
+	if f.FollowerID != 0 {
+		s = models.AuthorSubscription{
+			ID:       0,
+			AuthorID: f.AuthorID,
+		}
+	}
+
 	return s, nil
 }
 
