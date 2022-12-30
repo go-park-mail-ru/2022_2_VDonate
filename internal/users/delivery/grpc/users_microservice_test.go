@@ -449,3 +449,189 @@ func TestUsersMicroservice_GetUserByPostID(t *testing.T) {
 		})
 	}
 }
+
+func TestUsersMicroservice_GetPostsNum(t *testing.T) {
+	type mockGetPostsNum func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.UserID, opts ...grpc.CallOption)
+
+	tests := []struct {
+		name string
+		id   uint64
+		mock mockGetPostsNum
+		err  error
+	}{
+		{
+			name: "OK",
+			id:   1,
+			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.UserID, opts ...grpc.CallOption) {
+				s.EXPECT().GetPostsNum(c, in).Return(&userProto.PostsNum{
+					CountPosts: 1,
+				}, nil)
+			},
+			err: nil,
+		},
+		{
+			name: "Error",
+			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.UserID, opts ...grpc.CallOption) {
+				s.EXPECT().GetPostsNum(c, in).Return(&userProto.PostsNum{}, domain.ErrInternal)
+			},
+			err: domain.ErrInternal,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mock := mockDomain.NewMockUsersClient(ctrl)
+
+			test.mock(mock, context.Background(), &userProto.UserID{
+				UserId: test.id,
+			})
+
+			client := New(mock)
+			_, err := client.GetPostsNum(test.id)
+			if err != nil {
+				assert.Equal(t, test.err.Error(), err.Error())
+			}
+		})
+	}
+}
+
+func TestUsersMicroservice_GetSubscribersNum(t *testing.T) {
+	type mockGetSubscribersNum func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.UserID, opts ...grpc.CallOption)
+
+	tests := []struct {
+		name string
+		id   uint64
+		mock mockGetSubscribersNum
+		err  error
+	}{
+		{
+			name: "OK",
+			id:   1,
+			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.UserID, opts ...grpc.CallOption) {
+				s.EXPECT().GetSubscribersNumForMounth(c, in).Return(&userProto.SubscribersNum{
+					CountSubscribers: 1,
+				}, nil)
+			},
+			err: nil,
+		},
+		{
+			name: "Error",
+			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.UserID, opts ...grpc.CallOption) {
+				s.EXPECT().GetSubscribersNumForMounth(c, in).Return(&userProto.SubscribersNum{}, domain.ErrInternal)
+			},
+			err: domain.ErrInternal,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mock := mockDomain.NewMockUsersClient(ctrl)
+
+			test.mock(mock, context.Background(), &userProto.UserID{
+				UserId: test.id,
+			})
+
+			client := New(mock)
+			_, err := client.GetSubscribersNum(test.id)
+			if err != nil {
+				assert.Equal(t, test.err.Error(), err.Error())
+			}
+		})
+	}
+}
+
+func TestUsersMicroservice_GetProfitForMounth(t *testing.T) {
+	type mockGetProfitForMounth func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.UserID, opts ...grpc.CallOption)
+
+	tests := []struct {
+		name string
+		id   uint64
+		mock mockGetProfitForMounth
+		err  error
+	}{
+		{
+			name: "OK",
+			id:   1,
+			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.UserID, opts ...grpc.CallOption) {
+				s.EXPECT().GetProfitForMounth(c, in).Return(&userProto.Profit{
+					CountMounthProfit: 1,
+				}, nil)
+			},
+			err: nil,
+		},
+		{
+			name: "Error",
+			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.UserID, opts ...grpc.CallOption) {
+				s.EXPECT().GetProfitForMounth(c, in).Return(&userProto.Profit{}, domain.ErrInternal)
+			},
+			err: domain.ErrInternal,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mock := mockDomain.NewMockUsersClient(ctrl)
+
+			test.mock(mock, context.Background(), &userProto.UserID{
+				UserId: test.id,
+			})
+
+			client := New(mock)
+			_, err := client.GetProfitForMounth(test.id)
+			if err != nil {
+				assert.Equal(t, test.err.Error(), err.Error())
+			}
+		})
+	}
+}
+
+func TestUsersMicroservice_DropBalance(t *testing.T) {
+	type mockDropBalance func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.UserID, opts ...grpc.CallOption)
+
+	tests := []struct {
+		name string
+		id   uint64
+		mock mockDropBalance
+		err  error
+	}{
+		{
+			name: "OK",
+			id:   1,
+			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.UserID, opts ...grpc.CallOption) {
+				s.EXPECT().DropBalance(c, in).Return(&emptypb.Empty{}, nil)
+			},
+			err: nil,
+		},
+		{
+			name: "Error",
+			mock: func(s *mockDomain.MockUsersClient, c context.Context, in *userProto.UserID, opts ...grpc.CallOption) {
+				s.EXPECT().DropBalance(c, in).Return(&emptypb.Empty{}, domain.ErrInternal)
+			},
+			err: domain.ErrInternal,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mock := mockDomain.NewMockUsersClient(ctrl)
+
+			test.mock(mock, context.Background(), &userProto.UserID{
+				UserId: test.id,
+			})
+
+			client := New(mock)
+			err := client.DropBalance(test.id)
+			if err != nil {
+				assert.Equal(t, test.err.Error(), err.Error())
+			}
+		})
+	}
+}
