@@ -28,6 +28,7 @@ type SubscribersClient interface {
 	Subscribe(ctx context.Context, in *Payment, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Unsubscribe(ctx context.Context, in *protobuf.UserAuthorPair, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ChangePaymentStatus(ctx context.Context, in *StatusAndID, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Follow(ctx context.Context, in *protobuf.UserAuthorPair, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type subscribersClient struct {
@@ -74,6 +75,15 @@ func (c *subscribersClient) ChangePaymentStatus(ctx context.Context, in *StatusA
 	return out, nil
 }
 
+func (c *subscribersClient) Follow(ctx context.Context, in *protobuf.UserAuthorPair, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/subscribers.Subscribers/Follow", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SubscribersServer is the server API for Subscribers service.
 // All implementations must embed UnimplementedSubscribersServer
 // for forward compatibility
@@ -82,6 +92,7 @@ type SubscribersServer interface {
 	Subscribe(context.Context, *Payment) (*emptypb.Empty, error)
 	Unsubscribe(context.Context, *protobuf.UserAuthorPair) (*emptypb.Empty, error)
 	ChangePaymentStatus(context.Context, *StatusAndID) (*emptypb.Empty, error)
+	Follow(context.Context, *protobuf.UserAuthorPair) (*emptypb.Empty, error)
 	mustEmbedUnimplementedSubscribersServer()
 }
 
@@ -100,6 +111,9 @@ func (UnimplementedSubscribersServer) Unsubscribe(context.Context, *protobuf.Use
 }
 func (UnimplementedSubscribersServer) ChangePaymentStatus(context.Context, *StatusAndID) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangePaymentStatus not implemented")
+}
+func (UnimplementedSubscribersServer) Follow(context.Context, *protobuf.UserAuthorPair) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Follow not implemented")
 }
 func (UnimplementedSubscribersServer) mustEmbedUnimplementedSubscribersServer() {}
 
@@ -186,6 +200,24 @@ func _Subscribers_ChangePaymentStatus_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Subscribers_Follow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(protobuf.UserAuthorPair)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SubscribersServer).Follow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/subscribers.Subscribers/Follow",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SubscribersServer).Follow(ctx, req.(*protobuf.UserAuthorPair))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Subscribers_ServiceDesc is the grpc.ServiceDesc for Subscribers service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -208,6 +240,10 @@ var Subscribers_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ChangePaymentStatus",
 			Handler:    _Subscribers_ChangePaymentStatus_Handler,
+		},
+		{
+			MethodName: "Follow",
+			Handler:    _Subscribers_Follow_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

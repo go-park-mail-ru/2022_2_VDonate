@@ -23,9 +23,7 @@ type usecase struct {
 	subscribersMicroservice domain.SubscribersMicroservice
 	userMicroservice        domain.UsersMicroservice
 
-	token       string
-	uuidCreator func() string
-	sleeper     time.Duration
+	token string
 }
 
 const (
@@ -40,18 +38,6 @@ func New(s domain.SubscribersMicroservice, u domain.UsersMicroservice, token str
 		subscribersMicroservice: s,
 		userMicroservice:        u,
 		token:                   token,
-		uuidCreator:             uuid.New().String,
-		sleeper:                 time.Microsecond,
-	}
-}
-
-func NewWithUUIDCreatorAndSleeper(s domain.SubscribersMicroservice, u domain.UsersMicroservice, token string, c func() string, t time.Duration) domain.SubscribersUseCase {
-	return &usecase{
-		subscribersMicroservice: s,
-		userMicroservice:        u,
-		token:                   token,
-		uuidCreator:             c,
-		sleeper:                 t,
 	}
 }
 
@@ -72,6 +58,18 @@ func (u usecase) GetSubscribers(authorID uint64) ([]models.User, error) {
 	return subs, nil
 }
 
+func (u usecase) Follow(subscriberID, authorID uint64) error {
+	if subscriberID == 0 || authorID == 0 {
+		return domain.ErrBadRequest
+	}
+	err := u.subscribersMicroservice.Follow(subscriberID, authorID)
+	if err != nil {
+		return tracerr.Wrap(err)
+	}
+
+	return nil
+}
+
 func (u usecase) Subscribe(subscription models.Subscription, userID uint64, as models.AuthorSubscription) (interface{}, error) {
 	if subscription.AuthorID == userID {
 		return nil, domain.ErrBadRequest
@@ -83,7 +81,7 @@ func (u usecase) Subscribe(subscription models.Subscription, userID uint64, as m
 	}
 
 	payment := models.Payment{
-		ID:     u.uuidCreator(),
+		ID:     uuid.New().String(),
 		FromID: subscription.SubscriberID,
 		ToID:   subscription.AuthorID,
 		SubID:  subscription.AuthorSubscriptionID,
@@ -150,7 +148,6 @@ func (u usecase) Subscribe(subscription models.Subscription, userID uint64, as m
 	qiwiResp.PayUrl += "&successUrl=https://vdonate.ml/profile?id=" + strconv.FormatUint(payment.ToID, 10)
 
 	go u.subscribersMicroservice.Subscribe(payment)
-	time.Sleep(u.sleeper)
 
 	return qiwiResp, nil
 }
@@ -237,32 +234,24 @@ func (u usecase) WithdrawCard(userID uint64, card, provider string) (models.With
 	p, err := json.Marshal(models.WithdrawPayment{
 		ID: strconv.FormatInt(1000*time.Now().Unix(), 10),
 		Sum: struct {
-			Amount   float64 `json:"amount,required"`
-			Currency string  `json:"currency,required"`
-		}(struct {
 			Amount   float64 `json:"amount"`
 			Currency string  `json:"currency"`
 		}{
 			Amount:   float64(acc.Balance-qiwiBankCommission)*commission + qiwiBankCommission,
 			Currency: "643",
-		}),
+		},
 		PaymentMethod: struct {
-			Type      string `json:"type,required"`
-			AccountId string `json:"accountId,required"`
-		}(struct {
 			Type      string `json:"type"`
 			AccountId string `json:"accountId"`
 		}{
 			Type:      "Account",
 			AccountId: "643",
-		}),
+		},
 		Fields: struct {
-			Account string `json:"account,required"`
-		}(struct {
 			Account string `json:"account"`
 		}{
 			Account: card,
-		}),
+		},
 	})
 	if err != nil {
 		return models.WithdrawInfo{}, tracerr.Wrap(err)
@@ -324,32 +313,24 @@ func (u usecase) WithdrawQiwi(userID uint64, phone string) (models.WithdrawInfo,
 	p, err := json.Marshal(models.WithdrawPayment{
 		ID: strconv.FormatInt(1000*time.Now().Unix(), 10),
 		Sum: struct {
-			Amount   float64 `json:"amount,required"`
-			Currency string  `json:"currency,required"`
-		}(struct {
 			Amount   float64 `json:"amount"`
 			Currency string  `json:"currency"`
 		}{
 			Amount:   float64(acc.Balance) * commission,
 			Currency: "643",
-		}),
+		},
 		PaymentMethod: struct {
-			Type      string `json:"type,required"`
-			AccountId string `json:"accountId,required"`
-		}(struct {
 			Type      string `json:"type"`
 			AccountId string `json:"accountId"`
 		}{
 			Type:      "Account",
 			AccountId: "643",
-		}),
+		},
 		Fields: struct {
-			Account string `json:"account,required"`
-		}(struct {
 			Account string `json:"account"`
 		}{
 			Account: "+" + phone,
-		}),
+		},
 	})
 	if err != nil {
 		return models.WithdrawInfo{}, tracerr.Wrap(err)

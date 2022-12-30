@@ -37,4 +37,5 @@ var (
 	ErrPasswordsNotEqual       = errors.New("passwords not the same")
 	ErrCreatePayment           = errors.New("failed to create payment")
 	ErrNotEnoughMoney          = errors.New("not enough money")
+	ErrAlreadySubscribed       = errors.New("already subscribed")
 )

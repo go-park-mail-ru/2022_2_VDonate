@@ -10,7 +10,7 @@ type Postgres struct {
 	DB *sqlx.DB
 }
 
-func New(url string) (*Postgres, error) {
+func New(url string, maxIdleConns, maxOpenConns int) (*Postgres, error) {
 	db, err := sqlx.Connect("postgres", url)
 	if err != nil {
 		return nil, err
@@ -19,6 +19,9 @@ func New(url string) (*Postgres, error) {
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
+
+	db.SetMaxIdleConns(maxIdleConns)
+	db.SetMaxOpenConns(maxOpenConns)
 
 	return &Postgres{
 		DB: db,

@@ -105,6 +105,17 @@ CREATE TABLE IF NOT EXISTS subscriptions
 /*
     Нет зависимостей
 */
+CREATE TABLE IF NOT EXISTS followers
+(
+    author_id    bigserial not null references users (id) on delete cascade,
+    follower_id  bigserial not null references users (id) on delete cascade,
+    date_created timestamp not null default now(),
+    UNIQUE (author_id, follower_id)
+);
+
+/*
+    Нет зависимостей
+*/
 CREATE TABLE IF NOT EXISTS likes
 (
     user_id bigserial not null references users (id) on delete cascade,
@@ -251,7 +262,9 @@ BEGIN
     INSERT INTO notification(name, data) VALUES ('payment', data);
 
     IF new.status = 'PAID' THEN
-        UPDATE user_info SET balance = balance + (SELECT price FROM author_subscriptions as aSub WHERE aSub.id = new.sub_id) WHERE user_id = new.to_id;
+        UPDATE user_info
+        SET balance = balance + (SELECT price FROM author_subscriptions as aSub WHERE aSub.id = new.sub_id)
+        WHERE user_id = new.to_id;
     END IF;
 
     RETURN NULL;

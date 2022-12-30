@@ -7,13 +7,14 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"github.com/ztrue/tracerr"
 )
 
 type Postgres struct {
 	DB *sqlx.DB
 }
 
-func NewPostgres(url string) (*Postgres, error) {
+func NewPostgres(url string, maxIdleConns, maxOpenConns int) (*Postgres, error) {
 	db, err := sqlx.Open("postgres", url)
 	if err != nil {
 		return nil, err
@@ -22,6 +23,9 @@ func NewPostgres(url string) (*Postgres, error) {
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
+
+	db.SetMaxIdleConns(maxIdleConns)
+	db.SetMaxOpenConns(maxOpenConns)
 
 	return &Postgres{DB: db}, nil
 }
@@ -41,6 +45,24 @@ func (p Postgres) GetSubscriptionByUserAndAuthorID(userID, authorID uint64) (mod
 		return models.AuthorSubscription{}, err
 	}
 
+	var f models.Follower
+	if s.ID == 0 {
+		if err := p.DB.Get(&f, `
+			SELECT * 
+			FROM followers
+			WHERE follower_id = $1 and author_id = $2
+			`,
+			userID,
+			authorID,
+		); err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return models.AuthorSubscription{}, err
+		}
+
+		return models.AuthorSubscription{
+			AuthorID: f.AuthorID,
+		}, nil
+	}
+
 	return s, nil
 }
 
@@ -56,8 +78,24 @@ func (p Postgres) GetSubscriptionsByUserID(userID uint64) ([]models.AuthorSubscr
 		FROM subscriptions JOIN author_subscriptions on author_subscriptions.id = subscriptions.subscription_id
 		WHERE subscriber_id = $1`,
 		userID,
-	); err != nil {
-		return nil, err
+	); err != nil && err != sql.ErrNoRows {
+		return nil, tracerr.Wrap(err)
+	}
+
+	var f []models.Follower
+	if err := p.DB.Select(&f, `
+		SELECT follower_id, author_id
+		FROM followers
+		WHERE follower_id = $1;
+	`, userID); err != nil && err != sql.ErrNoRows {
+		return nil, tracerr.Wrap(err)
+	}
+
+	for _, follow := range f {
+		s = append(s, models.AuthorSubscription{
+			ID:       0,
+			AuthorID: follow.AuthorID,
+		})
 	}
 
 	return s, nil

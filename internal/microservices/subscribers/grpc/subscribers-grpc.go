@@ -51,6 +51,15 @@ func (s SubscribersService) GetSubscribers(_ context.Context, id *userProto.User
 	return &userProto.UserIDs{Ids: result}, err
 }
 
+func (s SubscribersService) Follow(_ context.Context, pair *userProto.UserAuthorPair) (*emptypb.Empty, error) {
+	err := s.subscribersRepo.Follow(pair.GetUserId(), pair.GetAuthorId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
 func (s SubscribersService) Subscribe(_ context.Context, payment *protobuf.Payment) (*emptypb.Empty, error) {
 	err := s.subscribersRepo.PayAndSubscribe(models.Payment{
 		ID:     payment.GetID(),
