@@ -1,4 +1,15 @@
 /*
+    Создание пользователя для работы с БД
+    И выдача прав на все таблицы в схеме public
+*/
+CREATE USER vdonate_user WITH PASSWORD 'tA*i4w6$23UXDfTy^75ZGjK5WsN!qrG4';
+
+GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES, TRIGGER
+ON ALL TABLES
+IN SCHEMA public
+TO vdonate_user;
+
+/*
     Подходит под 3НФ. Доказательство:
 
     1НФ:
