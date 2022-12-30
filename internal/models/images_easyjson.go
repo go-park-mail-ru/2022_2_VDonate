@@ -42,6 +42,8 @@ func easyjsonB7188a36DecodeGithubComGoParkMailRu20222VDonateInternalModels(in *j
 			out.Username = string(in.String())
 		case "imgPath":
 			out.ImgPath = string(in.String())
+		case "about":
+			out.About = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -70,6 +72,11 @@ func easyjsonB7188a36EncodeGithubComGoParkMailRu20222VDonateInternalModels(out *
 		const prefix string = ",\"imgPath\":"
 		out.RawString(prefix)
 		out.String(string(in.ImgPath))
+	}
+	{
+		const prefix string = ",\"about\":"
+		out.RawString(prefix)
+		out.String(string(in.About))
 	}
 	out.RawByte('}')
 }

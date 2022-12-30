@@ -1,6 +1,8 @@
 package userRepository
 
 import (
+	"os"
+
 	model "github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -10,7 +12,9 @@ type Postgres struct {
 	DB *sqlx.DB
 }
 
-func NewPostgres(url string, maxIdleConns, maxOpenConns int) (*Postgres, error) {
+func NewPostgres(url string, maxOpenConns int) (*Postgres, error) {
+	url += " user=" + os.Getenv("PG_USER") + " password=" + os.Getenv("PG_PASSWORD")
+
 	db, err := sqlx.Open("postgres", url)
 	if err != nil {
 		return nil, err
@@ -20,7 +24,6 @@ func NewPostgres(url string, maxIdleConns, maxOpenConns int) (*Postgres, error) 
 		return nil, err
 	}
 
-	db.SetMaxIdleConns(maxIdleConns)
 	db.SetMaxOpenConns(maxOpenConns)
 
 	return &Postgres{DB: db}, nil

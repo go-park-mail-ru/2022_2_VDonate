@@ -304,6 +304,9 @@ definitions:
     type: object
   models.ResponseImageUsers:
     properties:
+      about:
+        example: about me
+        type: string
       imgPath:
         example: /path/to/image.jpeg
         type: string
@@ -314,6 +317,7 @@ definitions:
         example: leo
         type: string
     required:
+    - about
     - imgPath
     - userID
     - username

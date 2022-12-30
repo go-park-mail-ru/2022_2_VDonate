@@ -1,6 +1,6 @@
 name: deploy
 
-on: [workflow_dispatch]
+on: [ workflow_dispatch ]
 
 jobs:
   deploy:
@@ -13,10 +13,11 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          source: "deployments/docker-compose.yaml, migrations/full_up.sql, .env, configs/"
+          source: "deployments/docker-compose.yaml, migrations/full_up.sql, .env, configs/, scripts/"
           target: "backend"
           rm: true
-      - name: executing remote ssh commands using ssh key
+
+      - name: deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -32,4 +33,17 @@ jobs:
             sudo docker pull zeronethunter/vdonate-subscriptions
             sudo docker pull zeronethunter/vdonate-users
             sudo docker pull zeronethunter/vdonate-notifications
-            cd ~/backend/deployments && sudo docker-compose up -d
+            cd ~/backend/deployments
+            PG_SUBSCRIPTIONS_PASSWORD=${{ secrets.PG_SUBSCRIPTIONS_PASSWORD }} \
+            PG_AUTHOR_SUBSCRIPTIONS_PASSWORD=${{ secrets.PG_AUTHOR_SUBSCRIPTIONS_PASSWORD }} \
+            PG_USERS_PASSWORD=${{ secrets.PG_USERS_PASSWORD }} \
+            PG_AUTH_PASSWORD=${{ secrets.PG_AUTH_PASSWORD }} \
+            PG_NOTIFICATIONS_PASSWORD=${{ secrets.PG_NOTIFICATIONS_PASSWORD }} \
+            PG_POSTS_PASSWORD=${{ secrets.PG_POSTS_PASSWORD }} \
+            PG_SUBSCRIPTIONS_USER=${{ secrets.PG_SUBSCRIPTIONS_USER }} \
+            PG_AUTHOR_SUBSCRIPTIONS_USER=${{ secrets.PG_AUTHOR_SUBSCRIPTIONS_USER }} \
+            PG_USERS_USER=${{ secrets.PG_USERS_USER }} \
+            PG_AUTH_USER=${{ secrets.PG_AUTH_USER }} \
+            PG_NOTIFICATIONS_USER=${{ secrets.PG_NOTIFICATIONS_USER }} \
+            PG_POSTS_USER=${{ secrets.PG_POSTS_USER }} \
+            docker-compose -f deployments/docker-compose.yaml up -d

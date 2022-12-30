@@ -3,10 +3,6 @@ server:
   port: 8083
   metricsPort: 9083
 
-db:
-  driver: postgres
-  url: host=postgresql port=5432 user=vdonate_user password=tA*i4w6$23UXDfTy^75ZGjK5WsN!qrG4 dbname=dev sslmode=disable
-
 logger:
   level: info
 

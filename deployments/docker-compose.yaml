@@ -24,6 +24,9 @@ services:
     ports:
       - "8081"
       - "9081:9081"
+    environment:
+      PG_USER: ${PG_AUTH_USER}
+      PG_PASSWORD: ${PG_AUTH_PASSWORD}
     depends_on:
       - db
     networks:
@@ -33,7 +36,7 @@ services:
     container_name: vdonate-images
     image: zeronethunter/vdonate-images
     ports:
-      - "8083:8083"
+      - "8083"
       - "9083:9083"
     env_file:
       - ../.env
@@ -49,6 +52,9 @@ services:
     ports:
       - "8084"
       - "9084:9084"
+    environment:
+      PG_USER: ${PG_POSTS_USER}
+      PG_PASSWORD: ${PG_POSTS_PASSWORD}
     depends_on:
       - db
     networks:
@@ -60,6 +66,9 @@ services:
     ports:
       - "8085"
       - "9085:9085"
+    environment:
+      PG_USER: ${PG_SUBSCRIPTIONS_USER}
+      PG_PASSWORD: ${PG_SUBSCRIPTIONS_PASSWORD}
     env_file:
       - ../.env
     depends_on:
@@ -70,6 +79,9 @@ services:
     hostname: subscriptions
     container_name: vdonate-subscriptions
     image: zeronethunter/vdonate-subscriptions
+    environment:
+      PG_USER: ${PG_AUTHOR_SUBSCRIPTIONS_USER}
+      PG_PASSWORD: ${PG_AUTHOR_SUBSCRIPTIONS_PASSWORD}
     ports:
       - "8086"
       - "9086:9086"
@@ -81,6 +93,9 @@ services:
     hostname: users
     container_name: vdonate-users
     image: zeronethunter/vdonate-users
+    environment:
+      PG_USER: ${PG_USERS_USER}
+      PG_PASSWORD: ${PG_USERS_PASSWORD}
     ports:
       - "8087"
       - "9087:9087"
@@ -88,7 +103,6 @@ services:
       - db
     networks:
       - vdonate-network-api
-
   db:
     hostname: postgresql
     container_name: vdonate-db
@@ -100,12 +114,14 @@ services:
       retries: 5
     restart: always
     ports:
-      - "5432:5432"
+      - "5432"
     env_file:
       - ../.env
     volumes:
       - ../migrations/full_up.sql:/docker-entrypoint-initdb.d/init.sql
       - /var/lib/postgresql/data:/var/lib/postgresql/data
+      - ../configs/postgres/postgresql.conf:/etc/postgresql/postgresql.conf
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     networks:
       - vdonate-network-api
 
@@ -189,6 +205,9 @@ services:
     hostname: notifications
     container_name: vdonate-notifications
     image: zeronethunter/vdonate-notifications
+    environment:
+      PG_USER: ${PG_NOTIFICATIONS_USER}
+      PG_PASSWORD: ${PG_NOTIFICATIONS_PASSWORD}
     ports:
       - "1234:1234"
     depends_on:
@@ -209,5 +228,5 @@ networks:
     external: false
 
 volumes:
-  prometheus_data: {}
-  grafana_data: {}
+  prometheus_data: { }
+  grafana_data: { }

@@ -49,7 +49,7 @@ func main() {
 	log.Info("posts: server started")
 
 	/*----------------------------repo----------------------------*/
-	r, err := postsRepository.NewPostgres(cfg.DB.URL, cfg.DB.MaxIdleConns, cfg.DB.MaxOpenConns)
+	r, err := postsRepository.NewPostgres(cfg.DB.URL, cfg.DB.MaxOpenConns)
 	if err != nil {
 		log.Fatalf("posts: failed to open db: %s", err)
 	}

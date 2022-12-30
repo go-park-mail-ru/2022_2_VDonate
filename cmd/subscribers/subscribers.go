@@ -46,7 +46,7 @@ func main() {
 	log.Info("subscribers: server started")
 
 	/*----------------------------repo----------------------------*/
-	r, err := subscribersRepository.NewPostgres(cfg.DB.URL, cfg.DB.MaxIdleConns, cfg.DB.MaxOpenConns)
+	r, err := subscribersRepository.NewPostgres(cfg.DB.URL, cfg.DB.MaxOpenConns)
 	if err != nil {
 		log.Fatalf("subscribers: failed to open db: %s", err)
 	}

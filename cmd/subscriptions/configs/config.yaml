@@ -5,9 +5,8 @@ server:
 
 db:
   driver: postgres
-  url: host=postgresql port=5432 user=vdonate_user password=secretkey dbname=dev sslmode=disable
-  max_idle_conns: 2
-  max_open_conns: 1
+  url: host=postgresql port=5432 dbname=dev sslmode=disable
+  max_open_conns: 20
 
 logger:
   level: info

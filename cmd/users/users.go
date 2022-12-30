@@ -46,7 +46,7 @@ func main() {
 	log.Info("users: server started")
 
 	/*----------------------------repo----------------------------*/
-	r, err := userRepository.NewPostgres(cfg.DB.URL, cfg.DB.MaxIdleConns, cfg.DB.MaxOpenConns)
+	r, err := userRepository.NewPostgres(cfg.DB.URL, cfg.DB.MaxOpenConns)
 	if err != nil {
 		log.Fatalf("users: failed to open db: %s", err)
 	}
