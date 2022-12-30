@@ -48,7 +48,7 @@ func main() {
 	log.Info("auth: server started")
 
 	/*----------------------------repo----------------------------*/
-	r, err := sessionsRepository.NewPostgres(cfg.DB.URL)
+	r, err := sessionsRepository.NewPostgres(cfg.DB.URL, cfg.DB.MaxIdleConns, cfg.DB.MaxOpenConns)
 	if err != nil {
 		log.Fatalf("auth: failed to open db: %s", err)
 	}

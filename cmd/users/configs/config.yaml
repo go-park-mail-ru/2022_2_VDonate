@@ -6,6 +6,8 @@ server:
 db:
   driver: postgres
   url: host=postgresql port=5432 user=ubuntu password=secretkey dbname=dev sslmode=disable
+  max_idle_conns: 2
+  max_open_conns: 1
 
 logger:
   level: info
