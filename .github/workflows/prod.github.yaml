@@ -46,4 +46,11 @@ jobs:
             PG_AUTH_USER=${{ secrets.PG_AUTH_USER }} \
             PG_NOTIFICATIONS_USER=${{ secrets.PG_NOTIFICATIONS_USER }} \
             PG_POSTS_USER=${{ secrets.PG_POSTS_USER }} \
+            PG_USER=${{ secrets.PG_USER }} \
+            PG_PASSWORD=${{ secrets.PG_PASSWORD }} \
+            PG_DB=${{ secrets.PG_DB }} \
+            MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }} \
+            MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }} \
+            QIWI_PRIVATE=${{ secrets.QIWI_PRIVATE }} \
+            TOKEN_SECRET=${{ secrets.TOKEN_SECRET }} \
             docker-compose -f deployments/docker-compose.yaml up -d

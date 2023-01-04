@@ -7,8 +7,9 @@ services:
     ports:
       - "8080:8080"
       - "8079:8079"
-    env_file:
-      - ../.env
+    environment:
+      QIWI_PRIVATE: ${QIWI_PRIVATE}
+      TOKEN_SECRET: ${TOKEN_SECRET}
     depends_on:
       - db
       - subscribers
@@ -38,8 +39,6 @@ services:
     ports:
       - "8083"
       - "9083:9083"
-    env_file:
-      - ../.env
     depends_on:
       - db
       - s3storage
@@ -69,8 +68,6 @@ services:
     environment:
       PG_USER: ${PG_SUBSCRIPTIONS_USER}
       PG_PASSWORD: ${PG_SUBSCRIPTIONS_PASSWORD}
-    env_file:
-      - ../.env
     depends_on:
       - db
     networks:
@@ -115,8 +112,10 @@ services:
     restart: always
     ports:
       - "5432"
-    env_file:
-      - ../.env
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DB}
     volumes:
       - ../migrations/full_up.sql:/docker-entrypoint-initdb.d/init.sql
       - /var/lib/postgresql/data:/var/lib/postgresql/data
@@ -191,8 +190,9 @@ services:
     ports:
       - "9000:9000"
       - "9099:9099"
-    env_file:
-      - ../.env
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
       interval: 10s
