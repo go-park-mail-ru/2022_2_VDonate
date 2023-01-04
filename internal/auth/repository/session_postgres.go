@@ -1,6 +1,8 @@
 package sessionsRepository
 
 import (
+	"os"
+
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -10,7 +12,9 @@ type Postgres struct {
 	DB *sqlx.DB
 }
 
-func NewPostgres(url string) (*Postgres, error) {
+func NewPostgres(url string, maxOpenConns int) (*Postgres, error) {
+	url += " user=" + os.Getenv("PG_USER") + " password=" + os.Getenv("PG_PASSWORD")
+
 	db, err := sqlx.Open("postgres", url)
 	if err != nil {
 		return nil, err
@@ -19,6 +23,8 @@ func NewPostgres(url string) (*Postgres, error) {
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
+
+	db.SetMaxOpenConns(maxOpenConns)
 
 	return &Postgres{DB: db}, nil
 }

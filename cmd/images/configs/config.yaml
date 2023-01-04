@@ -3,10 +3,6 @@ server:
   port: 8083
   metricsPort: 9083
 
-db:
-  driver: postgres
-  url: host=postgresql port=5432 user=ubuntu password=secretkey dbname=dev sslmode=disable
-
 logger:
   level: info
 

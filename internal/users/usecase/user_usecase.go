@@ -12,6 +12,7 @@ import (
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/utils"
 	"github.com/jinzhu/copier"
+	"github.com/ztrue/tracerr"
 )
 
 type hashCreator func(password string) (string, error)
@@ -121,12 +122,11 @@ func (u usecase) FindAuthors(keyword string) ([]models.User, error) {
 
 	if len(keyword) == 0 {
 		if allAuthors, err = u.usersMicroservice.GetAllAuthors(); err != nil {
-			return nil, err
+			return nil, tracerr.Wrap(err)
 		}
 	} else {
-		copyToword := "%" + keyword + "%"
-		if allAuthors, err = u.usersMicroservice.GetAuthorByUsername(copyToword); err != nil && !errors.Is(err, sql.ErrNoRows) {
-			return make([]models.User, 0), nil
+		if allAuthors, err = u.usersMicroservice.GetAuthorByUsername(keyword); err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return nil, tracerr.Wrap(err)
 		}
 	}
 

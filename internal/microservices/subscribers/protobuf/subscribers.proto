@@ -34,4 +34,5 @@ service Subscribers {
   rpc Subscribe(Payment) returns(google.protobuf.Empty);
   rpc Unsubscribe(user.UserAuthorPair) returns(google.protobuf.Empty);
   rpc ChangePaymentStatus(StatusAndID) returns(google.protobuf.Empty);
+  rpc Follow(user.UserAuthorPair) returns(google.protobuf.Empty);
 }

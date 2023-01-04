@@ -12,8 +12,9 @@ const (
 	host = "127.0.0.1"
 	port = "8080"
 
-	dbURL    = "host=localhost dbname=dev sslmode=disable"
-	dbDriver = "postgres"
+	dbURL          = "host=localhost dbname=dev sslmode=disable"
+	dbDriver       = "postgres"
+	dbMaxOpenConns = 5
 
 	loggerLevel = "debug"
 
@@ -64,8 +65,9 @@ type Config struct {
 	} `yaml:"server"`
 
 	DB struct {
-		Driver string `yaml:"driver"`
-		URL    string `yaml:"url"`
+		Driver       string `yaml:"driver"`
+		URL          string `yaml:"url"`
+		MaxOpenConns int    `yaml:"max_open_conns"`
 	} `yaml:"db"`
 
 	Services struct {
@@ -328,14 +330,17 @@ func New() *Config {
 		}),
 
 		DB: struct {
-			Driver string `yaml:"driver"`
-			URL    string `yaml:"url"`
+			Driver       string `yaml:"driver"`
+			URL          string `yaml:"url"`
+			MaxOpenConns int    `yaml:"max_open_conns"`
 		}(struct {
-			Driver string
-			URL    string
+			Driver       string
+			URL          string
+			MaxOpenConns int
 		}{
-			Driver: dbDriver,
-			URL:    dbURL,
+			Driver:       dbDriver,
+			URL:          dbURL,
+			MaxOpenConns: dbMaxOpenConns,
 		}),
 
 		Logger: struct {

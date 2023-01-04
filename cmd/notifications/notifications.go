@@ -35,7 +35,7 @@ func main() {
 	log.Info("notifications: server started")
 
 	/*----------------------------repo----------------------------*/
-	r, err := notificationsRepository.New(cfg.DB.URL)
+	r, err := notificationsRepository.New(cfg.DB.URL, cfg.DB.MaxOpenConns)
 	if err != nil {
 		log.Fatalf("notifications: failed to open db: %s", err)
 	}

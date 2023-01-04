@@ -503,6 +503,20 @@ func (m *MockSubscribersRepository) EXPECT() *MockSubscribersRepositoryMockRecor
 	return m.recorder
 }
 
+// Follow mocks base method.
+func (m *MockSubscribersRepository) Follow(subscriberID, authorID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Follow", subscriberID, authorID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Follow indicates an expected call of Follow.
+func (mr *MockSubscribersRepositoryMockRecorder) Follow(subscriberID, authorID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Follow", reflect.TypeOf((*MockSubscribersRepository)(nil).Follow), subscriberID, authorID)
+}
+
 // GetSubscribers mocks base method.
 func (m *MockSubscribersRepository) GetSubscribers(authorID uint64) ([]uint64, error) {
 	m.ctrl.T.Helper()

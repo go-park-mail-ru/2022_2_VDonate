@@ -33,6 +33,10 @@ docs: ## Make swagger docs
 	swag fmt
 	swag init --parseDependency --parseInternal -g cmd/api/main.go
 
+.PHONY: sql_users
+sql_users: ## Create users
+	su ubuntu "psql -v auth_password=${PG_AUTH_PASSWORD} -v notifications_password=${PG_NOTIFICATIONS_PASSWORD} -v posts_password=${PG_POSTS_PASSWORD} -v subscriptions_password=${PG_SUBSCRIPTIONS_PASSWORD} -v author_subscriptions_password=${PG_AUTHOR_SUBSCRIPTIONS_PASSWORD} -v users_password=${PG_USERS_PASSWORD} -e" < ../migrations/users_up.sql
+
 .PHONY: proto
 proto: ## Make protobuf files
 	protoc -I=. --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative $(PROTO_FILES)
@@ -67,11 +71,21 @@ clean: ## Remove temporary files
 	rm -f main
 	go clean
 
-.PHONY: dev
-dev: ## Start containers
-	# Clearing all stopped containers
+.PHONY: compose_up
+compose_up: ## Start docker containers
 	docker container prune -f
-    # UP backend docker compose
+	PG_SUBSCRIPTIONS_PASSWORD=secretkey \
+	PG_AUTHOR_SUBSCRIPTIONS_PASSWORD=secretkey \
+	PG_USERS_PASSWORD=secretkey \
+	PG_AUTH_PASSWORD=secretkey \
+	PG_NOTIFICATIONS_PASSWORD=secretkey \
+	PG_POSTS_PASSWORD=secretkey \
+	PG_SUBSCRIPTIONS_USER=subscriptions_user \
+	PG_AUTHOR_SUBSCRIPTIONS_USER=author_subscriptions_user \
+	PG_USERS_USER=users_user \
+	PG_AUTH_USER=auth_user \
+	PG_NOTIFICATIONS_USER=notifications_user \
+	PG_POSTS_USER=posts_user \
 	docker-compose -f deployments/docker-compose.yaml up -d
 
 .PHONY: help

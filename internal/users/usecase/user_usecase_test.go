@@ -286,7 +286,7 @@ func TestUsecase_FindAuthors(t *testing.T) {
 			userMicro := mockDomain.NewMockUsersMicroservice(ctrl)
 
 			test.mockImages(imgMock, "")
-			test.mockAuthors(userMicro, "%"+test.word+"%")
+			test.mockAuthors(userMicro, test.word)
 			test.mockAllAuthors(userMicro)
 
 			usecase := New(userMicro, imgMock)

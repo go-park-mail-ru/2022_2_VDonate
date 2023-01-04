@@ -20,7 +20,7 @@ func New(i domain.ImageMicroservice) domain.ImageUseCase {
 }
 
 func (u usecase) CreateOrUpdateImage(image *multipart.FileHeader, oldFilename string) (string, error) {
-	idx := strings.IndexByte(image.Filename, '.')
+	idx := strings.LastIndexByte(image.Filename, '.')
 	if idx == -1 {
 		return "", domain.ErrBadRequest
 	}

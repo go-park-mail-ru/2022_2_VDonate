@@ -49,6 +49,20 @@ func (mr *MockSubscribersUseCaseMockRecorder) CardValidation(card interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CardValidation", reflect.TypeOf((*MockSubscribersUseCase)(nil).CardValidation), card)
 }
 
+// Follow mocks base method.
+func (m *MockSubscribersUseCase) Follow(subscriberID, authorID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Follow", subscriberID, authorID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Follow indicates an expected call of Follow.
+func (mr *MockSubscribersUseCaseMockRecorder) Follow(subscriberID, authorID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Follow", reflect.TypeOf((*MockSubscribersUseCase)(nil).Follow), subscriberID, authorID)
+}
+
 // GetSubscribers mocks base method.
 func (m *MockSubscribersUseCase) GetSubscribers(authorID uint64) ([]models.User, error) {
 	m.ctrl.T.Helper()
@@ -174,6 +188,20 @@ func NewMockSubscribersMicroservice(ctrl *gomock.Controller) *MockSubscribersMic
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockSubscribersMicroservice) EXPECT() *MockSubscribersMicroserviceMockRecorder {
 	return m.recorder
+}
+
+// Follow mocks base method.
+func (m *MockSubscribersMicroservice) Follow(subscriberID, authorID uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Follow", subscriberID, authorID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Follow indicates an expected call of Follow.
+func (mr *MockSubscribersMicroserviceMockRecorder) Follow(subscriberID, authorID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Follow", reflect.TypeOf((*MockSubscribersMicroservice)(nil).Follow), subscriberID, authorID)
 }
 
 // GetSubscribers mocks base method.

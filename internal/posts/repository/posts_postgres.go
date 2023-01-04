@@ -3,6 +3,7 @@ package postsRepository
 import (
 	"database/sql"
 	"errors"
+	"os"
 
 	"github.com/go-park-mail-ru/2022_2_VDonate/internal/models"
 	"github.com/jmoiron/sqlx"
@@ -13,7 +14,9 @@ type Postgres struct {
 	DB *sqlx.DB
 }
 
-func NewPostgres(url string) (*Postgres, error) {
+func NewPostgres(url string, maxOpenConns int) (*Postgres, error) {
+	url += " user=" + os.Getenv("PG_USER") + " password=" + os.Getenv("PG_PASSWORD")
+
 	db, err := sqlx.Open("postgres", url)
 	if err != nil {
 		return nil, err
@@ -22,6 +25,8 @@ func NewPostgres(url string) (*Postgres, error) {
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
+
+	db.SetMaxOpenConns(maxOpenConns)
 
 	return &Postgres{DB: db}, nil
 }
@@ -90,6 +95,7 @@ func (r Postgres) Update(post models.Post) error {
 
 func (r Postgres) GetPostsBySubscriptions(userID uint64) ([]models.Post, error) {
 	posts := make([]models.Post, 0)
+
 	if err := r.DB.Select(&posts, `
 		SELECT p.post_id, p.user_id, p.content, p.tier, p.date_created
 		FROM subscriptions s
@@ -100,7 +106,29 @@ func (r Postgres) GetPostsBySubscriptions(userID uint64) ([]models.Post, error) 
 		return nil, err
 	}
 
-	return posts, nil
+	var postsFollowers []models.Post
+	if err := r.DB.Select(&postsFollowers, `
+		SELECT p.post_id, p.user_id, p.content, p.tier, p.date_created
+		FROM followers f
+		JOIN posts p on f.author_id = p.user_id
+		WHERE f.follower_id=$1 AND p.tier = 0;
+	`, userID); err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
+	}
+
+	if len(posts) == 0 && len(postsFollowers) == 0 {
+		if err := r.DB.Select(&posts, `
+		SELECT p.post_id, p.user_id, p.content, p.tier, p.date_created
+		FROM posts p
+		WHERE p.tier = 0 AND length(p.content) > 25
+		ORDER BY random()
+		LIMIT 15;
+	`); err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return nil, err
+		}
+	}
+
+	return append(posts, postsFollowers...), nil
 }
 
 func (r Postgres) DeleteByID(postID uint64) error {
@@ -129,13 +157,18 @@ func (r Postgres) GetAllLikesByPostID(postID uint64) ([]models.Like, error) {
 }
 
 func (r Postgres) CreateLike(userID, postID uint64) error {
-	return r.DB.QueryRowx(
+	_, err := r.DB.Exec(
 		`
 		INSERT INTO likes (user_id, post_id)
 		VALUES ($1, $2);`,
 		userID,
 		postID,
-	).Err()
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r Postgres) DeleteLikeByID(userID, postID uint64) error {

@@ -49,11 +49,11 @@ func main() {
 	log.Info("posts: server started")
 
 	/*----------------------------repo----------------------------*/
-	r, err := postsRepository.NewPostgres(cfg.DB.URL)
+	r, err := postsRepository.NewPostgres(cfg.DB.URL, cfg.DB.MaxOpenConns)
 	if err != nil {
 		log.Fatalf("posts: failed to open db: %s", err)
 	}
-	defer r.Close()
+	defer r.DB.Close()
 
 	/*----------------------------grpc----------------------------*/
 	metricsHTTP := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{

@@ -2313,11 +2313,16 @@ const docTemplate = `{
         "models.ResponseImageUsers": {
             "type": "object",
             "required": [
+                "about",
                 "imgPath",
                 "userID",
                 "username"
             ],
             "properties": {
+                "about": {
+                    "type": "string",
+                    "example": "about me"
+                },
                 "imgPath": {
                     "type": "string",
                     "example": "/path/to/image.jpeg"

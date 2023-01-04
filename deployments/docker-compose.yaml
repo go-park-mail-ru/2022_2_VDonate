@@ -7,8 +7,12 @@ services:
     ports:
       - "8080:8080"
       - "8079:8079"
-    env_file:
-      - ../.env
+    environment:
+      QIWI_PRIVATE: ${QIWI_PRIVATE}
+      TOKEN_SECRET: ${TOKEN_SECRET}
+    depends_on:
+      - db
+      - subscribers
     volumes:
       - /etc/letsencrypt/live/vdonate.ml/fullchain.pem:/etc/letsencrypt/live/vdonate.ml/fullchain.pem
       - /etc/letsencrypt/live/vdonate.ml/privkey.pem:/etc/letsencrypt/live/vdonate.ml/privkey.pem
@@ -19,8 +23,11 @@ services:
     container_name: vdonate-auth
     image: zeronethunter/vdonate-auth
     ports:
-      - "8081:8081"
+      - "8081"
       - "9081:9081"
+    environment:
+      PG_USER: ${PG_AUTH_USER}
+      PG_PASSWORD: ${PG_AUTH_PASSWORD}
     depends_on:
       - db
     networks:
@@ -30,10 +37,8 @@ services:
     container_name: vdonate-images
     image: zeronethunter/vdonate-images
     ports:
-      - "8083:8083"
+      - "8083"
       - "9083:9083"
-    env_file:
-      - ../.env
     depends_on:
       - db
       - s3storage
@@ -44,8 +49,11 @@ services:
     container_name: vdonate-posts
     image: zeronethunter/vdonate-posts
     ports:
-      - "8084:8084"
+      - "8084"
       - "9084:9084"
+    environment:
+      PG_USER: ${PG_POSTS_USER}
+      PG_PASSWORD: ${PG_POSTS_PASSWORD}
     depends_on:
       - db
     networks:
@@ -55,10 +63,11 @@ services:
     container_name: vdonate-subscribers
     image: zeronethunter/vdonate-subscribers
     ports:
-      - "8085:8085"
+      - "8085"
       - "9085:9085"
-    env_file:
-      - ../.env
+    environment:
+      PG_USER: ${PG_SUBSCRIPTIONS_USER}
+      PG_PASSWORD: ${PG_SUBSCRIPTIONS_PASSWORD}
     depends_on:
       - db
     networks:
@@ -67,8 +76,11 @@ services:
     hostname: subscriptions
     container_name: vdonate-subscriptions
     image: zeronethunter/vdonate-subscriptions
+    environment:
+      PG_USER: ${PG_AUTHOR_SUBSCRIPTIONS_USER}
+      PG_PASSWORD: ${PG_AUTHOR_SUBSCRIPTIONS_PASSWORD}
     ports:
-      - "8086:8086"
+      - "8086"
       - "9086:9086"
     depends_on:
       - db
@@ -78,14 +90,16 @@ services:
     hostname: users
     container_name: vdonate-users
     image: zeronethunter/vdonate-users
+    environment:
+      PG_USER: ${PG_USERS_USER}
+      PG_PASSWORD: ${PG_USERS_PASSWORD}
     ports:
-      - "8087:8087"
+      - "8087"
       - "9087:9087"
     depends_on:
       - db
     networks:
       - vdonate-network-api
-
   db:
     hostname: postgresql
     container_name: vdonate-db
@@ -97,12 +111,16 @@ services:
       retries: 5
     restart: always
     ports:
-      - "5432:5432"
-    env_file:
-      - ../.env
+      - "5432"
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DB}
     volumes:
       - ../migrations/full_up.sql:/docker-entrypoint-initdb.d/init.sql
       - /var/lib/postgresql/data:/var/lib/postgresql/data
+      - ../configs/postgres/postgresql.conf:/etc/postgresql/postgresql.conf
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     networks:
       - vdonate-network-api
 
@@ -172,8 +190,9 @@ services:
     ports:
       - "9000:9000"
       - "9099:9099"
-    env_file:
-      - ../.env
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
       interval: 10s
@@ -186,6 +205,9 @@ services:
     hostname: notifications
     container_name: vdonate-notifications
     image: zeronethunter/vdonate-notifications
+    environment:
+      PG_USER: ${PG_NOTIFICATIONS_USER}
+      PG_PASSWORD: ${PG_NOTIFICATIONS_PASSWORD}
     ports:
       - "1234:1234"
     depends_on:
@@ -206,5 +228,5 @@ networks:
     external: false
 
 volumes:
-  prometheus_data: {}
-  grafana_data: {}
+  prometheus_data: { }
+  grafana_data: { }
